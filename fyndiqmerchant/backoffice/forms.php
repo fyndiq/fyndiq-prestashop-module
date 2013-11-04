@@ -101,17 +101,16 @@ class FyndiqMerchantForms {
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit_saveproductssss';
         $helper->toolbar_btn = array(
+            'back' => array(
+                'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
+                'desc' => $module->l('Back to list')
+            ),
             'disconnect' => array(
                 'desc' => $module->l('Disconnect account'),
                 'imgclass' => 'cancel',
                 'js' => 'return confirm(\'Are you sure you want to disconnect from your Fyndiq merchant account?\');',
                 'href' => AdminController::$currentIndex.'&configure='.$module->name.'&submit_disconnect=true'.
                           '&token='.Tools::getAdminTokenLite('AdminModules')
-            ),
-
-            'back' => array(
-                'href' => AdminController::$currentIndex.'&token='.Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $module->l('Back to list')
             )
         );
 
