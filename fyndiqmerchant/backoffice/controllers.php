@@ -4,11 +4,11 @@ class FyndiqMerchantBackofficeControllers {
     public static function main($module) {
         $output = null;
 
-        if (self::api_connection_exists($module)) {
+        if (!self::api_connection_exists($module)) {
+            $output .= self::handle_authentication($module);
+        } else {
             $output .= self::handle_disconnect($module);
             $output .= self::handle_products($module);
-        } else {
-            $output .= self::handle_authentication($module);
         }
 
         if (!self::api_connection_exists($module)) {
