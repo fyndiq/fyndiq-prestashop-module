@@ -40,19 +40,25 @@ class FyndiqMerchant extends Module {
     }
 
     public function install() {
-        if (parent::install() == false) {
-            return false;
-        }
-        return true;
+        $ret = true;
+
+        # do common module install
+        $ret &= parent::install();
+
+        return $ret;
     }
 
     public function uninstall() {
         $ret = true;
+
+        # do common module uninstall
         $ret &= parent::uninstall();
+
+        # do module specific uninstall
         $ret &= Configuration::deleteByName($this->config_name.'_username');
         $ret &= Configuration::deleteByName($this->config_name.'_api_token');
+
         return $ret;
-        #return parent::uninstall() && Configuration::deleteByName($this->config_name.'_username');
     }
 
     public function getContent() {

@@ -6,6 +6,7 @@ class FyndiqMerchantBackofficeControllers {
 
         $output = null;
 
+        # first, check for connection, and handle submits and showing of error messages
         if (!self::api_connection_exists($module)) {
             $output .= self::handle_authentication($module);
         } else {
@@ -13,9 +14,12 @@ class FyndiqMerchantBackofficeControllers {
             $output .= self::handle_products($module);
         }
 
+        # then, check for connection again, and display the proper body content
         if (!self::api_connection_exists($module)) {
+            # render authentication form
             $output .= FyndiqMerchantForms::render('authenticate', $module);
         } else {
+            # render main functionality forms
             $smarty->assign(array('path' => $module->get('_path')));
             $output .= $module->display($module->name, 'tpl_main.tpl');
         }
@@ -73,7 +77,10 @@ class FyndiqMerchantBackofficeControllers {
                     $output .= $module->displayConfirmation(
                         $module->l('You are now connected to your Fyndiq merchant account.'));
 
+                # authentication failed
                 } else {
+
+                    # delete any stored connection values, which forces the user to authenticate again
                     Configuration::deleteByName($module->config_name.'_username');
                     Configuration::deleteByName($module->config_name.'_api_token');
                 }

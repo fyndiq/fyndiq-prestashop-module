@@ -11,6 +11,7 @@ class FyndiqAPI {
 
         $body = json_encode($data);
 
+        # if json encode failed
         if (json_last_error() != JSON_ERROR_NONE) {
             throw new FyndiqAPIDataInvalid('Error in request data.');
         }
