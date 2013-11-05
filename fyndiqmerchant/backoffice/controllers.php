@@ -2,6 +2,8 @@
 
 class FyndiqMerchantBackofficeControllers {
     public static function main($module) {
+        global $smarty;
+
         $output = null;
 
         if (!self::api_connection_exists($module)) {
@@ -14,7 +16,8 @@ class FyndiqMerchantBackofficeControllers {
         if (!self::api_connection_exists($module)) {
             $output .= FyndiqMerchantForms::render('authenticate', $module);
         } else {
-            $output .= FyndiqMerchantForms::render('something', $module);
+            $smarty->assign(array('path' => $module->get('_path')));
+            $output .= $module->display($module->name, 'tpl_main.tpl');
         }
 
         return $output;
@@ -106,5 +109,3 @@ class FyndiqMerchantBackofficeControllers {
         return $output;
     }
 }
-
-?>
