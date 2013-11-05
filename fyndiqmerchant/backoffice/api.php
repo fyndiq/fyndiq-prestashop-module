@@ -10,13 +10,14 @@ class FyndiqAPI {
         $path = 'account/';
 
         $body = json_encode($data);
+
         if (json_last_error() != JSON_ERROR_NONE) {
             throw new FyndiqAPIDataInvalid('Error in request data.');
         }
 
         $curl_opts = array(
             CURLOPT_USERAGENT => $user_agent,
-            CURLOPT_URL => 'http://fyndiq.se:8080/api/v2.0/'.$path,
+            CURLOPT_URL => (_PS_MODE_DEV_?'http':'https').'://fyndiq.se:8080/api/v2.0/'.$path,
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_POSTFIELDS => $body,
 
@@ -27,7 +28,7 @@ class FyndiqAPI {
             #CURLOPT_SSL_VERIFYPEER => true,
             #CURLOPT_SSL_VERIFYHOST => 2,
 
-            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_CONNECTTIMEOUT => 20,
             CURLOPT_RETURNTRANSFER => 1,
         );
 
@@ -36,12 +37,13 @@ class FyndiqAPI {
         curl_setopt_array($ch, $curl_opts);
         $data = curl_exec($ch);
         $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
         # if call failed
         if ($data === false) {
             throw new FyndiqAPIConnectionFailed('Curl error: '.curl_error($ch));
         }
+
+        curl_close($ch);
 
         if ($http_status == 401) {
             throw new FyndiqAPIAuthorizationFailed();
@@ -57,5 +59,3 @@ class FyndiqAPI {
         return array($http_status, $result);
     }
 }
-
-?>
