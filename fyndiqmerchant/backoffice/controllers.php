@@ -53,7 +53,7 @@ class FyndiqMerchantBackofficeControllers {
                 # authenticate with Fyndiq API
                 $authenticated = false;
                 try {
-                    $result = FyndiqAPI::call($module->user_agent, $username, $api_token, array());
+                    $result = FyndiqAPI::call($module->user_agent, $username, $api_token, 'account/', array());
                     $authenticated = true;
                 } catch (FyndiqAPIConnectionFailed $e) {
                     $output .= $module->displayError(

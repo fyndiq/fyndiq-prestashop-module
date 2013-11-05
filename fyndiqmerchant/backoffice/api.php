@@ -3,13 +3,12 @@
 class FyndiqAPIConnectionFailed extends Exception {}
 class FyndiqAPIAuthorizationFailed extends Exception {}
 class FyndiqAPIDataInvalid extends Exception {}
+class FyndiqAPIUnsupportedStatus extends Exception {}
 
 class FyndiqAPI {
-    public static function call($user_agent, $username, $token, $data) {
+    public static function call($user_agent, $username, $token, $path, $data) {
 
-        $path = 'account/';
-
-        $body = json_encode($data);
+        $request_body = json_encode($data);
 
         # if json encode failed
         if (json_last_error() != JSON_ERROR_NONE) {
@@ -20,7 +19,10 @@ class FyndiqAPI {
             CURLOPT_USERAGENT => $user_agent,
             CURLOPT_URL => (_PS_MODE_DEV_?'http':'https').'://fyndiq.se:8080/api/v2.0/'.$path,
             CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_POSTFIELDS => $request_body,
+
+            CURLOPT_VERBOSE => true,
+            CURLOPT_HEADER => true,
 
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
             CURLOPT_USERPWD => $username.':'.$token,
@@ -36,27 +38,36 @@ class FyndiqAPI {
         # make the call
         $ch = curl_init();
         curl_setopt_array($ch, $curl_opts);
-        $data = curl_exec($ch);
-        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $response['data'] = curl_exec($ch);
 
         # if call failed
-        if ($data === false) {
+        if ($response['data'] === false) {
             throw new FyndiqAPIConnectionFailed('Curl error: '.curl_error($ch));
         }
 
+        # extract different parts of the response
+        $response['http_status'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $response['header_size'] = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $response['header'] = substr($response['data'], 0, $response['header_size']);
+        $response['body'] = substr($response['data'], $response['header_size']);
+
         curl_close($ch);
 
-        if ($http_status == 401) {
+        if ($response['http_status'] == 401) {
             throw new FyndiqAPIAuthorizationFailed();
         }
 
-        $result = json_decode($data);
+        if ($response['http_status'] != 200 ) {
+            throw new FyndiqAPIUnsupportedStatus($response['http_status']);
+        }
+
+        $result = json_decode($response['body']);
 
         # if json_decode failed
         if (json_last_error() != JSON_ERROR_NONE) {
             throw new FyndiqAPIDataInvalid('Error in response data.');
         }
 
-        return array($http_status, $result);
+        return $result;
     }
 }
