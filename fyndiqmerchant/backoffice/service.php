@@ -11,7 +11,7 @@ if (file_exists($configPath)) {
 
 require_once('./helpers.php');
 
-class FyndiqMerchantAjaxService {
+class FmAjaxService {
 
     # return a success response
     public static function response($data) {
@@ -37,7 +37,7 @@ class FyndiqMerchantAjaxService {
 
         if ($action == 'get_orders') {
             try {
-                $ret = FyndiqMerchantHelpers::call_api('orders/');
+                $ret = FmHelpers::call_api('orders/');
                 self::response($ret);
             } catch (Exception $e) {
                 self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
@@ -51,4 +51,4 @@ class FyndiqMerchantAjaxService {
     }
 }
 
-FyndiqMerchantAjaxService::handle_request();
+FmAjaxService::handle_request();

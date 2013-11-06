@@ -1,6 +1,6 @@
 <?php
 
-class FyndiqMerchantBackofficeControllers {
+class FmBackofficeControllers {
     public static function main($module) {
         global $smarty;
 

@@ -6,7 +6,7 @@ function pd($v) {
     echo '</pre>';
 }
 
-class FyndiqMerchantHelpers {
+class FmHelpers {
 
     # wrapper around FyndiqAPI
     # uses stored connection credentials for authentication

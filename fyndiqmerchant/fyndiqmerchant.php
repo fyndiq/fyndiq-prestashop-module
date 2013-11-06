@@ -58,7 +58,7 @@ class FyndiqMerchant extends Module {
     }
 
     public function getContent() {
-        return FyndiqMerchantBackofficeControllers::main($this);
+        return FmBackofficeControllers::main($this);
     }
 
     public function get($name) {
