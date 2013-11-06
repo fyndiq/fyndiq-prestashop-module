@@ -6,7 +6,6 @@ if (!defined('_PS_VERSION_'))
 require_once('backoffice/api.php');
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
-require_once('backoffice/forms.php');
 
 class FyndiqMerchant extends Module {
     public function __construct() {

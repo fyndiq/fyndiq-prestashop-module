@@ -15,6 +15,14 @@
     font-size: 12px;
 }
 
+.fm-form label {
+    text-align: left;
+}
+
+.fm-form div {
+    overflow: hidden;
+}
+
 .fm-loading-overlay {
 
     /* http://robertnyman.com/2010/01/11/css-background-transparency-without-affecting-child-elements-through-rgba-and-filters/ */
