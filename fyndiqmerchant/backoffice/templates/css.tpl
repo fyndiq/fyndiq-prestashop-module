@@ -3,6 +3,15 @@
 
 #fm-container {
     position: relative;
+    width: 920px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+#fm-logo {
+    display: block;
+    margin: 0 auto;
+    width: 200px;
 }
 
 .fm-form {
@@ -44,6 +53,17 @@
     top: 50%;
     margin-top: -64px;
     margin-left: -64px;
+}
+
+#fm-products {
+    float: left;
+    width: 620px;
+}
+
+#fm-sidebar {
+    float: left;
+    width: 285px;
+    margin-left: 15px;
 }
 
 </style>

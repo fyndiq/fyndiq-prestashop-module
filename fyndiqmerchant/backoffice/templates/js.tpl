@@ -34,7 +34,7 @@ $(document).ready(function() {
                     show_msg('error', 'Error when calling service: ' + data['message']);
                 }
                 if (data['fm-service-status'] == 'success') {
-                    show_msg('success', 'Yippie');
+                    //show_msg('success', 'Yippie');
                 }
             } else {
                 show_msg('error', 'Error: Invalid response from service');
