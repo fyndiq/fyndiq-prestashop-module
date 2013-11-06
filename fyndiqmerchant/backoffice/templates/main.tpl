@@ -7,7 +7,7 @@
         <img src="{$path}backoffice/templates/ajax-loader.gif" alt="Loading animation">
     </div>
 
-    <img id="fm-logo" src="{$path}backoffice/templates/fyndiq_logo_100323.png" alt="Fyndiq logotype">
+    <img id="fm-logo" src="{$path}backoffice/templates/logo.png" alt="Fyndiq logotype">
 
     <div id="fm-products">
         {include './products.tpl'}
