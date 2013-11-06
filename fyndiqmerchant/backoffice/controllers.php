@@ -11,7 +11,6 @@ class FyndiqMerchantBackofficeControllers {
             $output .= self::handle_authentication($module);
         } else {
             $output .= self::handle_disconnect($module);
-            $output .= self::handle_products($module);
         }
 
         # then, check for connection again, and display the proper body content
@@ -106,16 +105,6 @@ class FyndiqMerchantBackofficeControllers {
 
             $output .= $module->displayConfirmation(
                 $module->l('You have disconnected from your merchant account and Fyndiq API.'));
-        }
-
-        return $output;
-    }
-
-    private static function handle_products($module) {
-        $output = '';
-
-        if (Tools::isSubmit('submit_saveproducts....')) {
-            ####
         }
 
         return $output;
