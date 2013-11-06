@@ -15,7 +15,7 @@ class FyndiqMerchantAjaxService {
 
     # return a success response
     public static function response($data) {
-        $response = array('status' => 'success', 'data' => $data);
+        $response = array('fm-service-status' => 'success', 'data' => $data);
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
             self::response_error('Could not encode response json.');
@@ -26,7 +26,7 @@ class FyndiqMerchantAjaxService {
 
     # return an error response
     public static function response_error($msg) {
-        $response = array('status'=> 'error', 'message'=> $msg);
+        $response = array('fm-service-status'=> 'error', 'message'=> $msg);
         $json = json_encode($response);
         echo $json;
     }

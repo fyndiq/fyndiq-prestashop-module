@@ -29,13 +29,12 @@ $(document).ready(function() {
             data: {literal}{'action': 'get_orders'}{/literal},
             dataType: 'json',
         }).always(function(data){
-            if ('status' in data) {
-                if (data['status'] == 'error') {
+            if ($.isPlainObject(data) && ('fm-service-status' in data)) {
+                if (data['fm-service-status'] == 'error') {
                     show_msg('error', 'Error when calling service: ' + data['message']);
                 }
-                if (data['status'] == 'success') {
+                if (data['fm-service-status'] == 'success') {
                     show_msg('success', 'Yippie');
-                    console.log(data['data'])
                 }
             } else {
                 show_msg('error', 'Error: Invalid response from service');
