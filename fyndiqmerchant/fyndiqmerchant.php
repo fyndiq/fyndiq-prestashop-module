@@ -26,8 +26,8 @@ class FyndiqMerchant extends Module {
         $this->description = $this->l('dfasdf');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall this module?');
 
-        if (!Configuration::get($this->config_name.'_username') ||
-            !Configuration::get($this->config_name.'_api_token'))
+        if (Configuration::get($this->config_name.'_username') === false ||
+            Configuration::get($this->config_name.'_api_token') === false)
         {
             $this->warning = $this->l('You have not connected to your Fyndiq merchant account yet.');
         }
