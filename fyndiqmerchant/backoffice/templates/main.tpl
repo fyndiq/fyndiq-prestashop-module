@@ -4,7 +4,7 @@
 
 <div id="fm-container">
     <div class="fm-loading-overlay" style="display: none;">
-        <img src="../modules/fyndiqmerchant/ajax-loader.gif" alt="Loading animation">
+        <img src="{$path}backoffice/templates/ajax-loader.gif" alt="Loading animation">
     </div>
 
     {include './orders.tpl'}
