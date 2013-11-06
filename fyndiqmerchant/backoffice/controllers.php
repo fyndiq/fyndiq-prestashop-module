@@ -28,10 +28,9 @@ class FyndiqMerchantBackofficeControllers {
     }
 
     private static function api_connection_exists($module) {
-        return (
-            Configuration::hasKey($module->config_name.'_username') &&
-            Configuration::hasKey($module->config_name.'_api_token')
-        );
+        $username = Configuration::get($module->config_name.'_username');
+        $api_token = Configuration::get($module->config_name.'_api_token');
+        return ($username !== false && $api_token !== false);
     }
 
     private static function handle_authentication($module) {
