@@ -39,6 +39,7 @@ class FyndiqMerchantBackofficeControllers {
     }
 
     private static function handle_authentication($module) {
+
         $output = '';
 
         # handle authenticate form submission
@@ -48,8 +49,7 @@ class FyndiqMerchantBackofficeControllers {
 
             # validate parameters
             if (empty($username) || empty($api_token)) {
-                $output .= $module->displayError(
-                    $module->l('Please specify a Username and API token.'));
+                $output .= $module->displayError($module->l(FmMessages::get('empty-username-token')));
 
             # ready to perform authentication
             } else {
@@ -60,14 +60,11 @@ class FyndiqMerchantBackofficeControllers {
                     $result = FyndiqAPI::call($module->user_agent, $username, $api_token, 'account/', array());
                     $authenticated = true;
                 } catch (FyndiqAPIConnectionFailed $e) {
-                    $output .= $module->displayError(
-                        $module->l('Network error, cannot connect to Fyndiq API.'));
+                    $output .= $module->displayError($module->l(FmMessages::get('api-network-error')));
                 } catch (FyndiqAPIDataInvalid $e) {
-                    $output .= $module->displayError(
-                        $module->l('Error processing data: '.$e.message));
+                    $output .= $module->displayError($module->l(FmMessages::get('data-processing-error').': '.$e.message));
                 } catch (FyndiqAPIAuthorizationFailed $e) {
-                    $output .= $module->displayError(
-                        $module->l('Incorrect Username or API token. Please double check your provided values.'));
+                    $output .= $module->displayError($module->l(FmMessages::get('authorization-fail')));
                 }
 
                 # authentication successful
@@ -91,6 +88,7 @@ class FyndiqMerchantBackofficeControllers {
     }
 
     private static function handle_disconnect($module) {
+
         $output = '';
 
         if (Tools::isSubmit('submit_disconnect')) {
@@ -99,8 +97,7 @@ class FyndiqMerchantBackofficeControllers {
             Configuration::deleteByName($module->config_name.'_username');
             Configuration::deleteByName($module->config_name.'_api_token');
 
-            $output .= $module->displayConfirmation(
-                $module->l('You have disconnected from your merchant account and Fyndiq API.'));
+            $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
         }
 
         return $output;

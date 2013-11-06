@@ -21,7 +21,7 @@ class FyndiqMerchantHelpers {
         try {
             return FyndiqAPI::call($module->user_agent, $username, $api_token, $path, $data);
         } catch (Exception $e) {
-            throw new Exception('Error when calling API: '.get_class($e).': '.$e->getMessage());
+            throw new Exception(FmMessages::get('api-call-error').': '.get_class($e).': '.$e->getMessage());
         }
     }
 }

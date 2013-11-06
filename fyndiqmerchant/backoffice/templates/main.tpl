@@ -31,8 +31,7 @@
                 <legend>Account</legend>
                 <p>By clicking this button, you can disconnect from your Fyndiq merchant account.</p>
                 <input class="submit" type="submit" name="submit_disconnect" value="Disconnect account"
-                    onclick="return confirm('Are you sure you want to disconnect from your Fyndiq merchant account?');"
-                >
+                    onclick="return confirm('{FmMessages::get('disconnect-confirm')}');">
             </fieldset>
         </form>
     </div>

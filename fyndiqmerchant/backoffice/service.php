@@ -18,7 +18,7 @@ class FyndiqMerchantAjaxService {
         $response = array('fm-service-status' => 'success', 'data' => $data);
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
-            self::response_error('Could not encode response json.');
+            self::response_error(FmMessages::get('json-encode-fail'));
         } else {
             echo $json;
         }
@@ -40,7 +40,7 @@ class FyndiqMerchantAjaxService {
                 $ret = FyndiqMerchantHelpers::call_api('orders/');
                 self::response($ret);
             } catch (Exception $e) {
-                self::response_error('Error when calling API: '.$e->getMessage());
+                self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
             }
         }
 
