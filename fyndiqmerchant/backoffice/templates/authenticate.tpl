@@ -1,29 +1,34 @@
 
 {include './css.tpl'}
 
-<form action="" method="post" class="fm-form authenticate">
-    <fieldset>
-        <legend>Authentication</legend>
+<div id="fm-container">
 
-        <div>
-            <label>Username</label>
-        </div>
-        <div>
-            <input type="text" name="username">
-        </div>
+    <img id="fm-logo" src="{$path}backoffice/templates/fyndiq_logo_100323.png" alt="Fyndiq logotype">
 
-        <div>
-            <label>API Token</label>
-        </div>
-        <div>
-            <input type="text" name="api_token">
-        </div>
+    <form action="" method="post" class="fm-form authenticate">
+        <fieldset>
+            <legend>Authentication</legend>
 
-        <p>
-            By authenticating you will create a permanent connection to your Fyndiq merchant account.<br>
-            You will not have to authenticate again when coming here next time.
-        </p>
+            <div>
+                <label>Username</label>
+            </div>
+            <div>
+                <input type="text" name="username">
+            </div>
 
-        <input class="submit" type="submit" name="submit_authenticate" value="Authenticate">
-    </fieldset>
-</form>
+            <div>
+                <label>API Token</label>
+            </div>
+            <div>
+                <input type="text" name="api_token">
+            </div>
+
+            <p>
+                By authenticating you will create a permanent connection to your Fyndiq merchant account.<br>
+                You will not have to authenticate again when coming here next time.
+            </p>
+
+            <input class="submit" type="submit" name="submit_authenticate" value="Authenticate">
+        </fieldset>
+    </form>
+</div>

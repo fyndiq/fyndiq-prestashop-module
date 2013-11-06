@@ -17,6 +17,9 @@ class FyndiqMerchantBackofficeControllers {
         # then, check for connection again, and display the proper body content
         if (!self::api_connection_exists($module)) {
             # render authentication form
+            $smarty->assign(array(
+                'path' => $module->get('_path')
+            ));
             $output .= $module->display($module->name, 'backoffice/templates/authenticate.tpl');
         } else {
             # render main functionality forms
