@@ -77,10 +77,6 @@ class FyndiqMerchantBackofficeControllers {
                     Configuration::updateValue($module->config_name.'_username', $username);
                     Configuration::updateValue($module->config_name.'_api_token', $api_token);
 
-                    # display success message
-                    $output .= $module->displayConfirmation(
-                        $module->l('You are now connected to your Fyndiq merchant account.'));
-
                 # authentication failed
                 } else {
 
