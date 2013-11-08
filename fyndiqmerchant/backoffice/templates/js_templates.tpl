@@ -27,18 +27,31 @@
     <ul class="fm-product-list">
         {{#each products}}
             {{#with this}}
-                <li>
-                    {{#with this}}
-                        <div class="image">
-                            <img src="{{image}}">
-                        </div>
-                        {{#with product}}
-                            <p class="name">
-                            {{name}}
-                            </p>
-                        {{/with}}
-                    {{/with}}
-                </li>
+            <li>
+                {{#with product}}
+                <h4 class="title">{{name}}</h4>
+                {{/with}}
+                <div class="image">
+                    <img src="{{image}}">
+                </div>
+                {{#with product}}
+                <div class="prices">
+                    <div class="price">
+                        <label>Price:</label>
+                        <input type="text">
+                    </div>
+                    <div class="price">
+                        <label>Fyndiq Price:</label>
+                        <input type="text">
+                    </div>
+                </div>
+                <div class="quantities">
+                    <div>Qty: 3</div>
+                    <div>Exported Qty:6</div>
+                    <div>Fyndiq Qty: 4</div>
+                </div>
+                {{/with}}
+            </li>
             {{/with}}
         {{/each}}
     </ul>

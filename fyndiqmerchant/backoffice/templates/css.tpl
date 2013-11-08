@@ -70,25 +70,49 @@
     overflow: hidden;
     background-color: #f5f5f5;
     margin-bottom: 5px;
-    padding: 3px;
-    border: 1px solid #333;
+    padding: 5px;
+    border: 1px solid #c6c6c6;
+}
+
+.fm-product-list .title {
+    font-size: 14px;
+    margin: 0 0 5px 0;
 }
 
 .fm-product-list .image {
-    width: 100px;
+    width: 50px;
     float: left;
+    height: 50px;
 }
 
-.fm-product-list img {
-    display: block;
-    margin: 0 auto;
-    max-width: 100px;
-    max-height: 100px;
-}
-
-.fm-product-list p {
+.fm-product-list .prices {
     float: left;
     margin-left: 10px;
+}
+
+.fm-product-list .quantities {
+    float: left;
+    margin-left: 20px;
+}
+
+.fm-product-list .image img {
+    display: block;
+    margin: 0 auto;
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.fm-product-list .prices label {
+    display: block;
+    width: 90px;
+    text-align: right;
+    float: left;
+}
+
+.fm-product-list .prices input {
+    display: block;
+    float: left;
+    width: 100px;
 }
 
 </style>
