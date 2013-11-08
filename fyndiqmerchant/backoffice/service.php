@@ -74,7 +74,11 @@ class FmAjaxService {
             foreach ($rows as $row) {
                 $product = new Product($row['id_product'], false, $context->language->id);
                 $images = Image::getImages($context->language->id, $row['id_product']);
-                $image_link = $context->link->getImageLink($product->link_rewrite, $images[0]['id_image']);
+                if (count($images) > 0) {
+                    $image_link = $context->link->getImageLink($product->link_rewrite, $images[0]['id_image']);
+                } else {
+                    $image_link = false;
+                }
                 $products[] = array('product' => $product, 'image' => $image_link);
                 //$context->link->getImageLink($product->link_rewrite, $image['id_image'], $image_type);
             }
