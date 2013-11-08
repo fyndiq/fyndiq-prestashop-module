@@ -66,4 +66,29 @@
     margin-left: 15px;
 }
 
+.fm-product-list li {
+    overflow: hidden;
+    background-color: #f5f5f5;
+    margin-bottom: 5px;
+    padding: 3px;
+    border: 1px solid #333;
+}
+
+.fm-product-list .image {
+    width: 100px;
+    float: left;
+}
+
+.fm-product-list img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100px;
+    max-height: 100px;
+}
+
+.fm-product-list p {
+    float: left;
+    margin-left: 10px;
+}
+
 </style>

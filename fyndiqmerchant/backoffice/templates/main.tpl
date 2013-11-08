@@ -1,9 +1,12 @@
 
-{include './css.tpl'}
+{include './js_templates.tpl'}
 {include './js.tpl'}
+{include './css.tpl'}
 
 <div id="fm-container">
-    <div class="fm-loading-overlay" style="display: none;">
+    <div id="fm-message-boxes"></div>
+
+    <div class="fm-loading-overlay">
         <img src="{$path}backoffice/templates/ajax-loader.gif" alt="Loading animation">
     </div>
 
