@@ -21,7 +21,8 @@ class FmHelpers {
         try {
             return FyndiqAPI::call($module->user_agent, $username, $api_token, $path, $data);
         } catch (Exception $e) {
-            throw new Exception(FmMessages::get('api-call-error').': '.get_class($e).': '.$e->getMessage());
+            # add exception class name to exception message
+            throw new Exception(get_class($e).': '.$e->getMessage());
         }
     }
 }
