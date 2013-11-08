@@ -22,10 +22,14 @@ $('script[type="text/x-handlebars-template"]').each(function(k,v){
 });
 
 var FmCtrl = {
+    show_load_screen: function() {
+        $('.fm-loading-overlay').show();
+    },
+
     hide_load_screen: function() {
         setTimeout(function() {
-            $('.fm-loading-overlay').hide();
-        }, 500);
+            $('.fm-loading-overlay').fadeOut(150);
+        }, 150);
     },
 
     show_msg: function(type, message) {
@@ -46,6 +50,7 @@ var FmCtrl = {
     },
 
     call_service: function(action, args, callback) {
+        FmCtrl.show_load_screen();
         $.ajax({
             type: 'POST',
             url: path+'backoffice/service.php',
@@ -62,11 +67,12 @@ var FmCtrl = {
             } else {
                 FmCtrl.show_msg('error', 'Error when calling service: Connection failed');
             }
+            FmCtrl.hide_load_screen();
         });
     },
 
     load_categories: function(callback) {
-        this.call_service('get_categories', {}, function(levels) {
+        FmCtrl.call_service('get_categories', {}, function(levels) {
 
             var categories = [];
             for (var i = 0; i < levels.length; i++) {
@@ -88,10 +94,16 @@ var FmCtrl = {
     },
 
     load_products: function(category_id) {
-        this.call_service('get_products', {'category': category_id}, function(products) {
+        FmCtrl.call_service('get_products', {'category': category_id}, function(products) {
             $('.fm-form.products .product-list-container').html(tpl['product-list']({
                 'products': products
             }));
+        });
+    },
+
+    import_orders: function() {
+        FmCtrl.call_service('import_orders', {}, function() {
+
         });
     }
 };
@@ -99,6 +111,11 @@ var FmCtrl = {
 $(document).ready(function() {
 
     // event handlers
+    $('.fm-form.orders').live('submit', function(e){
+        e.preventDefault();
+        FmCtrl.import_orders();
+    });
+
     $('.fm-category-tree a').live('click', function(e) {
         FmCtrl.load_products($(this).attr('data-category_id'));
     });
@@ -107,33 +124,6 @@ $(document).ready(function() {
     FmCtrl.load_categories(function(){
         FmCtrl.hide_load_screen();
     });
-
-
-    $('.fm-form.orders').live('submit', function(e){
-        e.preventDefault();
-        $('.fm-loading-overlay').show();
-
-        $.ajax({
-            type: 'POST',
-            url: path+'backoffice/service.php',
-            data: {'action': 'get_orders'},
-            dataType: 'json',
-        }).always(function(data){
-            if ($.isPlainObject(data) && ('fm-service-status' in data)) {
-                if (data['fm-service-status'] == 'error') {
-                    FmCtrl.show_msg('error', 'Error when calling service: ' + data['message']);
-                }
-                if (data['fm-service-status'] == 'success') {
-                    //show_msg('success', 'Yippie');
-                }
-            } else {
-                FmCtrl.show_msg('error', 'Error: Invalid response from service');
-            }
-
-            $('.fm-loading-overlay').hide();
-        });
-    });
-
 });
 
 {/literal}
