@@ -79,6 +79,11 @@
     margin: 0 0 5px 0;
 }
 
+.fm-product-list .title .reference {
+    font-size: 13px;
+    font-weight: normal;
+}
+
 .fm-product-list .image {
     width: 50px;
     float: left;
@@ -100,6 +105,10 @@
     margin: 0 auto;
     max-width: 50px;
     max-height: 50px;
+}
+
+.fm-product-list .prices .price {
+    margin-bottom: 2px;
 }
 
 .fm-product-list .prices label {

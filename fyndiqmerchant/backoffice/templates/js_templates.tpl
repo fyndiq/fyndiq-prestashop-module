@@ -29,7 +29,7 @@
             {{#with this}}
             <li>
                 {{#with product}}
-                <h4 class="title">{{name}}</h4>
+                <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
                 {{/with}}
                 <div class="image">
                     <img src="{{image}}">
@@ -38,7 +38,7 @@
                 <div class="prices">
                     <div class="price">
                         <label>Price:</label>
-                        <input type="text">
+                        <input type="text" value="{{price}}">
                     </div>
                     <div class="price">
                         <label>Fyndiq Price:</label>
@@ -46,8 +46,8 @@
                     </div>
                 </div>
                 <div class="quantities">
-                    <div>Qty: 3</div>
-                    <div>Exported Qty:6</div>
+                    <div>Qty: {{quantity}}</div>
+                    <div>Exported Qty: 6</div>
                     <div>Fyndiq Qty: 4</div>
                 </div>
                 {{/with}}
