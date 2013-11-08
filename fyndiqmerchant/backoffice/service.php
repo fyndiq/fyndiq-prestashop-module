@@ -53,9 +53,9 @@ class FmAjaxService {
 
             $products = [];
 
-            // fetch products per category manually,
-            // Product::getProducts doesnt work in backoffice,
-            // it's hard coded to work only with front office controllers
+            # fetch products per category manually,
+            # Product::getProducts doesnt work in backoffice,
+            # it's hard coded to work only with front office controllers
             $rows = Db::getInstance()->ExecuteS('
                 select p.id_product
                 from '._DB_PREFIX_.'product as p
