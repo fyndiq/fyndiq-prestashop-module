@@ -62,7 +62,7 @@ class FmBackofficeControllers {
                 } catch (FyndiqAPIConnectionFailed $e) {
                     $output .= $module->displayError($module->l(FmMessages::get('api-network-error')));
                 } catch (FyndiqAPIDataInvalid $e) {
-                    $output .= $module->displayError($module->l(FmMessages::get('data-processing-error').': '.$e.message));
+                    $output .= $module->displayError($module->l(FmMessages::get('data-processing-error').': '.$e->getMessage()));
                 } catch (FyndiqAPIAuthorizationFailed $e) {
                     $output .= $module->displayError($module->l(FmMessages::get('authorization-fail')));
                 }
