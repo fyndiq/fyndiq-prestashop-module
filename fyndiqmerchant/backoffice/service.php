@@ -8,13 +8,6 @@ if (file_exists($configPath)) {
     exit;
 }
 
-# fix for prestashop 1.4
-# for some reason the Context class it not available in 1.4, so use a local copy
-# in 1.5, the class will exist, so this will not do anything
-if (!class_exists('Context', true)) {
-    require_once('./context.php');
-}
-
 require_once('./helpers.php');
 require_once('./models/product.php');
 
