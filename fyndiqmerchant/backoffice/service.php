@@ -16,6 +16,7 @@ if (!class_exists('Context', true)) {
 }
 
 require_once('./helpers.php');
+require_once('./models/product.php');
 
 class FmAjaxService {
 
@@ -54,9 +55,6 @@ class FmAjaxService {
         }
 
         if ($action == 'get_products') {
-            $id_lang = 1;
-            $context = Context::getContext();
-
             $products = [];
 
             # fetch products per category manually,
@@ -70,24 +68,10 @@ class FmAjaxService {
                 and cp.id_category = '.$args['category'].'
             ');
 
-            $image_types = ImageType::getImagesTypes();
-            foreach ($image_types as $type) {
-                if ($type['name'] == 'large_default') {
-                    $image_type = $type;
-                }
+            foreach ($rows as $row) {
+                $products[] = FmProduct::get($row['id_product']);
             }
 
-            foreach ($rows as $row) {
-                $product = new Product($row['id_product'], false, $context->language->id);
-                $images = Image::getImages($context->language->id, $row['id_product']);
-                if (count($images) > 0) {
-                    $image_link = $context->link->getImageLink($product->link_rewrite, $images[0]['id_image']);
-                } else {
-                    $image_link = false;
-                }
-                $products[] = array('product' => $product, 'image' => $image_link);
-                //$context->link->getImageLink($product->link_rewrite, $image['id_image'], $image_type);
-            }
             self::response($products);
         }
 

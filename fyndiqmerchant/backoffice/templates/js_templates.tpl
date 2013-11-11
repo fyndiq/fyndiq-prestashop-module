@@ -28,13 +28,10 @@
         {{#each products}}
             {{#with this}}
             <li>
-                {{#with product}}
                 <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
-                {{/with}}
                 <div class="image">
                     <img src="{{image}}">
                 </div>
-                {{#with product}}
                 <div class="prices">
                     <div class="price">
                         <label>Price:</label>
@@ -50,7 +47,6 @@
                     <div>Exported Qty: 6</div>
                     <div>Fyndiq Qty: 4</div>
                 </div>
-                {{/with}}
             </li>
             {{/with}}
         {{/each}}
