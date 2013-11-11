@@ -19,9 +19,6 @@ class FyndiqMerchant extends Module {
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.5.7');
 
-        # used as user agent string when calling the API
-        $this->user_agent = $this->name.'-'.$this->version;
-
         parent::__construct();
 
         $this->displayName = $this->l('Fyndiq');
@@ -33,6 +30,12 @@ class FyndiqMerchant extends Module {
         {
             $this->warning = $this->l(FmMessages::get('not-authenticated-warning'));
         }
+
+        ## custom properties specific to this module
+        # determines which prestashop language should be used when getting from database
+        $this->language_id = 1;
+        # used as user agent string when calling the API
+        $this->user_agent = $this->name.'-'.$this->version;
     }
 
     public function install() {
