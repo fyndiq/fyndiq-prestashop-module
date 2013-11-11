@@ -30,7 +30,9 @@
             <li>
                 <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
                 <div class="image">
-                    <img src="{{image}}">
+                    {{#if image}}
+                        <img src="{{image}}">
+                    {{/if}}
                 </div>
                 <div class="prices">
                     <div class="price">
