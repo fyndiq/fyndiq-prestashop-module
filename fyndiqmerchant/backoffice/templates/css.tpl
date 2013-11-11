@@ -50,11 +50,8 @@
 .fm-loading-overlay img {
     width: 128px;
     height: 128px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin-top: -64px;
-    margin-left: -64px;
+    display: block;
+    margin: 150px auto;
 }
 
 

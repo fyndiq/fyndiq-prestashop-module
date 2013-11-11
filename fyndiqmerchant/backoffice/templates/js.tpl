@@ -23,13 +23,13 @@ $('script[type="text/x-handlebars-template"]').each(function(k,v){
 
 var FmCtrl = {
     show_load_screen: function() {
-        $('.fm-loading-overlay').show();
+        $('.fm-loading-overlay').fadeIn(300);
     },
 
     hide_load_screen: function() {
         setTimeout(function() {
-            $('.fm-loading-overlay').fadeOut(150);
-        }, 150);
+            $('.fm-loading-overlay').fadeOut(300);
+        }, 200);
     },
 
     show_msg: function(type, message) {
