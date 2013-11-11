@@ -120,8 +120,13 @@ $(document).ready(function() {
         FmCtrl.load_products($(this).attr('data-category_id'));
     });
 
-    // load inital data
+    // load all categories
     FmCtrl.load_categories(function(){
+
+        // load products from second category
+        var category_id = $('.fm-category-tree a').eq(1).attr('data-category_id');
+        FmCtrl.load_products(category_id);
+
         FmCtrl.hide_load_screen();
     });
 });
