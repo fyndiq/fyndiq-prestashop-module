@@ -17,7 +17,7 @@ class FmBackofficeControllers {
         if (!self::api_connection_exists($module)) {
             # render authentication form
             $smarty->assign(array(
-                'path' => $module->get('_path')
+                'module_path' => $module->get('_path')
             ));
             $output .= $module->display($module->name, 'backoffice/templates/authenticate.tpl');
         } else {
@@ -29,7 +29,7 @@ class FmBackofficeControllers {
                 $api_up = true;
             } catch (Exception $e) {
                 $smarty->assign(array(
-                    'path' => $module->get('_path'),
+                    'module_path' => $module->get('_path'),
                     'message' => $e->getMessage()
                 ));
                 $output .= $module->display($module->name, 'backoffice/templates/api_down.tpl');
@@ -38,7 +38,7 @@ class FmBackofficeControllers {
             if ($api_up) {
                 # render main functionality forms
                 $smarty->assign(array(
-                    'path' => $module->get('_path'),
+                    'module_path' => $module->get('_path'),
                     'username' => Configuration::get($module->config_name.'_username')
                 ));
                 $output .= $module->display($module->name, 'backoffice/templates/main.tpl');

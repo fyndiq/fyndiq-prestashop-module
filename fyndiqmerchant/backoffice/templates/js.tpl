@@ -1,9 +1,9 @@
 
-<script type="text/javascript" src="{$path}backoffice/templates/handlebars-v1.1.2.js"></script>
+<script type="text/javascript" src="{$module_path}backoffice/templates/handlebars-v1.1.2.js"></script>
 <script type="text/javascript">
 
 // get smarty template variables before going into literal javascript block
-var path = '{$path}';
+var module_path = '{$module_path}';
 
 {literal}
 
@@ -53,7 +53,7 @@ var FmCtrl = {
         FmCtrl.show_load_screen();
         $.ajax({
             type: 'POST',
-            url: path+'backoffice/service.php',
+            url: module_path+'backoffice/service.php',
             data: {'action': action, 'args': args},
             dataType: 'json'
         }).always(function(data) {
@@ -98,6 +98,8 @@ var FmCtrl = {
             $('.fm-product-list-container').html(tpl['product-list']({
                 'products': products
             }));
+
+            // add active class to selected category
             $('.fm-category-tree a').removeClass('active');
             $('.fm-category-tree a[data-category_id='+category_id+']').addClass('active');
         });

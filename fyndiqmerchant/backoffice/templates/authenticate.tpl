@@ -3,7 +3,7 @@
 
 <div id="fm-container">
 
-    <img id="fm-logo" src="{$path}backoffice/templates/logo.png" alt="Fyndiq logotype">
+    <img id="fm-logo" src="{$module_path}backoffice/templates/logo.png" alt="Fyndiq logotype">
 
     <form action="" method="post" class="fm-form authenticate">
         <fieldset>
