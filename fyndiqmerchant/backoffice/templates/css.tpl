@@ -14,6 +14,7 @@
     width: 200px;
 }
 
+
 .fm-form {
     margin: 20px 0;
 }
@@ -31,6 +32,7 @@
 .fm-form div {
     overflow: hidden;
 }
+
 
 .fm-loading-overlay {
 
@@ -55,6 +57,7 @@
     margin-left: -64px;
 }
 
+
 #fm-products {
     float: left;
     width: 620px;
@@ -66,6 +69,21 @@
     margin-left: 15px;
 }
 
+
+.fm-form.products .submit-container {
+    overflow: hidden;
+}
+.fm-form.products .submit-container .submit {
+    float: right;
+}
+
+.fm-product-list-container {
+    clear: both;
+    background-color: #e5e5e5;
+    padding: 2px;
+    margin: 10px 0;
+}
+
 .fm-category-tree a.active {
     font-weight: bold;
 }
@@ -73,9 +91,11 @@
 .fm-product-list li {
     overflow: hidden;
     background-color: #f5f5f5;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     padding: 5px;
-    border: 1px solid #c6c6c6;
+}
+.fm-product-list li:last-child {
+    margin-bottom: 0;
 }
 
 .fm-product-list .title {

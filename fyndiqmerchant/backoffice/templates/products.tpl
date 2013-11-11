@@ -4,9 +4,16 @@
         <legend>Products</legend>
         <p>By using this form, you can export products from the local webshop into Fyndiq.</p>
 
-        <div class="category-tree-container"></div>
-        <div class="product-list-container"></div>
+        <div class="fm-category-tree-container"></div>
 
-        <input class="submit" type="submit" value="Export products">
+        <div class="submit-container">
+            <input class="submit" type="submit" value="Export products">
+        </div>
+
+        <div class="fm-product-list-container"></div>
+
+        <div class="submit-container">
+            <input class="submit" type="submit" value="Export products">
+        </div>
     </fieldset>
 </form>
