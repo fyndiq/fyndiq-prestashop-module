@@ -85,7 +85,7 @@ var FmCtrl = {
                 }
             }
 
-            $('.fm-form.products .category-tree-container').html(tpl['category-tree']({
+            $('.fm-category-tree-container').html(tpl['category-tree']({
                 'categories': categories
             }));
 
@@ -95,7 +95,7 @@ var FmCtrl = {
 
     load_products: function(category_id) {
         FmCtrl.call_service('get_products', {'category': category_id}, function(products) {
-            $('.fm-form.products .product-list-container').html(tpl['product-list']({
+            $('.fm-product-list-container').html(tpl['product-list']({
                 'products': products
             }));
         });
