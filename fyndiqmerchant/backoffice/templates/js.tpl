@@ -98,6 +98,8 @@ var FmCtrl = {
             $('.fm-product-list-container').html(tpl['product-list']({
                 'products': products
             }));
+            $('.fm-category-tree a').removeClass('active');
+            $('.fm-category-tree a[data-category_id='+category_id+']').addClass('active');
         });
     },
 

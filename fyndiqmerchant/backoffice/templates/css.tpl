@@ -66,6 +66,10 @@
     margin-left: 15px;
 }
 
+.fm-category-tree a.active {
+    font-weight: bold;
+}
+
 .fm-product-list li {
     overflow: hidden;
     background-color: #f5f5f5;
