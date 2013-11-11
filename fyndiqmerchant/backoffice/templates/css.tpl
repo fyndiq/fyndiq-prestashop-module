@@ -84,10 +84,18 @@
     margin: 10px 0;
 }
 
+.fm-category-tree {
+    margin: 0;
+    padding: 0;
+}
 .fm-category-tree a.active {
     font-weight: bold;
 }
 
+.fm-product-list {
+    margin: 0;
+    padding: 0;
+}
 .fm-product-list li {
     overflow: hidden;
     background-color: #f5f5f5;
