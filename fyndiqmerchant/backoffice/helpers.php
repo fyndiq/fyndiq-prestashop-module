@@ -13,6 +13,16 @@ function endsWith($haystack, $needle) {
     return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 }
 
+# FyndiqMerchant PrestaShop Version 1.4|1.5
+define('FMPSV14', 'FMPSV14');
+define('FMPSV15', 'FMPSV15');
+if (startswith(_PS_VERSION_, '1.4.')) {
+    define('FMPSV', FMPSV14);
+}
+if (startswith(_PS_VERSION_, '1.5.')) {
+    define('FMPSV', FMPSV15);
+}
+
 class FmHelpers {
 
     # wrapper around FyndiqAPI
