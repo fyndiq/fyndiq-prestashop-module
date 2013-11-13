@@ -59,12 +59,14 @@ class FmProduct {
         $combinations = $product->$get_attribute_combinations_func[FMPSV]($module->language_id);
         $combination_images = $product->getCombinationImages($module->language_id);
 
-        if ($combination_images) {
-            foreach ($combinations as $combination) {
-                $combination_result = [];
+        foreach ($combinations as $combination) {
+            $combination_result = [];
 
-                $combination_result['price'] = $combination['price'];
+            $combination_result['price'] = $combination['price'];
 
+            if ($combination_images) {
+
+                ## map combination images to combinations by their common product attribute id
                 foreach ($combination_images as $combination_image) {
 
                     # data array is stored in another array with only one key: 0. I have no idea why
@@ -78,9 +80,9 @@ class FmProduct {
                             $product->link_rewrite, $combination_image['id_image'], $image_type['name']);
                     }
                 }
-
-                $result['combinations'][] = $combination_result;
             }
+
+            $result['combinations'][] = $combination_result;
         }
 
         return $result;
