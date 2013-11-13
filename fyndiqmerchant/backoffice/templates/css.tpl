@@ -45,6 +45,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    z-index: 999;
 }
 
 .fm-loading-overlay img {
@@ -103,6 +104,10 @@
     margin-bottom: 0;
 }
 
+.fm-product-list .product {
+    position: relative;
+}
+
 .fm-product-list .product .title {
     font-size: 14px;
     margin: 0 0 5px 0;
@@ -151,6 +156,23 @@
     display: block;
     float: left;
     width: 100px;
+}
+
+.fm-product-list .product .expand {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 28px;
+    height: 28px;
+}
+.fm-product-list .product .expand img {
+    display: block;
+    width: 28px;
+    height: 28px;
+}
+.fm-product-list .product .expand.inactive {
+    opacity: 0.2;
+    filter: alpha(opacity=20);
 }
 
 .fm-product-list .combinations {

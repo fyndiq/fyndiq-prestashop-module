@@ -96,12 +96,20 @@ var FmCtrl = {
     load_products: function(category_id) {
         FmCtrl.call_service('get_products', {'category': category_id}, function(products) {
             $('.fm-product-list-container').html(tpl['product-list']({
+                'module_path': module_path,
                 'products': products
             }));
 
             // add active class to selected category
             $('.fm-category-tree a').removeClass('active');
             $('.fm-category-tree a[data-category_id='+category_id+']').addClass('active');
+
+            // http://stackoverflow.com/questions/5943994/jquery-slidedown-snap-back-issue
+            // set correct height on combinations to fix jquery slideDown jump issue
+            $('.fm-product-list .combinations').each(function(k, v) {
+                $(v).css('height', $(v).height());
+                $(v).hide();
+            });
         });
     },
 
@@ -123,6 +131,12 @@ $(document).ready(function() {
     $('.fm-category-tree a').live('click', function(e) {
         e.preventDefault();
         FmCtrl.load_products($(this).attr('data-category_id'));
+        return false;
+    });
+
+    $('.fm-product-list .product .expand a').live('click', function(e) {
+        e.preventDefault();
+        $(this).parent().parent().parent().find('.combinations').slideToggle(250);
         return false;
     });
 

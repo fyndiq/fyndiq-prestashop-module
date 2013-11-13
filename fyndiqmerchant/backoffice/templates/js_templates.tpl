@@ -51,25 +51,44 @@
                         <div>Exported Qty: 6</div>
                         <div>Fyndiq Qty: 4</div>
                     </div>
+                    <div class="expand
+                        {{#unless combinations}}
+                            inactive
+                        {{/unless}}
+                        "
+                        >
+                        <a href="#">
+                            <img src="{{../../module_path}}backoffice/templates/images/down-arrow.png"
+                                alt="Down pointing arrow"
+                                {{#if combinations}}
+                                    title="Show combinations"
+                                {{else}}
+                                    title="Product does not have any combinations"
+                                {{/if}}
+                                >
+                        </a>
+                    </div>
                 </div>
-                <ul class="combinations">
-                {{#each combinations}}
-                    <li>
-                        <div class="image">
-                            <img src="{{image}}">
-                        </div>
-                        <div class="attributes">
-                            {{#each attributes}}
-                                {{name}} - {{value}},
-                            {{/each}}
-                        </div>
-                        <div>
-                            Price: {{price}}
-                            Qty: {{quantity}}
-                        </div>
-                    </li>
-                {{/each}}
-                </ul>
+                {{#if combinations}}
+                    <ul class="combinations">
+                    {{#each combinations}}
+                        <li>
+                            <div class="image">
+                                <img src="{{image}}">
+                            </div>
+                            <div class="attributes">
+                                {{#each attributes}}
+                                    {{name}} - {{value}},
+                                {{/each}}
+                            </div>
+                            <div>
+                                Price: {{price}}
+                                Qty: {{quantity}}
+                            </div>
+                        </li>
+                    {{/each}}
+                    </ul>
+                {{/if}}
             </li>
             {{/with}}
         {{/each}}
