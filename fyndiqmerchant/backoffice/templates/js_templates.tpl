@@ -28,27 +28,42 @@
         {{#each products}}
             {{#with this}}
             <li>
-                <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
-                <div class="image">
-                    {{#if image}}
-                        <img src="{{image}}">
-                    {{/if}}
-                </div>
-                <div class="prices">
-                    <div class="price">
-                        <label>Price:</label>
-                        <input type="text" value="{{price}}">
+
+                <div class="product">
+                    <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
+                    <div class="image">
+                        {{#if image}}
+                            <img src="{{image}}">
+                        {{/if}}
                     </div>
-                    <div class="price">
-                        <label>Fyndiq Price:</label>
-                        <input type="text">
+                    <div class="prices">
+                        <div class="price">
+                            <label>Price:</label>
+                            <input type="text" value="{{price}}">
+                        </div>
+                        <div class="price">
+                            <label>Fyndiq Price:</label>
+                            <input type="text">
+                        </div>
+                    </div>
+                    <div class="quantities">
+                        <div>Qty: {{quantity}}</div>
+                        <div>Exported Qty: 6</div>
+                        <div>Fyndiq Qty: 4</div>
                     </div>
                 </div>
-                <div class="quantities">
-                    <div>Qty: {{quantity}}</div>
-                    <div>Exported Qty: 6</div>
-                    <div>Fyndiq Qty: 4</div>
-                </div>
+                <ul class="combinations">
+                {{#each combinations}}
+                    <li>
+                        <div class="image">
+                            <img src="{{image}}">
+                        </div>
+                        <div>
+                            {{price}}
+                        </div>
+                    </li>
+                {{/each}}
+                </ul>
             </li>
             {{/with}}
         {{/each}}

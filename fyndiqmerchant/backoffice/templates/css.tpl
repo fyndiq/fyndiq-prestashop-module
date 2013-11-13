@@ -93,64 +93,88 @@
     margin: 0;
     padding: 0;
 }
-.fm-product-list li {
+.fm-product-list > li {
     overflow: hidden;
     background-color: #f5f5f5;
     margin-bottom: 3px;
-    padding: 5px;
+    padding: 3px;
 }
 .fm-product-list li:last-child {
     margin-bottom: 0;
 }
 
-.fm-product-list .title {
+.fm-product-list .product .title {
     font-size: 14px;
     margin: 0 0 5px 0;
 }
 
-.fm-product-list .title .reference {
+.fm-product-list .product .title .reference {
     font-size: 13px;
     font-weight: normal;
 }
 
-.fm-product-list .image {
-    width: 50px;
+.fm-product-list .product .image {
     float: left;
+    width: 50px;
     height: 50px;
 }
 
-.fm-product-list .prices {
+.fm-product-list .product .prices {
     float: left;
     margin-left: 10px;
 }
 
-.fm-product-list .quantities {
+.fm-product-list .product .quantities {
     float: left;
     margin-left: 20px;
 }
 
-.fm-product-list .image img {
+.fm-product-list .product .image img {
     display: block;
     margin: 0 auto;
     max-width: 50px;
     max-height: 50px;
 }
 
-.fm-product-list .prices .price {
+.fm-product-list .product .prices .price {
     margin-bottom: 2px;
 }
 
-.fm-product-list .prices label {
+.fm-product-list .product .prices label {
     display: block;
     width: 90px;
     text-align: right;
     float: left;
 }
 
-.fm-product-list .prices input {
+.fm-product-list .product .prices input {
     display: block;
     float: left;
     width: 100px;
+}
+
+.fm-product-list .combinations {
+    padding-left: 8px;
+    margin-top: 3px;
+}
+
+.fm-product-list .combinations > li {
+    overflow: hidden;
+    margin-bottom: 1px;
+    padding: 1px;
+    background: #e5e5e5;
+}
+
+.fm-product-list .combinations .image {
+    width: 30px;
+    height: 30px;
+    float: left;
+}
+.fm-product-list .combinations .image img {
+    display: block;
+    margin: 0 auto;
+    max-width: 30px;
+    max-height: 30px;
 }
 
 </style>
