@@ -55,34 +55,41 @@ class FmProduct {
             FMPSV15 => 'getAttributeCombinations'
         ];
 
-        # get combinations and combination images
-        $combinations = $product->$get_attribute_combinations_func[FMPSV]($module->language_id);
+        # get this products attributes and combination images
+        $product_attributes = $product->$get_attribute_combinations_func[FMPSV]($module->language_id);
         $combination_images = $product->getCombinationImages($module->language_id);
 
-        foreach ($combinations as $combination) {
-            $combination_result = [];
+        foreach ($product_attributes as $product_attribute) {
+            $id = $product_attribute['id_product_attribute'];
 
-            $combination_result['price'] = $combination['price'];
+            $result['combinations'][$id]['price'] = $product_attribute['price'];
+            $result['combinations'][$id]['quantity'] = $product_attribute['quantity'];
+            $result['combinations'][$id]['attributes'][] = [
+                'name' => $product_attribute['group_name'],
+                'value' => $product_attribute['attribute_name']
+            ];
 
-            if ($combination_images) {
+            # if this combination has no image yet
+            if (empty($result['combinations'][$id]['image'])) {
 
-                ## map combination images to combinations by their common product attribute id
-                foreach ($combination_images as $combination_image) {
+                # if this combination has any images
+                if ($combination_images) {
+                    foreach ($combination_images as $combination_image) {
 
-                    # data array is stored in another array with only one key: 0. I have no idea why
-                    $combination_image = $combination_image[0];
+                        # data array is stored in another array with only one key: 0. I have no idea why
+                        $combination_image = $combination_image[0];
 
-                    # if combination image belongs to the same product attribute mapping as the current combinationn
-                    if ($combination_image['id_product_attribute'] == $combination['id_product_attribute']) {
+                        # if combination image belongs to the same product attribute mapping as the current combinationn
+                        if ($combination_image['id_product_attribute'] == $product_attribute['id_product_attribute']) {
 
-                        # get product image link for this combination image, and store it in the combination result
-                        $combination_result['image'] = self::get_image_link(
-                            $product->link_rewrite, $combination_image['id_image'], $image_type['name']);
+                            $image = $combination_result['image'] = self::get_image_link(
+                                $product->link_rewrite, $combination_image['id_image'], $image_type['name']);
+
+                            $result['combinations'][$id]['image'] = $image;
+                        }
                     }
                 }
             }
-
-            $result['combinations'][] = $combination_result;
         }
 
         return $result;

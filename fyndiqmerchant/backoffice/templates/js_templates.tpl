@@ -58,8 +58,14 @@
                         <div class="image">
                             <img src="{{image}}">
                         </div>
+                        <div class="attributes">
+                            {{#each attributes}}
+                                {{name}} - {{value}},
+                            {{/each}}
+                        </div>
                         <div>
-                            {{price}}
+                            Price: {{price}}
+                            Qty: {{quantity}}
                         </div>
                     </li>
                 {{/each}}
