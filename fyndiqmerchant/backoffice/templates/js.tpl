@@ -121,7 +121,9 @@ $(document).ready(function() {
     });
 
     $('.fm-category-tree a').live('click', function(e) {
+        e.preventDefault();
         FmCtrl.load_products($(this).attr('data-category_id'));
+        return false;
     });
 
     // load all categories
