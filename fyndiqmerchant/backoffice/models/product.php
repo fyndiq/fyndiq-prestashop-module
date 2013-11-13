@@ -27,11 +27,11 @@ class FmProduct {
         $result['price'] = $product->price;
 
         ### get the medium image type
-        $image_types = ImageType::getImagesTypes();
         $image_type_name = [
             FMPSV15 => 'medium_default',
             FMPSV14 => 'medium'
         ];
+        $image_types = ImageType::getImagesTypes();
         foreach ($image_types as $type) {
             if ($type['name'] == $image_type_name[FMPSV]) {
                 $image_type = $type;
@@ -50,12 +50,13 @@ class FmProduct {
         ### handle combinations
         $result['combinations'] = [];
 
-        $get_attribute_combinations_name = [
+        $get_attribute_combinations_func = [
             FMPSV14 => 'getAttributeCombinaisons',
             FMPSV15 => 'getAttributeCombinations'
         ];
 
-        $combinations = $product->$get_attribute_combinations_name[FMPSV]($module->language_id);
+        # get combinations and combination images
+        $combinations = $product->$get_attribute_combinations_func[FMPSV]($module->language_id);
         $combination_images = $product->getCombinationImages($module->language_id);
 
         if ($combination_images) {
