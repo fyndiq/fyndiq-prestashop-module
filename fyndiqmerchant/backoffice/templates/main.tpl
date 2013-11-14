@@ -12,7 +12,7 @@
 
     <img id="fm-logo" src="{$module_path}backoffice/templates/images/logo.png" alt="Fyndiq logotype">
 
-    <div id="fm-products">
+    <div id="fm-main-panel">
         {include './products.tpl'}
     </div>
 

@@ -56,7 +56,7 @@
 }
 
 
-#fm-products {
+#fm-main-panel {
     float: left;
     width: 620px;
 }
