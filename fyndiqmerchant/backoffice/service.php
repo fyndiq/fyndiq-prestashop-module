@@ -55,16 +55,7 @@ class FmAjaxService {
             if (array_key_exists('category', $args)) {
                 $products = [];
 
-                # fetch products per category manually,
-                # Product::getProducts doesnt work in backoffice,
-                # it's hard coded to work only with front office controllers
-                $rows = Db::getInstance()->ExecuteS('
-                    select p.id_product
-                    from '._DB_PREFIX_.'product as p
-                    join '._DB_PREFIX_.'category_product as cp
-                    where p.id_product = cp.id_product
-                    and cp.id_category = '.FmHelpers::db_escape($args['category']).'
-                ');
+                $rows = FmProduct::get_by_category($args['category']);
 
                 foreach ($rows as $row) {
                     $products[] = FmProduct::get($row['id_product']);
