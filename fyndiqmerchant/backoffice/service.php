@@ -33,7 +33,11 @@ class FmAjaxService {
 
     # handle incoming ajax request
     public static function handle_request() {
-        $action = $_POST['action'];
+        $action = false;
+        $args = [];
+        if (array_key_exists('action', $_POST)) {
+            $action = $_POST['action'];
+        }
         if (array_key_exists('args', $_POST)) {
             $args = $_POST['args'];
         }
