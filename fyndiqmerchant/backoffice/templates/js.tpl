@@ -94,14 +94,16 @@ var FmCtrl = {
     },
 
     load_products: function(category_id) {
+        // unset active class on previously selected category
+        $('.fm-category-tree a').removeClass('active');
+
         FmCtrl.call_service('get_products', {'category': category_id}, function(products) {
             $('.fm-product-list-container').html(tpl['product-list']({
                 'module_path': module_path,
                 'products': products
             }));
 
-            // add active class to selected category
-            $('.fm-category-tree a').removeClass('active');
+            // set active class on selected category
             $('.fm-category-tree a[data-category_id='+category_id+']').addClass('active');
 
             // http://stackoverflow.com/questions/5943994/jquery-slidedown-snap-back-issue
