@@ -1,13 +1,13 @@
 
 {literal}
 
-<script id="message-box" type="text/x-handlebars-template">
+<script type="text/x-handlebars-template" class="handlebars-template" id="message-box">
 <div class="{{classnames}}">
     <p>{{message}}</p>
 </div>
 </script>
 
-<script id="category-tree" type="text/x-handlebars-template">
+<script type="text/x-handlebars-template" class="handlebars-template" id="category-tree">
 <ul class="fm-category-tree">
     {{#each categories}}
         {{#with this}}
@@ -20,7 +20,7 @@
 </ul>
 </script>
 
-<script id="product-list" type="text/x-handlebars-template">
+<script type="text/x-handlebars-template" class="handlebars-template" id="product-list">
 {{#if products}}
     <ul class="fm-product-list">
         {{#each products}}

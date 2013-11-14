@@ -15,9 +15,14 @@ var cl = function(v) {
     console.log(v)
 };
 
-// precompile templates
+// precompile handlebars partials
+$('script.handlebars-partial').each(function(k, v) {
+    Handlebars.registerPartial($(v).attr('id'), $(v).html());
+});
+
+// precompile handlebars templates
 var tpl = {};
-$('script[type="text/x-handlebars-template"]').each(function(k,v){
+$('script.handlebars-template').each(function(k, v) {
     tpl[$(v).attr('id')] = Handlebars.compile($(v).html());
 });
 
