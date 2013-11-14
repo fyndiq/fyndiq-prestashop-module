@@ -6,20 +6,28 @@ class FmBackofficeControllers {
 
         $output = null;
 
-        # first, check for connection, and handle submits and showing of error messages
+        ## first handle submits and showing of error messages
+        # if no api connection, only process authenticate form
         if (!self::api_connection_exists($module)) {
             $output .= self::handle_authentication($module);
+
+        # if no language choice exists, only process choose language form
+        } else if (!self::language_choice_exists($module)) {
+            $output .= self::handle_language_choice($module);
+
+        # else handle any forms used in main template
         } else {
             $output .= self::handle_disconnect($module);
         }
 
-        # then, check for connection again, and display the proper body content
+        ## then display the proper body content
+        # if no api connection exists, display authentication form
         if (!self::api_connection_exists($module)) {
-            # render authentication form
             $smarty->assign(array(
                 'module_path' => $module->get('_path')
             ));
             $output .= $module->display($module->name, 'backoffice/templates/authenticate.tpl');
+
         } else {
 
             # check if api is up
@@ -27,21 +35,34 @@ class FmBackofficeControllers {
             try {
                 FmHelpers::call_api('account/');
                 $api_up = true;
-            } catch (Exception $e) {
+            } catch (Exception $e) {}
+
+            # if api is not available, show api down template
+            if (!$api_up) {
                 $smarty->assign(array(
                     'module_path' => $module->get('_path'),
                     'message' => $e->getMessage()
                 ));
                 $output .= $module->display($module->name, 'backoffice/templates/api_down.tpl');
-            }
 
-            if ($api_up) {
-                # render main functionality forms
-                $smarty->assign(array(
-                    'module_path' => $module->get('_path'),
-                    'username' => Configuration::get($module->config_name.'_username')
-                ));
-                $output .= $module->display($module->name, 'backoffice/templates/main.tpl');
+            # if api is available
+            } else {
+
+                # if no language choice exists, display choose language form
+                if (self::language_choice_exists($module)) {
+                    $smarty->assign(array(
+                        'module_path' => $module->get('_path'),
+                    ));
+                    $output .= $module->display($module->name, 'backoffice/templates/language.tpl');
+
+                # else display main template
+                } else {
+                    $smarty->assign(array(
+                        'module_path' => $module->get('_path'),
+                        'username' => Configuration::get($module->config_name.'_username')
+                    ));
+                    $output .= $module->display($module->name, 'backoffice/templates/main.tpl');
+                }
             }
         }
 
@@ -52,6 +73,11 @@ class FmBackofficeControllers {
         $username = Configuration::get($module->config_name.'_username');
         $api_token = Configuration::get($module->config_name.'_api_token');
         return ($username !== false && $api_token !== false);
+    }
+
+    private static function language_choice_exists($module) {
+        $language = Configuration::get($module->config_name.'_language');
+        return $language !== false;
     }
 
     private static function handle_authentication($module) {
@@ -97,6 +123,24 @@ class FmBackofficeControllers {
                     Configuration::deleteByName($module->config_name.'_username');
                     Configuration::deleteByName($module->config_name.'_api_token');
                 }
+            }
+        }
+
+        return $output;
+    }
+
+    private static function handle_language_choice($module) {
+        $output = '';
+
+        if (Tools::isSubmit('submit_choose_language')) {
+            $language = strval(Tools::getValue('language'));
+
+            # validate that a choice has been made
+            if (empty($language)) {
+                $output .= $module->displayError($module->l(FmMessages::get('empty-language-choice')));
+            } else {
+
+                # save language choice
             }
         }
 
