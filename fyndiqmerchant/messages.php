@@ -11,7 +11,8 @@ class FmMessages {
         'api-network-error' => 'Network error, cannot connect to Fyndiq API.',
         'disconnect-confirm' => 'Are you sure you want to disconnect from your Fyndiq merchant account?',
         'account-disconnected' => 'You have disconnected from your Fyndiq merchant account.',
-        'json-encode-fail' => 'Could not encode response json.'
+        'json-encode-fail' => 'Could not encode response json.',
+        'missing-category-argument' => 'This action requires a category argument'
     );
 
     public static function get($name) {

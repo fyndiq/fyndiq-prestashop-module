@@ -72,7 +72,7 @@ class FmAjaxService {
 
                 self::response($products);
             } else {
-                self::response_error('You didnt specify a category');
+                self::response_error(FmMessages::get('missing-category-argument'));
             }
         }
 
