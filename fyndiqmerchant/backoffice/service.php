@@ -52,24 +52,28 @@ class FmAjaxService {
         }
 
         if ($action == 'get_products') {
-            $products = [];
+            if (array_key_exists('category', $args)) {
+                $products = [];
 
-            # fetch products per category manually,
-            # Product::getProducts doesnt work in backoffice,
-            # it's hard coded to work only with front office controllers
-            $rows = Db::getInstance()->ExecuteS('
-                select p.id_product
-                from '._DB_PREFIX_.'product as p
-                join '._DB_PREFIX_.'category_product as cp
-                where p.id_product = cp.id_product
-                and cp.id_category = '.$args['category'].'
-            ');
+                # fetch products per category manually,
+                # Product::getProducts doesnt work in backoffice,
+                # it's hard coded to work only with front office controllers
+                $rows = Db::getInstance()->ExecuteS('
+                    select p.id_product
+                    from '._DB_PREFIX_.'product as p
+                    join '._DB_PREFIX_.'category_product as cp
+                    where p.id_product = cp.id_product
+                    and cp.id_category = '.FmHelpers::db_escape($args['category']).'
+                ');
 
-            foreach ($rows as $row) {
-                $products[] = FmProduct::get($row['id_product']);
+                foreach ($rows as $row) {
+                    $products[] = FmProduct::get($row['id_product']);
+                }
+
+                self::response($products);
+            } else {
+                self::response_error('You didnt specify a category');
             }
-
-            self::response($products);
         }
 
         if ($action == 'get_categories') {
