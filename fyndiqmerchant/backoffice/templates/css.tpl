@@ -58,12 +58,12 @@
 
 #fm-main-panel {
     float: left;
-    width: 620px;
+    width: 660px;
 }
 
 #fm-sidebar {
     float: left;
-    width: 285px;
+    width: 245px;
     margin-left: 15px;
 }
 

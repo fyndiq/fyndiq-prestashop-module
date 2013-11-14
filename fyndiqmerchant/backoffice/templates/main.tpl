@@ -30,8 +30,8 @@
         {* Disconnect account form *}
         <form action="" method="post" class="fm-form disconnect">
             <fieldset>
-                Currently authenticated as: <b>{$username}</b>.
                 <legend>Account</legend>
+                <p>Current user: <b>{$username}</b>.</p>
                 <p>By clicking this button, you can disconnect from your Fyndiq merchant account.</p>
                 <input class="submit" type="submit" name="submit_disconnect" value="Disconnect account"
                     onclick="return confirm('{FmMessages::get('disconnect-confirm')}');">
