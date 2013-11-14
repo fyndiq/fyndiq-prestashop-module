@@ -20,7 +20,20 @@
 </ul>
 </script>
 
+<script type="text/x-handlebars-template" class="handlebars-partial" id="product-list-controls">
+    <div class="fm-product-list-controls">
+        <div class="select-all">
+            <label><input type="checkbox" class="checkbox"> <span>Select all</span></label>
+        </div>
+        <div class="submit-buttons">
+            <input class="submit" type="submit" value="Export with combinations">
+            <input class="submit" type="submit" value="Export combinations as products">
+        </div>
+    </div>
+</script>
+
 <script type="text/x-handlebars-template" class="handlebars-template" id="product-list">
+{{> product-list-controls}}
 {{#if products}}
     <ul class="fm-product-list">
         {{#each products}}
@@ -107,6 +120,7 @@
 {{else}}
     Category is empty.
 {{/if}}
+{{> product-list-controls}}
 </script>
 
 {/literal}
