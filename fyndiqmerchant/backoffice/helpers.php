@@ -42,4 +42,13 @@ class FmHelpers {
             throw new Exception(get_class($e).': '.$e->getMessage());
         }
     }
+
+    public static function db_escape($value) {
+        if (FMPSV == FMPSV15) {
+            return Db::getInstance()->_escape($value);
+        }
+        if (FMPSV == FMPSV14) {
+            return pSQL($value);
+        }
+    }
 }
