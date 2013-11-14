@@ -27,12 +27,25 @@
             {{#with this}}
             <li>
                 <div class="product">
-                    <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
+                    <div class="title">
+                        <label for="select_product_{{id}}">
+                            <h4>{{name}} <span class="reference">({{reference}})</span></h4>
+                        </label>
+                    </div>
+
+                    <div class="select">
+                        <input type="checkbox" id="select_product_{{id}}">
+                    </div>
+
                     <div class="image">
+
                         {{#if image}}
+                        <label for="select_product_{{id}}">
                             <img src="{{image}}">
+                        </label>
                         {{/if}}
                     </div>
+
                     <div class="prices">
                         <div class="price">
                             <label>Price:</label>
@@ -43,11 +56,13 @@
                             <input type="text">
                         </div>
                     </div>
+
                     <div class="quantities">
                         <div>Qty: {{quantity}}</div>
                         <div>Exported Qty: 6</div>
                         <div>Fyndiq Qty: 4</div>
                     </div>
+
                     <div class="expand
                         {{#unless combinations}}
                             inactive

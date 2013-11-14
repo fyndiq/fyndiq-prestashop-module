@@ -21,6 +21,7 @@ class FmProduct {
 
         $product = new Product($product_id, false, $module->language_id);
 
+        $result['id'] = $product->id;
         $result['name'] = $product->name;
         $result['reference'] = $product->reference;
         $result['quantity'] = $product->quantity;

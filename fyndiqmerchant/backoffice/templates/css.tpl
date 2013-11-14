@@ -109,19 +109,38 @@
 }
 
 .fm-product-list .product .title {
-    font-size: 14px;
-    margin: 0 0 5px 0;
+    margin-bottom: 5px;
 }
-
-.fm-product-list .product .title .reference {
+.fm-product-list .product .title h4 {
+    font-size: 14px;
+    margin: 0;
+}
+.fm-product-list .product .title h4.reference {
     font-size: 13px;
     font-weight: normal;
+}
+
+.fm-product-list .product .select {
+    float: left;
+    margin: 0 5px;
 }
 
 .fm-product-list .product .image {
     float: left;
     width: 50px;
     height: 50px;
+}
+.fm-product-list .product .image label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+.fm-product-list .product .image label img {
+    display: block;
+    margin: 0 auto;
+    max-width: 50px;
+    max-height: 50px;
 }
 
 .fm-product-list .product .prices {
@@ -134,12 +153,6 @@
     margin-left: 20px;
 }
 
-.fm-product-list .product .image img {
-    display: block;
-    margin: 0 auto;
-    max-width: 50px;
-    max-height: 50px;
-}
 
 .fm-product-list .product .prices .price {
     margin-bottom: 2px;
