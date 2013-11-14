@@ -2,6 +2,7 @@
 {include './css.tpl'}
 
 <div id="fm-container">
+
     <img id="fm-logo" src="{$module_path}backoffice/templates/images/logo.png" alt="Fyndiq logotype">
 
     <p>

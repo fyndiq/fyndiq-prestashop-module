@@ -28,7 +28,6 @@
         {{#each products}}
             {{#with this}}
             <li>
-
                 <div class="product">
                     <h4 class="title">{{name}} <span class="reference">({{reference}})</span></h4>
                     <div class="image">
@@ -55,8 +54,7 @@
                         {{#unless combinations}}
                             inactive
                         {{/unless}}
-                        "
-                        >
+                        ">
                         <a href="#">
                             <img src="{{../../module_path}}backoffice/templates/images/down-arrow.png"
                                 alt="Down pointing arrow"
