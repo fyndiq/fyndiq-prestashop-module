@@ -8,7 +8,9 @@ if (file_exists($configPath)) {
     exit;
 }
 
+require_once('../messages.php');
 require_once('./helpers.php');
+require_once('./models/category.php');
 require_once('./models/product.php');
 
 class FmAjaxService {
@@ -42,34 +44,41 @@ class FmAjaxService {
             $args = $_POST['args'];
         }
 
-        if ($action == 'get_orders') {
-            try {
-                $ret = FmHelpers::call_api('orders/');
-                self::response($ret);
-            } catch (Exception $e) {
-                self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
-            }
+        # call static function on self with name of the value provided in $action
+        if (method_exists('FmAjaxService', $action)) {
+            self::$action($args);
         }
+    }
 
-        if ($action == 'get_products') {
-            if (array_key_exists('category', $args)) {
-                $products = [];
+    ### views ###
 
-                $rows = FmProduct::get_by_category($args['category']);
+    public static function get_categories($args) {
+        $categories = FmCategory::get_all();
+        self::response($categories);
+    }
 
-                foreach ($rows as $row) {
-                    $products[] = FmProduct::get($row['id_product']);
-                }
+    public static function get_products($args) {
+        if (array_key_exists('category', $args)) {
+            $products = [];
 
-                self::response($products);
-            } else {
-                self::response_error(FmMessages::get('missing-category-argument'));
+            $rows = FmProduct::get_by_category($args['category']);
+
+            foreach ($rows as $row) {
+                $products[] = FmProduct::get($row['id_product']);
             }
-        }
 
-        if ($action == 'get_categories') {
-            $categories = Category::getCategories();
-            self::response($categories);
+            self::response($products);
+        } else {
+            self::response_error(FmMessages::get('missing-category-argument'));
+        }
+    }
+
+    public static function get_orders($args) {
+        try {
+            $ret = FmHelpers::call_api('orders/');
+            self::response($ret);
+        } catch (Exception $e) {
+            self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
         }
     }
 }

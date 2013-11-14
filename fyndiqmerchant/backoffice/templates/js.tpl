@@ -72,19 +72,7 @@ var FmCtrl = {
     },
 
     load_categories: function(callback) {
-        FmCtrl.call_service('get_categories', {}, function(levels) {
-
-            var categories = [];
-            for (var i = 0; i < levels.length; i++) {
-                var level = levels[i];
-
-                for (var j in level) {
-                    var category = level[j];
-                    var c = category['infos'];
-                    categories.push({'level': i, 'category': c});
-                }
-            }
-
+        FmCtrl.call_service('get_categories', {}, function(categories) {
             $('.fm-category-tree-container').html(tpl['category-tree']({
                 'categories': categories
             }));

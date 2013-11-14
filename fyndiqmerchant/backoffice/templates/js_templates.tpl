@@ -13,9 +13,7 @@
         {{#with this}}
             <li>
                 {{level}}
-                {{#with category}}
-                    <a href="#" data-category_id="{{id_category}}">{{name}}</a>
-                {{/with}}
+                <a href="#" data-category_id="{{id}}">{{name}}</a>
             </li>
         {{/with}}
     {{/each}}
