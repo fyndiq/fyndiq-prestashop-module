@@ -55,7 +55,6 @@ var FmCtrl = {
     },
 
     call_service: function(action, args, callback) {
-        FmCtrl.show_load_screen();
         $.ajax({
             type: 'POST',
             url: module_path+'backoffice/service.php',
@@ -72,7 +71,6 @@ var FmCtrl = {
             } else {
                 FmCtrl.show_msg('error', 'Error when calling service: Connection failed');
             }
-            FmCtrl.hide_load_screen();
         });
     },
 
@@ -82,11 +80,13 @@ var FmCtrl = {
                 'categories': categories
             }));
 
-            callback();
+            if (callback) {
+                callback();
+            }
         });
     },
 
-    load_products: function(category_id) {
+    load_products: function(category_id, callback) {
         // unset active class on previously selected category
         $('.fm-category-tree a').removeClass('active');
 
@@ -105,35 +105,49 @@ var FmCtrl = {
                 $(v).css('height', $(v).height());
                 $(v).hide();
             });
+
+            if (callback) {
+                callback();
+            }
         });
     },
 
-    import_orders: function() {
+    import_orders: function(callback) {
         FmCtrl.call_service('import_orders', {}, function() {
-
+            if (callback) {
+                callback();
+            }
         });
     }
 };
 
 $(document).ready(function() {
 
+    FmCtrl.show_load_screen();
+
     // import orders submit button
     $(document).on('submit', '.fm-form.orders', function(e){
         e.preventDefault();
-        FmCtrl.import_orders();
+        FmCtrl.show_load_screen();
+        FmCtrl.import_orders(function() {
+            FmCtrl.hide_load_screen();
+        });
     });
 
     // when clicking category in tree, load its products
     $(document).on('click', '.fm-category-tree a', function(e) {
         e.preventDefault();
-        FmCtrl.load_products($(this).attr('data-category_id'));
+        FmCtrl.show_load_screen();
+        FmCtrl.load_products($(this).attr('data-category_id'), function() {
+            FmCtrl.hide_load_screen();
+        });
         return false;
     });
 
     // when clicking product's expand icon, show its combinations
     $(document).on('click', '.fm-product-list .product .expand a', function(e) {
         e.preventDefault();
-        $(this).parent().parent().parent().find('.combinations').slideToggle(250);
+        $(this).parents('li').find('.combinations').slideToggle(250);
         return false;
     });
 
@@ -153,9 +167,9 @@ $(document).ready(function() {
 
         // load products from second category
         var category_id = $('.fm-category-tree a').eq(1).attr('data-category_id');
-        FmCtrl.load_products(category_id);
-
-        FmCtrl.hide_load_screen();
+        FmCtrl.load_products(category_id, function() {
+            FmCtrl.hide_load_screen();
+        });
     });
 });
 
