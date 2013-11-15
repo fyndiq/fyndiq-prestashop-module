@@ -1,12 +1,4 @@
 
-<script type="text/javascript" src="{$module_path}backoffice/frontend/js/handlebars-v1.1.2.js"></script>
-<script type="text/javascript">
-
-// get smarty template variables before going into literal javascript block
-var module_path = '{$module_path}';
-
-{literal}
-
 String.prototype.repeat = function(times) {
     return (new Array(times + 1)).join(this);
 };
@@ -184,7 +176,3 @@ $(document).ready(function() {
         });
     });
 });
-
-{/literal}
-
-</script>
