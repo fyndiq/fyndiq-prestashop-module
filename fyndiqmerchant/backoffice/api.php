@@ -3,6 +3,7 @@
 class FyndiqAPIConnectionFailed extends Exception {}
 class FyndiqAPIAuthorizationFailed extends Exception {}
 class FyndiqAPIDataInvalid extends Exception {}
+class FyndiqAPITooManyRequests extends Exception {}
 class FyndiqAPIUnsupportedStatus extends Exception {}
 
 class FyndiqAPI {
@@ -55,6 +56,10 @@ class FyndiqAPI {
 
         if ($response['http_status'] == 401) {
             throw new FyndiqAPIAuthorizationFailed();
+        }
+
+        if ($response['http_status'] == 429) {
+            throw new FyndiqAPITooManyRequests();
         }
 
         if ($response['http_status'] != 200 ) {
