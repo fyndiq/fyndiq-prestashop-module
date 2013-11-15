@@ -82,7 +82,7 @@
                         {{/unless}}
                         ">
                         <a href="#">
-                            <img src="{{../../module_path}}backoffice/templates/images/down-arrow.png"
+                            <img src="{{../../module_path}}backoffice/frontend/images/down-arrow.png"
                                 alt="Down pointing arrow"
                                 {{#if combinations}}
                                     title="Show combinations"

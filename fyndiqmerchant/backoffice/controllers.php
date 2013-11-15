@@ -27,7 +27,7 @@ class FmBackofficeControllers {
             $smarty->assign(array(
                 'module_path' => $module->get('_path')
             ));
-            $output .= $module->display($module->name, 'backoffice/templates/authenticate.tpl');
+            $output .= $module->display($module->name, 'backoffice/frontend/authenticate.tpl');
 
         } else {
 
@@ -42,7 +42,7 @@ class FmBackofficeControllers {
                     'exception_type' => get_class($e),
                     'error_message' => $e->getMessage()
                 ));
-                $output .= $module->display($module->name, 'backoffice/templates/api_unavailable.tpl');
+                $output .= $module->display($module->name, 'backoffice/frontend/api_unavailable.tpl');
             }
 
             # if api is up
@@ -55,7 +55,7 @@ class FmBackofficeControllers {
                         'languages' => Language::getLanguages(),
                         'selected_language' => Configuration::get($module->config_name.'_language')
                     ));
-                    $output .= $module->display($module->name, 'backoffice/templates/language.tpl');
+                    $output .= $module->display($module->name, 'backoffice/frontend/language.tpl');
 
                 # else display main template
                 } else {
@@ -64,7 +64,7 @@ class FmBackofficeControllers {
                         'username' => Configuration::get($module->config_name.'_username'),
                         'language' => new Language(Configuration::get($module->config_name.'_language'))
                     ));
-                    $output .= $module->display($module->name, 'backoffice/templates/main.tpl');
+                    $output .= $module->display($module->name, 'backoffice/frontend/main.tpl');
                 }
             }
         }

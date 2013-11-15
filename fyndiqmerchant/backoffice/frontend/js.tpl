@@ -1,5 +1,5 @@
 
-<script type="text/javascript" src="{$module_path}backoffice/templates/handlebars-v1.1.2.js"></script>
+<script type="text/javascript" src="{$module_path}backoffice/frontend/handlebars-v1.1.2.js"></script>
 <script type="text/javascript">
 
 // get smarty template variables before going into literal javascript block

@@ -7,10 +7,10 @@
     <div id="fm-message-boxes"></div>
 
     <div class="fm-loading-overlay">
-        <img src="{$module_path}backoffice/templates/images/ajax-loader.gif" alt="Loading animation">
+        <img src="{$module_path}backoffice/frontend/images/ajax-loader.gif" alt="Loading animation">
     </div>
 
-    <img id="fm-logo" src="{$module_path}backoffice/templates/images/logo.png" alt="Fyndiq logotype">
+    <img id="fm-logo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
     <div id="fm-main-panel">
         {include './products.tpl'}
