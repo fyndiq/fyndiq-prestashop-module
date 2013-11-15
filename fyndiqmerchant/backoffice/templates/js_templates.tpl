@@ -22,9 +22,9 @@
 
 <script type="text/x-handlebars-template" class="handlebars-partial" id="product-list-controls">
     <div class="fm-product-list-controls">
-        <form class="fm-form select-all">
-            <input class="submit" type="submit" value="Select all">
-            <input class="submit" type="submit" value="Deselect all">
+        <form class="fm-form select">
+            <input class="submit" type="submit" name="select-all" value="Select all">
+            <input class="submit" type="submit" name="deselect-all" value="Deselect all">
         </form>
         <form class="fm-form submit-buttons">
             <input class="submit important-action" type="submit" value="Export with combinations">

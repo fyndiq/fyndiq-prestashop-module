@@ -126,7 +126,7 @@ $(document).ready(function() {
     FmCtrl.show_load_screen();
 
     // import orders submit button
-    $(document).on('submit', '.fm-form.orders', function(e){
+    $(document).on('submit', '.fm-form.orders', function(e) {
         e.preventDefault();
         FmCtrl.show_load_screen();
         FmCtrl.import_orders(function() {
@@ -162,8 +162,20 @@ $(document).ready(function() {
         $(this).parents('li').find('.product .select input').prop('checked', true);
     });
 
+    // when clicking select all products checkbox, set checked on all product's checkboxes
+    $(document).on('click', '.fm-product-list-controls .select input', function(e) {
+        e.preventDefault();
+        if ($(this).attr('name') == 'select-all') {
+            $('.fm-product-list .product .select input').prop('checked', true).change();
+        }
+        if ($(this).attr('name') == 'deselect-all') {
+            $('.fm-product-list .product .select input').prop('checked', false).change();
+        }
+        return false;
+    });
+
     // load all categories
-    FmCtrl.load_categories(function(){
+    FmCtrl.load_categories(function() {
 
         // load products from second category
         var category_id = $('.fm-category-tree a').eq(1).attr('data-category_id');

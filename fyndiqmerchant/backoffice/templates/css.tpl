@@ -151,7 +151,7 @@
     overflow: hidden;
     margin: 10px 0;
 }
-.fm-product-list-controls .select-all {
+.fm-product-list-controls .select {
     float: left;
     margin: 0;
 }
