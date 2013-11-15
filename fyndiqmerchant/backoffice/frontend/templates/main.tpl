@@ -1,6 +1,6 @@
 
 {include './js_templates.tpl'}
-{include './js.tpl'}
+{include '../js/js.tpl'}
 {include './css.tpl'}
 
 <div id="fm-container">
