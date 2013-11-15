@@ -118,18 +118,18 @@ var FmCtrl = {
 $(document).ready(function() {
 
     // event handlers
-    $('.fm-form.orders').live('submit', function(e){
+    $(document).on('submit', '.fm-form.orders', function(e){
         e.preventDefault();
         FmCtrl.import_orders();
     });
 
-    $('.fm-category-tree a').live('click', function(e) {
+    $(document).on('click', '.fm-category-tree a', function(e) {
         e.preventDefault();
         FmCtrl.load_products($(this).attr('data-category_id'));
         return false;
     });
 
-    $('.fm-product-list .product .expand a').live('click', function(e) {
+    $(document).on('click', '.fm-product-list .product .expand a', function(e) {
         e.preventDefault();
         $(this).parent().parent().parent().find('.combinations').slideToggle(250);
         return false;
