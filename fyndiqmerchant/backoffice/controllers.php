@@ -17,6 +17,7 @@ class FmBackofficeControllers {
 
         # else handle any forms used in main template
         } else {
+            $output .= self::handle_switch_language($module);
             $output .= self::handle_disconnect($module);
         }
 
@@ -31,27 +32,28 @@ class FmBackofficeControllers {
         } else {
 
             # check if api is up
-            $api_up = false;
+            $api_available = false;
             try {
                 FmHelpers::call_api('account/');
-                $api_up = true;
-            } catch (Exception $e) {}
-
-            # if api is not available, show api down template
-            if (!$api_up) {
+                $api_available = true;
+            } catch (Exception $e) {
                 $smarty->assign(array(
                     'module_path' => $module->get('_path'),
-                    'message' => $e->getMessage()
+                    'exception_type' => get_class($e),
+                    'error_message' => $e->getMessage()
                 ));
-                $output .= $module->display($module->name, 'backoffice/templates/api_down.tpl');
+                $output .= $module->display($module->name, 'backoffice/templates/api_unavailable.tpl');
+            }
 
-            # if api is available
-            } else {
+            # if api is up
+            if ($api_available) {
 
                 # if no language choice exists, display choose language form
-                if (self::language_choice_exists($module)) {
+                if (!self::language_choice_exists($module)) {
                     $smarty->assign(array(
                         'module_path' => $module->get('_path'),
+                        'languages' => Language::getLanguages(),
+                        'selected_language' => Configuration::get($module->config_name.'_language')
                     ));
                     $output .= $module->display($module->name, 'backoffice/templates/language.tpl');
 
@@ -59,7 +61,8 @@ class FmBackofficeControllers {
                 } else {
                     $smarty->assign(array(
                         'module_path' => $module->get('_path'),
-                        'username' => Configuration::get($module->config_name.'_username')
+                        'username' => Configuration::get($module->config_name.'_username'),
+                        'language' => new Language(Configuration::get($module->config_name.'_language'))
                     ));
                     $output .= $module->display($module->name, 'backoffice/templates/main.tpl');
                 }
@@ -76,8 +79,8 @@ class FmBackofficeControllers {
     }
 
     private static function language_choice_exists($module) {
-        $language = Configuration::get($module->config_name.'_language');
-        return $language !== false;
+        $language_id = Configuration::get($module->config_name.'_language');
+        return $language_id !== false;
     }
 
     private static function handle_authentication($module) {
@@ -104,9 +107,11 @@ class FmBackofficeControllers {
                 } catch (FyndiqAPIConnectionFailed $e) {
                     $output .= $module->displayError($module->l(FmMessages::get('api-network-error')));
                 } catch (FyndiqAPIDataInvalid $e) {
-                    $output .= $module->displayError($module->l(FmMessages::get('data-processing-error').': '.$e->getMessage()));
+                    $output .= $module->displayError($module->l(FmMessages::get('api-invalid-data').': '.$e->getMessage()));
                 } catch (FyndiqAPIAuthorizationFailed $e) {
-                    $output .= $module->displayError($module->l(FmMessages::get('authorization-fail')));
+                    $output .= $module->displayError($module->l(FmMessages::get('api-incorrect-credentials')));
+                } catch (FyndiqAPITooManyRequests $e) {
+                    $output .= $module->displayError($module->l(FmMessages::get('api-too-many-requests')));
                 }
 
                 # authentication successful
@@ -132,16 +137,27 @@ class FmBackofficeControllers {
     private static function handle_language_choice($module) {
         $output = '';
 
-        if (Tools::isSubmit('submit_choose_language')) {
-            $language = strval(Tools::getValue('language'));
+        if (Tools::isSubmit('submit_language')) {
+            $language_id = strval(Tools::getValue('language_id'));
 
             # validate that a choice has been made
-            if (empty($language)) {
+            if (empty($language_id)) {
                 $output .= $module->displayError($module->l(FmMessages::get('empty-language-choice')));
             } else {
 
                 # save language choice
+                Configuration::updateValue($module->config_name.'_language', $language_id);
             }
+        }
+
+        return $output;
+    }
+
+    private static function handle_switch_language($module) {
+        $output = '';
+
+        if (Tools::isSubmit('submit_switch_language')) {
+            Configuration::deleteByName($module->config_name.'_language');
         }
 
         return $output;

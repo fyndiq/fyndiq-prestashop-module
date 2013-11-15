@@ -27,6 +27,17 @@
             </fieldset>
         </form>
 
+        {* Choose different language form *}
+        <form action="" method="post" class="fm-form language">
+            <fieldset>
+                <legend>Language</legend>
+                <p>Current language: <b>{$language->name}</b>.</p>
+                <p>By clicking this button, you can switch to a different language to use when exporting products.</p>
+                <input class="submit" type="submit" name="submit_switch_language" value="Switch language"
+                    onclick="return confirm('{FmMessages::get('switch-language-confirm')}');">
+            </fieldset>
+        </form>
+
         {* Disconnect account form *}
         <form action="" method="post" class="fm-form disconnect">
             <fieldset>
