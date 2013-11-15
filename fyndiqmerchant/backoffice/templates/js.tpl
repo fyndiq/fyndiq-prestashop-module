@@ -135,6 +135,15 @@ $(document).ready(function() {
         return false;
     });
 
+    $(document).on('change', '.fm-product-list .product .select input', function(e) {
+        var combination_checkboxes = $(this).parents('li').find('.combinations .select input');
+        combination_checkboxes.prop('checked', $(this).prop('checked'));
+    });
+
+    $(document).on('change', '.fm-product-list .combinations .select input', function(e) {
+        $(this).parents('li').find('.product .select input').prop('checked', true);
+    });
+
     // load all categories
     FmCtrl.load_categories(function(){
 
