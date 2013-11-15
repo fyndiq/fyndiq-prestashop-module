@@ -35,12 +35,7 @@ class FmHelpers {
         $api_token = Configuration::get($module->config_name.'_api_token');
 
         # call API
-        try {
-            return FyndiqAPI::call($module->user_agent, $username, $api_token, $path, $data);
-        } catch (Exception $e) {
-            # add exception class name to exception message
-            throw new Exception(get_class($e).': '.$e->getMessage());
-        }
+        return FyndiqAPI::call($module->user_agent, $username, $api_token, $path, $data);
     }
 
     public static function db_escape($value) {

@@ -71,6 +71,12 @@
 }
 
 
+.fm-api-unavailable {
+    text-align: center;
+    font-size: 14px;
+}
+
+
 .fm-category-tree {
     margin: 0;
     padding: 0;
