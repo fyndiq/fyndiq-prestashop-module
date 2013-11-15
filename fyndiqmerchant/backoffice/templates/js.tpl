@@ -117,29 +117,33 @@ var FmCtrl = {
 
 $(document).ready(function() {
 
-    // event handlers
+    // import orders submit button
     $(document).on('submit', '.fm-form.orders', function(e){
         e.preventDefault();
         FmCtrl.import_orders();
     });
 
+    // when clicking category in tree, load its products
     $(document).on('click', '.fm-category-tree a', function(e) {
         e.preventDefault();
         FmCtrl.load_products($(this).attr('data-category_id'));
         return false;
     });
 
+    // when clicking product's expand icon, show its combinations
     $(document).on('click', '.fm-product-list .product .expand a', function(e) {
         e.preventDefault();
         $(this).parent().parent().parent().find('.combinations').slideToggle(250);
         return false;
     });
 
+    // when clicking product's checkbox, toggle checked on all its combination's checkboxes
     $(document).on('change', '.fm-product-list .product .select input', function(e) {
         var combination_checkboxes = $(this).parents('li').find('.combinations .select input');
         combination_checkboxes.prop('checked', $(this).prop('checked'));
     });
 
+    // when clicking a combination's checkbox, set checked on its parent product's checkbox
     $(document).on('change', '.fm-product-list .combinations .select input', function(e) {
         $(this).parents('li').find('.product .select input').prop('checked', true);
     });
