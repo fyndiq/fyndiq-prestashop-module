@@ -63,6 +63,7 @@ class FmProduct {
         foreach ($product_attributes as $product_attribute) {
             $id = $product_attribute['id_product_attribute'];
 
+            $result['combinations'][$id]['id'] = $id;
             $result['combinations'][$id]['price'] = $product_attribute['price'];
             $result['combinations'][$id]['quantity'] = $product_attribute['quantity'];
             $result['combinations'][$id]['attributes'][] = [

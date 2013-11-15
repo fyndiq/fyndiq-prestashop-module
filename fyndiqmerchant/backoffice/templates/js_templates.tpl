@@ -23,7 +23,7 @@
 <script type="text/x-handlebars-template" class="handlebars-partial" id="product-list-controls">
     <div class="fm-product-list-controls">
         <div class="select-all">
-            <label><input type="checkbox" class="checkbox"> <span>Select all</span></label>
+            <label><input type="checkbox" class="checkbox"> <span>Select all products</span></label>
         </div>
         <div class="submit-buttons">
             <input class="submit" type="submit" value="Export with combinations">
@@ -51,7 +51,6 @@
                     </div>
 
                     <div class="image">
-
                         {{#if image}}
                         <label for="select_product_{{id}}">
                             <img src="{{image}}">
@@ -97,14 +96,24 @@
                     <ul class="combinations">
                     {{#each combinations}}
                         <li>
-                            <div class="image">
-                                <img src="{{image}}">
+                            <div class="select">
+                                <input type="checkbox" class="checkbox" id="select_combination_{{id}}">
                             </div>
+
+                            <div class="image">
+                                {{#if image}}
+                                <label for="select_combination_{{id}}">
+                                    <img src="{{image}}">
+                                </label>
+                                {{/if}}
+                            </div>
+
                             <div class="attributes">
                                 {{#each attributes}}
                                     {{name}} - {{value}},
                                 {{/each}}
                             </div>
+
                             <div>
                                 Price: {{price}}
                                 Qty: {{quantity}}

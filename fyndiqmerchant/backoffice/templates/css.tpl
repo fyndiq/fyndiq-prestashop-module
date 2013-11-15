@@ -140,7 +140,7 @@
 
 .fm-product-list .product .select {
     float: left;
-    margin: 0 5px;
+    margin: 15px 5px 0;
 }
 
 .fm-product-list .product .image {
@@ -218,10 +218,15 @@
     background: #e5e5e5;
 }
 
+.fm-product-list .combinations .select {
+    float: left;
+    margin: 10px 5px 0;
+}
+
 .fm-product-list .combinations .image {
+    float: left;
     width: 30px;
     height: 30px;
-    float: left;
 }
 .fm-product-list .combinations .image img {
     display: block;
