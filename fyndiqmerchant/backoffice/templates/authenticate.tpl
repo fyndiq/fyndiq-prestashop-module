@@ -28,7 +28,7 @@
                 You will not have to authenticate again when coming here next time.
             </p>
 
-            <input class="submit" type="submit" name="submit_authenticate" value="Authenticate">
+            <input class="submit important-action" type="submit" name="submit_authenticate" value="Authenticate">
         </fieldset>
     </form>
 </div>

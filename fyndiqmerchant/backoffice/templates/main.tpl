@@ -23,7 +23,7 @@
             <fieldset>
                 <legend>Orders</legend>
                 <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
-                <input class="submit" type="submit" value="Import orders">
+                <input class="submit important-action" type="submit" value="Import orders">
             </fieldset>
         </form>
 

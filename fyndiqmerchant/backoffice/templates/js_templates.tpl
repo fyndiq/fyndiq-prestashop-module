@@ -22,13 +22,14 @@
 
 <script type="text/x-handlebars-template" class="handlebars-partial" id="product-list-controls">
     <div class="fm-product-list-controls">
-        <div class="select-all">
-            <label><input type="checkbox" class="checkbox"> <span>Select all products</span></label>
-        </div>
-        <div class="submit-buttons">
-            <input class="submit" type="submit" value="Export with combinations">
-            <input class="submit" type="submit" value="Export combinations as products">
-        </div>
+        <form class="fm-form select-all">
+            <input class="submit" type="submit" value="Select all">
+            <input class="submit" type="submit" value="Deselect all">
+        </form>
+        <form class="fm-form submit-buttons">
+            <input class="submit important-action" type="submit" value="Export with combinations">
+            <input class="submit important-action" type="submit" value="Export combinations as products">
+        </form>
     </div>
 </script>
 
