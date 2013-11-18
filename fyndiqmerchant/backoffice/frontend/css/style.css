@@ -84,6 +84,52 @@
     display: block;
     margin: 150px auto; }
 
+.fm-message-overlay {
+  background-size: 40px 40px;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%, transparent);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+  width: 100%;
+  border: 1px solid;
+  color: white;
+  padding: 30px 0;
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  _position: absolute;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  animation: animate-bg 5s linear infinite; }
+  .fm-message-overlay.fm-info {
+    background-color: #4ea5cd;
+    border-color: #3b8eb5; }
+  .fm-message-overlay.fm-error {
+    background-color: #de4343;
+    border-color: #c43d3d; }
+  .fm-message-overlay.fm-warning {
+    background-color: #eaaf51;
+    border-color: #d99a36; }
+  .fm-message-overlay.fm-success {
+    background-color: #61b832;
+    border-color: #55a12c; }
+  .fm-message-overlay .close {
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer; }
+  .fm-message-overlay h3 {
+    width: 920px;
+    margin: 0 auto 5px;
+    color: white;
+    font-size: 16px; }
+  .fm-message-overlay p {
+    width: 920px;
+    margin: 0 auto;
+    color: white;
+    font-size: 14px; }
+
 #fm-main-panel {
   float: left;
   width: 660px; }
@@ -100,7 +146,7 @@
 .fm-category-tree {
   margin: 0;
   padding: 0; }
-  .fm-category-tree a.active {
+  .fm-category-tree li.active {
     font-weight: bold; }
 
 .fm-product-list-container {

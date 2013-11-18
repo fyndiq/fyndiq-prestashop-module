@@ -29,21 +29,21 @@ var FmCtrl = {
         }, 200);
     },
 
-    show_msg: function(type, message) {
-        var classnames = {
-            'success': 'fm-message-success conf confirm',
-            'error': 'fm-message-error error'
-        };
-        var box = $(tpl['message-box']({
-            'classnames': classnames[type],
-            'message': message
-        }));
-        $('#fm-message-boxes').append(box);
-        setTimeout(function(){
-            box.fadeOut(400, function(){
-                this.remove();
-            });
-        }, 8000);
+    show_message: function(type, header, body) {
+        var overlay = $('.fm-message-overlay');
+        overlay.removeClass('fm-info fm-success fm-warning fm-error');
+        overlay.addClass('fm-'+type);
+        if (header) {
+            overlay.children('h3').html(header);
+        } else {
+            overlay.children('h3').html('');
+        }
+        if (body) {
+            overlay.children('p').html(body);
+        } else {
+            overlay.children('p').html('');
+        }
+        overlay.slideDown(300);
     },
 
     call_service: function(action, args, callback) {
@@ -55,13 +55,13 @@ var FmCtrl = {
         }).always(function(data) {
             if ($.isPlainObject(data) && ('fm-service-status' in data)) {
                 if (data['fm-service-status'] == 'error') {
-                    FmCtrl.show_msg('error', 'Error when calling service: ' + data['message']);
+                    FmCtrl.show_message('error', messages['service-call-fail-head'], data['message']);
                 }
                 if (data['fm-service-status'] == 'success') {
                     callback(data['data']);
                 }
             } else {
-                FmCtrl.show_msg('error', 'Error when calling service: Connection failed');
+                FmCtrl.show_message('error', messages['service-call-fail-head'], messages['connection-failed']);
             }
         });
     },
@@ -113,6 +113,18 @@ var FmCtrl = {
     },
 
     bind_event_handlers: function() {
+
+        // when clicking the message overlay close button, hide it
+        $(document).on('click', '.fm-message-overlay .close', function(e) {
+            $('.fm-message-overlay').slideUp(200);
+        });
+        // when pressing esc key, close overlay message box
+        $(document).keyup(function(e) {
+            if (e.keyCode == 27) {
+                $('.fm-message-overlay').slideUp(200);
+            }
+        });
+
         // import orders submit button
         $(document).on('submit', '.fm-form.orders', function(e) {
             e.preventDefault();

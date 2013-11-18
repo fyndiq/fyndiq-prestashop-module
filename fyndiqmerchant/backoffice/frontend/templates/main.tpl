@@ -9,16 +9,25 @@
 
 <script type="text/javascript">
     var module_path = '{$module_path}';
+    var messages = {};
+    {foreach $messages as $k => $v}
+        messages['{$k}'] = '{$v}';
+    {/foreach}
 </script>
 
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/main.js"></script>
 
 
 <div id="fm-container">
-    <div id="fm-message-boxes"></div>
 
     <div class="fm-loading-overlay">
         <img src="{$module_path}backoffice/frontend/images/ajax-loader.gif" alt="Loading animation">
+    </div>
+
+    <div class="fm-message-overlay" style="display: none;">
+        <img class="close" src="{$module_path}backoffice/frontend/images/close-icon.png" alt="Close" title="Close message">
+        <h3></h3>
+        <p></p>
     </div>
 
     <img id="fm-logo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">

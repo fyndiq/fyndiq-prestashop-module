@@ -65,6 +65,7 @@ class FmBackofficeControllers {
                     $smarty->assign(array(
                         'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
                         'module_path' => $module->get('_path'),
+                        'messages' => FmMessages::get_all(),
                         'username' => Configuration::get($module->config_name.'_username'),
                         'language' => new Language(Configuration::get($module->config_name.'_language'))
                     ));

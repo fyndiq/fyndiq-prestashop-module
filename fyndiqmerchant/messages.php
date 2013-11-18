@@ -16,10 +16,17 @@ class FmMessages {
         'api-incorrect-credentials' => 'Incorrect Username or API token. Please double check your provided values.',
         'api-invalid-data' => 'Error processing data',
         'api-network-error' => 'Network error, cannot connect to Fyndiq API.',
-        'api-too-many-requests' => 'You have sent too many requests. Calm down!'
+        'api-too-many-requests' => 'You have sent too many requests. Calm down!',
+
+        'service-call-fail-head' => 'Could not call the service',
+        'connection-failed' => 'Connection failed'
     );
 
     public static function get($name) {
         return self::$messages[$name];
+    }
+
+    public static function get_all() {
+        return self::$messages;
     }
 }
