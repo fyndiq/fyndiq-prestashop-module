@@ -1,5 +1,8 @@
 
-{include './css.tpl'}
+<style type="text/css">
+    {fetch file="$server_path/backoffice/frontend/css/style.css"}
+</style>
+
 {include './js_templates.tpl'}
 
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/handlebars-v1.1.2.js"></script>
@@ -7,6 +10,7 @@
 <script type="text/javascript">
     var module_path = '{$module_path}';
 </script>
+
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/main.js"></script>
 
 

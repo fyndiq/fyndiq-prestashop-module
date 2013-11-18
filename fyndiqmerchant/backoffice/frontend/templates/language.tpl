@@ -1,5 +1,7 @@
 
-{include './css.tpl'}
+<style type="text/css">
+    {fetch file="$server_path/backoffice/frontend/css/style.css"}
+</style>
 
 <div id="fm-container">
 

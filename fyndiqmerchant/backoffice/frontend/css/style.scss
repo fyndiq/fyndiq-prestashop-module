@@ -1,0 +1,287 @@
+
+@mixin gradient($color1, $color2) {
+    // http://www.colorzilla.com/gradient-editor/
+    background: $color1;
+    background: -moz-linear-gradient(top,  $color1 0%, $color2 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,$color1), color-stop(100%,$color2));
+    background: -webkit-linear-gradient(top,  $color1 0%,$color2 100%);
+    background: -o-linear-gradient(top,  $color1 0%,$color2 100%);
+    background: -ms-linear-gradient(top,  $color1 0%,$color2 100%);
+    background: linear-gradient(to bottom,  $color1 0%,$color2 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$color1}', endColorstr='#{$color2}',GradientType=0 );
+}
+
+@mixin border-radius($x) {
+    -webkit-border-radius: $x;
+    -moz-border-radius: $x;
+    border-radius: $x;
+}
+
+#fm-container {
+    position: relative;
+    width: 920px;
+    margin: 0 auto;
+    overflow: hidden;
+
+    label {
+        width: auto;
+    }
+}
+
+#fm-logo {
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+}
+
+.fm-form {
+    margin: 20px 0;
+
+    .submit::-moz-focus-inner {
+        border: 0;
+    }
+    .submit {
+        border: 1px solid #a5a5a5;
+        padding: 4px 8px;
+        font-size: 13px;
+
+        color: black;
+        cursor: pointer;
+        outline: none;
+
+        @include border-radius(4px);
+
+        @include gradient(#ffffff, #e5e5e5);
+
+        &:active {
+            @include gradient(#e5e5e5, #ffffff);
+        }
+
+        &.important-action {
+            color: white;
+            text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
+            font-weight: bold;
+            border-color: #de981f;
+
+            @include gradient(#fdc500, #f39e09);
+
+            &:active {
+                @include gradient(#f39e09, #fdc500);
+            }
+        }
+    }
+
+    label {
+        text-align: left;
+    }
+
+    div {
+        overflow: hidden;
+    }
+}
+
+
+.fm-loading-overlay {
+
+    // http://robertnyman.com/2010/01/11/css-background-transparency-without-affecting-child-elements-through-rgba-and-filters/
+    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.8);
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC000000, endColorstr=#CC000000);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC000000, endColorstr=#CC000000);
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+
+    img {
+        width: 128px;
+        height: 128px;
+        display: block;
+        margin: 150px auto;
+    }
+}
+
+
+#fm-main-panel {
+    float: left;
+    width: 660px;
+}
+
+#fm-sidebar {
+    float: left;
+    width: 245px;
+    margin-left: 15px;
+}
+
+
+.fm-api-unavailable {
+    text-align: center;
+    font-size: 14px;
+}
+
+
+.fm-category-tree {
+    margin: 0;
+    padding: 0;
+
+    a.active {
+        font-weight: bold;
+    }
+}
+
+
+.fm-product-list-container {
+    margin: 10px 0;
+}
+
+
+.fm-product-list-controls {
+    overflow: hidden;
+    margin: 10px 0;
+
+    .select {
+        float: left;
+        margin: 0;
+    }
+
+    .submit-buttons {
+        float: right;
+        margin: 0;
+    }
+}
+
+
+.fm-product-list {
+    margin: 0;
+    padding: 2px;
+    background-color: #e5e5e5;
+
+    > li {
+        overflow: hidden;
+        background-color: #f5f5f5;
+        margin-bottom: 3px;
+        padding: 3px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+    .product {
+        position: relative;
+
+        .title {
+            margin-bottom: 5px;
+
+            h4 {
+                font-size: 14px;
+                margin: 0;
+                .reference {
+                    font-size: 13px;
+                    font-weight: normal;
+                }
+            }
+        }
+
+        .select {
+            float: left;
+            margin: 15px 5px 0;
+        }
+
+        .image {
+            float: left;
+            width: 50px;
+            height: 50px;
+
+            label {
+                display: block;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+
+                img {
+                    display: block;
+                    margin: 0 auto;
+                    max-width: 50px;
+                    max-height: 50px;
+                }
+            }
+        }
+
+        .prices {
+            float: left;
+            margin-left: 10px;
+
+            .price {
+                margin-bottom: 2px;
+            }
+
+            label {
+                display: block;
+                width: 90px;
+                text-align: right;
+                float: left;
+            }
+
+            input {
+                display: block;
+                float: left;
+                width: 100px;
+            }
+        }
+
+        .quantities {
+            float: left;
+            margin-left: 20px;
+        }
+
+        .expand {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 28px;
+            height: 28px;
+
+            img {
+                display: block;
+                width: 28px;
+                height: 28px;
+            }
+
+            &.inactive {
+                opacity: 0.2;
+                filter: alpha(opacity=20);
+            }
+        }
+    }
+
+    .combinations {
+        padding-left: 8px;
+        margin-top: 3px;
+
+        > li {
+            overflow: hidden;
+            margin-bottom: 1px;
+            padding: 1px;
+            background: #e5e5e5;
+
+            .select {
+                float: left;
+                margin: 10px 5px 0;
+            }
+
+            .image {
+                float: left;
+                width: 30px;
+                height: 30px;
+
+                img {
+                    display: block;
+                    margin: 0 auto;
+                    max-width: 30px;
+                    max-height: 30px;
+                }
+            }
+        }
+    }
+}

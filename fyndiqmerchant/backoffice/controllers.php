@@ -25,6 +25,7 @@ class FmBackofficeControllers {
         # if no api connection exists, display authentication form
         if (!self::api_connection_exists($module)) {
             $smarty->assign(array(
+                'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
                 'module_path' => $module->get('_path')
             ));
             $output .= $module->display($module->name, 'backoffice/frontend/templates/authenticate.tpl');
@@ -38,6 +39,7 @@ class FmBackofficeControllers {
                 $api_available = true;
             } catch (Exception $e) {
                 $smarty->assign(array(
+                    'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
                     'module_path' => $module->get('_path'),
                     'exception_type' => get_class($e),
                     'error_message' => $e->getMessage()
@@ -51,6 +53,7 @@ class FmBackofficeControllers {
                 # if no language choice exists, display choose language form
                 if (!self::language_choice_exists($module)) {
                     $smarty->assign(array(
+                        'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
                         'module_path' => $module->get('_path'),
                         'languages' => Language::getLanguages(),
                         'selected_language' => Configuration::get($module->config_name.'_language')
@@ -60,6 +63,7 @@ class FmBackofficeControllers {
                 # else display main template
                 } else {
                     $smarty->assign(array(
+                        'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
                         'module_path' => $module->get('_path'),
                         'username' => Configuration::get($module->config_name.'_username'),
                         'language' => new Language(Configuration::get($module->config_name.'_language'))
