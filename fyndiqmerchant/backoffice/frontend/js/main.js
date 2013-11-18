@@ -80,7 +80,7 @@ var FmCtrl = {
 
     load_products: function(category_id, callback) {
         // unset active class on previously selected category
-        $('.fm-category-tree a').removeClass('active');
+        $('.fm-category-tree li').removeClass('active');
 
         FmCtrl.call_service('get_products', {'category': category_id}, function(products) {
             $('.fm-product-list-container').html(tpl['product-list']({
@@ -89,7 +89,7 @@ var FmCtrl = {
             }));
 
             // set active class on selected category
-            $('.fm-category-tree a[data-category_id='+category_id+']').addClass('active');
+            $('.fm-category-tree li[data-category_id='+category_id+']').addClass('active');
 
             // http://stackoverflow.com/questions/5943994/jquery-slidedown-snap-back-issue
             // set correct height on combinations to fix jquery slideDown jump issue
@@ -126,7 +126,7 @@ var FmCtrl = {
         $(document).on('click', '.fm-category-tree a', function(e) {
             e.preventDefault();
             FmCtrl.show_load_screen();
-            FmCtrl.load_products($(this).attr('data-category_id'), function() {
+            FmCtrl.load_products($(this).parent().attr('data-category_id'), function() {
                 FmCtrl.hide_load_screen();
             });
             return false;
@@ -174,7 +174,7 @@ $(document).ready(function() {
     FmCtrl.load_categories(function() {
 
         // load products from second category
-        var category_id = $('.fm-category-tree a').eq(1).attr('data-category_id');
+        var category_id = $('.fm-category-tree a').eq(1).parent().attr('data-category_id');
         FmCtrl.load_products(category_id, function() {
             FmCtrl.hide_load_screen();
         });

@@ -11,9 +11,9 @@
 <ul class="fm-category-tree">
     {{#each categories}}
         {{#with this}}
-            <li>
+            <li data-category_id="{{id}}">
                 {{level}}
-                <a href="#" data-category_id="{{id}}">{{name}}</a>
+                <a href="#">{{name}}</a>
             </li>
         {{/with}}
     {{/each}}
