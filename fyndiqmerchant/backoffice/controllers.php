@@ -35,7 +35,7 @@ class FmBackofficeControllers {
             # check if api is up
             $api_available = false;
             try {
-                FmHelpers::call_api('account/');
+                FmHelpers::call_api('GET', 'account/');
                 $api_available = true;
             } catch (Exception $e) {
                 $smarty->assign(array(
@@ -106,7 +106,7 @@ class FmBackofficeControllers {
                 # authenticate with Fyndiq API
                 $authenticated = false;
                 try {
-                    $result = FyndiqAPI::call($module->user_agent, $username, $api_token, 'account/', array());
+                    $result = FyndiqAPI::call($module->user_agent, $username, $api_token, 'GET', 'account/', array());
                     $authenticated = true;
                 } catch (FyndiqAPIConnectionFailed $e) {
                     $output .= $module->displayError($module->l(FmMessages::get('api-network-error')));

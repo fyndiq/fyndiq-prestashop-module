@@ -27,7 +27,7 @@ class FmHelpers {
 
     # wrapper around FyndiqAPI
     # uses stored connection credentials for authentication
-    public static function call_api($path, $data=array()) {
+    public static function call_api($method, $path, $data=array()) {
 
         # get stored connection credentials
         $module = Module::getInstanceByName('fyndiqmerchant');
@@ -35,7 +35,7 @@ class FmHelpers {
         $api_token = Configuration::get($module->config_name.'_api_token');
 
         # call API
-        return FyndiqAPI::call($module->user_agent, $username, $api_token, $path, $data);
+        return FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
     }
 
     public static function db_escape($value) {

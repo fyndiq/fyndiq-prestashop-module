@@ -7,7 +7,7 @@ class FyndiqAPITooManyRequests extends Exception {}
 class FyndiqAPIUnsupportedStatus extends Exception {}
 
 class FyndiqAPI {
-    public static function call($user_agent, $username, $token, $path, $data) {
+    public static function call($user_agent, $username, $token, $method, $path, $data) {
 
         $request_body = json_encode($data);
 
@@ -19,7 +19,7 @@ class FyndiqAPI {
         $curl_opts = array(
             CURLOPT_USERAGENT => $user_agent,
             CURLOPT_URL => (_PS_MODE_DEV_?'http':'https').'://fyndiq.se:8080/api/v2.0/'.$path,
-            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_POSTFIELDS => $request_body,
 
             CURLOPT_VERBOSE => true,

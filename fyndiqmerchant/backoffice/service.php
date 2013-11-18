@@ -75,7 +75,7 @@ class FmAjaxService {
 
     public static function get_orders($args) {
         try {
-            $ret = FmHelpers::call_api('orders/');
+            $ret = FmHelpers::call_api('GET', 'orders/');
             self::response($ret);
         } catch (Exception $e) {
             self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
