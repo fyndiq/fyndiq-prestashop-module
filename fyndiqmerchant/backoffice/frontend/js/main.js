@@ -129,14 +129,12 @@ var FmCtrl = {
             FmCtrl.load_products($(this).parent().attr('data-category_id'), function() {
                 FmCtrl.hide_load_screen();
             });
-            return false;
         });
 
         // when clicking product's expand icon, show its combinations
         $(document).on('click', '.fm-product-list .product .expand a', function(e) {
             e.preventDefault();
             $(this).parents('li').find('.combinations').slideToggle(250);
-            return false;
         });
 
         // when clicking product's checkbox, toggle checked on all its combination's checkboxes
@@ -159,7 +157,6 @@ var FmCtrl = {
             if ($(this).attr('name') == 'deselect-all') {
                 $('.fm-product-list .product .select input').prop('checked', false).change();
             }
-            return false;
         });
     }
 };
