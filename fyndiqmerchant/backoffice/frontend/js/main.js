@@ -110,6 +110,57 @@ var FmCtrl = {
                 callback();
             }
         });
+    },
+
+    bind_event_handlers: function() {
+        // import orders submit button
+        $(document).on('submit', '.fm-form.orders', function(e) {
+            e.preventDefault();
+            FmCtrl.show_load_screen();
+            FmCtrl.import_orders(function() {
+                FmCtrl.hide_load_screen();
+            });
+        });
+
+        // when clicking category in tree, load its products
+        $(document).on('click', '.fm-category-tree a', function(e) {
+            e.preventDefault();
+            FmCtrl.show_load_screen();
+            FmCtrl.load_products($(this).attr('data-category_id'), function() {
+                FmCtrl.hide_load_screen();
+            });
+            return false;
+        });
+
+        // when clicking product's expand icon, show its combinations
+        $(document).on('click', '.fm-product-list .product .expand a', function(e) {
+            e.preventDefault();
+            $(this).parents('li').find('.combinations').slideToggle(250);
+            return false;
+        });
+
+        // when clicking product's checkbox, toggle checked on all its combination's checkboxes
+        $(document).on('change', '.fm-product-list .product .select input', function(e) {
+            var combination_checkboxes = $(this).parents('li').find('.combinations .select input');
+            combination_checkboxes.prop('checked', $(this).prop('checked'));
+        });
+
+        // when clicking a combination's checkbox, set checked on its parent product's checkbox
+        $(document).on('change', '.fm-product-list .combinations .select input', function(e) {
+            $(this).parents('li').find('.product .select input').prop('checked', true);
+        });
+
+        // when clicking select all products checkbox, set checked on all product's checkboxes
+        $(document).on('click', '.fm-product-list-controls .select input', function(e) {
+            e.preventDefault();
+            if ($(this).attr('name') == 'select-all') {
+                $('.fm-product-list .product .select input').prop('checked', true).change();
+            }
+            if ($(this).attr('name') == 'deselect-all') {
+                $('.fm-product-list .product .select input').prop('checked', false).change();
+            }
+            return false;
+        });
     }
 };
 
@@ -117,54 +168,7 @@ $(document).ready(function() {
 
     FmCtrl.show_load_screen();
 
-    // import orders submit button
-    $(document).on('submit', '.fm-form.orders', function(e) {
-        e.preventDefault();
-        FmCtrl.show_load_screen();
-        FmCtrl.import_orders(function() {
-            FmCtrl.hide_load_screen();
-        });
-    });
-
-    // when clicking category in tree, load its products
-    $(document).on('click', '.fm-category-tree a', function(e) {
-        e.preventDefault();
-        FmCtrl.show_load_screen();
-        FmCtrl.load_products($(this).attr('data-category_id'), function() {
-            FmCtrl.hide_load_screen();
-        });
-        return false;
-    });
-
-    // when clicking product's expand icon, show its combinations
-    $(document).on('click', '.fm-product-list .product .expand a', function(e) {
-        e.preventDefault();
-        $(this).parents('li').find('.combinations').slideToggle(250);
-        return false;
-    });
-
-    // when clicking product's checkbox, toggle checked on all its combination's checkboxes
-    $(document).on('change', '.fm-product-list .product .select input', function(e) {
-        var combination_checkboxes = $(this).parents('li').find('.combinations .select input');
-        combination_checkboxes.prop('checked', $(this).prop('checked'));
-    });
-
-    // when clicking a combination's checkbox, set checked on its parent product's checkbox
-    $(document).on('change', '.fm-product-list .combinations .select input', function(e) {
-        $(this).parents('li').find('.product .select input').prop('checked', true);
-    });
-
-    // when clicking select all products checkbox, set checked on all product's checkboxes
-    $(document).on('click', '.fm-product-list-controls .select input', function(e) {
-        e.preventDefault();
-        if ($(this).attr('name') == 'select-all') {
-            $('.fm-product-list .product .select input').prop('checked', true).change();
-        }
-        if ($(this).attr('name') == 'deselect-all') {
-            $('.fm-product-list .product .select input').prop('checked', false).change();
-        }
-        return false;
-    });
+    FmCtrl.bind_event_handlers();
 
     // load all categories
     FmCtrl.load_categories(function() {
