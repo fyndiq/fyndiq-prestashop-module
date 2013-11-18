@@ -19,13 +19,13 @@ $('script.handlebars-template').each(function(k, v) {
 });
 
 var FmCtrl = {
-    show_load_screen: function() {
-        $('.fm-loading-overlay').fadeIn(300);
+    show_load_screen: function(callback) {
+        $('.fm-loading-overlay').fadeIn(300, callback);
     },
 
-    hide_load_screen: function() {
+    hide_load_screen: function(callback) {
         setTimeout(function() {
-            $('.fm-loading-overlay').fadeOut(300);
+            $('.fm-loading-overlay').fadeOut(300, callback);
         }, 200);
     },
 
