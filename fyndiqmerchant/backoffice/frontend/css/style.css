@@ -230,6 +230,8 @@
       .fm-product-list .product .expand.inactive {
         opacity: 0.2;
         filter: alpha(opacity=20); }
+        .fm-product-list .product .expand.inactive a {
+          cursor: default; }
   .fm-product-list .combinations {
     padding-left: 8px;
     margin-top: 3px; }

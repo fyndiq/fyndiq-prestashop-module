@@ -316,6 +316,9 @@
             &.inactive {
                 opacity: 0.2;
                 filter: alpha(opacity=20);
+                a {
+                    cursor: default;
+                }
             }
         }
     }
