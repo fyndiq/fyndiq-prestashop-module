@@ -41,8 +41,14 @@ class FyndiqMerchant extends Module {
     public function install() {
         $ret = true;
 
-        # do common module install
         $ret &= (bool)parent::install();
+
+        # hook to product update
+        $hook_name = [
+            FMPSV14 => 'updateproduct',
+            FMPSV15 => 'actionProductUpdate'
+        ];
+        $ret &= (bool)$this->registerHook($hook_name[FMPSV]);
 
         return (bool)$ret;
     }
@@ -50,14 +56,21 @@ class FyndiqMerchant extends Module {
     public function uninstall() {
         $ret = true;
 
-        # do common module uninstall
         $ret &= (bool)parent::uninstall();
 
-        # do module specific uninstall
+        # delete configuration
         $ret &= (bool)Configuration::deleteByName($this->config_name.'_username');
         $ret &= (bool)Configuration::deleteByName($this->config_name.'_api_token');
 
         return (bool)$ret;
+    }
+
+    # 1.4
+    public function hookupdateproduct($data) {
+    }
+
+    # 1.5
+    public function hookActionProductUpdate($data) {
     }
 
     public function getContent() {
