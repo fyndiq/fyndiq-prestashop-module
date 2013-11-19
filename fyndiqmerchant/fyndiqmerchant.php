@@ -61,6 +61,7 @@ class FyndiqMerchant extends Module {
         # delete configuration
         $ret &= (bool)Configuration::deleteByName($this->config_name.'_username');
         $ret &= (bool)Configuration::deleteByName($this->config_name.'_api_token');
+        $ret &= (bool)Configuration::deleteByName($this->config_name.'_language');
 
         return (bool)$ret;
     }
