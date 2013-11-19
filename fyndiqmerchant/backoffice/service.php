@@ -58,19 +58,15 @@ class FmAjaxService {
     }
 
     public static function get_products($args) {
-        if (array_key_exists('category', $args)) {
-            $products = [];
+        $products = [];
 
-            $rows = FmProduct::get_by_category($args['category']);
+        $rows = FmProduct::get_by_category($args['category']);
 
-            foreach ($rows as $row) {
-                $products[] = FmProduct::get($row['id_product']);
-            }
-
-            self::response($products);
-        } else {
-            self::response_error(FmMessages::get('missing-category-argument'));
+        foreach ($rows as $row) {
+            $products[] = FmProduct::get($row['id_product']);
         }
+
+        self::response($products);
     }
 
     public static function get_orders($args) {

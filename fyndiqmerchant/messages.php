@@ -9,7 +9,6 @@ class FmMessages {
         'disconnect-confirm' => 'Are you sure you want to disconnect from your Fyndiq merchant account?',
         'account-disconnected' => 'You have disconnected from your Fyndiq merchant account.',
         'json-encode-fail' => 'Could not encode response json.',
-        'missing-category-argument' => 'This action requires a category argument',
         'empty-language-choice' => 'You have to select a language.',
 
         'api-call-error' => 'Error when calling api',
