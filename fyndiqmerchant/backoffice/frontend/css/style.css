@@ -3,13 +3,12 @@
   width: 920px;
   margin: 0 auto;
   overflow: hidden; }
+  #fm-container .fyndiqlogo {
+    display: block;
+    margin: 10px auto;
+    width: 160px; }
   #fm-container label {
     width: auto; }
-
-#fm-logo {
-  display: block;
-  margin: 0 auto;
-  width: 200px; }
 
 .fm-form {
   margin: 20px 0; }

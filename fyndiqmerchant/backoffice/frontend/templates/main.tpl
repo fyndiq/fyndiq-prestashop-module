@@ -20,7 +20,7 @@
 
 <div id="fm-container">
 
-    <img id="fm-logo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
+    <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
     <div id="fm-main-panel">
 

@@ -39,15 +39,15 @@
     margin: 0 auto;
     overflow: hidden;
 
+    .fyndiqlogo {
+        display: block;
+        margin: 10px auto;
+        width: 160px;
+    }
+
     label {
         width: auto;
     }
-}
-
-#fm-logo {
-    display: block;
-    margin: 0 auto;
-    width: 200px;
 }
 
 .fm-form {
