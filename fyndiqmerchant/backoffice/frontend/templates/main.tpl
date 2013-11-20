@@ -20,16 +20,6 @@
 
 <div id="fm-container">
 
-    <div class="fm-loading-overlay">
-        <img src="{$module_path}backoffice/frontend/images/ajax-loader.gif" alt="Loading animation">
-    </div>
-
-    <div class="fm-message-overlay" style="display: none;">
-        <img class="close" src="{$module_path}backoffice/frontend/images/close-icon.png" alt="Close" title="Close message">
-        <h3></h3>
-        <p></p>
-    </div>
-
     <img id="fm-logo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
     <div id="fm-main-panel">

@@ -20,6 +20,19 @@
     border-radius: $x;
 }
 
+@mixin overlay() {
+    // http://robertnyman.com/2010/01/11/css-background-transparency-without-affecting-child-elements-through-rgba-and-filters/
+    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.4);
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#66000000, endColorstr=#66000000);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#66000000, endColorstr=#66000000);
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
 #fm-container {
     position: relative;
     width: 920px;
@@ -85,23 +98,36 @@
 
 
 .fm-loading-overlay {
-
-    // http://robertnyman.com/2010/01/11/css-background-transparency-without-affecting-child-elements-through-rgba-and-filters/
-    background: rgb(0, 0, 0);
-    background: rgba(0, 0, 0, 0.8);
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC000000, endColorstr=#CC000000);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC000000, endColorstr=#CC000000);
-
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 999;
+    @include overlay;
 
     img {
         width: 128px;
         height: 128px;
         display: block;
         margin: 150px auto;
+    }
+}
+
+.fm-modal-overlay {
+    @include overlay;
+
+    .container {
+        @include border-radius(4px);
+
+        background: #e8e8e8;
+        border: 1px solid #484848;
+        width: 600px;
+        margin: 50px auto;
+        padding: 10px;
+
+        h3 {
+            font-size: 18px;
+        }
+
+        .content {
+            min-height: 200px;
+            font-size: 14px;
+        }
     }
 }
 

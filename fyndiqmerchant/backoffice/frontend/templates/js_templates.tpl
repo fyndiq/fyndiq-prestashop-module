@@ -1,13 +1,44 @@
 
 {literal}
 
-<script type="text/x-handlebars-template" class="handlebars-template" id="message-box">
-<div class="{{classnames}}">
+<script type="text/x-handlebars-template" class="handlebars-template" id="fm-loading-overlay">
+<div class="fm-loading-overlay">
+    <img src="{{module_path}}backoffice/frontend/images/ajax-loader.gif" alt="Loading animation">
+</div>
+</script>
+
+<script type="text/x-handlebars-template" class="handlebars-template" id="fm-message-overlay">
+<div class="fm-message-overlay fm-{{type}}">
+    <img class="close" src="{{module_path}}backoffice/frontend/images/close-icon.png" alt="Close" title="Close message">
+    <h3>{{title}}</h3>
     <p>{{message}}</p>
 </div>
 </script>
 
-<script type="text/x-handlebars-template" class="handlebars-template" id="category-tree">
+<script type="text/x-handlebars-template" class="handlebars-template" id="fm-modal-overlay">
+<div class="fm-modal-overlay">
+    <div class="container">
+        <div class="content"></div>
+        <div class="controls">
+            {{#each buttons}}
+                <button class="{{type}}" data-modal_type="{{type}}">{{label}}</button>
+            {{/each}}
+        </div>
+    </div>
+</div>
+</script>
+
+<script type="text/x-handlebars-template" class="handlebars-template" id="fm-accept-product-export">
+<h3>Are you sure?</h3>
+<p>
+By yesing the yes in this yessing yesser you yess the yessessities out of yassir arafat
+</p>
+<ul>
+    <li>yes</li>
+</ul>
+</script>
+
+<script type="text/x-handlebars-template" class="handlebars-template" id="fm-category-tree">
 <ul class="fm-category-tree">
     {{#each categories}}
         {{#with this}}
@@ -20,7 +51,7 @@
 </ul>
 </script>
 
-<script type="text/x-handlebars-template" class="handlebars-partial" id="product-list-controls">
+<script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
         <form class="fm-form select">
             <input class="submit" type="submit" name="select-all" value="Select all">
@@ -33,8 +64,8 @@
     </div>
 </script>
 
-<script type="text/x-handlebars-template" class="handlebars-template" id="product-list">
-{{> product-list-controls}}
+<script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
+{{> fm-product-list-controls}}
 {{#if products}}
     <ul class="fm-product-list">
         {{#each products}}
@@ -130,7 +161,7 @@
 {{else}}
     Category is empty.
 {{/if}}
-{{> product-list-controls}}
+{{> fm-product-list-controls}}
 </script>
 
 {/literal}

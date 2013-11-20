@@ -15,37 +15,99 @@ $('script.handlebars-partial').each(function(k, v) {
 // precompile handlebars templates
 var tpl = {};
 $('script.handlebars-template').each(function(k, v) {
-    tpl[$(v).attr('id')] = Handlebars.compile($(v).html());
+    tpl[$(v).attr('id').substring(3)] = Handlebars.compile($(v).html());
 });
 
-var FmCtrl = {
+var FmGui = {
+    messages_z_index_counter: 1,
+
     show_load_screen: function(callback) {
-        $('.fm-loading-overlay').fadeIn(300, callback);
+        var overlay = tpl['loading-overlay']({
+            'module_path': module_path
+        });
+        $(overlay).hide().prependTo($('#fm-container'));
+        var attached_overlay = $('.fm-loading-overlay');
+
+        var top = $(document).scrollTop() + 100;
+        attached_overlay.find('img').css({'marginTop': top+'px'});
+
+        attached_overlay.fadeIn(300, function() {
+            if (callback) {
+                callback();
+            }
+        });
     },
 
     hide_load_screen: function(callback) {
         setTimeout(function() {
-            $('.fm-loading-overlay').fadeOut(300, callback);
+            $('.fm-loading-overlay').fadeOut(300, function() {
+                $('.fm-loading-overlay').remove();
+                if (callback) {
+                    callback();
+                }
+            });
         }, 200);
     },
 
-    show_message: function(type, header, body) {
-        var overlay = $('.fm-message-overlay');
-        overlay.removeClass('fm-info fm-success fm-warning fm-error');
-        overlay.addClass('fm-'+type);
-        if (header) {
-            overlay.children('h3').html(header);
-        } else {
-            overlay.children('h3').html('');
-        }
-        if (body) {
-            overlay.children('p').html(body);
-        } else {
-            overlay.children('p').html('');
-        }
-        overlay.slideDown(300);
+    show_message: function(type, title, message) {
+        var overlay = $(tpl['message-overlay']({
+            'module_path': module_path,
+            'type': type,
+            'title': title,
+            'message': message
+        }));
+
+        overlay.hide()
+            .css({'z-index': 999+FmGui.messages_z_index_counter++})
+            .prependTo($('#fm-container'));
+
+        var attached_overlay = $('.fm-message-overlay');
+        attached_overlay.slideDown(300);
+
+        attached_overlay.find('.close').bind('click', function(){
+            $(this).parent().slideUp(200, function() {
+                $(this).remove();
+            });
+        });
+
+        setTimeout(function() {
+            attached_overlay.find('.close').click();
+        }, 6000);
     },
 
+    show_modal: function(type, tpl_name, callback) {
+        var buttons = {
+            'cancel': {'type': 'cancel', 'label': 'Cancel'},
+            'accept': {'type': 'accept', 'label': 'OK'}
+        };
+        var modal_args = {};
+        if (type == 'confirm') {
+            modal_args['buttons'] = [buttons['cancel'], buttons['accept']];
+        }
+        var overlay = $(tpl['modal-overlay'](modal_args));
+
+        overlay.hide().prependTo($('#fm-container'));
+        var attached_overlay = $('.fm-modal-overlay');
+
+        var content = tpl[tpl_name]({});
+        attached_overlay.find('.content').html(content);
+
+        var top = $(document).scrollTop() + 50;
+        attached_overlay.find('.container').css({'marginTop': top+'px'});
+
+        attached_overlay.fadeIn(300);
+
+        attached_overlay.find('.controls button').bind('click', function(e) {
+            e.preventDefault();
+            attached_overlay.remove();
+            if (callback) {
+                callback($(this).attr('data-modal_type'));
+            }
+        });
+    }
+};
+
+FmCtrl = {
     call_service: function(action, args, callback) {
         $.ajax({
             type: 'POST',
@@ -55,13 +117,13 @@ var FmCtrl = {
         }).always(function(data) {
             if ($.isPlainObject(data) && ('fm-service-status' in data)) {
                 if (data['fm-service-status'] == 'error') {
-                    FmCtrl.show_message('error', messages['service-call-fail-head'], data['message']);
+                    FmGui.show_message('error', messages['service-call-fail-head'], data['message']);
                 }
                 if (data['fm-service-status'] == 'success') {
                     callback(data['data']);
                 }
             } else {
-                FmCtrl.show_message('error', messages['service-call-fail-head'], messages['connection-failed']);
+                FmGui.show_message('error', messages['service-call-fail-head'], messages['connection-failed']);
             }
         });
     },
@@ -114,32 +176,23 @@ var FmCtrl = {
 
     bind_event_handlers: function() {
 
-        // when clicking the message overlay close button, hide it
-        $(document).on('click', '.fm-message-overlay .close', function(e) {
-            $('.fm-message-overlay').slideUp(200);
-        });
-        // when pressing esc key, close overlay message box
-        $(document).keyup(function(e) {
-            if (e.keyCode == 27) {
-                $('.fm-message-overlay').slideUp(200);
-            }
-        });
-
         // import orders submit button
         $(document).on('submit', '.fm-form.orders', function(e) {
             e.preventDefault();
-            FmCtrl.show_load_screen();
+            FmGui.show_load_screen();
             FmCtrl.import_orders(function() {
-                FmCtrl.hide_load_screen();
+                FmGui.hide_load_screen();
             });
         });
 
         // when clicking category in tree, load its products
         $(document).on('click', '.fm-category-tree a', function(e) {
             e.preventDefault();
-            FmCtrl.show_load_screen();
-            FmCtrl.load_products($(this).parent().attr('data-category_id'), function() {
-                FmCtrl.hide_load_screen();
+            var self = this;
+            FmGui.show_load_screen(function(){
+                FmCtrl.load_products($(self).parent().attr('data-category_id'), function() {
+                    FmGui.hide_load_screen();
+                });
             });
         });
 
@@ -175,17 +228,19 @@ var FmCtrl = {
 
 $(document).ready(function() {
 
-    FmCtrl.show_load_screen();
 
-    FmCtrl.bind_event_handlers();
 
-    // load all categories
-    FmCtrl.load_categories(function() {
+    FmGui.show_load_screen(function(){
+        FmCtrl.bind_event_handlers();
 
-        // load products from second category
-        var category_id = $('.fm-category-tree a').eq(1).parent().attr('data-category_id');
-        FmCtrl.load_products(category_id, function() {
-            FmCtrl.hide_load_screen();
+        // load all categories
+        FmCtrl.load_categories(function() {
+
+            // load products from second category
+            var category_id = $('.fm-category-tree a').eq(1).parent().attr('data-category_id');
+            FmCtrl.load_products(category_id, function() {
+                FmGui.hide_load_screen();
+            });
         });
     });
 });
