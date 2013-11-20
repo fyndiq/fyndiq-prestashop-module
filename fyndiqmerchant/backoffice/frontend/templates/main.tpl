@@ -15,6 +15,8 @@
     {/foreach}
 </script>
 
+<script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmGui.js"></script>
+<script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmCtrl.js"></script>
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/main.js"></script>
 
 
