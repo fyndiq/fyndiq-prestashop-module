@@ -96,6 +96,9 @@
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
+    -moz-box-shadow: 0px 0px 6px 3px #555555;
+    -webkit-box-shadow: 0px 0px 6px 3px #555555;
+    box-shadow: 0px 0px 6px 3px #555555;
     background: #e8e8e8;
     border: 1px solid #484848;
     width: 600px;
@@ -152,6 +155,34 @@
     margin: 0 auto;
     color: white;
     font-size: 14px; }
+
+.fm-accept-product-export ul {
+  list-style: none;
+  padding: 0;
+  margin: 0; }
+  .fm-accept-product-export ul > li {
+    overflow: hidden;
+    background-color: #f5f5f5;
+    margin-bottom: 2px;
+    padding: 2px; }
+    .fm-accept-product-export ul > li:last-child {
+      margin-bottom: 0; }
+    .fm-accept-product-export ul > li .image {
+      float: left;
+      width: 25px;
+      height: 25px; }
+      .fm-accept-product-export ul > li .image img {
+        display: block;
+        margin: 0 auto;
+        max-width: 25px;
+        max-height: 25px; }
+    .fm-accept-product-export ul > li .name {
+      float: left;
+      margin-left: 3px; }
+    .fm-accept-product-export ul > li .highest-price {
+      float: left; }
+    .fm-accept-product-export ul > li .lowest-price {
+      float: left; }
 
 #fm-main-panel {
   float: left;

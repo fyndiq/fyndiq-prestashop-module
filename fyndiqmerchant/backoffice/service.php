@@ -16,7 +16,7 @@ require_once('./models/product.php');
 class FmAjaxService {
 
     # return a success response
-    public static function response($data) {
+    public static function response($data = '') {
         $response = array('fm-service-status' => 'success', 'data' => $data);
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
@@ -76,6 +76,16 @@ class FmAjaxService {
         } catch (Exception $e) {
             self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
         }
+    }
+
+    public static function export_products($args) {
+        foreach ($args['products'] as $v) {
+            $product_id = $v['product'];
+
+            $product = FmProduct::get($product_id);
+        }
+
+        self::response();
     }
 }
 

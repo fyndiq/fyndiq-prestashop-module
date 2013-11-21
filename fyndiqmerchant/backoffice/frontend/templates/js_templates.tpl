@@ -29,13 +29,43 @@
 </script>
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-accept-product-export">
-<h3>Are you sure?</h3>
-<p>
-By yesing the yes in this yessing yesser you yess the yessessities out of yassir arafat
-</p>
-<ul>
-    <li>yes</li>
-</ul>
+<div class="fm-accept-product-export">
+    <h3>Warning!</h3>
+    <p>
+        Some of the products that you selected have combinations with a different price than the product they belong to.<br>
+        Fyndiq does not support different prices on different articles, Fyndiq supports only one price per product and all of its articles.<br>
+        If you choose to proceed, we will set one common price for all your combinations.<br>
+        We have calculated the recommended price for each product, which you can see below.<br>
+        You may choose to alter these values now, before pressing the Accept and Export button.<br>
+        Or you may choose to press Cancel to go back and alter your selection of products and combinations.
+    </p>
+
+    <ul>
+    {{#each product_warnings}}
+        <li>
+            {{#with product}}
+                {{#with product}}
+                    <div class="image">
+                        {{#if image}}
+                            <img src="{{image}}" alt="Product image">
+                        {{/if}}
+                    </div>
+                    <div class="name">
+                        {{name}}
+                    </div>
+                {{/with}}
+            {{/with}}
+
+            <div class="highest-price">
+                Highest: {{highest_price}}
+            </div>
+            <div class="lowest-price">
+                Lowest: {{lowest_price}}
+            </div>
+        </li>
+    {{/each}}
+    </ul>
+</div>
 </script>
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-category-tree">
@@ -58,8 +88,7 @@ By yesing the yes in this yessing yesser you yess the yessessities out of yassir
             <input class="submit" type="submit" name="deselect-all" value="Deselect all">
         </form>
         <form class="fm-form submit-buttons">
-            <input class="submit important-action" type="submit" value="Export with combinations">
-            <input class="submit important-action" type="submit" value="Export combinations as products">
+            <input class="submit important-action" type="submit" name="submit_export" value="Export products">
         </form>
     </div>
 </script>
@@ -70,7 +99,14 @@ By yesing the yes in this yessing yesser you yess the yessessities out of yassir
     <ul class="fm-product-list">
         {{#each products}}
             {{#with this}}
-            <li>
+            <li
+                data-id="{{id}}"
+                data-name="{{name}}"
+                data-reference="{{reference}}"
+                data-price="{{price}}"
+                data-quantity="{{quantity}}"
+                data-image="{{image}}"
+            >
                 <div class="product">
                     <div class="title">
                         <label for="select_product_{{id}}">
@@ -85,7 +121,7 @@ By yesing the yes in this yessing yesser you yess the yessessities out of yassir
                     <div class="image">
                         {{#if image}}
                         <label for="select_product_{{id}}">
-                            <img src="{{image}}">
+                            <img src="{{image}}" alt="Product image">
                         </label>
                         {{/if}}
                     </div>
@@ -127,7 +163,11 @@ By yesing the yes in this yessing yesser you yess the yessessities out of yassir
                 {{#if combinations}}
                     <ul class="combinations">
                     {{#each combinations}}
-                        <li>
+                        <li
+                            data-id="{{id}}"
+                            data-price="{{price}}"
+                            data-quantity="{{quantity}}"
+                        >
                             <div class="select">
                                 <input type="checkbox" class="checkbox" id="select_combination_{{id}}">
                             </div>
@@ -135,7 +175,7 @@ By yesing the yes in this yessing yesser you yess the yessessities out of yassir
                             <div class="image">
                                 {{#if image}}
                                 <label for="select_combination_{{id}}">
-                                    <img src="{{image}}">
+                                    <img src="{{image}}" alt="Product combination image">
                                 </label>
                                 {{/if}}
                             </div>

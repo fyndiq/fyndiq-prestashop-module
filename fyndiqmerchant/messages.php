@@ -18,7 +18,13 @@ class FmMessages {
         'api-too-many-requests' => 'You have sent too many requests. Calm down!',
 
         'service-call-fail-head' => 'Connection failed',
-        'service-call-fail-message' => 'Could not connect to the module service.'
+        'service-call-fail-message' => 'Could not connect to the module service.',
+
+        'products-exported-title' => 'Products exported!',
+        'products-exported-message' => 'The products you selected have been exported to Fyndiq.',
+
+        'products-not-selected-title' => 'No products selected',
+        'products-not-selected-message' => 'You have to select at least one product to export.'
     );
 
     public static function get($name) {

@@ -57,7 +57,7 @@ var FmGui = {
         }, 10000);
     },
 
-    show_modal: function(type, tpl_name, callback) {
+    show_modal: function(type, content, callback) {
         var buttons = {
             'cancel': {'type': 'cancel', 'label': 'Cancel'},
             'accept': {'type': 'accept', 'label': 'OK'}
@@ -71,7 +71,6 @@ var FmGui = {
         overlay.hide().prependTo($('#fm-container'));
         var attached_overlay = $('.fm-modal-overlay');
 
-        var content = tpl[tpl_name]({});
         attached_overlay.find('.content').html(content);
 
         var top = $(document).scrollTop() + 50;
