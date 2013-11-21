@@ -9,7 +9,7 @@
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-message-overlay">
 <div class="fm-message-overlay fm-{{type}}">
-    <img class="close" src="{{module_path}}backoffice/frontend/images/close-icon.png" alt="Close" title="Close message">
+    <img class="close" src="{{module_path}}backoffice/frontend/images/icons/close-icon.png" alt="Close" title="Close message">
     <h3>{{title}}</h3>
     <p>{{message}}</p>
 </div>
@@ -19,11 +19,6 @@
 <div class="fm-modal-overlay">
     <div class="container">
         <div class="content"></div>
-        <div class="controls">
-            {{#each buttons}}
-                <button class="{{type}}" data-modal_type="{{type}}">{{label}}</button>
-            {{/each}}
-        </div>
     </div>
 </div>
 </script>
@@ -65,6 +60,17 @@
         </li>
     {{/each}}
     </ul>
+
+    <div class="controls">
+        <button class="fm-button cancel" name="cancel">
+            <img src="{{module_path}}backoffice/frontend/images/icons/cancel.png">
+            Cancel
+        </button>
+        <button class="fm-button accept" name="accept">
+            <img src="{{module_path}}backoffice/frontend/images/icons/accept.png">
+            Accept
+        </button>
+    </div>
 </div>
 </script>
 
@@ -149,7 +155,7 @@
                         {{/unless}}
                         ">
                         <a href="#">
-                            <img src="{{../../module_path}}backoffice/frontend/images/down-arrow.png"
+                            <img src="{{../../module_path}}backoffice/frontend/images/icons/down-arrow.png"
                                 alt="Down pointing arrow"
                                 {{#if combinations}}
                                     title="Show combinations"
@@ -180,15 +186,17 @@
                                 {{/if}}
                             </div>
 
-                            <div class="attributes">
-                                {{#each attributes}}
-                                    {{name}} - {{value}},
-                                {{/each}}
-                            </div>
+                            <div class="data">
+                                <div>
+                                    {{#each attributes}}
+                                        {{name}} - {{value}},
+                                    {{/each}}
+                                </div>
 
-                            <div>
-                                Price: {{price}}
-                                Qty: {{quantity}}
+                                <div>
+                                    Price: {{price}}
+                                    Qty: {{quantity}}
+                                </div>
                             </div>
                         </li>
                     {{/each}}

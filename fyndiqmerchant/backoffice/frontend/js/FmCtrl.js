@@ -248,6 +248,7 @@ var FmCtrl = {
                 if (product_warnings.length > 0) {
 
                     var content = tpl['accept-product-export']({
+                        'module_path': module_path,
                         'product_warnings': product_warnings
                     });
 

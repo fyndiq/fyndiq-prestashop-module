@@ -1,43 +1,10 @@
 
-.fm-accept-product-export {
-    ul {
-        list-style: none;
-        padding: 0;
+#fm-container {
+    label {
         margin: 0;
-
-        > li {
-            overflow: hidden;
-            background-color: #f5f5f5;
-            margin-bottom: 2px;
-            padding: 2px;
-
-            &:last-child {
-                margin-bottom: 0;
-            }
-
-            .image {
-                float: left;
-                width: 25px;
-                height: 25px;
-
-                img {
-                    display: block;
-                    margin: 0 auto;
-                    max-width: 25px;
-                    max-height: 25px;
-                }
-            }
-            .name {
-                float: left;
-                margin-left: 3px;
-            }
-            .highest-price {
-                float: left;
-            }
-            .lowest-price {
-                float: left;
-            }
-        }
+        padding: 0;
+        width: auto;
+        text-align: left;
     }
 }
 
@@ -46,14 +13,16 @@
 }
 .fm-button {
     border: 1px solid #a5a5a5;
-    padding: 4px 8px;
-    font-size: 13px;
+    padding: 3px 8px;
+    font-size: 12px;
 
     color: black;
     cursor: pointer;
     outline: none;
 
-    @include border-radius(4px);
+    line-height: 16px;
+
+    @include border-radius(3px);
 
     @include gradient(#ffffff, #e5e5e5);
     &:active {
@@ -62,7 +31,7 @@
 
     &.fyndiq {
         color: white;
-        text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
+        text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.8);
         font-weight: bold;
         border-color: #de981f;
 
@@ -75,10 +44,6 @@
 
 .fm-form {
     margin: 20px 0;
-
-    label {
-        text-align: left;
-    }
 
     div {
         overflow: hidden;
