@@ -1,6 +1,6 @@
 
 <style type="text/css">
-    {fetch file="$server_path/backoffice/frontend/css/style.css"}
+    {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
 
 {include './js_templates.tpl'}
