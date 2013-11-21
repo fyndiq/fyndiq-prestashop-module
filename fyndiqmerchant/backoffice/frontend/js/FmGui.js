@@ -54,7 +54,7 @@ var FmGui = {
 
         setTimeout(function() {
             attached_overlay.find('.close').click();
-        }, 6000);
+        }, 10000);
     },
 
     show_modal: function(type, tpl_name, callback) {
