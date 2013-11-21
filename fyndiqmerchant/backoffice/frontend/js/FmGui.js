@@ -57,16 +57,8 @@ var FmGui = {
         }, 10000);
     },
 
-    show_modal: function(type, content, callback) {
-        var buttons = {
-            'cancel': {'type': 'cancel', 'label': 'Cancel'},
-            'accept': {'type': 'accept', 'label': 'OK'}
-        };
-        var modal_args = {};
-        if (type == 'confirm') {
-            modal_args['buttons'] = [buttons['cancel'], buttons['accept']];
-        }
-        var overlay = $(tpl['modal-overlay'](modal_args));
+    show_modal: function(content, callback) {
+        var overlay = $(tpl['modal-overlay']({}));
 
         overlay.hide().prependTo($('#fm-container'));
         var attached_overlay = $('.fm-modal-overlay');

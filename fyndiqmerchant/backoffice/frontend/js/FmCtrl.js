@@ -253,7 +253,7 @@ var FmCtrl = {
                     });
 
                     // show modal describing the issue, and ask for acceptance
-                    FmGui.show_modal('confirm', content, function(type) {
+                    FmGui.show_modal(content, function(type) {
                         if (type == 'accept') {
 
                             // export the products
