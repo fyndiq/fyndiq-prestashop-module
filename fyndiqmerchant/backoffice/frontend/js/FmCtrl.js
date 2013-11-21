@@ -139,7 +139,7 @@ var FmCtrl = {
         });
 
         // when clicking select all products checkbox, set checked on all product's checkboxes
-        $(document).on('click', '.fm-product-list-controls .select input', function(e) {
+        $(document).on('click', '.fm-product-list-controls .select button', function(e) {
             e.preventDefault();
             if ($(this).attr('name') == 'select-all') {
                 $('.fm-product-list .product .select input').prop('checked', true).change();
@@ -150,7 +150,7 @@ var FmCtrl = {
         });
 
         // when clicking the export products submit buttons, export products
-        $(document).on('click', '.fm-product-list-controls .submit[name=submit_export]', function(e) {
+        $(document).on('click', '.fm-product-list-controls button[name=export-products]', function(e) {
             e.preventDefault();
 
             var products = [];

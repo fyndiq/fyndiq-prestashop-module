@@ -12,17 +12,17 @@
             <legend>Authentication</legend>
 
             <div>
-                <label>Username</label>
+                <label for="fm-auth-username">Username</label>
             </div>
             <div>
-                <input type="text" name="username">
+                <input type="text" name="username" id="fm-auth-username">
             </div>
 
             <div>
-                <label>API Token</label>
+                <label for="fm-auth-api-token">API Token</label>
             </div>
             <div>
-                <input type="text" name="api_token">
+                <input type="text" name="api_token" id="fm-auth-api-token">
             </div>
 
             <p>
@@ -30,7 +30,7 @@
                 You will not have to authenticate again when coming here next time.
             </p>
 
-            <input class="submit important-action" type="submit" name="submit_authenticate" value="Authenticate">
+            <button class="fm-button fyndiq" type="submit" name="submit_authenticate">Authenticate</button>
         </fieldset>
     </form>
 </div>

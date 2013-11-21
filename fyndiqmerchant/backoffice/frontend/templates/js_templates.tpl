@@ -83,13 +83,13 @@
 
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
-        <form class="fm-form select">
-            <input class="submit" type="submit" name="select-all" value="Select all">
-            <input class="submit" type="submit" name="deselect-all" value="Deselect all">
-        </form>
-        <form class="fm-form submit-buttons">
-            <input class="submit important-action" type="submit" name="submit_export" value="Export products">
-        </form>
+        <div class="select">
+            <button class="fm-button" name="select-all">Select All</button>
+            <button class="fm-button" name="deselect-all">Deselect All</button>
+        </div>
+        <div class="export">
+            <button class="fm-button fyndiq" name="export-products">Export Products</button>
+        </div>
     </div>
 </script>
 

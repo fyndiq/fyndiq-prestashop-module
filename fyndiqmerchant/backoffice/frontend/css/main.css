@@ -114,59 +114,61 @@
     .fm-accept-product-export ul > li .lowest-price {
       float: left; }
 
+.fm-button::-moz-focus-inner {
+  border: 0; }
+
+.fm-button {
+  border: 1px solid #a5a5a5;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: black;
+  cursor: pointer;
+  outline: none;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  background: white;
+  background: -moz-linear-gradient(top, white 0%, #e5e5e5 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #e5e5e5));
+  background: -webkit-linear-gradient(top, white 0%, #e5e5e5 100%);
+  background: -o-linear-gradient(top, white 0%, #e5e5e5 100%);
+  background: -ms-linear-gradient(top, white 0%, #e5e5e5 100%);
+  background: linear-gradient(to bottom, white 0%, #e5e5e5 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='#e5e5e5',GradientType=0 ); }
+  .fm-button:active {
+    background: #e5e5e5;
+    background: -moz-linear-gradient(top, #e5e5e5 0%, white 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e5e5e5), color-stop(100%, white));
+    background: -webkit-linear-gradient(top, #e5e5e5 0%, white 100%);
+    background: -o-linear-gradient(top, #e5e5e5 0%, white 100%);
+    background: -ms-linear-gradient(top, #e5e5e5 0%, white 100%);
+    background: linear-gradient(to bottom, #e5e5e5 0%, white 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5e5e5', endColorstr='white',GradientType=0 ); }
+  .fm-button.fyndiq {
+    color: white;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
+    font-weight: bold;
+    border-color: #de981f;
+    background: #fdc500;
+    background: -moz-linear-gradient(top, #fdc500 0%, #f39e09 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fdc500), color-stop(100%, #f39e09));
+    background: -webkit-linear-gradient(top, #fdc500 0%, #f39e09 100%);
+    background: -o-linear-gradient(top, #fdc500 0%, #f39e09 100%);
+    background: -ms-linear-gradient(top, #fdc500 0%, #f39e09 100%);
+    background: linear-gradient(to bottom, #fdc500 0%, #f39e09 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdc500', endColorstr='#f39e09',GradientType=0 ); }
+    .fm-button.fyndiq:active {
+      background: #f39e09;
+      background: -moz-linear-gradient(top, #f39e09 0%, #fdc500 100%);
+      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f39e09), color-stop(100%, #fdc500));
+      background: -webkit-linear-gradient(top, #f39e09 0%, #fdc500 100%);
+      background: -o-linear-gradient(top, #f39e09 0%, #fdc500 100%);
+      background: -ms-linear-gradient(top, #f39e09 0%, #fdc500 100%);
+      background: linear-gradient(to bottom, #f39e09 0%, #fdc500 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f39e09', endColorstr='#fdc500',GradientType=0 ); }
+
 .fm-form {
   margin: 20px 0; }
-  .fm-form .submit::-moz-focus-inner {
-    border: 0; }
-  .fm-form .submit {
-    border: 1px solid #a5a5a5;
-    padding: 4px 8px;
-    font-size: 13px;
-    color: black;
-    cursor: pointer;
-    outline: none;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    background: white;
-    background: -moz-linear-gradient(top, white 0%, #e5e5e5 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #e5e5e5));
-    background: -webkit-linear-gradient(top, white 0%, #e5e5e5 100%);
-    background: -o-linear-gradient(top, white 0%, #e5e5e5 100%);
-    background: -ms-linear-gradient(top, white 0%, #e5e5e5 100%);
-    background: linear-gradient(to bottom, white 0%, #e5e5e5 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='#e5e5e5',GradientType=0 ); }
-    .fm-form .submit:active {
-      background: #e5e5e5;
-      background: -moz-linear-gradient(top, #e5e5e5 0%, white 100%);
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e5e5e5), color-stop(100%, white));
-      background: -webkit-linear-gradient(top, #e5e5e5 0%, white 100%);
-      background: -o-linear-gradient(top, #e5e5e5 0%, white 100%);
-      background: -ms-linear-gradient(top, #e5e5e5 0%, white 100%);
-      background: linear-gradient(to bottom, #e5e5e5 0%, white 100%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5e5e5', endColorstr='white',GradientType=0 ); }
-    .fm-form .submit.important-action {
-      color: white;
-      text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
-      font-weight: bold;
-      border-color: #de981f;
-      background: #fdc500;
-      background: -moz-linear-gradient(top, #fdc500 0%, #f39e09 100%);
-      background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fdc500), color-stop(100%, #f39e09));
-      background: -webkit-linear-gradient(top, #fdc500 0%, #f39e09 100%);
-      background: -o-linear-gradient(top, #fdc500 0%, #f39e09 100%);
-      background: -ms-linear-gradient(top, #fdc500 0%, #f39e09 100%);
-      background: linear-gradient(to bottom, #fdc500 0%, #f39e09 100%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdc500', endColorstr='#f39e09',GradientType=0 ); }
-      .fm-form .submit.important-action:active {
-        background: #f39e09;
-        background: -moz-linear-gradient(top, #f39e09 0%, #fdc500 100%);
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f39e09), color-stop(100%, #fdc500));
-        background: -webkit-linear-gradient(top, #f39e09 0%, #fdc500 100%);
-        background: -o-linear-gradient(top, #f39e09 0%, #fdc500 100%);
-        background: -ms-linear-gradient(top, #f39e09 0%, #fdc500 100%);
-        background: linear-gradient(to bottom, #f39e09 0%, #fdc500 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f39e09', endColorstr='#fdc500',GradientType=0 ); }
   .fm-form label {
     text-align: left; }
   .fm-form div {
@@ -212,7 +214,7 @@
   .fm-product-list-controls .select {
     float: left;
     margin: 0; }
-  .fm-product-list-controls .submit-buttons {
+  .fm-product-list-controls .export {
     float: right;
     margin: 0; }
 

@@ -20,10 +20,10 @@
             </p>
 
             <div>
-                <label>PrestaShop Language</label>
+                <label for="fm-language-choice">PrestaShop Language</label>
             </div>
-            <div>
-                <select name="language_id">
+            <p>
+                <select name="language_id" id="fm-language-choice">
                     <option
                         {if !$selected_language}
                             selected="selected"
@@ -38,12 +38,9 @@
                             >{$language.name}</option>
                     {/foreach}
                 </select>
-            </div>
-
-            <p>
-                <input class="submit" type="submit" name="submit_language" value="Save">
             </p>
 
+            <button class="fm-button" type="submit" name="submit_language">Save</button>
         </fieldset>
     </form>
 </div>

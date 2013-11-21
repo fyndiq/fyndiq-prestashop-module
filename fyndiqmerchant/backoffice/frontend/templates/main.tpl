@@ -45,7 +45,7 @@
             <fieldset>
                 <legend>Orders</legend>
                 <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
-                <input class="submit important-action" type="submit" value="Import orders">
+                <button class="fm-button fyndiq" name="import-orders">Import Orders</button>
             </fieldset>
         </form>
 
@@ -55,8 +55,9 @@
                 <legend>Language</legend>
                 <p>Current language: <b>{$language->name}</b>.</p>
                 <p>By clicking this button, you can switch to a different language to use when exporting products.</p>
-                <input class="submit" type="submit" name="submit_switch_language" value="Switch language"
-                    onclick="return confirm('{FmMessages::get('switch-language-confirm')}');">
+                <button class="fm-button" type="submit" name="submit_switch_language"
+                    onclick="return confirm('{FmMessages::get('switch-language-confirm')}');"
+                >Switch Language</button>
             </fieldset>
         </form>
 
@@ -66,8 +67,9 @@
                 <legend>Account</legend>
                 <p>Current user: <b>{$username}</b>.</p>
                 <p>By clicking this button, you can disconnect from your Fyndiq merchant account.</p>
-                <input class="submit" type="submit" name="submit_disconnect" value="Disconnect account"
-                    onclick="return confirm('{FmMessages::get('disconnect-confirm')}');">
+                <button class="fm-button" type="submit" name="submit_disconnect"
+                    onclick="return confirm('{FmMessages::get('disconnect-confirm')}');"
+                >Disconnect Account</button>
             </fieldset>
         </form>
     </div>

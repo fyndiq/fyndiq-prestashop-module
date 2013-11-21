@@ -41,42 +41,40 @@
     }
 }
 
+.fm-button::-moz-focus-inner {
+    border: 0;
+}
+.fm-button {
+    border: 1px solid #a5a5a5;
+    padding: 4px 8px;
+    font-size: 13px;
+
+    color: black;
+    cursor: pointer;
+    outline: none;
+
+    @include border-radius(4px);
+
+    @include gradient(#ffffff, #e5e5e5);
+    &:active {
+        @include gradient(#e5e5e5, #ffffff);
+    }
+
+    &.fyndiq {
+        color: white;
+        text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
+        font-weight: bold;
+        border-color: #de981f;
+
+        @include gradient(#fdc500, #f39e09);
+        &:active {
+            @include gradient(#f39e09, #fdc500);
+        }
+    }
+}
+
 .fm-form {
     margin: 20px 0;
-
-    .submit::-moz-focus-inner {
-        border: 0;
-    }
-    .submit {
-        border: 1px solid #a5a5a5;
-        padding: 4px 8px;
-        font-size: 13px;
-
-        color: black;
-        cursor: pointer;
-        outline: none;
-
-        @include border-radius(4px);
-
-        @include gradient(#ffffff, #e5e5e5);
-
-        &:active {
-            @include gradient(#e5e5e5, #ffffff);
-        }
-
-        &.important-action {
-            color: white;
-            text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.6);
-            font-weight: bold;
-            border-color: #de981f;
-
-            @include gradient(#fdc500, #f39e09);
-
-            &:active {
-                @include gradient(#f39e09, #fdc500);
-            }
-        }
-    }
 
     label {
         text-align: left;
