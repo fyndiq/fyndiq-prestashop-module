@@ -17,8 +17,8 @@ class FmMessages {
         'api-network-error' => 'Network error, cannot connect to Fyndiq API.',
         'api-too-many-requests' => 'You have sent too many requests. Calm down!',
 
-        'service-call-fail-head' => 'Could not call the service',
-        'connection-failed' => 'Connection failed'
+        'service-call-fail-head' => 'Connection failed',
+        'service-call-fail-message' => 'Could not connect to the module service.'
     );
 
     public static function get($name) {

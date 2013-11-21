@@ -16,7 +16,8 @@ var FmCtrl = {
                     callback(data['data']);
                 }
             } else {
-                FmGui.show_message('error', messages['service-call-fail-head'], messages['connection-failed']);
+                FmGui.show_message('error', messages['service-call-fail-head'],
+                    messages['service-call-fail-message']);
             }
         });
     },
