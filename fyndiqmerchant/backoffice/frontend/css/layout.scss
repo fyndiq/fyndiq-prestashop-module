@@ -7,7 +7,7 @@
 
         > li {
             overflow: hidden;
-            background-color: #f5f5f5;
+            background-color: $color-item-lighter;
             margin-bottom: 2px;
             padding: 2px;
 
@@ -109,11 +109,11 @@
 
     > li {
         overflow: hidden;
-        background-color: #f5f5f5;
+        background-color: $color-item-lighter;
         margin-bottom: 5px;
         padding: 3px;
-        border: 1px solid #757575;
-        border-left: 2px solid #757575;
+        border: 1px solid $color-item-darker;
+        border-left: 2px solid $color-item-darker;
 
         &:last-child {
             margin-bottom: 0;
@@ -217,7 +217,7 @@
         > li {
             overflow: hidden;
             padding: 3px 0;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 1px solid $color-item-light;
 
             &:last-child {
                 border: none;

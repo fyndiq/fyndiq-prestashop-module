@@ -12,7 +12,7 @@
     border: 0;
 }
 .fm-button {
-    border: 1px solid #a5a5a5;
+    border: 1px solid $color-button-darker;
     padding: 3px 8px;
     font-size: 12px;
 
@@ -24,20 +24,20 @@
 
     @include border-radius(3px);
 
-    @include gradient(#ffffff, #e5e5e5);
+    @include gradient($color-button-light, $color-button-dark);
     &:active {
-        @include gradient(#e5e5e5, #ffffff);
+        @include gradient($color-button-dark, $color-button-light);
     }
 
     &.fyndiq {
         color: white;
         text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.8);
         font-weight: bold;
-        border-color: #de981f;
+        border-color: $color-button-fyndiq-darker;
 
-        @include gradient(#fdc500, #f39e09);
+        @include gradient($color-button-fyndiq-light, $color-button-fyndiq-dark);
         &:active {
-            @include gradient(#f39e09, #fdc500);
+            @include gradient($color-button-fyndiq-dark, $color-button-fyndiq-light);
         }
     }
 }

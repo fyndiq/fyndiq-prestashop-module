@@ -157,7 +157,7 @@
   margin: 0; }
   .fm-accept-product-export ul > li {
     overflow: hidden;
-    background-color: #f5f5f5;
+    background-color: whitesmoke;
     margin-bottom: 2px;
     padding: 2px; }
     .fm-accept-product-export ul > li:last-child {
@@ -226,7 +226,7 @@
   padding: 2px; }
   .fm-product-list > li {
     overflow: hidden;
-    background-color: #f5f5f5;
+    background-color: whitesmoke;
     margin-bottom: 5px;
     padding: 3px;
     border: 1px solid #757575;
@@ -298,7 +298,7 @@
     .fm-product-list .combinations > li {
       overflow: hidden;
       padding: 3px 0;
-      border-bottom: 1px solid #ccc; }
+      border-bottom: 1px solid #cccccc; }
       .fm-product-list .combinations > li:last-child {
         border: none; }
       .fm-product-list .combinations > li .select {
