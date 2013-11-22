@@ -38,24 +38,35 @@
     <ul>
     {{#each product_warnings}}
         <li>
-            {{#with product}}
-                {{#with product}}
-                    <div class="image">
-                        {{#if image}}
-                            <img src="{{image}}" alt="Product image">
-                        {{/if}}
-                    </div>
-                    <div class="name">
-                        {{name}}
-                    </div>
-                {{/with}}
-            {{/with}}
-
-            <div class="highest-price">
-                Highest: {{highest_price}}
+            <div class="image">
+                {{#with product}}{{#with product}}
+                {{#if image}}
+                    <img src="{{image}}" alt="Product image">
+                {{/if}}
+                {{/with}}{{/with}}
             </div>
-            <div class="lowest-price">
-                Lowest: {{lowest_price}}
+
+            <div class="data">
+                <div class="title">
+                    {{#with product}}{{#with product}}
+                    <h3>{{name}}</b>
+                    {{/with}}{{/with}}
+                </div>
+
+                <div class="price-info">
+                    <div class="highest-price">
+                        <b>Highest:</b> {{highest_price}}
+                    </div>
+
+                    <div class="lowest-price">
+                        <b>Lowest:</b> {{lowest_price}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="final-price">
+                <label>Price:</label>
+                <input type="text" value="{{highest_price}}">
             </div>
         </li>
     {{/each}}

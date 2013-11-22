@@ -154,30 +154,42 @@
 .fm-accept-product-export ul {
   list-style: none;
   padding: 0;
-  margin: 0; }
+  margin: 0;
+  margin-bottom: 8px; }
   .fm-accept-product-export ul > li {
     overflow: hidden;
     background-color: whitesmoke;
     margin-bottom: 2px;
-    padding: 2px; }
+    padding: 2px;
+    font-size: 12px; }
     .fm-accept-product-export ul > li:last-child {
       margin-bottom: 0; }
     .fm-accept-product-export ul > li .image {
       float: left;
-      width: 25px;
-      height: 25px; }
+      width: 35px;
+      height: 35px; }
       .fm-accept-product-export ul > li .image img {
         display: block;
         margin: 0 auto;
-        max-width: 25px;
-        max-height: 25px; }
-    .fm-accept-product-export ul > li .name {
-      float: left;
-      margin-left: 3px; }
-    .fm-accept-product-export ul > li .highest-price {
+        max-width: 35px;
+        max-height: 35px; }
+    .fm-accept-product-export ul > li .data {
+      margin-left: 3px;
       float: left; }
-    .fm-accept-product-export ul > li .lowest-price {
-      float: left; }
+      .fm-accept-product-export ul > li .data .title h3 {
+        margin: 0;
+        font-size: 13px; }
+      .fm-accept-product-export ul > li .data .price-info .highest-price {
+        float: left; }
+      .fm-accept-product-export ul > li .data .price-info .lowest-price {
+        float: left;
+        margin-left: 5px; }
+    .fm-accept-product-export ul > li .final-price {
+      line-height: 35px;
+      float: right; }
+      .fm-accept-product-export ul > li .final-price input {
+        margin-top: 7px;
+        margin-left: 3px; }
 
 #fm-container {
   position: relative;

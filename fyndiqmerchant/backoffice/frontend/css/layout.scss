@@ -4,12 +4,14 @@
         list-style: none;
         padding: 0;
         margin: 0;
+        margin-bottom: 8px;
 
         > li {
             overflow: hidden;
             background-color: $color-item-lighter;
             margin-bottom: 2px;
             padding: 2px;
+            font-size: 12px;
 
             &:last-child {
                 margin-bottom: 0;
@@ -17,25 +19,44 @@
 
             .image {
                 float: left;
-                width: 25px;
-                height: 25px;
+                width: 35px;
+                height: 35px;
 
                 img {
                     display: block;
                     margin: 0 auto;
-                    max-width: 25px;
-                    max-height: 25px;
+                    max-width: 35px;
+                    max-height: 35px;
                 }
             }
-            .name {
-                float: left;
+
+            .data {
                 margin-left: 3px;
-            }
-            .highest-price {
                 float: left;
+                .title {
+                    h3 {
+                        margin: 0;
+                        font-size: 13px;
+                    }
+                }
+                .price-info {
+                    .highest-price {
+                        float: left;
+                    }
+                    .lowest-price {
+                        float: left;
+                        margin-left: 5px;
+                    }
+                }
             }
-            .lowest-price {
-                float: left;
+
+            .final-price {
+                line-height: 35px;
+                float: right;
+                input {
+                    margin-top: 7px;
+                    margin-left: 3px;
+                }
             }
         }
     }
