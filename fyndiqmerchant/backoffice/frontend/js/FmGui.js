@@ -60,21 +60,39 @@ var FmGui = {
     show_modal: function(content, callback) {
         var overlay = $(tpl['modal-overlay']({}));
 
+        // attach the overlay to the general container
         overlay.hide().prependTo($('#fm-container'));
         var attached_overlay = $('.fm-modal-overlay');
 
+        // insert the content
         attached_overlay.find('.content').html(content);
 
-        var top = $(document).scrollTop() + 50;
-        attached_overlay.find('.container').css({'marginTop': top+'px'});
+        // scroll to the top of the page
+        $('html,body').animate({
+            'scrollTop': 0,
+        });
 
-        attached_overlay.fadeIn(300);
+        // fade in the overlay
+        attached_overlay.fadeIn(300, function() {
 
+            // when it's visible, set the container height to 200 longer than the content,
+            // to ensure that long content does not get hidden
+            var new_height = (attached_overlay.find('.content').height()+200);
+            if ($('#fm-container').height() < new_height) {
+                $('#fm-container').css({'height': new_height+'px'});
+            }
+        });
+
+        // attach close button event handler
         attached_overlay.find('.controls button').bind('click', function(e) {
             e.preventDefault();
             attached_overlay.remove();
+
+            // set container height back to default auto height so it continues adapting to its content
+            $('#fm-container').css({'height': 'auto'});
+
             if (callback) {
-                callback($(this).attr('data-modal_type'));
+                callback($(this).attr('data-modal-type'));
             }
         });
     }

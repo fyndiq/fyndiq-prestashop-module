@@ -73,11 +73,11 @@
     </ul>
 
     <div class="controls">
-        <button class="fm-button cancel" name="cancel">
+        <button class="fm-button cancel" name="cancel" data-modal-type="cancel">
             <img src="{{module_path}}backoffice/frontend/images/icons/cancel.png">
             Cancel
         </button>
-        <button class="fm-button accept" name="accept">
+        <button class="fm-button accept" name="accept" data-modal-type="accept">
             <img src="{{module_path}}backoffice/frontend/images/icons/accept.png">
             Accept
         </button>
