@@ -329,3 +329,12 @@
         float: left;
         margin-left: 5px;
         width: 550px; }
+        .fm-product-list .combinations > li .data .attributes {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          overflow: hidden; }
+          .fm-product-list .combinations > li .data .attributes li {
+            float: left; }
+            .fm-product-list .combinations > li .data .attributes li:last-child .separator {
+              display: none; }

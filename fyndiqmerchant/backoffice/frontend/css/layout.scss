@@ -266,6 +266,22 @@
                 float: left;
                 margin-left: 5px;
                 width: 550px;
+
+                .attributes {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    overflow: hidden;
+
+                    li {
+                        float: left;
+                        &:last-child {
+                            .separator {
+                                display: none;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -198,11 +198,13 @@
                             </div>
 
                             <div class="data">
-                                <div>
+                                <ul class="attributes">
                                     {{#each attributes}}
-                                        {{name}} - {{value}},
+                                        <li>
+                                            {{name}}: {{value}}<span class="separator">,&nbsp;</span>
+                                        </li>
                                     {{/each}}
-                                </div>
+                                </ul>
 
                                 <div>
                                     Price: {{price}}
