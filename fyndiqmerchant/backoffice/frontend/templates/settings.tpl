@@ -40,7 +40,7 @@
                 </select>
             </p>
 
-            <button class="fm-button" type="submit" name="submit_language">Save</button>
+            <button class="fm-button" type="submit" name="submit_save_settings">Save</button>
         </fieldset>
     </form>
 </div>

@@ -49,15 +49,13 @@
             </fieldset>
         </form>
 
-        {* Choose different language form *}
-        <form action="" method="post" class="fm-form language">
+        {* Choose different settings form *}
+        <form action="" method="post" class="fm-form settings">
             <fieldset>
-                <legend>Language</legend>
-                <p>Current language: <b>{$language->name}</b>.</p>
-                <p>By clicking this button, you can switch to a different language to use when exporting products.</p>
-                <button class="fm-button" type="submit" name="submit_switch_language"
-                    onclick="return confirm('{FmMessages::get('switch-language-confirm')}');"
-                >Switch Language</button>
+                <legend>Settings</legend>
+                <p>Language: <b>{$language->name}</b>.<br></p>
+
+                <button class="fm-button" type="submit" name="submit_show_settings">Change Settings</button>
             </fieldset>
         </form>
 

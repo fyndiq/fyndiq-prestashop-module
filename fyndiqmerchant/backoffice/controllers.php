@@ -2,33 +2,18 @@
 
 class FmBackofficeControllers {
     public static function main($module) {
-        global $smarty;
 
         $output = null;
 
-        ## first handle submits and showing of error messages
-        # if no api connection, only process authenticate form
-        if (!self::api_connection_exists($module)) {
-            $output .= self::handle_authentication($module);
+        #### first handle submits and showing of error messages
+        $output .= self::handle_authentication($module);
+        $output .= self::handle_settings($module);
+        $output .= self::handle_disconnect($module);
 
-        # if no language choice exists, only process choose language form
-        } else if (!self::language_choice_exists($module)) {
-            $output .= self::handle_language_choice($module);
-
-        # else handle any forms used in main template
-        } else {
-            $output .= self::handle_switch_language($module);
-            $output .= self::handle_disconnect($module);
-        }
-
-        ## then display the proper body content
+        #### then display the proper body content
         # if no api connection exists, display authentication form
         if (!self::api_connection_exists($module)) {
-            $smarty->assign(array(
-                'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
-                'module_path' => $module->get('_path')
-            ));
-            $output .= $module->display($module->name, 'backoffice/frontend/templates/authenticate.tpl');
+            $output .= self::show_template($module, 'authenticate');
 
         } else {
 
@@ -38,38 +23,35 @@ class FmBackofficeControllers {
                 FmHelpers::call_api('GET', 'account/');
                 $api_available = true;
             } catch (Exception $e) {
-                $smarty->assign(array(
-                    'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
-                    'module_path' => $module->get('_path'),
+                $output .= self::show_template($module, 'api_unavailable', [
                     'exception_type' => get_class($e),
                     'error_message' => $e->getMessage()
-                ));
-                $output .= $module->display($module->name, 'backoffice/frontend/templates/api_unavailable.tpl');
+                ]);
             }
 
             # if api is up
             if ($api_available) {
 
-                # if no language choice exists, display choose language form
-                if (!self::language_choice_exists($module)) {
-                    $smarty->assign(array(
-                        'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
-                        'module_path' => $module->get('_path'),
+                # show settings if:
+                # a) no settings have been saved yet (first time using module), or
+                # b) user presses Change Settings button on main template
+                $show_settings = false;
+                $show_settings = $show_settings || !self::all_settings_exist($module);
+                $show_settings = $show_settings || Tools::isSubmit('submit_show_settings');
+
+                if ($show_settings) {
+                    $output .= self::show_template($module, 'settings', [
                         'languages' => Language::getLanguages(),
                         'selected_language' => Configuration::get($module->config_name.'_language')
-                    ));
-                    $output .= $module->display($module->name, 'backoffice/frontend/templates/language.tpl');
+                    ]);
 
                 # else display main template
                 } else {
-                    $smarty->assign(array(
-                        'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
-                        'module_path' => $module->get('_path'),
+                    $output .= self::show_template($module, 'main', [
                         'messages' => FmMessages::get_all(),
                         'username' => Configuration::get($module->config_name.'_username'),
                         'language' => new Language(Configuration::get($module->config_name.'_language'))
-                    ));
-                    $output .= $module->display($module->name, 'backoffice/frontend/templates/main.tpl');
+                    ]);
                 }
             }
         }
@@ -78,14 +60,16 @@ class FmBackofficeControllers {
     }
 
     private static function api_connection_exists($module) {
-        $username = Configuration::get($module->config_name.'_username');
-        $api_token = Configuration::get($module->config_name.'_api_token');
-        return ($username !== false && $api_token !== false);
+        $ret = true;
+        $ret = $ret && Configuration::get($module->config_name.'_username') !== false;
+        $ret = $ret && Configuration::get($module->config_name.'_api_token') !== false;
+        return $ret;
     }
 
-    private static function language_choice_exists($module) {
-        $language_id = Configuration::get($module->config_name.'_language');
-        return $language_id !== false;
+    private static function all_settings_exist($module) {
+        $ret = true;
+        $ret = $ret && Configuration::get($module->config_name.'_language') !== false;
+        return $ret;
     }
 
     private static function handle_authentication($module) {
@@ -139,10 +123,10 @@ class FmBackofficeControllers {
         return $output;
     }
 
-    private static function handle_language_choice($module) {
+    private static function handle_settings($module) {
         $output = '';
 
-        if (Tools::isSubmit('submit_language')) {
+        if (Tools::isSubmit('submit_save_settings')) {
             $language_id = strval(Tools::getValue('language_id'));
 
             # validate that a choice has been made
@@ -153,16 +137,6 @@ class FmBackofficeControllers {
                 # save language choice
                 Configuration::updateValue($module->config_name.'_language', $language_id);
             }
-        }
-
-        return $output;
-    }
-
-    private static function handle_switch_language($module) {
-        $output = '';
-
-        if (Tools::isSubmit('submit_switch_language')) {
-            Configuration::deleteByName($module->config_name.'_language');
         }
 
         return $output;
@@ -180,6 +154,21 @@ class FmBackofficeControllers {
 
             $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
         }
+
+        return $output;
+    }
+
+    private static function show_template($module, $name, $args=[]) {
+        global $smarty;
+
+        $output = '';
+
+        $template_args = array_merge($args, [
+            'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
+            'module_path' => $module->get('_path'),
+        ]);
+        $smarty->assign($template_args);
+        $output .= $module->display($module->name, 'backoffice/frontend/templates/'.$name.'.tpl');
 
         return $output;
     }
