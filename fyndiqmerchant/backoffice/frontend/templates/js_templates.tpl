@@ -23,6 +23,19 @@
 </div>
 </script>
 
+<script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-price-warning-controls">
+<div class="controls">
+    <button class="fm-button cancel" name="cancel" data-modal-type="cancel">
+        <img src="{{module_path}}backoffice/frontend/images/icons/cancel.png">
+        Cancel
+    </button>
+    <button class="fm-button accept" name="accept" data-modal-type="accept">
+        <img src="{{module_path}}backoffice/frontend/images/icons/accept.png">
+        Accept
+    </button>
+</div>
+</script>
+
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-accept-product-export">
 <div class="fm-accept-product-export">
     <h3>Warning!</h3>
@@ -37,6 +50,8 @@
         Press Accept to export products now, using the given prices.<br>
         Press Cancel to go back and change the product selection.
     </p>
+
+    {{> fm-product-price-warning-controls}}
 
     <ul>
     {{#each product_warnings}}
@@ -75,16 +90,7 @@
     {{/each}}
     </ul>
 
-    <div class="controls">
-        <button class="fm-button cancel" name="cancel" data-modal-type="cancel">
-            <img src="{{module_path}}backoffice/frontend/images/icons/cancel.png">
-            Cancel
-        </button>
-        <button class="fm-button accept" name="accept" data-modal-type="accept">
-            <img src="{{module_path}}backoffice/frontend/images/icons/accept.png">
-            Accept
-        </button>
-    </div>
+    {{> fm-product-price-warning-controls}}
 </div>
 </script>
 

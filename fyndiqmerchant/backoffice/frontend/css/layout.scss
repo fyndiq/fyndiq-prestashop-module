@@ -1,10 +1,13 @@
 
 .fm-accept-product-export {
+    h3 {
+        margin: 0;
+    }
+
     ul {
         list-style: none;
         padding: 0;
-        margin: 0;
-        margin-bottom: 8px;
+        margin: 8px 0;
 
         > li {
             overflow: hidden;
@@ -58,6 +61,14 @@
                     margin-left: 3px;
                 }
             }
+        }
+    }
+
+    .controls {
+
+        text-align: right;
+        button {
+            display: inline-block;
         }
     }
 }

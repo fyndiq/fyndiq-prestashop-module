@@ -151,11 +151,12 @@
   .fm-form div {
     overflow: hidden; }
 
+.fm-accept-product-export h3 {
+  margin: 0; }
 .fm-accept-product-export ul {
   list-style: none;
   padding: 0;
-  margin: 0;
-  margin-bottom: 8px; }
+  margin: 8px 0; }
   .fm-accept-product-export ul > li {
     overflow: hidden;
     background-color: whitesmoke;
@@ -190,6 +191,10 @@
       .fm-accept-product-export ul > li .final-price input {
         margin-top: 7px;
         margin-left: 3px; }
+.fm-accept-product-export .controls {
+  text-align: right; }
+  .fm-accept-product-export .controls button {
+    display: inline-block; }
 
 #fm-container {
   position: relative;
