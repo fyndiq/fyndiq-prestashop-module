@@ -27,12 +27,15 @@
 <div class="fm-accept-product-export">
     <h3>Warning!</h3>
     <p>
-        Some of the products that you selected have combinations with a different price than the product they belong to.<br>
-        Fyndiq does not support different prices on different articles, Fyndiq supports only one price per product and all of its articles.<br>
-        If you choose to proceed, we will set one common price for all your combinations.<br>
-        We have calculated the recommended price for each product, which you can see below.<br>
-        You may choose to alter these values now, before pressing the Accept and Export button.<br>
-        Or you may choose to press Cancel to go back and alter your selection of products and combinations.
+        Some of the selected products have combinations with a different price than the product price.<br>
+        Fyndiq supports only one price per product and all of its articles.
+    </p>
+    <p>
+        Below, we have show the recommended (highest) price for each product.<br>
+        You may choose to change the price of each product, before you proceed.
+    <p>
+        Press Accept to export products now, using the given prices.<br>
+        Press Cancel to go back and change the product selection.
     </p>
 
     <ul>
@@ -55,11 +58,11 @@
 
                 <div class="price-info">
                     <div class="highest-price">
-                        <b>Highest:</b> {{highest_price}}
+                        Highest: {{highest_price}}
                     </div>
 
                     <div class="lowest-price">
-                        <b>Lowest:</b> {{lowest_price}}
+                        Lowest: {{lowest_price}}
                     </div>
                 </div>
             </div>
