@@ -38,6 +38,11 @@ class FmHelpers {
         return FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
     }
 
+    public static function get_language() {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        return Configuration::get($module->config_name.'_language');
+    }
+
     public static function db_escape($value) {
         if (FMPSV == FMPSV15) {
             return Db::getInstance()->_escape($value);

@@ -15,11 +15,11 @@ class FmProduct {
 
     public static function get($product_id) {
 
-        $module = Module::getInstanceByName('fyndiqmerchant');
+        $language_id = FmHelpers::get_language();
 
         $result = [];
 
-        $product = new Product($product_id, false, $module->language_id);
+        $product = new Product($product_id, false, $language_id);
 
         $result['id'] = $product->id;
         $result['name'] = $product->name;
@@ -40,7 +40,7 @@ class FmProduct {
         }
 
         ### get images
-        $images = $product->getImages($module->language_id);
+        $images = $product->getImages($language_id);
 
         # assign main product image
         if (count($images) > 0) {
@@ -57,8 +57,8 @@ class FmProduct {
         ];
 
         # get this products attributes and combination images
-        $product_attributes = $product->$get_attribute_combinations_func[FMPSV]($module->language_id);
-        $combination_images = $product->getCombinationImages($module->language_id);
+        $product_attributes = $product->$get_attribute_combinations_func[FMPSV]($language_id);
+        $combination_images = $product->getCombinationImages($language_id);
 
         foreach ($product_attributes as $product_attribute) {
             $id = $product_attribute['id_product_attribute'];

@@ -2,9 +2,12 @@
 
 class FmCategory {
     public static function get_all() {
+
+        $language_id = FmHelpers::get_language();
+
         $result = [];
 
-        $levels = Category::getCategories();
+        $levels = Category::getCategories($language_id);
         foreach ($levels as $level_k => $level_v) {
 
             foreach ($level_v as $container) {

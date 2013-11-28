@@ -20,7 +20,7 @@
             </p>
 
             <div>
-                <label for="fm-language-choice">PrestaShop Language</label>
+                <label for="fm-language-choice">Language</label>
             </div>
             <p>
                 <select name="language_id" id="fm-language-choice">
