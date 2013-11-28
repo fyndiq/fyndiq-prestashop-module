@@ -53,7 +53,10 @@
         <form action="" method="post" class="fm-form settings">
             <fieldset>
                 <legend>Settings</legend>
-                <p>Language: <b>{$language->name}</b>.<br></p>
+                <p>
+                    Language: <b>{$language->name}</b><br>
+                    Currency: <b>{$currency->name}</b>
+                </p>
 
                 <button class="fm-button" type="submit" name="submit_show_settings">Change Settings</button>
             </fieldset>
@@ -63,7 +66,7 @@
         <form action="" method="post" class="fm-form disconnect">
             <fieldset>
                 <legend>Account</legend>
-                <p>Current user: <b>{$username}</b>.</p>
+                <p>Current user: <b>{$username}</b></p>
                 <p>By clicking this button, you can disconnect from your Fyndiq merchant account.</p>
                 <button class="fm-button" type="submit" name="submit_disconnect"
                     onclick="return confirm('{FmMessages::get('disconnect-confirm')}');"

@@ -40,6 +40,27 @@
                 </select>
             </p>
 
+            <div>
+                <label for="fm-currency-choice">Currency</label>
+            </div>
+            <p>
+                <select name="currency_id" id="fm-currency-choice">
+                    <option
+                        {if !$selected_currency}
+                            selected="selected"
+                        {/if}
+                        >----</option>
+                    {foreach $currencies as $currency}
+                        <option
+                            value="{$currency.id_currency}"
+                            {if $selected_currency == $currency.id_currency}
+                                selected="selected"
+                            {/if}
+                            >{$currency.name}</option>
+                    {/foreach}
+                </select>
+            </p>
+
             <button class="fm-button" type="submit" name="submit_save_settings">Save</button>
         </fieldset>
     </form>

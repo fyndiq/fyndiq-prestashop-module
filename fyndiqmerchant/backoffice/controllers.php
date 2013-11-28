@@ -42,7 +42,9 @@ class FmBackofficeControllers {
                 if ($show_settings) {
                     $output .= self::show_template($module, 'settings', [
                         'languages' => Language::getLanguages(),
-                        'selected_language' => Configuration::get($module->config_name.'_language')
+                        'currencies' => Currency::getCurrencies(),
+                        'selected_language' => Configuration::get($module->config_name.'_language'),
+                        'selected_currency' => Configuration::get($module->config_name.'_currency')
                     ]);
 
                 # else display main template
@@ -50,7 +52,8 @@ class FmBackofficeControllers {
                     $output .= self::show_template($module, 'main', [
                         'messages' => FmMessages::get_all(),
                         'username' => Configuration::get($module->config_name.'_username'),
-                        'language' => new Language(Configuration::get($module->config_name.'_language'))
+                        'language' => new Language(Configuration::get($module->config_name.'_language')),
+                        'currency' => new Currency(Configuration::get($module->config_name.'_currency'))
                     ]);
                 }
             }
@@ -127,15 +130,19 @@ class FmBackofficeControllers {
         $output = '';
 
         if (Tools::isSubmit('submit_save_settings')) {
-            $language_id = strval(Tools::getValue('language_id'));
+            $language_id = intval(Tools::getValue('language_id'));
+            $currency_id = intval(Tools::getValue('currency_id'));
 
-            # validate that a choice has been made
             if (empty($language_id)) {
-                $output .= $module->displayError($module->l(FmMessages::get('empty-language-choice')));
+                $output .= $module->displayError($module->l(FmMessages::get('settings-empty-language')));
             } else {
-
-                # save language choice
                 Configuration::updateValue($module->config_name.'_language', $language_id);
+            }
+
+            if (empty($currency_id)) {
+                $output .= $module->displayError($module->l(FmMessages::get('settings-empty-currency')));
+            } else {
+                Configuration::updateValue($module->config_name.'_currency', $currency_id);
             }
         }
 
