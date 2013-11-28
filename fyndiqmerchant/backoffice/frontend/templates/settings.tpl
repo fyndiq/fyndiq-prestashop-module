@@ -12,9 +12,9 @@
             <legend>Choose language</legend>
 
             <p>
-                In order to use this module, you have to select which language you will be using.<br>
-                The language you select will be used when exporting products to Fyndiq.<br>
-                Make sure you select a language that contains Swedish data only!<br>
+                In order to use this module, you have to select which language and currency you will be using.<br>
+                The language and currency you select will be used when exporting products to Fyndiq.<br>
+                Make sure you select a language that contains Swedish product info, and a currency that contains Swedish Krona (SEK)!<br>
             </p>
 
             <div>
@@ -22,15 +22,10 @@
             </div>
             <p>
                 <select name="language_id" id="fm-language-choice">
-                    <option
-                        {if !$selected_language}
-                            selected="selected"
-                        {/if}
-                        >----</option>
                     {foreach $languages as $language}
                         <option
                             value="{$language.id_lang}"
-                            {if $selected_language == $language.id_lang}
+                            {if $language.id_lang == $selected_language or $language.id_lang == $default_language}
                                 selected="selected"
                             {/if}
                             >{$language.name}</option>
@@ -43,15 +38,10 @@
             </div>
             <p>
                 <select name="currency_id" id="fm-currency-choice">
-                    <option
-                        {if !$selected_currency}
-                            selected="selected"
-                        {/if}
-                        >----</option>
                     {foreach $currencies as $currency}
                         <option
                             value="{$currency.id_currency}"
-                            {if $selected_currency == $currency.id_currency}
+                            {if $currency.id_currency == $selected_currency or $currency.id_currency == $default_currency->id}
                                 selected="selected"
                             {/if}
                             >{$currency.name}</option>

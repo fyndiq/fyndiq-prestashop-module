@@ -74,6 +74,8 @@ class FmBackofficeControllers {
             $output .= self::show_template($module, 'settings', [
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
+                'default_language'=> Configuration::get('PS_LANG_DEFAULT', null, 1, 1), #TODO add shop id and shop group id
+                'default_currency'=> Currency::getDefaultCurrency(),
                 'selected_language'=> Configuration::get($module->config_name.'_language'),
                 'selected_currency'=> Configuration::get($module->config_name.'_currency')
             ]);
