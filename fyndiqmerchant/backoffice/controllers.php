@@ -66,24 +66,24 @@ class FmBackofficeControllers {
         }
         if ($page == 'api_unavailable') {
             $output .= self::show_template($module, 'api_unavailable', [
-                'exception_type' => get_class($e),
-                'error_message' => $e->getMessage()
+                'exception_type'=> get_class($e),
+                'error_message'=> $e->getMessage()
             ]);
         }
         if ($page == 'settings') {
             $output .= self::show_template($module, 'settings', [
-                'languages' => Language::getLanguages(),
-                'currencies' => Currency::getCurrencies(),
-                'selected_language' => Configuration::get($module->config_name.'_language'),
-                'selected_currency' => Configuration::get($module->config_name.'_currency')
+                'languages'=> Language::getLanguages(),
+                'currencies'=> Currency::getCurrencies(),
+                'selected_language'=> Configuration::get($module->config_name.'_language'),
+                'selected_currency'=> Configuration::get($module->config_name.'_currency')
             ]);
         }
         if ($page == 'main') {
             $output .= self::show_template($module, 'main', [
-                'messages' => FmMessages::get_all(),
-                'username' => Configuration::get($module->config_name.'_username'),
-                'language' => new Language(Configuration::get($module->config_name.'_language')),
-                'currency' => new Currency(Configuration::get($module->config_name.'_currency'))
+                'messages'=> FmMessages::get_all(),
+                'username'=> Configuration::get($module->config_name.'_username'),
+                'language'=> new Language(Configuration::get($module->config_name.'_language')),
+                'currency'=> new Currency(Configuration::get($module->config_name.'_currency'))
             ]);
         }
 
@@ -183,15 +183,11 @@ class FmBackofficeControllers {
     private static function show_template($module, $name, $args=[]) {
         global $smarty;
 
-        $output = '';
-
         $template_args = array_merge($args, [
-            'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) .'/modules/'.$module->name,
-            'module_path' => $module->get('_path'),
+            'server_path'=> dirname(dirname($_SERVER['SCRIPT_FILENAME'])).'/modules/'.$module->name,
+            'module_path'=> $module->get('_path'),
         ]);
         $smarty->assign($template_args);
-        $output .= $module->display($module->name, 'backoffice/frontend/templates/'.$name.'.tpl');
-
-        return $output;
+        return $module->display($module->name, 'backoffice/frontend/templates/'.$name.'.tpl');
     }
 }

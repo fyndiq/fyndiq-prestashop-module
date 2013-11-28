@@ -15,9 +15,9 @@ class FmProduct {
 
     public static function get($product_id) {
 
-        $language_id = FmHelpers::get_language();
-
         $result = [];
+
+        $language_id = FmHelpers::get_language();
 
         $product = new Product($product_id, false, $language_id);
 
