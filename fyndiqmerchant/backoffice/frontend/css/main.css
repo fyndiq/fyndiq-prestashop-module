@@ -91,6 +91,17 @@
   padding: 0;
   width: auto;
   text-align: left; }
+#fm-container p {
+  margin: 8px 0;
+  padding: 0; }
+
+.fm-form {
+  margin: 20px 0;
+  padding: 0; }
+  .fm-form fieldset {
+    padding: 0 10px 10px 10px; }
+  .fm-form div {
+    overflow: hidden; }
 
 .fm-button::-moz-focus-inner {
   border: 0; }
@@ -145,11 +156,6 @@
       background: -ms-linear-gradient(top, #f39e09 0%, #fdc500 100%);
       background: linear-gradient(to bottom, #f39e09 0%, #fdc500 100%);
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f39e09', endColorstr='#fdc500',GradientType=0 ); }
-
-.fm-form {
-  margin: 20px 0; }
-  .fm-form div {
-    overflow: hidden; }
 
 .fm-accept-product-export h3 {
   margin: 0; }
