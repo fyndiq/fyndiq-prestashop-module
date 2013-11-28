@@ -25,9 +25,7 @@ class FyndiqMerchant extends Module {
         $this->description = $this->l('dfasdf');
         $this->confirmUninstall = $this->l(FmMessages::get('uninstall-confirm'));
 
-        if (Configuration::get($this->config_name.'_username') === false ||
-            Configuration::get($this->config_name.'_api_token') === false)
-        {
+        if (FmHelpers::api_connection_exists($this)) {
             $this->warning = $this->l(FmMessages::get('not-authenticated-warning'));
         }
 

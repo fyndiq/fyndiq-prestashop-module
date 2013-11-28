@@ -25,6 +25,26 @@ if (startswith(_PS_VERSION_, '1.5.')) {
 
 class FmHelpers {
 
+    public static function api_connection_exists($module=null) {
+        if ($module === null) {
+            $module = Module::getInstanceByName('fyndiqmerchant');
+        }
+        $ret = true;
+        $ret = $ret && Configuration::get($module->config_name.'_username') !== false;
+        $ret = $ret && Configuration::get($module->config_name.'_api_token') !== false;
+        return $ret;
+    }
+
+    public static function all_settings_exist($module=null) {
+        if ($module == null) {
+            $module = Module::getInstanceByName('fyndiqmerchant');
+        }
+        $ret = true;
+        $ret = $ret && Configuration::get($module->config_name.'_language') !== false;
+        $ret = $ret && Configuration::get($module->config_name.'_currency') !== false;
+        return $ret;
+    }
+
     # wrapper around FyndiqAPI
     # uses stored connection credentials for authentication
     public static function call_api($method, $path, $data=array()) {

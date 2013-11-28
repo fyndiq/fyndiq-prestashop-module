@@ -7,8 +7,6 @@
 
     <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
-    <h2>Almost there!</h2>
-
     <form action="" method="post" class="fm-form choose-language">
         <fieldset>
             <legend>Choose language</legend>
@@ -61,7 +59,7 @@
                 </select>
             </p>
 
-            <button class="fm-button" type="submit" name="submit_save_settings">Save</button>
+            <button class="fm-button" type="submit" name="submit_save_settings">Save Settings</button>
         </fieldset>
     </form>
 </div>
