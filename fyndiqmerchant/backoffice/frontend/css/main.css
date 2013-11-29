@@ -100,8 +100,6 @@
   padding: 0; }
   .fm-form fieldset {
     padding: 0 10px 10px 10px; }
-  .fm-form div {
-    overflow: hidden; }
 
 .fm-button::-moz-focus-inner {
   border: 0; }
