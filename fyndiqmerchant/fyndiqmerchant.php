@@ -4,6 +4,7 @@ if (!defined('_PS_VERSION_'))
     exit;
 
 require_once('messages.php');
+require_once('backoffice/models/config.php');
 require_once('backoffice/api.php');
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
@@ -57,10 +58,10 @@ class FyndiqMerchant extends Module {
         $ret &= (bool)parent::uninstall();
 
         # delete configuration
-        $ret &= (bool)Configuration::deleteByName($this->config_name.'_username');
-        $ret &= (bool)Configuration::deleteByName($this->config_name.'_api_token');
-        $ret &= (bool)Configuration::deleteByName($this->config_name.'_language');
-        $ret &= (bool)Configuration::deleteByName($this->config_name.'_currency');
+        $ret &= (bool)FmConfig::delete('username');
+        $ret &= (bool)FmConfig::delete('api_token');
+        $ret &= (bool)FmConfig::delete('language');
+        $ret &= (bool)FmConfig::delete('currency');
 
 
         return (bool)$ret;

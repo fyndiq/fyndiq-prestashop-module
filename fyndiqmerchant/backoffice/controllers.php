@@ -74,18 +74,18 @@ class FmBackofficeControllers {
             $output .= self::show_template($module, 'settings', [
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
-                'default_language'=> Configuration::get('PS_LANG_DEFAULT', null, 1, 1), #TODO add shop id and shop group id
+                'default_language'=> Configuration::get('PS_LANG_DEFAULT'),
                 'default_currency'=> Currency::getDefaultCurrency(),
-                'selected_language'=> Configuration::get($module->config_name.'_language'),
-                'selected_currency'=> Configuration::get($module->config_name.'_currency')
+                'selected_language'=> FmConfig::get('language'),
+                'selected_currency'=> FmConfig::get('currency')
             ]);
         }
         if ($page == 'main') {
             $output .= self::show_template($module, 'main', [
                 'messages'=> FmMessages::get_all(),
-                'username'=> Configuration::get($module->config_name.'_username'),
-                'language'=> new Language(Configuration::get($module->config_name.'_language')),
-                'currency'=> new Currency(Configuration::get($module->config_name.'_currency'))
+                'username'=> FmConfig::get('username'),
+                'language'=> new Language(FmConfig::get('language')),
+                'currency'=> new Currency(FmConfig::get('currency')),
             ]);
         }
 
@@ -125,18 +125,18 @@ class FmBackofficeControllers {
 
             # authentication successful
             if ($authenticated) {
+                # if no exceptions, authentication is successful
+                FmConfig::set('username', $username);
+                FmConfig::set('api_token', $api_token);
 
-                # store values in configuration, to maintain a permanent connection
-                Configuration::updateValue($module->config_name.'_username', $username);
-                Configuration::updateValue($module->config_name.'_api_token', $api_token);
 
             # authentication failed
             } else {
                 $error = true;
 
                 # delete any stored connection values, which forces the user to authenticate again
-                Configuration::deleteByName($module->config_name.'_username');
-                Configuration::deleteByName($module->config_name.'_api_token');
+                FmConfig::set('username');
+                FmConfig::set('api_token');
             }
         }
 
@@ -174,8 +174,8 @@ class FmBackofficeControllers {
         $output = '';
 
         # delete stored connection values
-        Configuration::deleteByName($module->config_name.'_username');
-        Configuration::deleteByName($module->config_name.'_api_token');
+        FmConfig::delete('username');
+        FmConfig::delete('api_token');
 
         $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
 
