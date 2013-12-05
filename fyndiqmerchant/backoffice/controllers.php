@@ -132,32 +132,17 @@ class FmBackofficeControllers {
         } else {
 
             # authenticate with Fyndiq API
-            $authenticated = false;
             try {
-                $result = FyndiqAPI::call($module->user_agent, $username, $api_token, 'GET', 'account/', array());
-                $authenticated = true;
-            } catch (FyndiqAPIConnectionFailed $e) {
-                $output .= $module->displayError($module->l(FmMessages::get('api-network-error')));
-            } catch (FyndiqAPIDataInvalid $e) {
-                $output .= $module->displayError($module->l(FmMessages::get('api-invalid-data').': '.$e->getMessage()));
-            } catch (FyndiqAPIAuthorizationFailed $e) {
-                $output .= $module->displayError($module->l(FmMessages::get('api-incorrect-credentials')));
-            } catch (FyndiqAPITooManyRequests $e) {
-                $output .= $module->displayError($module->l(FmMessages::get('api-too-many-requests')));
-            }
+                FmHelpers::call_api_raw($username, $api_token, 'GET', 'account/', array());
 
-            # authentication successful
-            if ($authenticated) {
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
 
-
-            # authentication failed
-            } else {
+            } catch (Exception $e) {
                 $error = true;
+                $output .= $module->displayError($module->l($e->getMessage()));
 
-                # delete any stored connection values, which forces the user to authenticate again
                 FmConfig::delete('username');
                 FmConfig::delete('api_token');
             }

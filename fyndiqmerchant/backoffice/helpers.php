@@ -39,17 +39,40 @@ class FmHelpers {
         return $ret;
     }
 
-    # wrapper around FyndiqAPI
+    ## wrappers around FyndiqAPI
     # uses stored connection credentials for authentication
     public static function call_api($method, $path, $data=array()) {
+        $username = FmConfig::get('username');
+        $api_token = FmConfig::get('api_token');
 
-        # get stored connection credentials
+        return FmHelpers::call_api_raw($username, $api_token, $method, $path, $data);
+    }
+
+    # handles custom exceptions, fetches proper error messages, and throws new generic exception
+    public static function call_api_raw($username, $api_token, $method, $path, $data=array()) {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $username = Configuration::get($module->config_name.'_username');
-        $api_token = Configuration::get($module->config_name.'_api_token');
 
-        # call API
-        return FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
+        try {
+            return FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
+
+        } catch (FyndiqAPIConnectionFailed $e) {
+            throw new Exception(FmMessages::get('api-network-error').': '.$e->getMessage());
+
+        } catch (FyndiqAPIDataInvalid $e) {
+            throw new Exception(FmMessages::get('api-invalid-data').': '.$e->getMessage());
+
+        } catch (FyndiqAPIAuthorizationFailed $e) {
+            throw new Exception(FmMessages::get('api-incorrect-credentials'));
+
+        } catch (FyndiqAPITooManyRequests $e) {
+            throw new Exception(FmMessages::get('api-too-many-requests'));
+
+        } catch (FyndiqAPIUnsupportedStatus $e) {
+            throw new Exception(FmMessages::get('api-unknown-error'));
+
+        } catch (Exception $e) {
+            throw new Exception(FmMessages::get('api-unknown-error'));
+        }
     }
 
     public static function db_escape($value) {
