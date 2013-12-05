@@ -1,9 +1,11 @@
 <?php
 
+require_once('config.php');
+
 class FmCategory {
     public static function get_all() {
 
-        $language_id = FmHelpers::get_language();
+        $language_id = FmConfig::get('language');
 
         $result = [];
 

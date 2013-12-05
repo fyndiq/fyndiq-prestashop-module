@@ -1,5 +1,7 @@
 <?php
 
+require_once('config.php');
+
 class FmProduct {
     private static function get_image_link($link_rewrite, $id_image, $image_type) {
         if (FMPSV == FMPSV14) {
@@ -17,7 +19,7 @@ class FmProduct {
 
         $result = [];
 
-        $language_id = FmHelpers::get_language();
+        $language_id = FmConfig::get('language');
 
         $product = new Product($product_id, false, $language_id);
 
