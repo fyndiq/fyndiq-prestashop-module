@@ -20,11 +20,11 @@
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/main.js"></script>
 
 
-<div id="fm-container">
+<div class="fm-container">
 
     <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
-    <div id="fm-main-panel">
+    <div class="fm-main-panel">
 
         {* Product list form *}
         <form action="" method="post" class="fm-form products">
@@ -38,7 +38,7 @@
         </form>
     </div>
 
-    <div id="fm-sidebar">
+    <div class="fm-sidebar">
 
         {* Import orders form *}
         <form action="" method="post" class="fm-form orders">

@@ -3,7 +3,7 @@
     {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
 
-<div id="fm-container">
+<div class="fm-container">
 
     <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 

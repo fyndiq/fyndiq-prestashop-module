@@ -7,7 +7,7 @@ var FmGui = {
         var overlay = tpl['loading-overlay']({
             'module_path': module_path
         });
-        $(overlay).hide().prependTo($('#fm-container'));
+        $(overlay).hide().prependTo($('.fm-container'));
         var attached_overlay = $('.fm-loading-overlay');
 
         var top = $(document).scrollTop() + 100;
@@ -41,7 +41,7 @@ var FmGui = {
 
         overlay.hide()
             .css({'z-index': 999+FmGui.messages_z_index_counter++})
-            .prependTo($('#fm-container'));
+            .prependTo($('.fm-container'));
 
         var attached_overlay = $('.fm-message-overlay');
         attached_overlay.slideDown(300);
@@ -61,7 +61,7 @@ var FmGui = {
         var overlay = $(tpl['modal-overlay']({}));
 
         // attach the overlay to the general container
-        overlay.hide().prependTo($('#fm-container'));
+        overlay.hide().prependTo($('.fm-container'));
         var attached_overlay = $('.fm-modal-overlay');
 
         // insert the content
@@ -78,8 +78,8 @@ var FmGui = {
             // when it's visible, set the container height to 200 longer than the content,
             // to ensure that long content does not get hidden
             var new_height = (attached_overlay.find('.content').height()+200);
-            if ($('#fm-container').height() < new_height) {
-                $('#fm-container').css({'height': new_height+'px'});
+            if ($('.fm-container').height() < new_height) {
+                $('.fm-container').css({'height': new_height+'px'});
             }
         });
 
@@ -89,7 +89,7 @@ var FmGui = {
             attached_overlay.remove();
 
             // set container height back to default auto height so it continues adapting to its content
-            $('#fm-container').css({'height': 'auto'});
+            $('.fm-container').css({'height': 'auto'});
 
             if (callback) {
                 callback($(this).attr('data-modal-type'));

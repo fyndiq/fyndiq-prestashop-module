@@ -73,7 +73,8 @@
     }
 }
 
-#fm-container {
+
+.fm-container {
     position: relative;
     width: 920px;
     margin: 0 auto;
@@ -84,17 +85,17 @@
         margin: 10px auto;
         width: 160px;
     }
-}
 
-#fm-main-panel {
-    float: left;
-    width: 660px;
-}
+    .fm-main-panel {
+        float: left;
+        width: 660px;
+    }
 
-#fm-sidebar {
-    float: left;
-    width: 245px;
-    margin-left: 15px;
+    .fm-sidebar {
+        float: left;
+        width: 245px;
+        margin-left: 15px;
+    }
 }
 
 
