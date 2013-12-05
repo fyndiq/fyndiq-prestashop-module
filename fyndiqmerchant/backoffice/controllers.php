@@ -71,13 +71,29 @@ class FmBackofficeControllers {
             ]);
         }
         if ($page == 'settings') {
+            $configured_language = FmConfig::get('language');
+            $configured_currency = FmConfig::get('currency');
+
+            # if there is a configured language, show it as selected
+            if ($configured_language) {
+                $selected_language = $configured_language;
+            } else {
+                # else show the default language as selected
+                $selected_language = Configuration::get('PS_LANG_DEFAULT');
+            }
+            # if there is a configured currency, show it as selected
+            if ($configured_currency) {
+                $selected_currency = $configured_currency;
+            } else {
+                # else show the default currency as selected
+                $selected_currency = Currency::getDefaultCurrency()->id;
+            }
+
             $output .= self::show_template($module, 'settings', [
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
-                'default_language'=> Configuration::get('PS_LANG_DEFAULT'),
-                'default_currency'=> Currency::getDefaultCurrency(),
-                'selected_language'=> FmConfig::get('language'),
-                'selected_currency'=> FmConfig::get('currency')
+                'selected_language'=> $selected_language,
+                'selected_currency'=> $selected_currency
             ]);
         }
         if ($page == 'main') {

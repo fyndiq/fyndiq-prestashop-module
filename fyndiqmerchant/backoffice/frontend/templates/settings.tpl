@@ -25,7 +25,7 @@
                     {foreach $languages as $language}
                         <option
                             value="{$language.id_lang}"
-                            {if $language.id_lang == $selected_language or $language.id_lang == $default_language}
+                            {if $language.id_lang == $selected_language}
                                 selected="selected"
                             {/if}
                             >{$language.name}</option>
@@ -41,7 +41,7 @@
                     {foreach $currencies as $currency}
                         <option
                             value="{$currency.id_currency}"
-                            {if $currency.id_currency == $selected_currency or $currency.id_currency == $default_currency->id}
+                            {if $currency.id_currency == $selected_currency}
                                 selected="selected"
                             {/if}
                             >{$currency.name}</option>
