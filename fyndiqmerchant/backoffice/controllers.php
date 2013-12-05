@@ -64,12 +64,14 @@ class FmBackofficeControllers {
         if ($page == 'authenticate') {
             $output .= self::show_template($module, 'authenticate');
         }
+
         if ($page == 'api_unavailable') {
             $output .= self::show_template($module, 'api_unavailable', [
                 'exception_type'=> get_class($e),
                 'error_message'=> $e->getMessage()
             ]);
         }
+
         if ($page == 'settings') {
             $configured_language = FmConfig::get('language');
             $configured_currency = FmConfig::get('currency');
@@ -90,18 +92,23 @@ class FmBackofficeControllers {
             }
 
             $output .= self::show_template($module, 'settings', [
+                'auto_import'=> FmConfig::get('auto_import'),
+                'auto_export'=> FmConfig::get('auto_export'),
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
                 'selected_language'=> $selected_language,
                 'selected_currency'=> $selected_currency
             ]);
         }
+
         if ($page == 'main') {
             $output .= self::show_template($module, 'main', [
                 'messages'=> FmMessages::get_all(),
-                'username'=> FmConfig::get('username'),
+                'auto_import'=> FmConfig::get('auto_import'),
+                'auto_export'=> FmConfig::get('auto_export'),
                 'language'=> new Language(FmConfig::get('language')),
                 'currency'=> new Currency(FmConfig::get('currency')),
+                'username'=> FmConfig::get('username')
             ]);
         }
 
@@ -166,19 +173,34 @@ class FmBackofficeControllers {
 
         $language_id = intval(Tools::getValue('language_id'));
         $currency_id = intval(Tools::getValue('currency_id'));
+        $auto_import = boolval(Tools::getValue('auto_import'));
+        $auto_export = boolval(Tools::getValue('auto_export'));
 
-        if (empty($language_id)) {
-            $error = true;
-            $output .= $module->displayError($module->l(FmMessages::get('settings-empty-language')));
-        } else {
-            Configuration::updateValue($module->config_name.'_language', $language_id);
+        if ($auto_import) {
+
+            # get protocol and domain for shop (if multishop is enabled, it uses the main shop)
+            $notification_url = Tools::getShopDomainSsl(true, false);
+            # get full path of the module (based on __PS_BASE_URI__ in settings)
+            $notification_url .= $module->get('_path');
+            # path to the actual file
+            $notification_url .= 'backoffice/notification_service.php';
+
+            try {
+                // FmHelpers::call_api('PATCH', 'account/', [
+                //     'notify_url'=> $notification_url,
+                //     'notify_answer'=> _COOKIE_KEY_
+                // ]);
+            } catch (Exception $e) {
+                $error = true;
+                $output .= $module->displayError($module->l($e->getMessage()));
+            }
         }
 
-        if (empty($currency_id)) {
-            $error = true;
-            $output .= $module->displayError($module->l(FmMessages::get('settings-empty-currency')));
-        } else {
-            Configuration::updateValue($module->config_name.'_currency', $currency_id);
+        if (!$error) {
+            FmConfig::set('language', $language_id);
+            FmConfig::set('currency', $currency_id);
+            FmConfig::set('auto_import', $auto_import);
+            FmConfig::set('auto_export', $auto_export);
         }
 
         return ['error'=> $error, 'output'=> $output];

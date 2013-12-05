@@ -15,8 +15,6 @@ class FmMessages {
         'api-network-error' => 'Network error, cannot connect to Fyndiq API.',
         'api-too-many-requests' => 'You have sent too many requests. Calm down!',
 
-        'settings-empty-language' => 'You have to select a language.',
-        'settings-empty-currency' => 'You have to select a currency.',
 
         'service-call-fail-head' => 'Connection failed',
         'service-call-fail-message' => 'Could not connect to the module service.',

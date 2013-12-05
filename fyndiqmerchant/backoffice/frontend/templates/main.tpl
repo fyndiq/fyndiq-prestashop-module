@@ -49,13 +49,40 @@
             </fieldset>
         </form>
 
-        {* Choose different settings form *}
+        {* Display settings form *}
         <form action="" method="post" class="fm-form settings">
             <fieldset>
                 <legend>Settings</legend>
                 <p>
-                    Language: <b>{$language->name}</b><br>
-                    Currency: <b>{$currency->name}</b>
+                    <ul>
+                        <li>
+                            Language: <b>{$language->name}</b>
+                        </li>
+
+                        <li>
+                            Currency: <b>{$currency->name}</b>
+                        </li>
+
+                        <li>
+                            Automatic order import: <b>
+                            {if $auto_import}
+                                Enabled
+                            {else}
+                                Disabled
+                            {/if}
+                            </b>
+                        </li>
+
+                        <li>
+                            Automatic quantity export: <b>
+                            {if $auto_export}
+                                Enabled
+                            {else}
+                                Disabled
+                            {/if}
+                            </b>
+                        </li>
+                    </ul>
                 </p>
 
                 <button class="fm-button" type="submit" name="submit_show_settings">Change Settings</button>

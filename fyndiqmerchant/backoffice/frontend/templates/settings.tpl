@@ -17,9 +17,9 @@
                 Make sure you select a language that contains Swedish product info, and a currency that contains Swedish Krona (SEK)!<br>
             </p>
 
-            <div>
-                <label for="fm-language-choice">Language</label>
-            </div>
+            <h2>Localization</h2>
+
+            <label for="fm-language-choice"><b>Language</b></label>
             <p>
                 <select name="language_id" id="fm-language-choice">
                     {foreach $languages as $language}
@@ -33,9 +33,7 @@
                 </select>
             </p>
 
-            <div>
-                <label for="fm-currency-choice">Currency</label>
-            </div>
+            <label for="fm-currency-choice"><b>Currency</b></label>
             <p>
                 <select name="currency_id" id="fm-currency-choice">
                     {foreach $currencies as $currency}
@@ -47,6 +45,26 @@
                             >{$currency.name}</option>
                     {/foreach}
                 </select>
+            </p>
+
+            <h1>System</h1>
+            <b>Automatic Order Import</b>
+            <p>
+                <input type="checkbox" name="auto_import" id="fm-auto-import"
+                    {if $auto_import}
+                        checked="checked"
+                    {/if}
+                >
+                <label for="fm-auto-import">Enable</label>
+            </p>
+            <b>Automatic Quantity Export</b>
+            <p>
+                <input type="checkbox" name="auto_export" id="fm-auto-export"
+                    {if $auto_export}
+                        checked="checked"
+                    {/if}
+                >
+                <label for="fm-auto-export">Enable</label>
             </p>
 
             <button class="fm-button" type="submit" name="submit_save_settings">Save Settings</button>

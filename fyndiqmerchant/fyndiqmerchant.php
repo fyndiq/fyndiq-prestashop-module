@@ -62,6 +62,8 @@ class FyndiqMerchant extends Module {
         $ret &= (bool)FmConfig::delete('api_token');
         $ret &= (bool)FmConfig::delete('language');
         $ret &= (bool)FmConfig::delete('currency');
+        $ret &= (bool)FmConfig::delete('auto_import');
+        $ret &= (bool)FmConfig::delete('auto_export');
 
 
         return (bool)$ret;
