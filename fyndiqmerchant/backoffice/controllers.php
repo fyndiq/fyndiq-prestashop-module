@@ -158,8 +158,8 @@ class FmBackofficeControllers {
                 $error = true;
 
                 # delete any stored connection values, which forces the user to authenticate again
-                FmConfig::set('username');
-                FmConfig::set('api_token');
+                FmConfig::delete('username');
+                FmConfig::delete('api_token');
             }
         }
 
