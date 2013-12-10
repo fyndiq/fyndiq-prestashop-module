@@ -20,6 +20,7 @@ class FyndiqAPI {
             CURLOPT_USERAGENT => $user_agent,
             CURLOPT_URL => (_PS_MODE_DEV_?'http':'https').'://fyndiq.se:8080/api/v2.0/'.$path,
             CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER=> array('Content-type: application/json'),
             CURLOPT_POSTFIELDS => $request_body,
 
             CURLOPT_VERBOSE => true,
