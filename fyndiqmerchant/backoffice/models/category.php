@@ -7,7 +7,7 @@ class FmCategory {
 
         $language_id = FmConfig::get('language');
 
-        $result = [];
+        $result = array();
 
         $levels = Category::getCategories($language_id);
         foreach ($levels as $level_k => $level_v) {

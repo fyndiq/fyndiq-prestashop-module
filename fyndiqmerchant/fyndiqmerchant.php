@@ -43,10 +43,10 @@ class FyndiqMerchant extends Module {
         $ret &= (bool)parent::install();
 
         # hook to product update
-        $hook_name = [
+        $hook_name = array(
             FMPSV14 => 'updateproduct',
             FMPSV15 => 'actionProductUpdate'
-        ];
+        );
         $ret &= (bool)$this->registerHook($hook_name[FMPSV]);
 
         return (bool)$ret;

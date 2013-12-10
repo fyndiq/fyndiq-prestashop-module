@@ -91,25 +91,25 @@ class FmBackofficeControllers {
                 $selected_currency = Currency::getDefaultCurrency()->id;
             }
 
-            $output .= self::show_template($module, 'settings', [
+            $output .= self::show_template($module, 'settings', array(
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
                 'selected_language'=> $selected_language,
                 'selected_currency'=> $selected_currency
-            ]);
+            ));
         }
 
         if ($page == 'main') {
-            $output .= self::show_template($module, 'main', [
+            $output .= self::show_template($module, 'main', array(
                 'messages'=> FmMessages::get_all(),
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
                 'language'=> new Language(FmConfig::get('language')),
                 'currency'=> new Currency(FmConfig::get('currency')),
                 'username'=> FmConfig::get('username')
-            ]);
+            ));
         }
 
         return $output;
@@ -148,7 +148,7 @@ class FmBackofficeControllers {
             }
         }
 
-        return ['error'=> $error, 'output'=> $output];
+        return array('error'=> $error, 'output'=> $output);
     }
 
     private static function handle_settings($module) {
@@ -171,10 +171,10 @@ class FmBackofficeControllers {
             $notification_url .= 'backoffice/notification_service.php';
 
             try {
-                // FmHelpers::call_api('PATCH', 'account/', [
+                // FmHelpers::call_api('PATCH', 'account/', array(
                 //     'notify_url'=> $notification_url,
                 //     'notify_answer'=> _COOKIE_KEY_
-                // ]);
+                // ));
             } catch (Exception $e) {
                 $error = true;
                 $output .= $module->displayError($module->l($e->getMessage()));
@@ -188,7 +188,7 @@ class FmBackofficeControllers {
             FmConfig::set('auto_export', $auto_export);
         }
 
-        return ['error'=> $error, 'output'=> $output];
+        return array('error'=> $error, 'output'=> $output);
     }
 
     private static function handle_disconnect($module) {
@@ -202,16 +202,16 @@ class FmBackofficeControllers {
 
         $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
 
-        return ['error'=> $error, 'output'=> $output];
+        return array('error'=> $error, 'output'=> $output);
     }
 
-    private static function show_template($module, $name, $args=[]) {
+    private static function show_template($module, $name, $args=array()) {
         global $smarty;
 
-        $template_args = array_merge($args, [
+        $template_args = array_merge($args, array(
             'server_path'=> dirname(dirname($_SERVER['SCRIPT_FILENAME'])).'/modules/'.$module->name,
             'module_path'=> $module->get('_path'),
-        ]);
+        ));
         $smarty->assign($template_args);
         return $module->display($module->name, 'backoffice/frontend/templates/'.$name.'.tpl');
     }

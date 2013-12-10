@@ -36,7 +36,7 @@ class FmAjaxService {
     # handle incoming ajax request
     public static function handle_request() {
         $action = false;
-        $args = [];
+        $args = array();
         if (array_key_exists('action', $_POST)) {
             $action = $_POST['action'];
         }
@@ -58,7 +58,7 @@ class FmAjaxService {
     }
 
     public static function get_products($args) {
-        $products = [];
+        $products = array();
 
         $rows = FmProduct::get_by_category($args['category']);
 

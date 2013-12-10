@@ -17,7 +17,7 @@ class FmProduct {
 
     public static function get($product_id) {
 
-        $result = [];
+        $result = array();
 
         $language_id = FmConfig::get('language');
 
@@ -30,10 +30,10 @@ class FmProduct {
         $result['price'] = $product->price;
 
         ### get the medium image type
-        $image_type_name = [
+        $image_type_name = array(
             FMPSV15 => 'medium_default',
             FMPSV14 => 'medium'
-        ];
+        );
         $image_types = ImageType::getImagesTypes();
         foreach ($image_types as $type) {
             if ($type['name'] == $image_type_name[FMPSV]) {
@@ -51,12 +51,12 @@ class FmProduct {
         }
 
         ### handle combinations
-        $result['combinations'] = [];
+        $result['combinations'] = array();
 
-        $get_attribute_combinations_func = [
+        $get_attribute_combinations_func = array(
             FMPSV14 => 'getAttributeCombinaisons',
             FMPSV15 => 'getAttributeCombinations'
-        ];
+        );
 
         # get this products attributes and combination images
         $product_attributes = $product->$get_attribute_combinations_func[FMPSV]($language_id);
@@ -68,10 +68,10 @@ class FmProduct {
             $result['combinations'][$id]['id'] = $id;
             $result['combinations'][$id]['price'] = $product_attribute['price'];
             $result['combinations'][$id]['quantity'] = $product_attribute['quantity'];
-            $result['combinations'][$id]['attributes'][] = [
+            $result['combinations'][$id]['attributes'][] = array(
                 'name' => $product_attribute['group_name'],
                 'value' => $product_attribute['attribute_name']
-            ];
+            );
 
             # if this combination has no image yet
             if (empty($result['combinations'][$id]['image'])) {
