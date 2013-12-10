@@ -12,15 +12,15 @@ var FmCtrl = {
             var result = null;
             if ($.isPlainObject(data) && ('fm-service-status' in data)) {
                 if (data['fm-service-status'] == 'error') {
-                    FmGui.show_message('error', messages['service-call-fail-head'], data['message']);
+                    FmGui.show_message('error', data['title'], data['message']);
                 }
                 if (data['fm-service-status'] == 'success') {
                     status = 'success';
                     result = data['data'];
                 }
             } else {
-                FmGui.show_message('error', messages['service-call-fail-head'],
-                    messages['service-call-fail-message']);
+                FmGui.show_message('error', messages['unhandled-error-title'],
+                    messages['unhandled-error-message']);
             }
             if (callback) {
                 callback(status, result);

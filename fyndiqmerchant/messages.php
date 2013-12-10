@@ -7,18 +7,14 @@ class FmMessages {
         'empty-username-token'=>        'Please specify a Username and API token.',
         'disconnect-confirm'=>          'Are you sure you want to disconnect from your Fyndiq merchant account?',
         'account-disconnected'=>        'You have disconnected from your Fyndiq merchant account.',
-        'json-encode-fail'=>            'Could not encode response json.',
-
-        'api-call-error'=>              'Error when calling api',
 
         'api-network-error'=>           'Network error, cannot connect to Fyndiq API',
-        'api-invalid-data'=>            'Error processing data',
         'api-incorrect-credentials'=>   'Incorrect Username or API token. Please double check your provided values.',
-        'api-too-many-requests'=>       'You have sent too many requests. Calm down!',
-        'api-unknown-error'=>           'An unhandled error occurred when calling Fyndiq API. Sorry about this.',
+        'api-too-many-requests'=>       'You have sent too many requests to the Fyndiq API.',
 
-        'service-call-fail-head'=>      'Connection failed',
-        'service-call-fail-message'=>   'Could not connect to the module service.',
+        'unhandled-error-title'=>       'Unhandled error',
+        'unhandled-error-message'=>     'An unhandled error occurred. If this persists, please contact Fyndiq integration support.',
+
 
         'products-exported-title'=>     'Products exported!',
         'products-exported-message'=>   'The products you selected have been exported to Fyndiq.',

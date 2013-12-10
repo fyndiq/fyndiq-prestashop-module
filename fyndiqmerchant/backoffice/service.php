@@ -17,18 +17,28 @@ class FmAjaxService {
 
     # return a success response
     public static function response($data = '') {
-        $response = array('fm-service-status' => 'success', 'data' => $data);
+        $response = array(
+            'fm-service-status'=> 'success',
+            'data'=> $data
+        );
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
-            self::response_error(FmMessages::get('json-encode-fail'));
+            self::response_error(
+                FmMessages::get('unhandled-error-title'),
+                FmMessages::get('unhandled-error-message')
+            );
         } else {
             echo $json;
         }
     }
 
     # return an error response
-    public static function response_error($msg) {
-        $response = array('fm-service-status' => 'error', 'message' => $msg);
+    public static function response_error($title, $message) {
+        $response = array(
+            'fm-service-status'=> 'error',
+            'title'=> $title,
+            'message'=> $message,
+        );
         $json = json_encode($response);
         echo $json;
     }
@@ -74,7 +84,10 @@ class FmAjaxService {
             $ret = FmHelpers::call_api('GET', 'orders/');
             self::response($ret);
         } catch (Exception $e) {
-            self::response_error(FmMessages::get('api-call-error').': '.$e->getMessage());
+            self::response_error(
+                FmMessages::get('unhandled-error-title'),
+                FmMessages::get('unhandled-error-message').' ('.$e->getMessage().')'
+            );
         }
     }
 
