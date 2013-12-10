@@ -48,7 +48,7 @@ class FmHelpers {
         return FmHelpers::call_api_raw($username, $api_token, $method, $path, $data);
     }
 
-    # handles custom exceptions, fetches proper error messages, and throws new generic exception
+    # add descriptive error messages for common errors, and re throw same exception
     public static function call_api_raw($username, $api_token, $method, $path, $data=array()) {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
@@ -56,22 +56,13 @@ class FmHelpers {
             return FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
 
         } catch (FyndiqAPIConnectionFailed $e) {
-            throw new Exception(FmMessages::get('api-network-error').': '.$e->getMessage());
-
-        } catch (FyndiqAPIDataInvalid $e) {
-            throw new Exception(FmMessages::get('api-invalid-data').': '.$e->getMessage());
+            throw new FyndiqAPIConnectionFailed(FmMessages::get('api-network-error').': '.$e->getMessage());
 
         } catch (FyndiqAPIAuthorizationFailed $e) {
-            throw new Exception(FmMessages::get('api-incorrect-credentials'));
+            throw new FyndiqAPIAuthorizationFailed(FmMessages::get('api-incorrect-credentials'));
 
         } catch (FyndiqAPITooManyRequests $e) {
-            throw new Exception(FmMessages::get('api-too-many-requests'));
-
-        } catch (FyndiqAPIUnsupportedStatus $e) {
-            throw new Exception(FmMessages::get('api-unknown-error'));
-
-        } catch (Exception $e) {
-            throw new Exception(FmMessages::get('api-unknown-error'));
+            throw new FyndiqAPITooManyRequests(FmMessages::get('api-too-many-requests'));
         }
     }
 
