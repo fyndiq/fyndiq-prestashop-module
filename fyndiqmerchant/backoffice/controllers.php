@@ -4,6 +4,8 @@ class FmBackofficeControllers {
     public static function main($module) {
 
         $output = '';
+        $page = '';
+        $page_args = array();
 
         if (Tools::isSubmit('submit_authenticate')) {
             $ret = self::handle_authentication($module);
@@ -23,6 +25,7 @@ class FmBackofficeControllers {
                 $api_available = true;
             } catch (Exception $e) {
                 $page = 'api_unavailable';
+                $page_args['message'] = $e->getMessage();
             }
 
             # if api is up
@@ -66,10 +69,9 @@ class FmBackofficeControllers {
         }
 
         if ($page == 'api_unavailable') {
-            $output .= self::show_template($module, 'api_unavailable', [
-                'exception_type'=> get_class($e),
-                'error_message'=> $e->getMessage()
-            ]);
+            $output .= self::show_template($module, 'api_unavailable', array(
+                'message'=> $page_args['message']
+            ));
         }
 
         if ($page == 'settings') {
