@@ -3,6 +3,7 @@
 class FyndiqAPIConnectionFailed extends Exception {}
 class FyndiqAPIAuthorizationFailed extends Exception {}
 class FyndiqAPIDataInvalid extends Exception {}
+class FyndiqAPIBadRequest extends Exception {}
 class FyndiqAPITooManyRequests extends Exception {}
 class FyndiqAPIUnsupportedStatus extends Exception {}
 
@@ -54,6 +55,16 @@ class FyndiqAPI {
         $response['body'] = substr($response['data'], $response['header_size']);
 
         curl_close($ch);
+
+        if ($response['http_status'] == 400) {
+            $message = '';
+            if (property_exists($result, 'error_messages')) {
+                foreach ($result->error_messages as $error_message) {
+                    $message .= ' '.$error_message;
+                }
+            }
+            throw new FyndiqAPIBadRequest($message);
+        }
 
         if ($response['http_status'] == 401) {
             throw new FyndiqAPIAuthorizationFailed();
