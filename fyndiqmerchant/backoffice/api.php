@@ -56,6 +56,13 @@ class FyndiqAPI {
 
         curl_close($ch);
 
+        $result = json_decode($response['body']);
+
+        # if json_decode failed
+        if (json_last_error() != JSON_ERROR_NONE) {
+            throw new FyndiqAPIDataInvalid('Error in response data.');
+        }
+
         if ($response['http_status'] == 400) {
             $message = '';
             if (property_exists($result, 'error_messages')) {
@@ -76,13 +83,6 @@ class FyndiqAPI {
 
         if ($response['http_status'] != 200 ) {
             throw new FyndiqAPIUnsupportedStatus($response['http_status']);
-        }
-
-        $result = json_decode($response['body']);
-
-        # if json_decode failed
-        if (json_last_error() != JSON_ERROR_NONE) {
-            throw new FyndiqAPIDataInvalid('Error in response data.');
         }
 
         return $result;
