@@ -49,6 +49,14 @@ class FyndiqMerchant extends Module {
         );
         $ret &= (bool)$this->registerHook($hook_name[FMPSV]);
 
+        # create product mapping database
+        $ret &= (bool)Db::getInstance()->Execute('
+            create table if not exists '._DB_PREFIX_.$this->config_name.'_products (
+            id int(20) unsigned primary key,
+            product_id int(20) unsigned,
+            fyndiq_id int(20) unsigned)
+        ');
+
         return (bool)$ret;
     }
 
@@ -65,6 +73,9 @@ class FyndiqMerchant extends Module {
         $ret &= (bool)FmConfig::delete('auto_import');
         $ret &= (bool)FmConfig::delete('auto_export');
 
+        # drop product database
+        $ret &= (bool)Db::getInstance()->Execute('
+            drop table '._DB_PREFIX_.$this->config_name.'_products');
 
         return (bool)$ret;
     }
