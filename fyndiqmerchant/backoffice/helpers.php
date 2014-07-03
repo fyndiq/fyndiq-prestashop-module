@@ -74,4 +74,13 @@ class FmHelpers {
             return pSQL($value);
         }
     }
+
+    public static function get_shop_url($context) {
+        if (FMPSV == FMPSV15) {
+            return $context->shop->getBaseURL();
+        }
+        if (FMPSV == FMPSV14) {
+            // pd(Tools::getShopDomainSsl(true, false)) pd(__PS_BASE_URI__);
+        }
+    }
 }
