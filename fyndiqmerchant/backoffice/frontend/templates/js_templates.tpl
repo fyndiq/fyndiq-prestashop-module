@@ -100,7 +100,8 @@
         {{#with this}}
             <li data-category_id="{{id}}">
                 {{level}}
-                <a href="#">{{name}}</a>
+
+                <a href="#" title="Open category">{{name}}</a>
             </li>
         {{/with}}
     {{/each}}
