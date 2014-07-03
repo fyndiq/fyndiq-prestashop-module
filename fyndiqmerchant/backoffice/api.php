@@ -1,25 +1,32 @@
 <?php
 
-class FyndiqAPIConnectionFailed extends Exception {}
-class FyndiqAPIAuthorizationFailed extends Exception {}
 class FyndiqAPIDataInvalid extends Exception {}
-class FyndiqAPIBadRequest extends Exception {}
+class FyndiqAPIConnectionFailed extends Exception {}
+class FyndiqAPIPageNotFound extends Exception {}
+class FyndiqAPIAuthorizationFailed extends Exception {}
 class FyndiqAPITooManyRequests extends Exception {}
+class FyndiqAPIServerError extends Exception {}
+class FyndiqAPIBadRequest extends Exception {}
 class FyndiqAPIUnsupportedStatus extends Exception {}
 
 class FyndiqAPI {
+
+    public static $error_messages;
+
     public static function call($user_agent, $username, $token, $method, $path, $data) {
+
+        self::$error_messages = array();
 
         $request_body = json_encode($data);
 
         # if json encode failed
         if (json_last_error() != JSON_ERROR_NONE) {
-            throw new FyndiqAPIDataInvalid('Error in request data.');
+            throw new FyndiqAPIDataInvalid('Error in request data');
         }
 
         $curl_opts = array(
             CURLOPT_USERAGENT => $user_agent,
-            CURLOPT_URL => (_PS_MODE_DEV_?'http':'https').'://fyndiq.se:8080/api/v2.0/'.$path,
+            CURLOPT_URL => (_PS_MODE_DEV_?'http':'https').'://fyndiq.se:8080/api/v2/'.$path,
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER=> array('Content-type: application/json'),
             CURLOPT_POSTFIELDS => $request_body,
@@ -56,35 +63,90 @@ class FyndiqAPI {
 
         curl_close($ch);
 
-        $result = json_decode($response['body']);
-
-        # if json_decode failed
-        if (json_last_error() != JSON_ERROR_NONE) {
-            throw new FyndiqAPIDataInvalid('Error in response data.');
-        }
-
-        if ($response['http_status'] == 400) {
-            $message = '';
-            if (property_exists($result, 'error_messages')) {
-                foreach ($result->error_messages as $error_message) {
-                    $message .= ' '.$error_message;
-                }
-            }
-            throw new FyndiqAPIBadRequest($message);
+        if ($response['http_status'] == 404) {
+            throw new FyndiqAPIPageNotFound('Not Found: '.$path);
         }
 
         if ($response['http_status'] == 401) {
-            throw new FyndiqAPIAuthorizationFailed();
+            throw new FyndiqAPIAuthorizationFailed('Unauthorized');
         }
 
         if ($response['http_status'] == 429) {
-            throw new FyndiqAPITooManyRequests();
+            throw new FyndiqAPITooManyRequests('Too Many Requests');
         }
 
-        if ($response['http_status'] != 200 ) {
-            throw new FyndiqAPIUnsupportedStatus($response['http_status']);
+        if ($response['http_status'] == 500) {
+            throw new FyndiqAPIServerError('Server Error');
         }
 
-        return $result;
+        // pd($response['body']);
+
+        # try to json decode repsonse data
+        $result = json_decode($response['body']);
+
+        // switch (json_last_error()) {
+        //     case JSON_ERROR_NONE:
+        //         echo ' - No errors';
+        //     break;
+        //     case JSON_ERROR_DEPTH:
+        //         echo ' - Maximum stack depth exceeded';
+        //     break;
+        //     case JSON_ERROR_STATE_MISMATCH:
+        //         echo ' - Underflow or the modes mismatch';
+        //     break;
+        //     case JSON_ERROR_CTRL_CHAR:
+        //         echo ' - Unexpected control character found';
+        //     break;
+        //     case JSON_ERROR_SYNTAX:
+        //         echo ' - Syntax error, malformed JSON';
+        //         pd($response['body']);
+        //     break;
+        //     case JSON_ERROR_UTF8:
+        //         echo ' - Malformed UTF-8 characters, possibly incorrectly encoded';
+        //     break;
+        //     default:
+        //         echo ' - Unknown error';
+        //     break;
+        // }
+
+        # if json_decode failed
+        if (json_last_error() != JSON_ERROR_NONE) {
+            throw new FyndiqAPIDataInvalid('Error in response data');
+        }
+
+        # 400 may contain error messages intended for the user
+        if ($response['http_status'] == 400) {
+            $message = '';
+
+            # if there are any error messages, save them to class static member
+            if (property_exists($result, 'error_messages')) {
+                $error_messages = $result->error_messages;
+
+                # if it contains several messages as an array
+                if (is_array($error_messages)) {
+
+                    foreach ($result->error_messages as $error_message) {
+                        self::$error_messages[] = $error_message;
+                    }
+
+                # if it contains just one message as a string
+                } else {
+                    self::$error_messages[] = $error_messages;
+                }
+            }
+
+            throw new FyndiqAPIBadRequest('Bad Request');
+        }
+
+        $success_http_statuses = array('200', '201');
+
+        if (!in_array($response['http_status'], $success_http_statuses)) {
+            throw new FyndiqAPIUnsupportedStatus('Unsupported HTTP status: '.$response['http_status']);
+        }
+
+        return array(
+            'status'=> $response['http_status'],
+            'data'=> $result
+        );
     }
 }
