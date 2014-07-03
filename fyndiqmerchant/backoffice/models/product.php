@@ -8,7 +8,7 @@ class FmProduct {
             $link = new Link();
             $image = $link->getImageLink($link_rewrite, $id_image, $image_type);
         }
-        if (FMPSV == FMPSV15) {
+        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $context = Context::getContext();
             $image = $context->link->getImageLink($link_rewrite, $id_image, $image_type);
         }
@@ -39,6 +39,7 @@ class FmProduct {
 
         ### get the medium image type
         $image_type_name = array(
+            FMPSV16 => 'large_default',
             FMPSV15 => 'large_default',
             FMPSV14 => 'large'
         );
@@ -63,7 +64,8 @@ class FmProduct {
 
         $get_attribute_combinations_func = array(
             FMPSV14 => 'getAttributeCombinaisons',
-            FMPSV15 => 'getAttributeCombinations'
+            FMPSV15 => 'getAttributeCombinations',
+            FMPSV16 => 'getAttributeCombinations'
         );
 
         # get this products attributes and combination images
