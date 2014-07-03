@@ -62,6 +62,17 @@ class FmBackofficeControllers {
             }
         }
 
+        // Configuration::get('PS_SHOP_DEFAULT')
+        // Configuration::get('PS_MULTISHOP_FEATURE_ACTIVE');
+        // new ShopGroup((int)Tools::getValue('id_shop_group'))
+        // foreach (ShopGroup::getShopGroups() as $group)
+        // new Shop((int)Tools::getValue('id_shop'))
+        // Shop::getTotalShops()
+        // $shops = Shop::getShops(true);
+        // Shop::getCategories($id_shop);
+        // Category::getRootCategories();
+        // if (Shop::getContext() == Shop::CONTEXT_SHOP
+
         #### render decided page
 
         if ($page == 'authenticate') {
