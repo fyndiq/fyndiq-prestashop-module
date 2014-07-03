@@ -15,6 +15,14 @@ class FmProduct {
         return $image;
     }
 
+    private static function get_price($price) {
+        // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $currency = new Currency(Configuration::get($module->config_name.'_currency'));
+        $converted_price = $price * $currency->conversion_rate;
+        return Tools::ps_round($converted_price, 2);
+    }
+
     public static function get($product_id) {
 
         $result = array();
@@ -27,12 +35,12 @@ class FmProduct {
         $result['name'] = $product->name;
         $result['reference'] = $product->reference;
         $result['quantity'] = $product->quantity;
-        $result['price'] = $product->price;
+        $result['price'] = self::get_price($product->price);
 
         ### get the medium image type
         $image_type_name = array(
-            FMPSV15 => 'medium_default',
-            FMPSV14 => 'medium'
+            FMPSV15 => 'large_default',
+            FMPSV14 => 'large'
         );
         $image_types = ImageType::getImagesTypes();
         foreach ($image_types as $type) {
@@ -66,7 +74,7 @@ class FmProduct {
             $id = $product_attribute['id_product_attribute'];
 
             $result['combinations'][$id]['id'] = $id;
-            $result['combinations'][$id]['price'] = $product_attribute['price'];
+            $result['combinations'][$id]['price'] = self::get_price($product->price + $product_attribute['price']);
             $result['combinations'][$id]['quantity'] = $product_attribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
                 'name' => $product_attribute['group_name'],

@@ -15,6 +15,7 @@ class FmMessages {
         'unhandled-error-title'=>       'Unhandled error',
         'unhandled-error-message'=>     'An unhandled error occurred. If this persists, please contact Fyndiq integration support.',
 
+        'products-bad-params-title'=>   'Incorrect product data',
 
         'products-exported-title'=>     'Products exported!',
         'products-exported-message'=>   'The products you selected have been exported to Fyndiq.',

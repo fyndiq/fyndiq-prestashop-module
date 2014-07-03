@@ -10,6 +10,7 @@ if (file_exists($configPath)) {
 
 require_once('../messages.php');
 require_once('./helpers.php');
+require_once('./models/product_export.php');
 require_once('./models/category.php');
 require_once('./models/product.php');
 
@@ -92,13 +93,76 @@ class FmAjaxService {
     }
 
     public static function export_products($args) {
-        foreach ($args['products'] as $v) {
-            $product_id = $v['product'];
+        $error = false;
 
-            $product = FmProduct::get($product_id);
+        foreach ($args['products'] as $v) {
+            $product = $v['product'];
+
+            $result = array(
+                'title'=> $product['name'],
+                'description'=> 'asdf8u4389j34g98j34g98',
+                'images'=> array($product['image']),
+                'oldprice'=> '9999',
+                'price'=> $product['price'],
+                'moms_percent'=> '25',
+                'articles'=> array()
+            );
+
+            // when posting empty array, it's removed completely from the request, so check for key
+            if (array_key_exists('combinations', $v)) {
+                $combinations = $v['combinations'];
+
+                foreach ($combinations as $combination) {
+                    $result['articles'][] = array(
+                        'num_in_stock'=> '7',
+                        'merchant_item_no'=> '2',
+                        'description'=> 'asdfjeroijergo'
+                    );
+                }
+            } else {
+                $result['articles'][] = array(
+                    'num_in_stock'=> '99',
+                    'merchant_item_no'=> '99',
+                    'description'=> 'qwer99qwer98referf'
+                );
+            }
+
+            try {
+                $result = FmHelpers::call_api('POST', 'products/', $result);
+                if ($result['status'] != 201) {
+                    $error = true;
+                    self::response_error(
+                        FmMessages::get('unhandled-error-title'),
+                        FmMessages::get('unhandled-error-message')
+                    );
+                }
+                FmProductExport::create($product['id'], $result['data']->id);
+            } catch (FyndiqAPIBadRequest $e) {
+                $error = true;
+                $message = '';
+                foreach (FyndiqAPI::$error_messages as $error_message) {
+                    $message .= $error_message;
+                }
+                self::response_error(
+                    FmMessages::get('products-bad-params-title'),
+                    $message
+                );
+            } catch (Exception $e) {
+                $error = true;
+                self::response_error(
+                    FmMessages::get('unhandled-error-title'),
+                    $e->getMessage()
+                );
+            }
+
+            if ($error) {
+                break;
+            }
         }
 
-        self::response();
+        if (!$error) {
+            self::response();
+        }
     }
 }
 
