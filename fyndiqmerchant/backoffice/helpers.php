@@ -16,10 +16,14 @@ function endsWith($haystack, $needle) {
 # FyndiqMerchant PrestaShop Version 1.4|1.5
 define('FMPSV14', 'FMPSV14');
 define('FMPSV15', 'FMPSV15');
+define('FMPSV16', 'FMPSV16');
 if (startswith(_PS_VERSION_, '1.4.')) {
     define('FMPSV', FMPSV14);
 }
 if (startswith(_PS_VERSION_, '1.5.')) {
+    define('FMPSV', FMPSV15);
+}
+if (startswith(_PS_VERSION_, '1.6.')) {
     define('FMPSV', FMPSV15);
 }
 
@@ -67,7 +71,7 @@ class FmHelpers {
     }
 
     public static function db_escape($value) {
-        if (FMPSV == FMPSV15) {
+        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             return Db::getInstance()->_escape($value);
         }
         if (FMPSV == FMPSV14) {
@@ -76,7 +80,7 @@ class FmHelpers {
     }
 
     public static function get_shop_url($context) {
-        if (FMPSV == FMPSV15) {
+        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             return $context->shop->getBaseURL();
         }
         if (FMPSV == FMPSV14) {
