@@ -71,10 +71,26 @@ class FyndiqMerchant extends Module {
 
     # 1.4
     public function hookupdateproduct($data) {
+        // $product = $data['product'];
+        // $quantity = $product->quantity;
+        // $id = $product->id;
+        // $ts = date('Y-m-d H:i:s', time());
+        // file_put_contents('test14.apa', $ts.' | '.$quantity.' | '.$id);
     }
 
     # 1.5
     public function hookActionProductUpdate($data) {
+        // ob_start();
+        // var_dump($data);
+        // $s = ob_get_contents();
+        // ob_end_clean();
+        // file_put_contents('test.apa', $s);
+
+        // $product = $data['product'];
+        // $quantity = $product->quantity;
+        // $id = $product->id;
+        // $ts = date('Y-m-d H:i:s', time());
+        // file_put_contents('test15.apa', $ts.' | '.$quantity.' | '.$id);
     }
 
     public function getContent() {
