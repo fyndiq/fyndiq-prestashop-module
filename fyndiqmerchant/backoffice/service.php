@@ -111,7 +111,7 @@ class FmAjaxService {
 
 
             try {
-                $result = FmHelpers::call_api('POST', 'products/', $product_result);
+                $result = FmHelpers::call_api('POST', 'product/', $product_result);
                 if ($result['status'] != 201) {
                     $error = true;
                     self::response_error(
