@@ -98,37 +98,20 @@ class FmAjaxService {
         foreach ($args['products'] as $v) {
             $product = $v['product'];
 
-            $result = array(
+            $product_result = array(
                 'title'=> $product['name'],
                 'description'=> 'asdf8u4389j34g98j34g98',
                 'images'=> array($product['image']),
                 'oldprice'=> '9999',
                 'price'=> $product['price'],
                 'moms_percent'=> '25',
-                'articles'=> array()
             );
 
-            // when posting empty array, it's removed completely from the request, so check for key
-            if (array_key_exists('combinations', $v)) {
-                $combinations = $v['combinations'];
+            $article_result = array();
 
-                foreach ($combinations as $combination) {
-                    $result['articles'][] = array(
-                        'num_in_stock'=> '7',
-                        'merchant_item_no'=> '2',
-                        'description'=> 'asdfjeroijergo'
-                    );
-                }
-            } else {
-                $result['articles'][] = array(
-                    'num_in_stock'=> '99',
-                    'merchant_item_no'=> '99',
-                    'description'=> 'qwer99qwer98referf'
-                );
-            }
 
             try {
-                $result = FmHelpers::call_api('POST', 'products/', $result);
+                $result = FmHelpers::call_api('POST', 'products/', $product_result);
                 if ($result['status'] != 201) {
                     $error = true;
                     self::response_error(
@@ -137,6 +120,39 @@ class FmAjaxService {
                     );
                 }
                 FmProductExport::create($product['id'], $result['data']->id);
+
+                // when posting empty array, it's removed completely from the request, so check for key
+                if (array_key_exists('combinations', $v)) {
+                    $combinations = $v['combinations'];
+
+                    foreach ($combinations as $combination) {
+                        $article_result[] = array(
+                            'num_in_stock'=> '7',
+                            'product' => $result['data']->id,
+                            'property_values' => array("10", "11"),
+                            'item_no'=> '2',
+                            'description'=> 'asdfjeroijergo'
+                        );
+                    }
+                } else {
+                    $article_result[] = array(
+                        'num_in_stock'=> '99',
+                        'product' => $result['data']->id,
+                        'property_values' => array("10", "11"),
+                        'item_no'=> '99',
+                        'description'=> 'qwer99qwer98referf'
+                    );
+                }
+
+                $result_article = FmHelpers::call_api('POST', 'article/', $article_result);
+                if ($result_article['status'] != 201) {
+                    $error = true;
+                    self::response_error(
+                        FmMessages::get('unhandled-error-title'),
+                        FmMessages::get('unhandled-error-message')
+                    );
+                }
+
             } catch (FyndiqAPIBadRequest $e) {
                 $error = true;
                 $message = '';
