@@ -17,6 +17,11 @@ require_once('./models/product.php');
 class FmAjaxService {
 
     # return a success response
+    /**
+     * Structure the response back to the client
+     *
+     * @param string $data
+     */
     public static function response($data = '') {
         $response = array(
             'fm-service-status'=> 'success',
@@ -34,6 +39,12 @@ class FmAjaxService {
     }
 
     # return an error response
+    /**
+     * create a error to be send back to client.
+     *
+     * @param $title
+     * @param $message
+     */
     public static function response_error($title, $message) {
         $response = array(
             'fm-service-status'=> 'error',
@@ -45,6 +56,9 @@ class FmAjaxService {
     }
 
     # handle incoming ajax request
+    /**
+     *
+     */
     public static function handle_request() {
         $action = false;
         $args = array();
@@ -63,11 +77,21 @@ class FmAjaxService {
 
     ### views ###
 
+    /**
+     * Get the categories.
+     *
+     * @param $args
+     */
     public static function get_categories($args) {
         $categories = FmCategory::get_all();
         self::response($categories);
     }
 
+    /**
+     * Get the products.
+     *
+     * @param $args
+     */
     public static function get_products($args) {
         $products = array();
 
@@ -80,9 +104,14 @@ class FmAjaxService {
         self::response($products);
     }
 
-    public static function get_orders($args) {
+    /**
+     * Getting the orders to be saved in Prestashop.
+     *
+     * @param $args
+     */
+    public static function import_orders($args) {
         try {
-            $ret = FmHelpers::call_api('GET', 'orders/');
+            $ret = FmHelpers::call_api('GET', 'order/');
             self::response($ret);
         } catch (Exception $e) {
             self::response_error(
@@ -92,6 +121,11 @@ class FmAjaxService {
         }
     }
 
+    /**
+     * Exporting the products from Prestashop
+     *
+     * @param $args
+     */
     public static function export_products($args) {
         $error = false;
 
