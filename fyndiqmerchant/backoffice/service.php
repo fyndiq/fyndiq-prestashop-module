@@ -332,6 +332,12 @@ class FmAjaxService {
                 $order_detail = new OrderDetail(null, null, $context);
                 $order_detail->createList($presta_order, $context->cart, $id_order_state, $context->cart->getProducts());
 
+                // create state in history
+                $order_history = new OrderHistory();
+                $order_history->id_order = $presta_order->id;
+                $order_history->id_order_state = $id_order_state;
+                $order_history->add();
+
                 // Adding an entry in order_carrier table
                 if (!is_null($carrier))
                 {
