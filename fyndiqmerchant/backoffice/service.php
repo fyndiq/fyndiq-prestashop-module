@@ -266,9 +266,10 @@ class FmAjaxService {
                     // get id of the product
                     // TODO: shall be from a table later (to conenct a product in prestashop with a id for a article in Fyndiq)
                     $product_id = 1;
+                    $num_article = $row->num_articles;
 
                     //add product to the cart
-                    $context->cart->updateQty(1, $product_id);
+                    $context->cart->updateQty($num_article, $product_id);
                 }
 
 
