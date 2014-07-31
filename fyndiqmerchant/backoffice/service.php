@@ -376,6 +376,14 @@ class FmAjaxService
                     $context->cart->getProducts()
                 );
 
+                // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
+                $order_payment = new OrderPayment();
+                $order_payment->id_currency = $context->cart->id_currency;
+                $order_payment->amount = $presta_order->total_products_wt;
+                $order_payment->payment_method = $payment_method;
+                $order_payment->order_reference = $reference;
+                $order_payment->add();
+
                 // create state in history
                 $order_history = new OrderHistory();
                 $order_history->id_order = $presta_order->id;
