@@ -390,6 +390,19 @@ class FmAjaxService
                 $order_history->id_order_state = $id_order_state;
                 $order_history->add();
 
+
+                //add fyndiq delivery note as a message to the order
+                $order_message = new Message();
+                $order_message->id_order = $presta_order->id;
+                $order_message->private = true;
+                // TODO: FIX the url!
+                $order_message->message = "Fyndiq delivery note: http://fyndiq.se".$order->delivery_note." \n just copy url and paste in the browser to download the delivery note.";
+                $order_message->add();
+
+                // set order as valid
+                $presta_order->valid = true;
+                $presta_order->update();
+
                 // Adding an entry in order_carrier table
                 if (!is_null($carrier)) {
                     $order_carrier = new OrderCarrier();
