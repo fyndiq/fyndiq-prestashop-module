@@ -326,6 +326,22 @@ class FmAjaxService {
 
                 if (!$result)
                     throw new PrestaShopException('Can\'t save Order');
+
+                // Insert new Order detail list using cart for the current order
+                $order_detail = new OrderDetail(null, null, $context);
+                $order_detail->createList($presta_order, $context->cart, $id_order_state, $context->cart->getProducts());
+
+                // Adding an entry in order_carrier table
+                if (!is_null($carrier))
+                {
+                    $order_carrier = new OrderCarrier();
+                    $order_carrier->id_order = (int)$presta_order->id;
+                    $order_carrier->id_carrier = (int)$id_carrier;
+                    $order_carrier->weight = (float)$presta_order->getTotalWeight();
+                    $order_carrier->shipping_cost_tax_excl = (float)$presta_order->total_shipping_tax_excl;
+                    $order_carrier->shipping_cost_tax_incl = (float)$presta_order->total_shipping_tax_incl;
+                    $order_carrier->add();
+                }
             }
 
             self::response($ret);
