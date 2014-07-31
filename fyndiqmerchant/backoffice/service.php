@@ -224,9 +224,11 @@ class FmAjaxService {
 
                 // create a internal reference for the order.
                 $reference = Order::generateReference();
-                $payment_method = 'Bank wire';
+                $payment_method = 'Fyndiq';
                 $secure_key = md5(uniqid(rand(), true));
                 $amount_paid = 500;
+                $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
+
 
                 if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery')
                 {
@@ -283,10 +285,10 @@ class FmAjaxService {
                 $presta_order->secure_key = $secure_key;
                 $presta_order->payment = $payment_method;
 
-                $presta_order->module = "bankwire";
+                $presta_order->module = "fyndiq";
 
                 $presta_order->recyclable = $context->cart->recyclable;
-                $presta_order->current_state = (int)1;
+                $presta_order->current_state = $id_order_state;
                 $presta_order->gift = (int)$context->cart->gift;
                 $presta_order->gift_message = $context->cart->gift_message;
                 $presta_order->mobile_theme = $context->cart->mobile_theme;
