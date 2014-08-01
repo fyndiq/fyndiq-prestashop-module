@@ -135,7 +135,7 @@ class FmAjaxService
 
                 $cart->id_currency = Currency::getDefaultCurrency()->id;
                 $cart->id_lang = 1;
-                if (FMPSV == FMPSV15 AND FMPSV == FMPSV16) {
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
                     $context->currency = Currency::getDefaultCurrency();
                     $context->id_lang = 1;
                 }
@@ -246,6 +246,7 @@ class FmAjaxService
                     }
                 }
 
+                // get the carrier for the cart
                 $carrier = null;
                 if (!$cart->isVirtualCart() && isset($package['id_carrier'])) {
                     $carrier = new Carrier($package['id_carrier'], $cart->id_lang);
@@ -260,7 +261,9 @@ class FmAjaxService
                 $cart->id_address_invoice = (int)$invoice_address->id;
                 $cart->id_address_delivery = (int)$delivery_address->id;
 
+                // Save the cart
                 $cart->add();
+
 
 
                 foreach ($row_ret["data"]->objects as $row) {
@@ -289,6 +292,7 @@ class FmAjaxService
                     $presta_order->reference = $reference;
                 }
 
+                // Setup more settings for the order
                 $presta_order->id_shop = (int)$context->shop->id;
                 $presta_order->id_shop_group = (int)$context->shop->id_shop_group;
 
@@ -317,6 +321,7 @@ class FmAjaxService
                     $id_carrier
                 );
 
+                // Discounts and shipping tax settings
                 $presta_order->total_discounts_tax_excl = (float)abs(
                     $cart->getOrderTotal(false, Cart::ONLY_DISCOUNTS, $cart->getProducts(), $id_carrier)
                 );
@@ -351,6 +356,7 @@ class FmAjaxService
                     );
                 }
 
+                // Wrapping settings
                 $presta_order->total_wrapping_tax_excl = (float)abs(
                     $cart->getOrderTotal(false, Cart::ONLY_WRAPPING, $cart->getProducts(), $id_carrier)
                 );
@@ -368,9 +374,12 @@ class FmAjaxService
                     2
                 );
 
+                // Set total paid
                 $presta_order->total_paid_real = $presta_order->total_products_wt;
                 $presta_order->total_paid = $presta_order->total_products_wt;
 
+
+                // Set invoice date (needed to make order to work in prestashop 1.4
                 if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
                     $presta_order->invoice_date = '0000-00-00 00:00:00';
                     $presta_order->delivery_date = '0000-00-00 00:00:00';
@@ -384,12 +393,14 @@ class FmAjaxService
                 // Creating order
                 $result = $presta_order->add();
 
+                // if result is false the add didn't work and it will throw a exception.
                 if (!$result) {
                     throw new PrestaShopException('Can\'t save Order');
                 }
 
+                // Insert new Order detail list using cart for the current order
                 if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-                    // Insert new Order detail list using cart for the current order
+
                     $order_detail = new OrderDetail();
                     $order_detail->createList(
                         $presta_order,
