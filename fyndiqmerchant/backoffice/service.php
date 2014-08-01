@@ -122,7 +122,10 @@ class FmAjaxService
 
         try {
             $ret = FmHelpers::call_api('GET', 'order/');
-            $context = Context::getContext();
+
+            if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                $context = Context::getContext();
+            }
 
             foreach ($ret["data"]->objects as $order) {
 
@@ -130,12 +133,12 @@ class FmAjaxService
                 $cart = new Cart();
                 $row_ret = FmHelpers::call_api('GET', 'order_row/?order__exact=' . $order_id);
 
-                $context->cart = $cart;
-                $context->cart->id_currency = Currency::getDefaultCurrency()->id;
-                $context->currency = Currency::getDefaultCurrency();
-
-                $context->id_lang = 1;
-                $context->cart->id_lang = 1;
+                $cart->id_currency = Currency::getDefaultCurrency()->id;
+                $cart->id_lang = 1;
+                if (FMPSV == FMPSV15 AND FMPSV == FMPSV16) {
+                    $context->currency = Currency::getDefaultCurrency();
+                    $context->id_lang = 1;
+                }
 
                 $country_result = Db::getInstance()->ExecuteS(
                     "SELECT * FROM " . _DB_PREFIX_ . "country WHERE iso_code='SE' LIMIT 1"
@@ -198,7 +201,7 @@ class FmAjaxService
                     // Add it to the database.
                     $invoice_address->add();
                 } else {
-                    $addresses = $customer->getAddresses($context->cart->id_lang);
+                    $addresses = $customer->getAddresses($cart->id_lang);
                     foreach ($addresses as $adrss) {
                         if ($adrss["address1"] == $order->invoice_address AND $adrss["postcode"] == $order->invoice_postalcode AND $adrss["firstname"] == $order->invoice_firstname AND $adrss["lastname"] == $order->invoice_lastname) {
                             $invoice_address = new Address();
@@ -224,9 +227,10 @@ class FmAjaxService
                 // Create a order
                 $presta_order = new Order();
 
-
-                // create a internal reference for the order.
-                $reference = Order::generateReference();
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                    // create a internal reference for the order.
+                    $reference = Order::generateReference();
+                }
                 $payment_method = 'Fyndiq';
                 $secure_key = md5(uniqid(rand(), true));
                 $amount_paid = 500;
@@ -236,15 +240,15 @@ class FmAjaxService
                 // Check address
                 if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
                     $address = new Address($delivery_address->id);
-                    $context->country = new Country($address->id_country, $context->cart->id_lang);
-                    if (!$context->country->active) {
+                    $country = new Country($address->id_country, $cart->id_lang);
+                    if (!$country->active) {
                         throw new PrestaShopException('The delivery address country is not active.');
                     }
                 }
 
                 $carrier = null;
-                if (!$context->cart->isVirtualCart() && isset($package['id_carrier'])) {
-                    $carrier = new Carrier($package['id_carrier'], $context->cart->id_lang);
+                if (!$cart->isVirtualCart() && isset($package['id_carrier'])) {
+                    $carrier = new Carrier($package['id_carrier'], $cart->id_lang);
                     $presta_order->id_carrier = (int)$carrier->id;
                     $id_carrier = (int)$carrier->id;
                 } else {
@@ -252,11 +256,11 @@ class FmAjaxService
                     $id_carrier = 1;
                 }
 
-                $context->cart->id_customer = $customer->id;
-                $context->cart->id_address_invoice = (int)$invoice_address->id;
-                $context->cart->id_address_delivery = (int)$delivery_address->id;
+                $cart->id_customer = $customer->id;
+                $cart->id_address_invoice = (int)$invoice_address->id;
+                $cart->id_address_delivery = (int)$delivery_address->id;
 
-                $context->cart->add();
+                $cart->add();
 
 
                 foreach ($row_ret["data"]->objects as $row) {
@@ -270,17 +274,21 @@ class FmAjaxService
                     $num_article = $row->num_articles;
 
                     //add product to the cart
-                    $context->cart->updateQty($num_article, $product_id);
+                    $cart->updateQty($num_article, $product_id);
                 }
 
                 // create the order
                 $presta_order->id_customer = (int)$customer->id;
                 $presta_order->id_address_invoice = (int)$invoice_address->id;
                 $presta_order->id_address_delivery = (int)$delivery_address->id;
-                $presta_order->id_currency = $context->cart->id_currency;
-                $presta_order->id_lang = (int)$context->cart->id_lang;
-                $presta_order->id_cart = (int)$context->cart->id;
-                $presta_order->reference = $reference;
+                $presta_order->id_currency = $cart->id_currency;
+                $presta_order->id_lang = (int)$cart->id_lang;
+                $presta_order->id_cart = (int)$cart->id;
+
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                    $presta_order->reference = $reference;
+                }
+
                 $presta_order->id_shop = (int)$context->shop->id;
                 $presta_order->id_shop_group = (int)$context->shop->id_shop_group;
 
@@ -289,76 +297,89 @@ class FmAjaxService
 
                 $presta_order->module = "fyndiq";
 
-                $presta_order->recyclable = $context->cart->recyclable;
+                $presta_order->recyclable = $cart->recyclable;
                 $presta_order->current_state = $id_order_state;
-                $presta_order->gift = (int)$context->cart->gift;
-                $presta_order->gift_message = $context->cart->gift_message;
-                $presta_order->mobile_theme = $context->cart->mobile_theme;
+                $presta_order->gift = (int)$cart->gift;
+                $presta_order->gift_message = $cart->gift_message;
+                $presta_order->mobile_theme = $cart->mobile_theme;
                 $presta_order->conversion_rate = (float)$context->currency->conversion_rate;
 
-                $presta_order->total_products = (float)$context->cart->getOrderTotal(
+                $presta_order->total_products = (float)$cart->getOrderTotal(
                     false,
                     Cart::ONLY_PRODUCTS,
-                    $presta_order->product_list,
+                    $cart->getProducts(),
                     $id_carrier
                 );
-                $presta_order->total_products_wt = (float)$context->cart->getOrderTotal(
+                $presta_order->total_products_wt = (float)$cart->getOrderTotal(
                     true,
                     Cart::ONLY_PRODUCTS,
-                    $presta_order->product_list,
+                    $cart->getProducts(),
                     $id_carrier
                 );
 
                 $presta_order->total_discounts_tax_excl = (float)abs(
-                    $context->cart->getOrderTotal(false, Cart::ONLY_DISCOUNTS, $presta_order->product_list, $id_carrier)
+                    $cart->getOrderTotal(false, Cart::ONLY_DISCOUNTS, $cart->getProducts(), $id_carrier)
                 );
                 $presta_order->total_discounts_tax_incl = (float)abs(
-                    $context->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS, $presta_order->product_list, $id_carrier)
+                    $cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS, $cart->getProducts(), $id_carrier)
                 );
                 $presta_order->total_discounts = $order->total_discounts_tax_incl;
 
-                $presta_order->total_shipping_tax_excl = (float)$context->cart->getPackageShippingCost(
-                    (int)$id_carrier,
-                    false,
-                    null,
-                    $presta_order->product_list
-                );
-                $presta_order->total_shipping_tax_incl = (float)$context->cart->getPackageShippingCost(
-                    (int)$id_carrier,
-                    true,
-                    null,
-                    $presta_order->product_list
-                );
-                $presta_order->total_shipping = $order->total_shipping_tax_incl;
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                    $presta_order->total_shipping_tax_excl = (float)$cart->getPackageShippingCost(
+                        (int)$id_carrier,
+                        false,
+                        null,
+                        $cart->getProducts()
+                    );
+                    $presta_order->total_shipping_tax_incl = (float)$cart->getPackageShippingCost(
+                        (int)$id_carrier,
+                        true,
+                        null,
+                        $cart->getProducts()
+                    );
+                    $presta_order->total_shipping = $order->total_shipping_tax_incl;
+                } else {
+                    if (FMPSV == FMPSV14) {
+                        $presta_order->total_shipping = (float)($cart->getOrderShippingCost());
+                    }
+                }
 
                 if (!is_null($carrier) && Validate::isLoadedObject($carrier)) {
                     $presta_order->carrier_tax_rate = $carrier->getTaxesRate(
-                        new Address($context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')})
+                        new Address($cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')})
                     );
                 }
 
                 $presta_order->total_wrapping_tax_excl = (float)abs(
-                    $context->cart->getOrderTotal(false, Cart::ONLY_WRAPPING, $presta_order->product_list, $id_carrier)
+                    $cart->getOrderTotal(false, Cart::ONLY_WRAPPING, $cart->getProducts(), $id_carrier)
                 );
                 $presta_order->total_wrapping_tax_incl = (float)abs(
-                    $context->cart->getOrderTotal(true, Cart::ONLY_WRAPPING, $presta_order->product_list, $id_carrier)
+                    $cart->getOrderTotal(true, Cart::ONLY_WRAPPING, $cart->getProducts(), $id_carrier)
                 );
                 $presta_order->total_wrapping = $presta_order->total_wrapping_tax_incl;
 
                 $presta_order->total_paid_tax_excl = (float)Tools::ps_round(
-                    (float)$context->cart->getOrderTotal(false, Cart::BOTH, $presta_order->product_list, $id_carrier),
+                    (float)$cart->getOrderTotal(false, Cart::BOTH, $cart->getProducts(), $id_carrier),
                     2
                 );
                 $presta_order->total_paid_tax_incl = (float)Tools::ps_round(
-                    (float)$context->cart->getOrderTotal(true, Cart::BOTH, $presta_order->product_list, $id_carrier),
+                    (float)$cart->getOrderTotal(true, Cart::BOTH, $cart->getProducts(), $id_carrier),
                     2
                 );
 
                 $presta_order->total_paid_real = $presta_order->total_products_wt;
                 $presta_order->total_paid = $presta_order->total_products_wt;
 
-                $presta_order->invoice_date = '0000-00-00 00:00:00';
-                $presta_order->delivery_date = '0000-00-00 00:00:00';
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                    $presta_order->invoice_date = '0000-00-00 00:00:00';
+                    $presta_order->delivery_date = '0000-00-00 00:00:00';
+                } else {
+                    if (FMPSV == FMPSV14) {
+                        $presta_order->invoice_date = date("Y-m-d H:i:s", strtotime($order->created_at));
+                        $presta_order->delivery_date = date("Y-m-d H:i:s");
+                    }
+                }
 
                 // Creating order
                 $result = $presta_order->add();
@@ -367,22 +388,38 @@ class FmAjaxService
                     throw new PrestaShopException('Can\'t save Order');
                 }
 
-                // Insert new Order detail list using cart for the current order
-                $order_detail = new OrderDetail(null, null, $context);
-                $order_detail->createList(
-                    $presta_order,
-                    $context->cart,
-                    $id_order_state,
-                    $context->cart->getProducts()
-                );
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                    // Insert new Order detail list using cart for the current order
+                    $order_detail = new OrderDetail();
+                    $order_detail->createList(
+                        $presta_order,
+                        $cart,
+                        $id_order_state,
+                        $cart->getProducts()
+                    );
+                } else {
+                    if (FMPSV == FMPSV14) {
+                        foreach ($cart->getProducts() as $product) {
+                            $order_detail = new OrderDetail();
+                            $order_detail->id_order = $presta_order->id;
+                            $order_detail->product_name = $product["name"];
+                            $order_detail->product_quantity = $product["quantity"];
+                            $order_detail->product_price = $product["price"];
+                            $order_detail->tax_rate = $product["rate"];
+                            $order_detail->add();
+                        }
+                    }
+                }
 
-                // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
-                $order_payment = new OrderPayment();
-                $order_payment->id_currency = $context->cart->id_currency;
-                $order_payment->amount = $presta_order->total_products_wt;
-                $order_payment->payment_method = $payment_method;
-                $order_payment->order_reference = $reference;
-                $order_payment->add();
+                if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+                    // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
+                    $order_payment = new OrderPayment();
+                    $order_payment->id_currency = $cart->id_currency;
+                    $order_payment->amount = $presta_order->total_products_wt;
+                    $order_payment->payment_method = $payment_method;
+                    $order_payment->order_reference = $reference;
+                    $order_payment->add();
+                }
 
                 // create state in history
                 $order_history = new OrderHistory();
@@ -396,7 +433,7 @@ class FmAjaxService
                 $order_message->id_order = $presta_order->id;
                 $order_message->private = true;
                 // TODO: FIX the url!
-                $order_message->message = "Fyndiq delivery note: http://fyndiq.se".$order->delivery_note." \n just copy url and paste in the browser to download the delivery note.";
+                $order_message->message = "Fyndiq delivery note: http://fyndiq.se" . $order->delivery_note . " \n just copy url and paste in the browser to download the delivery note.";
                 $order_message->add();
 
                 // set order as valid
