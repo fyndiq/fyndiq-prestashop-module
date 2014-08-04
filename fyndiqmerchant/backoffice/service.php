@@ -14,6 +14,7 @@ require_once('./models/product_export.php');
 require_once('./models/category.php');
 require_once('./models/product.php');
 require_once('./models/order.php');
+
 class FmAjaxService
 {
 
@@ -121,9 +122,9 @@ class FmAjaxService
             $ret = FmHelpers::call_api('GET', 'order/');
 
             foreach ($ret["data"]->objects as $order) {
-                $order_id = $order->id;
-                $row_ret = FmHelpers::call_api('GET', 'order_row/?order__exact=' . $order_id);
-                FmOrder::create($order, $row_ret);
+                if(!FmOrder::orderExists($order->id)) {
+                    FmOrder::create($order);
+                }
             }
             self::response($ret);
         } catch (Exception $e) {

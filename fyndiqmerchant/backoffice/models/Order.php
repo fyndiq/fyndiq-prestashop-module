@@ -11,20 +11,46 @@
  *
  * handles orders
  */
-class FmOrder {
+class FmOrder
+{
+    /**
+     * install the table in the database
+     *
+     * @return bool
+     */
+    public static function install()
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $ret = (bool)Db::getInstance()->Execute(
+            'CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . $module->config_name . '_orders(
+            id int(20) unsigned primary key AUTO_INCREMENT,
+            fyndiq_orderid INT(10),
+            order_id INT(10));
+        '
+        );
+
+        return $ret;
+    }
 
     /**
      * create orders from Fyndiq orders
      *
      * @param $fyndiq_order
-     * @param $fyndiq_order_infos
      * @throws PrestaShopException
      */
-    public static function create($fyndiq_order, $fyndiq_order_infos) {
+    public static function create($fyndiq_order)
+    {
+        // if the prestashop 1.5 and 1.6 is used, use the context class.
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $context = Context::getContext();
         }
+        // create a new cart to add the articles to
         $cart = new Cart();
+
+        // Get order_rows (articles inside the order) for this specific order.
+        $order_id = $fyndiq_order->id;
+        $fyndiq_order_infos = FmHelpers::call_api('GET', 'order_row/?order__exact=' . $order_id);
+
         $cart->id_currency = Currency::getDefaultCurrency()->id;
         $cart->id_lang = 1;
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
@@ -155,7 +181,6 @@ class FmOrder {
 
         // Save the cart
         $cart->add();
-
 
 
         foreach ($fyndiq_order_infos["data"]->objects as $row) {
@@ -343,6 +368,9 @@ class FmOrder {
         $presta_order->valid = true;
         $presta_order->update();
 
+        //Add order to log (prestashop database) so it doesn't get added again next time this is run
+        self::addOrderLog($presta_order->id, $fyndiq_order->id);
+
         // Adding an entry in order_carrier table
         if (!is_null($carrier)) {
             $order_carrier = new OrderCarrier();
@@ -354,5 +382,62 @@ class FmOrder {
             $order_carrier->add();
         }
 
+    }
+
+    /**
+     * check if the order exists.
+     *
+     * @param $order_id
+     * @return bool
+     */
+    public static function orderExists($order_id)
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $orders = Db::getInstance()->ExecuteS(
+            'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders
+        WHERE fyndiq_orderid=' . FmHelpers::db_escape($order_id) . '
+        LIMIT 1;
+        '
+        );
+
+        if (count($orders) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Add the order to database. (to check what orders have already been added.
+     *
+     * @param $order_id
+     * @param $fyndiq_orderid
+     * @return bool
+     */
+    public static function addOrderLog($order_id, $fyndiq_orderid)
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $ret = (bool)Db::getInstance()->Execute(
+            'INSERT INTO ' . _DB_PREFIX_ . $module->config_name . '_orders (order_id,fyndiq_orderid) VALUES (' . FmHelpers::db_escape(
+                $order_id
+            ) . ',' . FmHelpers::db_escape($fyndiq_orderid) . ')'
+        );
+
+        return $ret;
+    }
+
+    /**
+     * remove table from database.
+     *
+     * @return bool
+     */
+    public static function uninstall()
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $ret = (bool)Db::getInstance()->Execute(
+            'drop table ' . _DB_PREFIX_ . $module->config_name . '_orders'
+        );
+
+        return $ret;
     }
 }
