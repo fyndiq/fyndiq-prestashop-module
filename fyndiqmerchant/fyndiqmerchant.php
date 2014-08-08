@@ -9,7 +9,6 @@ require_once('backoffice/models/config.php');
 require_once('backoffice/api.php');
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
-require_once('backoffice/models/product_export.php');
 require_once('backoffice/models/order.php');
 
 class FyndiqMerchant extends Module
@@ -56,8 +55,13 @@ class FyndiqMerchant extends Module
         );
         $ret &= (bool)$this->registerHook($hook_name[FMPSV]);
 
-        // create product mapping database
-        $ret &= FmProductExport::install();
+        # create product mapping database
+        $ret &= (bool)Db::getInstance()->Execute('
+            create table if not exists '._DB_PREFIX_.$this->config_name.'_products (
+            id int(20) unsigned primary key,
+            product_id int(20) unsigned,
+            fyndiq_id int(20) unsigned)
+        ');
         // create order mapping database
         $ret &= FmOrder::install();
 
@@ -78,8 +82,9 @@ class FyndiqMerchant extends Module
         $ret &= (bool)FmConfig::delete('auto_import');
         $ret &= (bool)FmConfig::delete('auto_export');
 
-        // drop product table
-        $ret &= FmProductExport::uninstall();
+        # drop product database
+        $ret &= (bool)Db::getInstance()->Execute('
+            drop table '._DB_PREFIX_.$this->config_name.'_products');
         // drop order table
         // TODO: Should we remove the order? the order in prestashop will still be there and if reinstall it will be duplicates if this is removed.
         $ret &= FmOrder::uninstall();
