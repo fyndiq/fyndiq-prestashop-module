@@ -117,7 +117,15 @@
   margin: 20px 0;
   padding: 0; }
   .fm-form fieldset {
+    border: none;
+    background-color: transparent;
     padding: 0 10px 10px 10px; }
+    .fm-form fieldset legend {
+      font-size: 1.4em;
+      padding: 0px; }
+  .fm-form legend {
+    border: none;
+    background-color: transparent; }
   .fm-form label {
     margin: 0;
     padding: 0;
@@ -147,7 +155,7 @@
   background: -o-linear-gradient(top, white 0%, #e5e5e5 100%);
   background: -ms-linear-gradient(top, white 0%, #e5e5e5 100%);
   background: linear-gradient(to bottom, white 0%, #e5e5e5 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='white', endColorstr='#e5e5e5',GradientType=0 ); }
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='white', endColorstr='#e5e5e5',GradientType=0 ); }
   .fm-button:active {
     background: #e5e5e5;
     background: -moz-linear-gradient(top, #e5e5e5 0%, white 100%);
@@ -156,7 +164,7 @@
     background: -o-linear-gradient(top, #e5e5e5 0%, white 100%);
     background: -ms-linear-gradient(top, #e5e5e5 0%, white 100%);
     background: linear-gradient(to bottom, #e5e5e5 0%, white 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e5e5e5', endColorstr='white',GradientType=0 ); }
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e5e5e5', endColorstr='white',GradientType=0 ); }
   .fm-button.fyndiq {
     color: white;
     text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.8);
@@ -169,7 +177,7 @@
     background: -o-linear-gradient(top, #fdc500 0%, #f39e09 100%);
     background: -ms-linear-gradient(top, #fdc500 0%, #f39e09 100%);
     background: linear-gradient(to bottom, #fdc500 0%, #f39e09 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdc500', endColorstr='#f39e09',GradientType=0 ); }
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fdc500', endColorstr='#f39e09',GradientType=0 ); }
     .fm-button.fyndiq:active {
       background: #f39e09;
       background: -moz-linear-gradient(top, #f39e09 0%, #fdc500 100%);
@@ -178,7 +186,7 @@
       background: -o-linear-gradient(top, #f39e09 0%, #fdc500 100%);
       background: -ms-linear-gradient(top, #f39e09 0%, #fdc500 100%);
       background: linear-gradient(to bottom, #f39e09 0%, #fdc500 100%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f39e09', endColorstr='#fdc500',GradientType=0 ); }
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f39e09', endColorstr='#fdc500',GradientType=0 ); }
 
 .fm-accept-product-export h3 {
   margin: 0; }
@@ -234,6 +242,10 @@
     display: block;
     margin: 10px auto;
     width: 160px; }
+  .fm-container .fm-category-sidebar {
+    width: 140px;
+    float: left;
+    margin-right: 15px; }
   .fm-container .fm-main-panel {
     float: left;
     width: 660px; }
@@ -246,9 +258,15 @@
   text-align: center;
   font-size: 14px; }
 
+.fm-category-tree-container {
+  clear: both;
+  display: block; }
+
 .fm-category-tree {
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  list-style: none;
+  display: block; }
   .fm-category-tree li.active {
     font-weight: bold; }
 
@@ -270,13 +288,15 @@
   padding: 2px; }
   .fm-product-list > li {
     overflow: hidden;
-    background-color: whitesmoke;
+    background-color: transparent;
     margin-bottom: 5px;
-    padding: 3px;
-    border: 1px solid #757575;
-    border-left: 2px solid #757575; }
+    padding: 5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #D3D3D3; }
     .fm-product-list > li:last-child {
       margin-bottom: 0; }
+    .fm-product-list > li:first-child {
+      border-top: 1px solid #D3D3D3; }
   .fm-product-list .product {
     position: relative;
     overflow: hidden; }
@@ -309,11 +329,12 @@
       float: left;
       margin-left: 10px; }
       .fm-product-list .product .prices .price {
-        margin-bottom: 2px; }
+        margin-bottom: 28px; }
       .fm-product-list .product .prices label {
         display: block;
         width: 90px;
         text-align: right;
+        margin-right: 5px;
         float: left; }
       .fm-product-list .product .prices input {
         display: block;
