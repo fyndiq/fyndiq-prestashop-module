@@ -274,18 +274,12 @@ class FmOrder
         }
 
         // Wrapping settings
-        $presta_order->total_wrapping_tax_excl = (float)abs(
-            $cart->getOrderTotal(false, Cart::ONLY_WRAPPING, $cart->getProducts(), $id_carrier)
-        );
-        $presta_order->total_wrapping_tax_incl = (float)abs(
-            $cart->getOrderTotal(true, Cart::ONLY_WRAPPING, $cart->getProducts(), $id_carrier)
-        );
+        $presta_order->total_wrapping_tax_excl = 0;
+        $presta_order->total_wrapping_tax_incl = 0;
         $presta_order->total_wrapping = $presta_order->total_wrapping_tax_incl;
 
-        $presta_order->total_paid_tax_excl = (float)Tools::ps_round(
-            (float)$cart->getOrderTotal(false, Cart::BOTH, $cart->getProducts(), $id_carrier),
-            2
-        );
+        //Taxes
+        $presta_order->total_paid_tax_excl = 0;
         $presta_order->total_paid_tax_incl = (float)Tools::ps_round(
             (float)$cart->getOrderTotal(true, Cart::BOTH, $cart->getProducts(), $id_carrier),
             2
