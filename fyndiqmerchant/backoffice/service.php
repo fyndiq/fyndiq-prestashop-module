@@ -103,8 +103,10 @@ class FmAjaxService {
                 'description'=> 'asdf8u4389j34g98j34g98',
                 'images'=> array($product['image']),
                 'oldprice'=> '9999',
+                'brand' => 31,
+                'categories' => array("10", "11"),
                 'price'=> $product['price'],
-                'moms_percent'=> '25',
+                'moms_percent'=> '25'
             );
 
             $article_result = array();
@@ -131,16 +133,16 @@ class FmAjaxService {
                             'product' => $result['data']->id,
                             'property_values' => array("10", "11"),
                             'item_no'=> '2',
-                            'description'=> 'asdfjeroijergo'
+                            'description'=> 'An test Description'
                         );
                     }
                 } else {
                     $article_result[] = array(
-                        'num_in_stock'=> '99',
+                        'num_in_stock'=> '10',
                         'product' => $result['data']->id,
                         'property_values' => array("10", "11"),
                         'item_no'=> '99',
-                        'description'=> 'qwer99qwer98referf'
+                        'description'=> 'An test Description'
                     );
                 }
 
@@ -152,7 +154,6 @@ class FmAjaxService {
                         FmMessages::get('unhandled-error-message')
                     );
                 }
-
             } catch (FyndiqAPIBadRequest $e) {
                 $error = true;
                 $message = '';
