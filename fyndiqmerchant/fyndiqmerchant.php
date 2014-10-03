@@ -53,8 +53,6 @@ class FyndiqMerchant extends Module {
 
         // create product mapping database
         $ret &= FmProductExport::install();
-        // create order mapping database
-        $ret &= FmOrder::install();
 
         return (bool)$ret;
     }
