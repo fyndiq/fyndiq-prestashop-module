@@ -9,7 +9,6 @@ require_once('backoffice/api.php');
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
 require_once('backoffice/models/product_export.php');
-require_once('backoffice/models/order.php');
 
 class FyndiqMerchant extends Module {
     public function __construct() {
