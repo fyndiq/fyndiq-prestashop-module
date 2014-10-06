@@ -72,9 +72,6 @@ class FyndiqMerchant extends Module {
 
         // drop product table
         $ret &= FmProductExport::uninstall();
-        // drop order table
-        // TODO: Should we remove the order? the order in prestashop will still be there and if reinstall it will be duplicates if this is removed.
-        $ret &= FmOrder::uninstall();
 
         return (bool)$ret;
     }
