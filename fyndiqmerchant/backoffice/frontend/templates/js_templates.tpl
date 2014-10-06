@@ -67,7 +67,7 @@
             <div class="data">
                 <div class="title">
                     {{#with product}}{{#with product}}
-                    <h3>{{name}}</b>
+                    <input type="text" value="{{name}}">
                     {{/with}}{{/with}}
                 </div>
 
@@ -84,7 +84,9 @@
 
             <div class="final-price">
                 <label>Price:</label>
-                <input type="text" value="{{highest_price}}">
+                {{#with product}}{{#with product}}
+                <input type="text" value="{{price}}">
+                {{/with}}{{/with}}
             </div>
         </li>
     {{/each}}
