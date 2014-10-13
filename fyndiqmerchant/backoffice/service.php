@@ -13,6 +13,7 @@ require_once('./helpers.php');
 require_once('./models/product_export.php');
 require_once('./models/category.php');
 require_once('./models/product.php');
+require_once('./models/config.php');
 
 class FmAjaxService {
 
@@ -73,8 +74,18 @@ class FmAjaxService {
 
         $rows = FmProduct::get_by_category($args['category']);
 
+        # if there is a configured precentage, set that value
+        if (FmConfig::get('precentage')) {
+            $typed_precentage = FmConfig::get('precentage');
+        } else {
+            # else set the default value of 10%.
+            $typed_precentage = 10;
+        }
+
         foreach ($rows as $row) {
-            $products[] = FmProduct::get($row['id_product']);
+            $product = FmProduct::get($row['id_product']);
+            $product["fyndiq_price"] = ((double)$product["price"])-($product["price"]*($typed_precentage/100));
+            $products[] = $product;
         }
 
         self::response($products);

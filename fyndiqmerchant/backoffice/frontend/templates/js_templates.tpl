@@ -162,7 +162,7 @@
                         </div>
                         <div class="price">
                             <label>Fyndiq Price:</label>
-                            <input type="text">
+                            <input type="text" value="{{fyndiq_price}}">
                         </div>
                     </div>
 
