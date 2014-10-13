@@ -152,21 +152,23 @@
     margin: 0;
     padding: 2px;
 
-    > li {
+    li {
         overflow: hidden;
         //background-color: $color-item-lighter;
         background-color: transparent;
         margin-bottom: 5px;
         padding: 5px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #D3D3D3;
         //border-left: 2px solid $color-item-darker;
+        margin-bottom: 5px;
+        padding: 5px;
+
+        &:nth-child(2n) {
+          background-color: $color-item-lighter;
+        }
 
         &:last-child {
             margin-bottom: 0;
-        }
-        &:first-child {
-          border-top: 1px solid #D3D3D3;
         }
     }
     .product {

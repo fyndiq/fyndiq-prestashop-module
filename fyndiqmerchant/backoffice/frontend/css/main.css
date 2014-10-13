@@ -286,17 +286,18 @@
 .fm-product-list {
   margin: 0;
   padding: 2px; }
-  .fm-product-list > li {
+  .fm-product-list li {
     overflow: hidden;
     background-color: transparent;
     margin-bottom: 5px;
     padding: 5px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #D3D3D3; }
-    .fm-product-list > li:last-child {
+    margin-bottom: 5px;
+    padding: 5px; }
+    .fm-product-list li:nth-child(2n) {
+      background-color: whitesmoke; }
+    .fm-product-list li:last-child {
       margin-bottom: 0; }
-    .fm-product-list > li:first-child {
-      border-top: 1px solid #D3D3D3; }
   .fm-product-list .product {
     position: relative;
     overflow: hidden; }
