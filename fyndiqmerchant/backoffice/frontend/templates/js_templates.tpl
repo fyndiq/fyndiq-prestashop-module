@@ -168,8 +168,8 @@
 
                     <div class="quantities">
                         <div>Qty: {{quantity}}</div>
-                        <div>Exported Qty: 6</div>
-                        <div>Fyndiq Qty: 4</div>
+                        <div>Exported Qty: ?</div>
+                        <div>Fyndiq Qty: {{fyndiq_quantity}}</div>
                     </div>
 
                     <div class="expand
