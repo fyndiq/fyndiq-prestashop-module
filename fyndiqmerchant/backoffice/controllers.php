@@ -88,7 +88,7 @@ class FmBackofficeControllers {
         if ($page == 'settings') {
             $configured_language = FmConfig::get('language');
             $configured_currency = FmConfig::get('currency');
-            $configured_precentage = FmConfig::get('precentage');
+            $configured_percentage = FmConfig::get('percentage');
 
             # if there is a configured language, show it as selected
             if ($configured_language) {
@@ -105,18 +105,18 @@ class FmBackofficeControllers {
                 $selected_currency = Currency::getDefaultCurrency()->id;
             }
 
-            # if there is a configured precentage, set that value
-            if ($configured_precentage) {
-                $typed_precentage = $configured_precentage;
+            # if there is a configured percentage, set that value
+            if ($configured_percentage) {
+                $typed_percentage = $configured_percentage;
             } else {
                 # else set the default value of 10%.
-                $typed_precentage = 10;
+                $typed_percentage = 10;
             }
 
             $output .= self::show_template($module, 'settings', array(
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
-                'precentage' => $typed_precentage,
+                'percentage' => $typed_percentage,
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
                 'selected_language'=> $selected_language,
@@ -183,7 +183,7 @@ class FmBackofficeControllers {
         $currency_id = intval(Tools::getValue('currency_id'));
         $auto_import = boolval(Tools::getValue('auto_import'));
         $auto_export = boolval(Tools::getValue('auto_export'));
-        $precentage = intval(Tools::getValue('precentage'));
+        $percentage = intval(Tools::getValue('percentage'));
 
         if ($auto_import) {
 
@@ -206,7 +206,7 @@ class FmBackofficeControllers {
         }
 
         if (!$error) {
-            FmConfig::set('precentage', $precentage);
+            FmConfig::set('percentage', $percentage);
             FmConfig::set('language', $language_id);
             FmConfig::set('currency', $currency_id);
             FmConfig::set('auto_import', $auto_import);

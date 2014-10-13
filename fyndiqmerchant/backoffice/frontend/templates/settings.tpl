@@ -66,15 +66,15 @@
                 >
                 <label for="fm-auto-export">Enable</label>
             </p>
-            <b>Precentage of price</b>
-            <p>This precentage is the precentage of the price that will be cut off your price, if 10% precentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).</p>
+            <b>Percentage of price</b>
+            <p>This percentage is the percentage of the price that will be cut off your price, if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).</p>
             <p>
-                <input type="text" name="precentage" id="fm-auto-export"
-                        {if $precentage}
-                            value="{$precentage}"
+                <input type="text" name="percentage" id="fm-auto-export"
+                        {if $percentage}
+                            value="{$percentage}"
                         {/if}
                         >
-                <label for="fm-auto-export">Precentage in numbers only</label>
+                <label for="fm-auto-export">Percentage in numbers only</label>
             </p>
 
             <button class="fm-button" type="submit" name="submit_save_settings">Save Settings</button>

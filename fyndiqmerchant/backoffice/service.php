@@ -75,16 +75,16 @@ class FmAjaxService {
         $rows = FmProduct::get_by_category($args['category']);
 
         # if there is a configured precentage, set that value
-        if (FmConfig::get('precentage')) {
-            $typed_precentage = FmConfig::get('precentage');
+        if (FmConfig::get('percentage')) {
+            $typed_percentage = FmConfig::get('percentage');
         } else {
             # else set the default value of 10%.
-            $typed_precentage = 10;
+            $typed_percentage = 10;
         }
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
-            $product["fyndiq_price"] = ((double)$product["price"])-($product["price"]*($typed_precentage/100));
+            $product["fyndiq_price"] = ((double)$product["price"])-($product["price"]*($typed_percentage/100));
             $products[] = $product;
         }
 
