@@ -239,38 +239,22 @@ class FmOrder
         );
 
         // Discounts and shipping tax settings
-        $presta_order->total_discounts_tax_excl = (float)abs(
-            $cart->getOrderTotal(false, Cart::ONLY_DISCOUNTS, $cart->getProducts(), $id_carrier)
-        );
-        $presta_order->total_discounts_tax_incl = (float)abs(
-            $cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS, $cart->getProducts(), $id_carrier)
-        );
-        $presta_order->total_discounts = $fyndiq_order->total_discounts_tax_incl;
+        $presta_order->total_discounts_tax_excl = 0.00;
+        $presta_order->total_discounts_tax_incl = 0.00;
+        $presta_order->total_discounts = 0.00;
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->total_shipping_tax_excl = (float)$cart->getPackageShippingCost(
-                (int)$id_carrier,
-                false,
-                null,
-                $cart->getProducts()
-            );
-            $presta_order->total_shipping_tax_incl = (float)$cart->getPackageShippingCost(
-                (int)$id_carrier,
-                true,
-                null,
-                $cart->getProducts()
-            );
-            $presta_order->total_shipping = $fyndiq_order->total_shipping_tax_incl;
+            $presta_order->total_shipping_tax_excl = 0.00;
+            $presta_order->total_shipping_tax_incl = 0.00;
+            $presta_order->total_shipping = 0.00;
         } else {
             if (FMPSV == FMPSV14) {
-                $presta_order->total_shipping = (float)($cart->getOrderShippingCost());
+                $presta_order->total_shipping = 0.00;
             }
         }
 
         if (!is_null($carrier) && Validate::isLoadedObject($carrier)) {
-            $presta_order->carrier_tax_rate = $carrier->getTaxesRate(
-                new Address($cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')})
-            );
+            $presta_order->carrier_tax_rate = 0.00;
         }
 
         // Wrapping settings
@@ -292,8 +276,8 @@ class FmOrder
 
         // Set invoice date (needed to make order to work in prestashop 1.4
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->invoice_date = '0000-00-00 00:00:00';
-            $presta_order->delivery_date = '0000-00-00 00:00:00';
+            $presta_order->invoice_date = date("Y-m-d H:i:s", strtotime($fyndiq_order->created_at));
+            $presta_order->delivery_date = date("Y-m-d H:i:s");
         } else {
             if (FMPSV == FMPSV14) {
                 $presta_order->invoice_date = date("Y-m-d H:i:s", strtotime($fyndiq_order->created_at));
