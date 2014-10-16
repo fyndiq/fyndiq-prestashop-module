@@ -34,7 +34,7 @@ class FmProduct {
         $result['id'] = $product->id;
         $result['name'] = $product->name;
         $result['reference'] = $product->reference;
-        $result['quantity'] = $product->quantity;
+        $result['quantity'] = Product::getQuantity($product->id);
         $result['price'] = self::get_price($product->price);
 
         ### get the medium image type

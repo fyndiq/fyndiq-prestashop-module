@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-        <module>
-            <name>fyndiqmerchant</name>
-            <displayName><![CDATA[Fyndiq]]></displayName>
-            <version><![CDATA[0.1]]></version>
-            <description><![CDATA[dfasdf]]></description>
-            <author><![CDATA[Fyndiq AB]]></author>
-            <tab><![CDATA[market_place]]></tab>
-	<confirmUninstall>Are you sure you want to uninstall this module?</confirmUninstall>
-            <is_configurable>1</is_configurable>
-            <need_instance>0</need_instance>
+<module>
+	<name>fyndiqmerchant</name>
+	<displayName><![CDATA[Fyndiq]]></displayName>
+	<version><![CDATA[0.1]]></version>
+	<description><![CDATA[dfasdf]]></description>
+	<author><![CDATA[Fyndiq AB]]></author>
+	<tab><![CDATA[market_place]]></tab>
+	<confirmUninstall><![CDATA[Are you sure you want to uninstall this module?]]></confirmUninstall>
+	<is_configurable>1</is_configurable>
+	<need_instance>0</need_instance>
 	<limited_countries></limited_countries>
-        </module>
+</module>

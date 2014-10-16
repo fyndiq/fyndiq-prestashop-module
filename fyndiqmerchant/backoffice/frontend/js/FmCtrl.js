@@ -178,12 +178,16 @@ var FmCtrl = {
                     });
 
                     // store product id and combinations
+                    var price = $(this).find(".prices > div.price > input").val();
+                    var fyndiq_price = $(this).find("div > div.prices > div:nth-child(2) > input").val();
+                    console.log(fyndiq_price);
                     products.push({
                         'product': {
                             'id': $(this).data('id'),
                             'name': $(this).data('name'),
                             'image': $(this).data('image'),
-                            'price': $(this).data('price'),
+                            'price': price,
+                            'fyndiq_price':fyndiq_price,
                             'quantity': $(this).data('quantity')
                         },
                         'combinations': combinations
@@ -253,11 +257,11 @@ var FmCtrl = {
                     });
 
                     // show modal describing the issue, and ask for acceptance
-                    FmGui.show_modal(content, function(type) {
+                    FmGui.show_modal(products, content, function(products_to_export, type) {
                         if (type == 'accept') {
 
                             // export the products
-                            export_products(products);
+                            export_products(products_to_export);
                         } else {
                         }
                     });

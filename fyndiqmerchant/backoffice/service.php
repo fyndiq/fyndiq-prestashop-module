@@ -13,6 +13,7 @@ require_once('./helpers.php');
 require_once('./models/product_export.php');
 require_once('./models/category.php');
 require_once('./models/product.php');
+require_once('./models/config.php');
 
 class FmAjaxService {
 
@@ -73,8 +74,27 @@ class FmAjaxService {
 
         $rows = FmProduct::get_by_category($args['category']);
 
+        # if there is a configured precentage, set that value
+        if (FmConfig::get('price_percentage')) {
+            $typed_percentage = FmConfig::get('price_percentage');
+        } else {
+            # else set the default value of 10%.
+            $typed_percentage = 10;
+        }
+
+        # if there is a configured quantity precentage, set that value
+        if (FmConfig::get('quantity_percentage')) {
+            $typed_quantity_percentage = FmConfig::get('quantity_percentage');
+        } else {
+            # else set the default value of 10%.
+            $typed_quantity_percentage = 10;
+        }
+
         foreach ($rows as $row) {
-            $products[] = FmProduct::get($row['id_product']);
+            $product = FmProduct::get($row['id_product']);
+            $product["fyndiq_price"] = ((double)$product["price"])-($product["price"]*($typed_percentage/100));
+            $product["fyndiq_quantity"] = (int)round(($product["quantity"]*($typed_quantity_percentage/100)), 0, PHP_ROUND_HALF_UP);
+            $products[] = $product;
         }
 
         self::response($products);
@@ -98,37 +118,22 @@ class FmAjaxService {
         foreach ($args['products'] as $v) {
             $product = $v['product'];
 
-            $result = array(
+            $product_result = array(
                 'title'=> $product['name'],
                 'description'=> 'asdf8u4389j34g98j34g98',
                 'images'=> array($product['image']),
                 'oldprice'=> '9999',
+                'brand' => 31,
+                'categories' => array("10", "11"),
                 'price'=> $product['price'],
-                'moms_percent'=> '25',
-                'articles'=> array()
+                'moms_percent'=> '25'
             );
 
-            // when posting empty array, it's removed completely from the request, so check for key
-            if (array_key_exists('combinations', $v)) {
-                $combinations = $v['combinations'];
+            $article_result = array();
 
-                foreach ($combinations as $combination) {
-                    $result['articles'][] = array(
-                        'num_in_stock'=> '7',
-                        'merchant_item_no'=> '2',
-                        'description'=> 'asdfjeroijergo'
-                    );
-                }
-            } else {
-                $result['articles'][] = array(
-                    'num_in_stock'=> '99',
-                    'merchant_item_no'=> '99',
-                    'description'=> 'qwer99qwer98referf'
-                );
-            }
 
             try {
-                $result = FmHelpers::call_api('POST', 'products/', $result);
+                $result = FmHelpers::call_api('POST', 'product/', $product_result);
                 if ($result['status'] != 201) {
                     $error = true;
                     self::response_error(
@@ -137,6 +142,38 @@ class FmAjaxService {
                     );
                 }
                 FmProductExport::create($product['id'], $result['data']->id);
+
+                // when posting empty array, it's removed completely from the request, so check for key
+                if (array_key_exists('combinations', $v)) {
+                    $combinations = $v['combinations'];
+
+                    foreach ($combinations as $combination) {
+                        $article_result[] = array(
+                            'num_in_stock'=> '7',
+                            'product' => $result['data']->id,
+                            'property_values' => array("10", "11"),
+                            'item_no'=> '2',
+                            'description'=> 'An test Description'
+                        );
+                    }
+                } else {
+                    $article_result[] = array(
+                        'num_in_stock'=> '10',
+                        'product' => $result['data']->id,
+                        'property_values' => array("10", "11"),
+                        'item_no'=> '99',
+                        'description'=> 'An test Description'
+                    );
+                }
+
+                $result_article = FmHelpers::call_api('POST', 'article/', $article_result);
+                if ($result_article['status'] != 201) {
+                    $error = true;
+                    self::response_error(
+                        FmMessages::get('unhandled-error-title'),
+                        FmMessages::get('unhandled-error-message')
+                    );
+                }
             } catch (FyndiqAPIBadRequest $e) {
                 $error = true;
                 $message = '';

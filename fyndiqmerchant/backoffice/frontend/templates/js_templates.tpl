@@ -67,7 +67,7 @@
             <div class="data">
                 <div class="title">
                     {{#with product}}{{#with product}}
-                    <h3>{{name}}</b>
+                    <input type="text" value="{{name}}">
                     {{/with}}{{/with}}
                 </div>
 
@@ -84,7 +84,9 @@
 
             <div class="final-price">
                 <label>Price:</label>
-                <input type="text" value="{{highest_price}}">
+                {{#with product}}{{#with product}}
+                <input type="text" value="{{fyndiq_price}}">
+                {{/with}}{{/with}}
             </div>
         </li>
     {{/each}}
@@ -160,14 +162,14 @@
                         </div>
                         <div class="price">
                             <label>Fyndiq Price:</label>
-                            <input type="text">
+                            <input type="text" value="{{fyndiq_price}}">
                         </div>
                     </div>
 
                     <div class="quantities">
                         <div>Qty: {{quantity}}</div>
-                        <div>Exported Qty: 6</div>
-                        <div>Fyndiq Qty: 4</div>
+                        <div>Exported Qty: ?</div>
+                        <div>Fyndiq Qty: {{fyndiq_quantity}}</div>
                     </div>
 
                     <div class="expand
