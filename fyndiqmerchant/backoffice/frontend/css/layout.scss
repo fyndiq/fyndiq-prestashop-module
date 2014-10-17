@@ -151,8 +151,8 @@
 .fm-product-list {
     margin: 0;
     padding: 2px;
-
-    li {
+  
+    > li {
         overflow: hidden;
         //background-color: $color-item-lighter;
         background-color: transparent;
