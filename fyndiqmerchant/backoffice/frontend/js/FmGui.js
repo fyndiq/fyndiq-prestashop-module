@@ -7,7 +7,7 @@ var FmGui = {
         var overlay = tpl['loading-overlay']({
             'module_path': module_path
         });
-        $(overlay).hide().prependTo($('.fm-container'));
+        $(overlay).hide().prependTo($('body'));
         var attached_overlay = $('.fm-loading-overlay');
 
         var top = $(document).scrollTop() + 100;
@@ -61,7 +61,7 @@ var FmGui = {
         var overlay = $(tpl['modal-overlay']({}));
 
         // attach the overlay to the general container
-        overlay.hide().prependTo($('.fm-container'));
+        overlay.hide().prependTo($('body'));
         var attached_overlay = $('.fm-modal-overlay');
 
         // insert the content
