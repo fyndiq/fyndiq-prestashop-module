@@ -26,10 +26,10 @@
 
     <div class="fm-menu">
         <ul>
-            <li><a href="#" class="active">Export products</a></li>
+            <li><a href="{$path}" class="active">Export products</a></li>
             <li><a href="#">Exported products</a></li>
             <li><a href="#">Imported Orders</a></li>
-            <li><a href="#">Settings</a></li>
+            <li><a href="{$path}&submit_show_settings=1">Settings</a></li>
         </ul>
         <ul class="right">
             <li><a href="#" onclick="return confirm('{FmMessages::get('disconnect-confirm')}">Disconnect Account</a></li>

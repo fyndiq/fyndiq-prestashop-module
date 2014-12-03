@@ -87,4 +87,11 @@ class FmHelpers {
             // pd(Tools::getShopDomainSsl(true, false)) pd(__PS_BASE_URI__);
         }
     }
+
+    public static function get_module_url() {
+        $url = _PS_BASE_URL_.__PS_BASE_URI__.substr(strrchr(_PS_ADMIN_DIR_, '/'), 1)."/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        $url .= '&token='.Tools::getAdminTokenLite('AdminModules');
+        return $url;
+    }
+
 }

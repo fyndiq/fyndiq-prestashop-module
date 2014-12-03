@@ -7,6 +7,18 @@
 
     <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
+    <div class="fm-menu">
+        <ul>
+            <li><a href="{$path}">Export products</a></li>
+            <li><a href="#">Exported products</a></li>
+            <li><a href="#">Imported Orders</a></li>
+            <li><a href="{$path}" class="active">Settings</a></li>
+        </ul>
+        <ul class="right">
+            <li><a href="#" onclick="return confirm('{FmMessages::get('disconnect-confirm')}">Disconnect Account</a></li>
+        </ul>
+    </div>
+
     <form action="" method="post" class="fm-form choose-language">
         <fieldset>
             <legend>Choose language</legend>
