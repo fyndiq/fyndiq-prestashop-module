@@ -35,10 +35,9 @@ class FmBackofficeControllers {
                 $page = 'main';
 
                 # if user pressed Disconnect Account on main pages
-                if (Tools::isSubmit('submit_disconnect')) {
-                    $ret = self::handle_disconnect($module);
-                    $output .= $ret['output'];
-                    $page = 'authenticate';
+                if (Tools::getValue('disconnect')) {
+                    self::handle_disconnect($module);
+                    Tools::redirect(FmHelpers::get_module_url());
                 }
 
                 # if user pressed Show Settings button on main page
