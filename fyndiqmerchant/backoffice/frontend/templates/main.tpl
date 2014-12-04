@@ -24,17 +24,7 @@
 
     <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
-    <div class="fm-menu">
-        <ul>
-            <li><a href="{$path}" class="active">Export products</a></li>
-            <li><a href="#">Exported products</a></li>
-            <li><a href="#">Imported Orders</a></li>
-            <li><a href="{$path}&submit_show_settings=1">Settings</a></li>
-        </ul>
-        <ul class="right">
-            <li><a href="#" onclick="return confirm('{FmMessages::get('disconnect-confirm')}">Disconnect Account</a></li>
-        </ul>
-    </div>
+    {include file='./menu.tpl' current='main'}
 
     <div class="fm-sidebar">
         <div class="fm-category-tree-container"></div>
