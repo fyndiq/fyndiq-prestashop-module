@@ -92,7 +92,7 @@ class FmAjaxService {
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
-            $product["fyndiq_price"] = ((double)$product["price"])-($product["price"]*($typed_percentage/100));
+            $product["fyndiq_precentage"] = $typed_percentage;
             $product["fyndiq_quantity"] = (int)round(($product["quantity"]*($typed_quantity_percentage/100)), 0, PHP_ROUND_HALF_UP);
             $products[] = $product;
         }
