@@ -179,15 +179,15 @@ var FmCtrl = {
 
                     // store product id and combinations
                     var price = $(this).find(".prices > div.price > input").val();
-                    var fyndiq_price = $(this).find("div > div.prices > div:nth-child(2) > input").val();
-                    console.log(fyndiq_price);
+                    var fyndiq_percentage = $(this).find("div > div.prices > div:nth-child(2) > input").val();
+                    console.log(fyndiq_percentage);
                     products.push({
                         'product': {
                             'id': $(this).data('id'),
                             'name': $(this).data('name'),
                             'image': $(this).data('image'),
                             'price': price,
-                            'fyndiq_price':fyndiq_price,
+                            'fyndiq_percentage':fyndiq_percentage,
                             'quantity': $(this).data('quantity')
                         },
                         'combinations': combinations

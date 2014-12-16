@@ -94,10 +94,10 @@ var FmGui = {
             //get the updated variables for products
             attached_overlay.find("li").each(function(index) {
                 var name = $(this).find('.data .title input').val();
-                var price = $(this).find('.final-price input').val();
+                var percentage = $(this).find('.final-price input').val();
 
                 products[index]["product"]["name"] = name;
-                products[index]["product"]["price"] = price;
+                products[index]["product"]["percentage"] = percentage;
             });
 
             if (callback) {
