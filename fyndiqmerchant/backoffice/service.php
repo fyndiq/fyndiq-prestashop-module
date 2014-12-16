@@ -120,15 +120,20 @@ class FmAjaxService {
             $product = $v['product'];
 
             if(FmProductExport::productExist($product["id"])) {
-                FmProductExport::updateProduct($product["id"], $product['fyndiq_quantity'], $product['precentage']);
+                FmProductExport::updateProduct($product["id"], $product['quantity'], $product['fyndiq_precentage']);
             }
             else {
-                FmProductExport::addProduct($product["id"],$product['fyndiq_quantity'], $product['precentage']);
+                FmProductExport::addProduct($product["id"],$product['quantity'], $product['fyndiq_precentage']);
             }
         }
-        FmProductExport::saveFile();
+        $result = FmProductExport::saveFile();
 
-        self::response();
+        if($result != false)
+        {
+            $result = true;
+        }
+
+        self::response($result);
     }
 }
 

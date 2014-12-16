@@ -7,7 +7,7 @@
  */
 class FmFileHandler
 {
-    private $filepath = "files/feed.csv";
+    private $filepath = "/files/feed.csv";
     private $fileresource = null;
 
     function __construct($mode = "w+",$remove = false) {
@@ -70,11 +70,11 @@ class FmFileHandler
      */
     function openFile($mode = "w+",$removeFile = false)
     {
-        if ($removeFile && file_exists($this->filepath)) {
-            unlink($this->filepath);
+        if ($removeFile && file_exists(_PS_ROOT_DIR_.$this->filepath)) {
+            unlink(_PS_ROOT_DIR_.$this->filepath);
         }
         $this->closeFile();
-        $this->fileresource = fopen($this->filepath, $mode);
+        $this->fileresource = fopen(_PS_ROOT_DIR_.$this->filepath, $mode) or die("Can't open file");
     }
 
     /**

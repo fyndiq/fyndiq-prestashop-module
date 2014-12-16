@@ -6,28 +6,29 @@ class FmProductExport {
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sql = "SELECT * FROM "._DB_PREFIX_ . $module->config_name."_products WHERE id='".$product_id."' LIMIT 1";
-        $data = Db::getInstance()->ExecuteS($sql);
-        return $data;
+        $data = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($sql);
+        return count($data) > 0;
     }
 
     static function addProduct($product_id, $export_qty, $exported_price_percentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('product_id' => $product_id, 'exported_qty' => $export_qty, 'exported_price_percentage' => $exported_price_percentage);
-        return (bool)Db::getInstance()->insert(_DB_PREFIX_ . $module->config_name."_products",$data);
+        $data = array('product_id' => (int)$product_id, 'exported_qty' => (int)$export_qty, 'exported_price_percentage' => (int)$exported_price_percentage);
+        $return = Db::getInstance()->insert($module->config_name."_products",$data);
+        return $return;
     }
 
     public static function updateProduct($product_id, $export_qty, $exported_price_percentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $data = array('exported_qty' => $export_qty, 'exported_price_percentage' => $exported_price_percentage);
-        return (bool)Db::getInstance()->update(_DB_PREFIX_ . $module->config_name."_products",$data, "product_id == '{$product_id}'",1);
+        return (bool)Db::getInstance()->update($module->config_name."_products",$data, "product_id == '{$product_id}'",1);
     }
 
     public static function deleteProduct($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        return (bool)Db::getInstance()->delete(_DB_PREFIX_ . $module->config_name."_products", "product_id == '{$product_id}'", 1);
+        return (bool)Db::getInstance()->delete($module->config_name."_products", "product_id == '{$product_id}'", 1);
     }
 
     /**
@@ -64,15 +65,14 @@ class FmProductExport {
     public static function saveFile()
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = 'SELECT * FROM '._DB_PREFIX_.$module->config_name.'_products';
-        if($products = Db::getInstance()->executeS($sql)) {
+        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_products';
+        $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+        if($products != false) {
             $return_array = array();
             foreach ($products as $product) {
 
-                var_dump($product);
                 $magarray = FmProduct::get($product["product_id"]);
 
-                var_dump($magarray);
                 $real_array = array();
 
                 $real_array["product-id"] = $product["product_id"];
