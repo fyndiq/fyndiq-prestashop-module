@@ -7,6 +7,8 @@
 
     <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
 
+    {include file='./menu.tpl' current='settings'}
+
     <form action="" method="post" class="fm-form choose-language">
         <fieldset>
             <legend>Choose language</legend>

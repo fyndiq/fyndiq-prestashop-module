@@ -6,7 +6,8 @@ if (!defined('_PS_VERSION_')) {
 
 require_once('messages.php');
 require_once('backoffice/models/config.php');
-require_once('backoffice/api.php');
+require_once('backoffice/includes/api.php');
+require_once('backoffice/includes/fileHandler.php');
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
 require_once('backoffice/models/product_export.php');
@@ -23,7 +24,7 @@ class FyndiqMerchant extends Module
         $this->version = '0.1';
         $this->author = 'Fyndiq AB';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6.1');
+        $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6.7');
 
         parent::__construct();
 

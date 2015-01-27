@@ -122,7 +122,7 @@ class FmAjaxService
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
-            $product["fyndiq_price"] = ((double)$product["price"])-($product["price"]*($typed_percentage/100));
+            $product["fyndiq_precentage"] = $typed_percentage;
             $product["fyndiq_quantity"] = (int)round(($product["quantity"]*($typed_quantity_percentage/100)), 0, PHP_ROUND_HALF_UP);
             $products[] = $product;
         }
@@ -164,90 +164,25 @@ class FmAjaxService
     {
         $error = false;
 
+        // Getting all data
         foreach ($args['products'] as $v) {
             $product = $v['product'];
 
-            $product_result = array(
-                'title'=> $product['name'],
-                'description'=> 'asdf8u4389j34g98j34g98',
-                'images'=> array($product['image']),
-                'oldprice'=> '9999',
-                'brand' => 31,
-                'categories' => array("10", "11"),
-                'price'=> $product['price'],
-                'moms_percent'=> '25'
-            );
-
-            $article_result = array();
-
-            try {
-                $result = FmHelpers::call_api('POST', 'product/', $product_result);
-                if ($result['status'] != 201) {
-                    $error = true;
-                    self::response_error(
-                        FmMessages::get('unhandled-error-title'),
-                        FmMessages::get('unhandled-error-message')
-                    );
-                }
-                FmProductExport::create($product['id'], $result['data']->id);
-
-                // when posting empty array, it's removed completely from the request, so check for key
-                if (array_key_exists('combinations', $v)) {
-                    $combinations = $v['combinations'];
-
-                    foreach ($combinations as $combination) {
-                        $article_result[] = array(
-                            'num_in_stock'=> '7',
-                            'product' => $result['data']->id,
-                            'property_values' => array("10", "11"),
-                            'item_no'=> '2',
-                            'description'=> 'An test Description'
-                        );
-                    }
-                } else {
-                    $article_result[] = array(
-                        'num_in_stock'=> '10',
-                        'product' => $result['data']->id,
-                        'property_values' => array("10", "11"),
-                        'item_no'=> '99',
-                        'description'=> 'An test Description'
-                    );
-                }
-
-                $result_article = FmHelpers::call_api('POST', 'article/', $article_result);
-                if ($result_article['status'] != 201) {
-                    $error = true;
-                    self::response_error(
-                        FmMessages::get('unhandled-error-title'),
-                        FmMessages::get('unhandled-error-message')
-                    );
-                }
-            } catch (FyndiqAPIBadRequest $e) {
-                $error = true;
-                $message = '';
-                foreach (FyndiqAPI::$error_messages as $error_message) {
-                    $message .= $error_message;
-                }
-                self::response_error(
-                    FmMessages::get('products-bad-params-title'),
-                    $message
-                );
-            } catch (Exception $e) {
-                $error = true;
-                self::response_error(
-                    FmMessages::get('unhandled-error-title'),
-                    $e->getMessage()
-                );
+            if(FmProductExport::productExist($product["id"])) {
+                FmProductExport::updateProduct($product["id"], $product['quantity'], $product['fyndiq_precentage']);
             }
-
-            if ($error) {
-                break;
+            else {
+                FmProductExport::addProduct($product["id"],$product['quantity'], $product['fyndiq_precentage']);
             }
         }
+        $result = FmProductExport::saveFile();
 
-        if (!$error) {
-            self::response();
+        if($result != false)
+        {
+            $result = true;
         }
+
+        self::response($result);
     }
 }
 

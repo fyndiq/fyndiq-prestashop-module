@@ -46,19 +46,14 @@
     padding: 0;
 
     fieldset {
-        border: none;
-        background-color: transparent;
         padding: 0 10px 10px 10px;
-
-        legend {
-          font-size:1.4em;
-          padding: 0px;
-        }
-    }
-
-    legend {
-        border: none;
         background-color: transparent;
+        border: 0px;
+        legend {
+          background-color: transparent;
+          border: 0px;
+          font-size:14pt;
+        }
     }
 
     label {
@@ -78,10 +73,11 @@
     border: 1px solid $color-button-darker;
     padding: 3px 12px;
     font-size: 12px;
+
     color: black;
     cursor: pointer;
     outline: none;
-
+    text-decoration: none;
     line-height: 16px;
 
     @include border-radius(3px);
@@ -89,6 +85,11 @@
     @include gradient($color-button-light, $color-button-dark);
     &:active {
         @include gradient($color-button-dark, $color-button-light);
+    }
+    &:hover {
+      text-decoration: none;
+      color: black;
+      @include gradient($color-button-dark, $color-button-light);
     }
 
     &.fyndiq {
@@ -100,6 +101,11 @@
         @include gradient($color-button-fyndiq-light, $color-button-fyndiq-dark);
         &:active {
             @include gradient($color-button-fyndiq-dark, $color-button-fyndiq-light);
+        }
+        &:hover {
+          text-decoration: none;
+          color: white;
+          @include gradient($color-button-fyndiq-dark, $color-button-fyndiq-light);
         }
     }
 }

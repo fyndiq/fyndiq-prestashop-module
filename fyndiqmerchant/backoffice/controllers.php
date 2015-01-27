@@ -35,14 +35,13 @@ class FmBackofficeControllers {
                 $page = 'main';
 
                 # if user pressed Disconnect Account on main pages
-                if (Tools::isSubmit('submit_disconnect')) {
-                    $ret = self::handle_disconnect($module);
-                    $output .= $ret['output'];
-                    $page = 'authenticate';
+                if (Tools::getValue('disconnect')) {
+                    self::handle_disconnect($module);
+                    Tools::redirect(FmHelpers::get_module_url());
                 }
 
                 # if user pressed Show Settings button on main page
-                if (Tools::isSubmit('submit_show_settings')) {
+                if (Tools::getValue('submit_show_settings')) {
                     $page = 'settings';
                 }
 
@@ -111,6 +110,8 @@ class FmBackofficeControllers {
                 $typed_quantity_percentage = 20;
             }
 
+            $path = FmHelpers::get_module_url();
+
             $output .= self::show_template($module, 'settings', array(
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
@@ -119,18 +120,20 @@ class FmBackofficeControllers {
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
                 'selected_language'=> $selected_language,
-                'selected_currency'=> $selected_currency
+                'selected_currency'=> $selected_currency,
+                'path' => $path
             ));
         }
-
         if ($page == 'main') {
+            $path = FmHelpers::get_module_url();
             $output .= self::show_template($module, 'main', array(
                 'messages'=> FmMessages::get_all(),
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
                 'language'=> new Language(FmConfig::get('language')),
                 'currency'=> new Currency(FmConfig::get('currency')),
-                'username'=> FmConfig::get('username')
+                'username'=> FmConfig::get('username'),
+                'path' => $path
             ));
         }
 
