@@ -1,0 +1,3 @@
+[submodule "fyndiqmerchant/backoffice/includes/fyndiqAPI"]
+	path = fyndiqmerchant/backoffice/includes/fyndiqAPI
+	url = git@github.com:fyndiq/fyndiq-api-wrapper-php.git

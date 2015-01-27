@@ -6,7 +6,7 @@ if (!defined('_PS_VERSION_')) {
 
 require_once('messages.php');
 require_once('backoffice/models/config.php');
-require_once('backoffice/includes/api.php');
+require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once('backoffice/includes/fileHandler.php');
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
