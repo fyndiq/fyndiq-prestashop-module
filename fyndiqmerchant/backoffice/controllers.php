@@ -35,14 +35,13 @@ class FmBackofficeControllers {
                 $page = 'main';
 
                 # if user pressed Disconnect Account on main pages
-                if (Tools::isSubmit('submit_disconnect')) {
-                    $ret = self::handle_disconnect($module);
-                    $output .= $ret['output'];
-                    $page = 'authenticate';
+                if (Tools::getValue('disconnect')) {
+                    self::handle_disconnect($module);
+                    Tools::redirect(FmHelpers::get_module_url());
                 }
 
                 # if user pressed Show Settings button on main page
-                if (Tools::isSubmit('submit_show_settings')) {
+                if (Tools::getValue('submit_show_settings')) {
                     $page = 'settings';
                 }
 
@@ -62,17 +61,6 @@ class FmBackofficeControllers {
             }
         }
 
-        // Configuration::get('PS_SHOP_DEFAULT')
-        // Configuration::get('PS_MULTISHOP_FEATURE_ACTIVE');
-        // new ShopGroup((int)Tools::getValue('id_shop_group'))
-        // foreach (ShopGroup::getShopGroups() as $group)
-        // new Shop((int)Tools::getValue('id_shop'))
-        // Shop::getTotalShops()
-        // $shops = Shop::getShops(true);
-        // Shop::getCategories($id_shop);
-        // Category::getRootCategories();
-        // if (Shop::getContext() == Shop::CONTEXT_SHOP
-
         #### render decided page
 
         if ($page == 'authenticate') {
@@ -88,6 +76,8 @@ class FmBackofficeControllers {
         if ($page == 'settings') {
             $configured_language = FmConfig::get('language');
             $configured_currency = FmConfig::get('currency');
+            $configured_price_percentage = FmConfig::get('price_percentage');
+            $configured_quantity_percentage = FmConfig::get('quantity_percentage');
 
             # if there is a configured language, show it as selected
             if ($configured_language) {
@@ -104,24 +94,46 @@ class FmBackofficeControllers {
                 $selected_currency = Currency::getDefaultCurrency()->id;
             }
 
+            # if there is a configured percentage, set that value
+            if ($configured_price_percentage) {
+                $typed_price_percentage = $configured_price_percentage;
+            } else {
+                # else set the default value of 10%.
+                $typed_price_percentage = 10;
+            }
+
+            # if there is a configured percentage, set that value
+            if ($configured_quantity_percentage) {
+                $typed_quantity_percentage = $configured_quantity_percentage;
+            } else {
+                # else set the default value of 10%.
+                $typed_quantity_percentage = 20;
+            }
+
+            $path = FmHelpers::get_module_url();
+
             $output .= self::show_template($module, 'settings', array(
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
+                'price_percentage' => $typed_price_percentage,
+                'quantity_percentage' => $typed_quantity_percentage,
                 'languages'=> Language::getLanguages(),
                 'currencies'=> Currency::getCurrencies(),
                 'selected_language'=> $selected_language,
-                'selected_currency'=> $selected_currency
+                'selected_currency'=> $selected_currency,
+                'path' => $path
             ));
         }
-
         if ($page == 'main') {
+            $path = FmHelpers::get_module_url();
             $output .= self::show_template($module, 'main', array(
                 'messages'=> FmMessages::get_all(),
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
                 'language'=> new Language(FmConfig::get('language')),
                 'currency'=> new Currency(FmConfig::get('currency')),
-                'username'=> FmConfig::get('username')
+                'username'=> FmConfig::get('username'),
+                'path' => $path
             ));
         }
 
@@ -173,6 +185,8 @@ class FmBackofficeControllers {
         $currency_id = intval(Tools::getValue('currency_id'));
         $auto_import = boolval(Tools::getValue('auto_import'));
         $auto_export = boolval(Tools::getValue('auto_export'));
+        $price_percentage = intval(Tools::getValue('price_percentage'));
+        $quantity_percentage = intval(Tools::getValue('quantity_percentage'));
 
         if ($auto_import) {
 
@@ -195,6 +209,8 @@ class FmBackofficeControllers {
         }
 
         if (!$error) {
+            FmConfig::set('price_percentage', $price_percentage);
+            FmConfig::set('quantity_percentage', $quantity_percentage);
             FmConfig::set('language', $language_id);
             FmConfig::set('currency', $currency_id);
             FmConfig::set('auto_import', $auto_import);

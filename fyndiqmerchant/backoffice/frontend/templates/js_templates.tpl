@@ -67,7 +67,7 @@
             <div class="data">
                 <div class="title">
                     {{#with product}}{{#with product}}
-                    <h3>{{name}}</b>
+                    <input type="text" value="{{name}}">
                     {{/with}}{{/with}}
                 </div>
 
@@ -83,8 +83,10 @@
             </div>
 
             <div class="final-price">
-                <label>Price:</label>
-                <input type="text" value="{{highest_price}}">
+                <label>Discount:</label>
+                {{#with product}}{{#with product}}
+                <input type="text" value="{{fyndiq_percentage}}">
+                {{/with}}{{/with}}
             </div>
         </li>
     {{/each}}
@@ -155,19 +157,17 @@
 
                     <div class="prices">
                         <div class="price">
-                            <label>Price:</label>
-                            <input type="text" value="{{price}}">
+                            <strong>Price:</strong> {{price}}
                         </div>
                         <div class="price">
-                            <label>Fyndiq Price:</label>
-                            <input type="text">
+                            <label>Fyndiq Discount:</label>
+                            <input type="text" value="{{fyndiq_precentage}}">
                         </div>
                     </div>
 
                     <div class="quantities">
                         <div>Qty: {{quantity}}</div>
-                        <div>Exported Qty: 6</div>
-                        <div>Fyndiq Qty: 4</div>
+                        <div>Fyndiq Qty: {{fyndiq_quantity}}</div>
                     </div>
 
                     <div class="expand
