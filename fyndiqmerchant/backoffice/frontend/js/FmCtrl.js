@@ -252,30 +252,8 @@ var FmCtrl = {
                     });
                 };
 
-                // if there were any product warnings
-                if (product_warnings.length > 0) {
-
-                    var content = tpl['accept-product-export']({
-                        'module_path': module_path,
-                        'product_warnings': product_warnings
-                    });
-
-                    // show modal describing the issue, and ask for acceptance
-                    FmGui.show_modal(products, content, function(products_to_export, type) {
-                        if (type == 'accept') {
-
-                            // export the products
-                            export_products(products_to_export);
-                        } else {
-                        }
-                    });
-
-                // if there were no product warnings
-                } else {
-
-                    // export the products
-                    export_products(products);
-                }
+                // export the products
+                export_products(products);
             }
         });
     }
