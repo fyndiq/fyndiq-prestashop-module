@@ -21,11 +21,15 @@ class FmBackofficeControllers {
             # check if api is up
             $api_available = false;
             try {
-                FmHelpers::call_api('GET', 'account/');
+                FmHelpers::call_api('GET', 'orders/');
                 $api_available = true;
             } catch (Exception $e) {
-                $page = 'api_unavailable';
-                $page_args['message'] = $e->getMessage();
+                if($e->getMessage() == "Unauthorized") {
+                    $page = 'authenticate';
+                } else {
+                    $page = 'api_unavailable';
+                    $page_args['message'] = $e->getMessage();
+                }
             }
 
             # if api is up
@@ -158,7 +162,7 @@ class FmBackofficeControllers {
 
             # authenticate with Fyndiq API
             try {
-                FmHelpers::call_api_raw($username, $api_token, 'GET', 'account/', array());
+                FmHelpers::call_api_raw($username, $api_token, 'GET', 'orders/', array());
 
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
