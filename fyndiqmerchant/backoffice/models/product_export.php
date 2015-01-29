@@ -5,7 +5,7 @@ class FmProductExport {
     static function productExist($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM "._DB_PREFIX_ . $module->config_name."_products WHERE id='".$product_id."' LIMIT 1";
+        $sql = "SELECT * FROM "._DB_PREFIX_ . $module->config_name."_products WHERE product_id='".$product_id."' LIMIT 1";
         $data = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($sql);
         return count($data) > 0;
     }
