@@ -426,6 +426,9 @@
     .fm-product-list .product .quantities {
       float: left;
       margin-left: 20px; }
+    .fm-product-list .product .status {
+      float: left;
+      margin-left: 20px; }
     .fm-product-list .product .expand {
       position: absolute;
       right: 0;
@@ -475,5 +478,18 @@
             float: left; }
             .fm-product-list .combinations > li .data .attributes li:last-child .separator {
               display: none; }
+
+.label {
+  display: block;
+  padding: 4px;
+  text-align: center;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  color: white; }
+  .label.green {
+    background-color: #298724; }
+  .label.yellow {
+    background-color: #B3B835; }
 
 /*# sourceMappingURL=main.css.map */

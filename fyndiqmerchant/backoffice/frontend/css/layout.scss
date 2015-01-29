@@ -285,6 +285,11 @@
             margin-left: 20px;
         }
 
+        .status {
+          float: left;
+          margin-left: 20px;
+        }
+
         .expand {
             position: absolute;
             right: 0;
@@ -362,4 +367,17 @@
             }
         }
     }
+}
+.label {
+  display:block;
+  padding:4px;
+  text-align: center;
+  @include border-radius(3px);
+  color:white;
+  &.green {
+    background-color: #298724;
+  }
+  &.yellow {
+    background-color: #B3B835;
+  }
 }

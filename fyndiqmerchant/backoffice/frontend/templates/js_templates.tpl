@@ -169,7 +169,13 @@
                         <div>Qty: {{quantity}}</div>
                         <div>Fyndiq Qty: {{fyndiq_quantity}}</div>
                     </div>
-
+                    <div class="status">
+                        {{#if fyndiq_exported}}
+                        <div class="label green">Exported</div>
+                        {{else}}
+                        <div class="label yellow">Not exported</div>
+                        {{/if}}
+                    </div>
                     <div class="expand
                         {{#unless combinations}}
                             inactive
