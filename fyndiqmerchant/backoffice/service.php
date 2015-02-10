@@ -163,11 +163,10 @@ class FmAjaxService
      */
     public static function export_products($args)
     {
-        $error = false;
-
         // Getting all data
         foreach ($args['products'] as $v) {
             $product = $v['product'];
+
 
             if(FmProductExport::productExist($product["id"])) {
                 FmProductExport::updateProduct($product["id"], $product['quantity'], $product['fyndiq_percentage']);
@@ -175,6 +174,7 @@ class FmAjaxService
             else {
                 FmProductExport::addProduct($product["id"],$product['quantity'], $product['fyndiq_percentage']);
             }
+
         }
         $result = FmProductExport::saveFile();
 

@@ -9,7 +9,7 @@ require_once('backoffice/models/config.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once('backoffice/includes/fileHandler.php');
 require_once('backoffice/helpers.php');
-require_once('backoffice/controllers.php');
+require_once('controllers/admin/AdminPageController.php');
 require_once('backoffice/models/product_export.php');
 require_once('backoffice/models/order.php');
 
@@ -59,6 +59,19 @@ class FyndiqMerchant extends Module
 
         // create product mapping database
         $ret &= FmProductExport::install();
+
+        $tab = new Tab();
+        $tab->active = 1;
+        $tab->name = array();
+        $tab->class_name = 'AdminPage';
+        foreach (Language::getLanguages(true) as $lang) {
+            $tab->name[$lang['id_lang']] = 'Exporting and Importing to Fyndiq';
+        }
+        $tab->id_parent = -1;
+        $tab->module = $this->name;
+        $tab->add();
+
+
 
         // create order mapping database
         $ret &= FmOrder::install();
@@ -118,7 +131,7 @@ class FyndiqMerchant extends Module
 
     public function getContent()
     {
-        return FmBackofficeControllers::main($this);
+
     }
 
     public function get($name)
