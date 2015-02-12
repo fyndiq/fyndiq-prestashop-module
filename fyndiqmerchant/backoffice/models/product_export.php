@@ -139,17 +139,8 @@ class FmProductExport
             exported_price_percentage int(20) unsigned)
         '
         );
-        $ret2 = (bool)Db::getInstance()->Execute(
-            'create table if not exists ' . _DB_PREFIX_ . $module->config_name . '_products_combos (
-            id int(20) unsigned primary key AUTO_INCREMENT,
-            product_id int(10) unsigned,
-            combo_id int(10) unsigned,
-            exported_qty int(20) unsigned,
-            exported_price_percentage int(20) unsigned)
-        '
-        );
 
-        return $ret && $ret2;
+        return $ret;
     }
 
     /**

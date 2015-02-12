@@ -176,61 +176,7 @@
                         <div class="label yellow">Not exported</div>
                         {{/if}}
                     </div>
-                    <div class="expand
-                        {{#unless combinations}}
-                            inactive
-                        {{/unless}}
-                        ">
-                        <a href="#">
-                            <img src="{{../../module_path}}backoffice/frontend/images/icons/down-arrow.png"
-                                alt="Down pointing arrow"
-                                {{#if combinations}}
-                                    title="Show combinations"
-                                {{else}}
-                                    title="Product does not have any combinations"
-                                {{/if}}
-                                >
-                        </a>
-                    </div>
                 </div>
-                {{#if combinations}}
-                    <ul class="combinations">
-                    {{#each combinations}}
-                        <li
-                            data-id="{{id}}"
-                            data-price="{{price}}"
-                            data-quantity="{{quantity}}"
-                        >
-                            <div class="select">
-                                <input type="checkbox" class="checkbox" id="select_combination_{{id}}">
-                            </div>
-
-                            <div class="image">
-                                {{#if image}}
-                                <label for="select_combination_{{id}}">
-                                    <img src="{{image}}" alt="Product combination image">
-                                </label>
-                                {{/if}}
-                            </div>
-
-                            <div class="data">
-                                <ul class="attributes">
-                                    {{#each attributes}}
-                                        <li>
-                                            {{name}}: {{value}}<span class="separator">,&nbsp;</span>
-                                        </li>
-                                    {{/each}}
-                                </ul>
-
-                                <div>
-                                    Price: {{price}}
-                                    Qty: {{quantity}}
-                                </div>
-                            </div>
-                        </li>
-                    {{/each}}
-                    </ul>
-                {{/if}}
             </li>
             {{/with}}
         {{/each}}
