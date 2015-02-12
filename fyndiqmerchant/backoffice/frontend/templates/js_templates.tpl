@@ -117,7 +117,7 @@
             <button class="fm-button" name="deselect-all">Deselect All</button>
         </div>
         <div class="export">
-            <button class="fm-button fyndiq" name="export-products">Export Products</button>
+            <button class="fm-button fyndiq" name="export-products">Send to Fyndiq</button>
         </div>
     </div>
 </script>
@@ -167,13 +167,12 @@
 
                     <div class="quantities">
                         <div>Qty: {{quantity}}</div>
-                        <div>Fyndiq Qty: {{fyndiq_quantity}}</div>
                     </div>
                     <div class="status">
                         {{#if fyndiq_exported}}
-                        <div class="label green">Exported</div>
+                        <div class="label green">On Fyndiq</div>
                         {{else}}
-                        <div class="label yellow">Not exported</div>
+                        <div class="label yellow">Not on Fyndiq</div>
                         {{/if}}
                     </div>
                     <div class="expand
