@@ -170,10 +170,10 @@ class FmAjaxService
             $product = $v['product'];
 
             if(FmProductExport::productExist($product["id"])) {
-                FmProductExport::updateProduct($product["id"], $product['quantity'], $product['fyndiq_percentage']);
+                FmProductExport::updateProduct($product["id"], $product['fyndiq_percentage']);
             }
             else {
-                FmProductExport::addProduct($product["id"],$product['quantity'], $product['fyndiq_percentage']);
+                FmProductExport::addProduct($product["id"], $product['fyndiq_percentage']);
             }
         }
         $result = FmProductExport::saveFile();

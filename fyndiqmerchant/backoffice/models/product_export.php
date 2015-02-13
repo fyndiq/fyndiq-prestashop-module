@@ -12,12 +12,11 @@ class FmProductExport
         return count($data) > 0;
     }
 
-    static function addProduct($product_id, $export_qty, $exported_price_percentage)
+    static function addProduct($product_id, $exported_price_percentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $data = array(
             'product_id' => (int)$product_id,
-            'exported_qty' => (int)$export_qty,
             'exported_price_percentage' => (int)$exported_price_percentage
         );
         $return = Db::getInstance()->insert($module->config_name . "_products", $data);
@@ -25,10 +24,10 @@ class FmProductExport
         return $return;
     }
 
-    public static function updateProduct($product_id, $export_qty, $exported_price_percentage)
+    public static function updateProduct($product_id, $exported_price_percentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('exported_qty' => $export_qty, 'exported_price_percentage' => $exported_price_percentage);
+        $data = array('exported_price_percentage' => $exported_price_percentage);
 
         return (bool)Db::getInstance()->update(
             $module->config_name . "_products",
@@ -47,82 +46,6 @@ class FmProductExport
         return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id == '{$product_id}'", 1);
     }
 
-
-    /**
-     * Check if combonation exists
-     *
-     * @param $product_id
-     * @param $combo_id
-     * @return bool
-     */
-    static function comboExist($product_id, $combo_id)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products_combos WHERE product_id='" . $product_id . "' AND combo_id='" . $combo_id . "' LIMIT 1";
-        $data = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($sql);
-
-        return count($data) > 0;
-    }
-
-    /**
-     * add a combo for product
-     *
-     * @param integer $product_id
-     * @param integer $combo_id
-     * @param integer $export_qty
-     * @param integer $exported_price_percentage
-     * @return mixed
-     */
-    static function addCombo($product_id, $combo_id, $export_qty, $exported_price_percentage)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array(
-            'product_id' => (int)$product_id,
-            'combo_id' => (int)$combo_id,
-            'exported_qty' => (int)$export_qty,
-            'exported_price_percentage' => (int)$exported_price_percentage
-        );
-        $return = Db::getInstance()->insert($module->config_name . "_products_combos", $data);
-
-        return $return;
-    }
-
-    /**
-     * update combo for product
-     *
-     * @param integer $product_id
-     * @param integer $combo_id
-     * @param integer $export_qty
-     * @param integer $exported_price_percentage
-     * @return bool
-     */
-    public static function updateCombo($product_id, $combo_id, $export_qty, $exported_price_percentage)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('exported_qty' => $export_qty, 'exported_price_percentage' => $exported_price_percentage);
-
-        return (bool)Db::getInstance()->update(
-            $module->config_name . "_products_combos",
-            $data,
-            "product_id == '{$product_id}' AND combo_id == '{$combo_id}'",
-            1
-        );
-    }
-
-    /**
-     * delete a combo for product
-     *
-     * @param integer $product_id
-     * @param integer $combo_id
-     * @return bool
-     */
-    public static function deleteCombo($product_id, $combo_id)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-
-        return (bool)Db::getInstance()->delete($module->config_name . "_products_combos", "product_id == '{$product_id}' AND combo_id == '{$combo_id}'", 1);
-    }
-
     /**
      * install table to database
      *
@@ -135,7 +58,6 @@ class FmProductExport
             'create table if not exists ' . _DB_PREFIX_ . $module->config_name . '_products (
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
-            exported_qty int(20) unsigned,
             exported_price_percentage int(20) unsigned)
         '
         );
