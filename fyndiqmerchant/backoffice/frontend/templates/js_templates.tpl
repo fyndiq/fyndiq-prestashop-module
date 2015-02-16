@@ -152,7 +152,7 @@
                         </div>
                         <div class="fyndiq_price">
                             <label>Fyndiq Discount:</label>
-                            <input type="text" value="{{fyndiq_price}}" class="fyndiq_dicsount">% <span
+                            <input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">% <span
                                 id="ajaxFired"></span><br/>
                             <span class="price_preview">Expected Price: {{expected_price}}</span> SEK
                         </div>

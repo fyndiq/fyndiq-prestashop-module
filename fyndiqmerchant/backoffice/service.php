@@ -125,6 +125,7 @@ class FmAjaxService
             $product["fyndiq_precentage"] = $typed_percentage;
             $product["fyndiq_quantity"] = $product["quantity"];
             $product["fyndiq_exported"] = FmProductExport::productExist($row['id_product']);
+            $product["expected_price"] = number_format((float)($product["price"]-(($product["fyndiq_precentage"]/100)*$product["price"])), 2, '.', '');
             $products[] = $product;
         }
 
