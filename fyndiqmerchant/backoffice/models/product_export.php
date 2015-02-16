@@ -32,7 +32,7 @@ class FmProductExport
         return (bool)Db::getInstance()->update(
             $module->config_name . "_products",
             $data,
-            "product_id == '{$product_id}'",
+            "product_id = '{$product_id}'",
             1
         );
     }
@@ -104,36 +104,44 @@ class FmProductExport
                     $name = "";
                     $id=1;
                     foreach($first_array["attributes"] as $attr) {
-                        $name .= $attr["name"] . ": " . $attr["value"];
+                        $name .= addslashes($attr["name"] . ": " . $attr["value"]);
                         $real_array["article‑property‑name‑".$id] = $attr["name"];
                         $real_array["article‑property‑value‑".$id] = $attr["value"];
                         $id++;
                     }
                     $real_array["article-name"] = $name;
                     $return_array[] = $real_array;
+                    $imageid = 2;
                     foreach($magarray["combinations"] as $combo) {
                         $real_array = self::getProductData($magarray,$product);
                         $real_array["article-quantity"] = $combo["quantity"];
                         $real_array["article-location"] =
                         $real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
                         $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
+
+                        if (isset($combo["image"])) {
+                            $real_array["product-image-".$imageid."-url"] = addslashes(strval($combo["image"]));
+                            $real_array["product-image-".$imageid."-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($combo["image"])),0,10));
+                        }
                         $name = "";
                         $id=1;
                         foreach($combo["attributes"] as $attr) {
-                            $name .= $attr["name"] . ": " . $attr["value"];
+                            $name .= addslashes($attr["name"] . ": " . $attr["value"]);
                             $real_array["article‑property‑name‑".$id] = $attr["name"];
                             $real_array["article‑property‑value‑".$id] = $attr["value"];
                             $id++;
                         }
                         $real_array["article-name"] = $name;
                         $return_array[] = $real_array;
+                        $imageid++;
                     }
                 }
                 else {
                     $return_array[] = $real_array;
                 }
             }
-            $first_array = array_values($return_array)[0];
+
+            $first_array = array_values($return_array)[1];
             $key_values = array_keys($first_array);
             array_unshift($return_array, $key_values);
             $filehandler = new FmFileHandler("w+");
@@ -152,10 +160,19 @@ class FmProductExport
         $real_array["product-oldprice"] = number_format((float)$magarray["price"], 2, '.', '');
         $real_array["product-brand"] = "test";
         if (isset($product["image"])) {
-            $real_array["product-image-1-url"] = $product["image"];
+            $real_array["product-image-1-url"] = addslashes(strval($product["image"]));
+            $real_array["product-image-1-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($product["image"])),0,10));
         }
-        $real_array["product-title"] = $magarray["name"];
+        $real_array["product-title"] = addslashes($magarray["name"]);
         $real_array["product-vat-percent"] = "25";
         return $real_array;
+    }
+    static function getL2Keys($array)
+    {
+        $result = array();
+        foreach($array as $sub) {
+            $result = array_merge($result, $sub);
+        }
+        return array_keys($result);
     }
 }
