@@ -143,13 +143,16 @@ var FmCtrl = {
         });
 
         // when clicking select all products checkbox, set checked on all product's checkboxes
-        $(document).on('click', '.fm-product-list-controls .select button', function(e) {
-            e.preventDefault();
-            if ($(this).attr('name') == 'select-all') {
-                $('.fm-product-list .product .select input').prop('checked', true).change();
-            }
-            if ($(this).attr('name') == 'deselect-all') {
-                $('.fm-product-list .product .select input').prop('checked', false).change();
+        $(document).on('click', '#select-all', function (e) {
+            if ($(this).is(':checked')) {
+                $(".fm-product-list tr .select input").each(function () {
+                    $(this).prop("checked", true);
+                });
+
+            } else {
+                $(".fm-product-list tr .select input").each(function () {
+                    $(this).prop("checked", false);
+                });
             }
         });
 
