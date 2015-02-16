@@ -163,41 +163,22 @@ var FmCtrl = {
             var products = [];
 
             // find all products
-            $('.fm-product-list > li').each(function(k, v) {
+            $('.fm-product-list > tr').each(function(k, v) {
 
                 // check if product is selected
-                var active = $(this).find('.product .select input').prop('checked');
+                var active = $(this).find('.select input').prop('checked');
                 if (active) {
 
-                    // find all combinations
-                    var combinations = [];
-                    $(this).find('.combinations > li').each(function(k, v) {
-
-                        // check if combination is selected, and store it
-                        var active = $(this).find('> .select input').prop('checked');
-                        if (active) {
-                            combinations.push({
-                                'id': $(this).data('id'),
-                                'price': $(this).data('price'),
-                                'quantity': $(this).data('quantity'),
-                            });
-                        }
-                    });
 
                     // store product id and combinations
-                    var price = $(this).find(".prices > div.price > input").val();
-                    var fyndiq_percentage = $(this).find("div > div.prices > div:nth-child(2) > input").val();
+                    var price = $(this).find("td.prices > div.price > input").val();
+                    var fyndiq_percentage = $(this).find("td.prices > div.fyndiq_price > input").val();
                     console.log(fyndiq_percentage);
                     products.push({
                         'product': {
                             'id': $(this).data('id'),
-                            'name': $(this).data('name'),
-                            'image': $(this).data('image'),
-                            'price': price,
-                            'fyndiq_percentage':fyndiq_percentage,
-                            'quantity': $(this).data('quantity')
-                        },
-                        'combinations': combinations
+                            'fyndiq_percentage':fyndiq_percentage
+                        }
                     });
                 }
             });
@@ -208,43 +189,6 @@ var FmCtrl = {
                     messages['products-not-selected-message']);
 
             } else {
-
-                // check all products for warnings
-                var product_warnings = [];
-                for (var i = 0; i < products.length; i++) {
-                    var product = products[i];
-
-                    var product_warning = false;
-                    var lowest_price = false;
-                    var highest_price = false;
-
-                    // check each combination for warnings
-                    for (var j = 0; j < product['combinations'].length; j++) {
-                        var combination = product['combinations'][j];
-
-                        // if combination price differs from product price, show warning for this product
-                        if (combination['price'] != product['price']) {
-                            product_warning = true;
-
-                            // also record the highest and lowest price
-                            if (combination['price'] < lowest_price || lowest_price === false) {
-                                lowest_price = combination['price'];
-                            }
-                            if (combination['price'] > highest_price || highest_price === false) {
-                                highest_price = combination['price'];
-                            }
-                        }
-                    }
-
-                    // if product needs a warning, store relevant data
-                    if (product_warning) {
-                        product_warnings.push({
-                            'product': product,
-                            'highest_price': highest_price,
-                            'lowest_price': lowest_price
-                        });
-                    }
-                }
 
                 // helper function that does the actual product export
                 var export_products = function(products) {
