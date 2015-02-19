@@ -58,6 +58,11 @@ class FmBackofficeControllers {
                     }
                 }
 
+                # if user pressed Save Settings button on settings page
+                if (Tools::isSubmit('order') ) {
+                    $page = 'order';
+                }
+
                 # if not all settings exist yet (first time using module)
                 if (!FmHelpers::all_settings_exist()) {
                     $page = 'settings';
@@ -139,6 +144,13 @@ class FmBackofficeControllers {
                 'username'=> FmConfig::get('username'),
                 'path' => $path
             ));
+        }
+        if ($page == "order") {
+            $path = FmHelpers::get_module_url();
+            $output .= self::show_template($module, 'order', array(
+                    'messages'=> FmMessages::get_all(),
+                    'path' => $path
+                ));
         }
 
         return $output;

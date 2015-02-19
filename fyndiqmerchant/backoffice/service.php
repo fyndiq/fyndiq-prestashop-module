@@ -126,6 +126,13 @@ class FmAjaxService
         self::response($products);
     }
 
+
+    public static function load_orders($args)
+    {
+        $orders = FmOrder::getImportedOrders();
+        self::response($orders);
+    }
+
     /**
      * Getting the orders to be saved in Prestashop.
      *

@@ -178,5 +178,45 @@
         </div>
         {{> fm-product-list-controls}}
     </script>
-
+    <script type="text/x-handlebars-template" class="handlebars-template" id="fm-orders-list">
+        {{> fm-order-list-controls}}
+        {{#if orders}}
+        <table>
+            <thead>
+            <tr>
+                <th><input id="select-all" type="checkbox"></th>
+                <th colspan="1">Order</th>
+                <th>Fyndiq Order</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Created</th>
+            </tr>
+            </thead>
+            <tbody class="fm-orders-list">
+            {{#each orders}}
+            {{#with this}}
+            <tr data-id="{{entity_id}}" data-fyndiqid="{{fyndiq_order}}">
+                <td class="select"><input type="checkbox" id="select_order_{{entity_id}}"></td>
+                <td>{{entity_id}}</td>
+                <td>{{fyndiq_order}}</td>
+                <td>{{base_grand_total}} <?php echo $this->getCurrency(); ?></td>
+                <td>{{total_qty_ordered}}</td>
+                <td>{{created_at}}</td>
+            </tr>
+            {{/with}}
+            {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        Orders is empty.
+        {{/if}}
+        {{> fm-order-list-controls}}
+    </script>
+    <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
+        <div class="fm-order-list-controls">
+            <div class="export">
+                <button class="fm-button fyndiq" id="getdeliverynote">Get Delivery Notes</button>
+            </div>
+        </div>
+    </script>
 {/literal}

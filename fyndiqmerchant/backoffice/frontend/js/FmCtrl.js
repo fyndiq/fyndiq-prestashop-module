@@ -78,6 +78,22 @@ var FmCtrl = {
         });
     },
 
+    load_orders: function(callback) {
+        FmCtrl.call_service('load_orders', {}, function (status, orders) {
+            if (status == 'success') {
+                $('.fm-order-list-container').html("");
+                $('.fm-order-list-container').html(tpl['orders-list']({
+                    'module_path': module_path,
+                    'orders': orders
+                }));
+            }
+
+            if (callback) {
+                callback();
+            }
+        });
+    },
+
     import_orders: function(callback) {
         FmCtrl.call_service('import_orders', {}, function(status, orders) {
             if (status == 'success') {
@@ -243,6 +259,57 @@ var FmCtrl = {
                 // export the products
                 export_products(products);
             }
+        });
+    },
+    bind_order_event_handlers: function () {
+        // import orders submit button
+        $(document).on('click', '#fm-import-orders', function (e) {
+            e.preventDefault();
+            FmGui.show_load_screen();
+            FmCtrl.import_orders(function () {
+                var page = $('div.pages > ol > li.current').html();
+                FmCtrl.load_orders(page, function () {
+                    FmGui.hide_load_screen();
+                });
+            });
+        });
+
+        // when clicking select all orders checkbox, set checked on all order's checkboxes
+        $(document).on('click', '#select-all', function (e) {
+            if ($(this).is(':checked')) {
+                $(".fm-orders-list tr .select input").each(function () {
+                    $(this).prop("checked", true);
+                });
+
+            } else {
+                $(".fm-orders-list tr .select input").each(function () {
+                    $(this).prop("checked", false);
+                });
+            }
+        });
+        $(document).on('click', '#getdeliverynote', function () {
+            var orders = [];
+
+            $('.fm-orders-list > tr').each(function (k, v) {
+                // check if product is selected
+                var active = $(this).find('.select input').prop('checked');
+                if (active) {
+                    orders.push($(this).data('fyndiqid'));
+                }
+            });
+
+            FmGui.show_load_screen(function () {
+                FmCtrl.get_delivery_notes(orders, function (status) {
+                    FmGui.hide_load_screen();
+                    if (status == 'success') {
+                        var wins = window.open(urlpath0 + "fyndiq/files/deliverynote.pdf", '_blank');
+                        if (wins) {
+                            //Browser has allowed it to be opened
+                            wins.focus();
+                        }
+                    }
+                });
+            });
         });
     }
 };

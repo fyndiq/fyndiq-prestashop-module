@@ -404,6 +404,17 @@ class FmOrder
         return $ret;
     }
 
+    public static function getImportedOrders()
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $orders = Db::getInstance()->ExecuteS(
+            'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders;
+        '
+        );
+
+        return $orders;
+    }
+
     /**
      * remove table from database.
      *
