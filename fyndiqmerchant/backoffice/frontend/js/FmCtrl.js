@@ -42,11 +42,11 @@ var FmCtrl = {
         });
     },
 
-    load_products: function(category_id, callback) {
+    load_products: function(category_id, page, callback) {
         // unset active class on previously selected category
         $('.fm-category-tree li').removeClass('active');
 
-        FmCtrl.call_service('get_products', {'category': category_id}, function(status, products) {
+        FmCtrl.call_service('get_products', {'category': category_id, 'page':page}, function(status, products) {
             if (status == 'success') {
                 $('.fm-product-list-container').html(tpl['product-list']({
                     'module_path': module_path,
@@ -145,6 +145,18 @@ var FmCtrl = {
             var category_id = $(this).parent().attr('data-category_id');
             FmGui.show_load_screen(function(){
                 FmCtrl.load_products(category_id, function() {
+                    FmGui.hide_load_screen();
+                });
+            });
+        });
+
+        $(document).on('click', 'div.pages > ol > li > a', function (e) {
+            e.preventDefault();
+
+            var category = $('.fm-category-tree li.active').attr('data-category_id');
+            FmGui.show_load_screen(function () {
+                var page = $(e.target).attr('data-page');
+                FmCtrl.load_products(category, page, function () {
                     FmGui.hide_load_screen();
                 });
             });

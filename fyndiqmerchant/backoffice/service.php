@@ -27,7 +27,7 @@ class FmAjaxService
      *
      * @param string $data
      */
-    public static function response($data = '')
+    public function response($data = '')
     {
         $response = array(
             'fm-service-status' => 'success',
@@ -35,7 +35,7 @@ class FmAjaxService
         );
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
-            self::response_error(
+            $this->response_error(
                 FmMessages::get('unhandled-error-title'),
                 FmMessages::get('unhandled-error-message')
             );
@@ -51,7 +51,7 @@ class FmAjaxService
      * @param $title
      * @param $message
      */
-    public static function response_error($title, $message)
+    public function response_error($title, $message)
     {
         $response = array(
             'fm-service-status' => 'error',
@@ -66,7 +66,7 @@ class FmAjaxService
     /**
      *
      */
-    public static function handle_request()
+    public function handle_request()
     {
         $action = false;
         $args = array();
@@ -77,9 +77,9 @@ class FmAjaxService
             $args = $_POST['args'];
         }
 
-        # call static function on self with name of the value provided in $action
+        # call function on self with name of the value provided in $action
         if (method_exists('FmAjaxService', $action)) {
-            self::$action($args);
+            $this->$action($args);
         }
     }
 
@@ -90,10 +90,10 @@ class FmAjaxService
      *
      * @param $args
      */
-    public static function get_categories($args)
+    public function get_categories($args)
     {
         $categories = FmCategory::get_all();
-        self::response($categories);
+        $this->response($categories);
     }
 
     /**
@@ -101,12 +101,12 @@ class FmAjaxService
      *
      * @param $args
      */
-    public static function get_products($args)
+    public function get_products($args)
     {
         $products = array();
 
-        if(isset($args["page"]) AND $args["page"] != -1) {
-            $rows = FmProduct::get_by_category($args['category'], $args["page"], self::$_itemPerPage);
+        if(isset($args["page"]) AND $args["page"] > 0) {
+            $rows = FmProduct::get_by_category($args['category'], $args["page"], $this->_itemPerPage);
         }else {
             $rows = FmProduct::get_by_category($args['category']);
         }
@@ -133,18 +133,18 @@ class FmAjaxService
         $object = new stdClass();
         $object->products = $products;
         if(!isset($args["page"])) {
-            $object->pagination = self::getPagerProductsHtml($args['category'], 1);
+            $object->pagination = $this->getPagerProductsHtml($args['category'], 1);
         } else {
-            $object->pagination = self::getPagerProductsHtml($args['category'], $args["page"]);
+            $object->pagination = $this->getPagerProductsHtml($args['category'], $args["page"]);
         }
-        self::response($object);
+        $this->response($object);
     }
 
 
-    public static function load_orders($args)
+    public function load_orders($args)
     {
         $orders = FmOrder::getImportedOrders();
-        self::response($orders);
+        $this->response($orders);
     }
 
     /**
@@ -153,7 +153,7 @@ class FmAjaxService
      * @param $args
      * @throws PrestaShopException
      */
-    public static function import_orders($args)
+    public function import_orders($args)
     {
         try {
             $ret = FmHelpers::call_api('GET', 'orders/');
@@ -162,9 +162,9 @@ class FmAjaxService
                     FmOrder::create($order);
                 }
             }
-            self::response($ret);
+            $this->response($ret);
         } catch (Exception $e) {
-            self::response_error(
+            $this->response_error(
                 FmMessages::get('unhandled-error-title'),
                 FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
@@ -176,7 +176,7 @@ class FmAjaxService
      *
      * @param $args
      */
-    public static function export_products($args)
+    public function export_products($args)
     {
         $error = false;
 
@@ -198,15 +198,15 @@ class FmAjaxService
             $result = true;
         }
 
-        self::response($result);
+        $this->response($result);
     }
 
-    public static function update_product($args) {
+    public function update_product($args) {
         $result = false;
         if(FmProductExport::productExist($args["product"])) {
             $result = FmProductExport::updateProduct($args["product"], $args['percentage']);
         }
-        self::response($result);
+        $this->response($result);
     }
 
     /**
@@ -216,7 +216,7 @@ class FmAjaxService
      * @param $currentpage
      * @return bool|string
      */
-    private static function getPagerProductsHtml($category, $currentpage)
+    private function getPagerProductsHtml($category, $currentpage)
     {
         $html = false;
         $collection = FmProduct::get_by_category($category);
@@ -224,21 +224,21 @@ class FmAjaxService
         if(count($collection) > 10)
         {
             $curPage = $currentpage;
-            $pager = (int)(count($collection) / self::$_itemPerPage);
-            $count = (count($collection) % self::$_itemPerPage == 0) ? $pager : $pager + 1 ;
+            $pager = (int)(count($collection) / $this->_itemPerPage);
+            $count = (count($collection) % $this->_itemPerPage == 0) ? $pager : $pager + 1 ;
             $start = 1;
-            $end = self::$_pageFrame;
+            $end = $this->_pageFrame;
 
 
             $html .= '<ol class="pageslist">';
             if(isset($curPage) && $curPage != 1){
                 $start = $curPage - 1;
-                $end = $start + self::$_pageFrame;
+                $end = $start + $this->_pageFrame;
             }else{
-                $end = $start + self::$_pageFrame;
+                $end = $start + $this->_pageFrame;
             }
             if($end > $count){
-                $start = $count - (self::$_pageFrame-1);
+                $start = $count - ($this->_pageFrame-1);
             }else{
                 $count = $end-1;
             }
@@ -269,5 +269,5 @@ class FmAjaxService
         return $html;
     }
 }
-
-FmAjaxService::handle_request();
+$ajaxService = new FmAjaxService();
+$ajaxService->handle_request();

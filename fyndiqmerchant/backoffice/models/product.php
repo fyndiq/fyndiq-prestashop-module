@@ -123,8 +123,10 @@ class FmProduct {
             and cp.id_category = '.FmHelpers::db_escape($category_id).'
         ';
 
+        $offset = $perpage * ($p-1);
+
         if($p != -1 && $perpage != -1) {
-            $sqlquery .= 'LIMIT '.(int)(($p - 1) * $perpage).', '.(int)($perpage);
+            $sqlquery .= 'LIMIT '.$offset.', '.(int)($perpage);
         }
 
         $rows = Db::getInstance()->ExecuteS($sqlquery);
