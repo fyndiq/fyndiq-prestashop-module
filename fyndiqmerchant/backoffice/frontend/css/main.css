@@ -455,7 +455,8 @@ table {
       color: white;
       padding: 6px;
       border-spacing: 0;
-      border-collapse: collapse; }
+      border-collapse: collapse;
+      text-align: left; }
   table tbody {
     border: 0px;
     border-collapse: collapse;

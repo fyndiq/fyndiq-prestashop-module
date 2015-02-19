@@ -409,7 +409,19 @@ class FmOrder
         '
         );
 
-        return $orders;
+        $return = array();
+
+        foreach($orders as $order) {
+            $orderarray = $order;
+            $neworder = new Order((int)$order['order_id']);
+            $orderarray["created_at"] = $neworder->date_add;
+            $orderarray["price"] = $neworder->total_paid_real;
+            $orderarray["total_products"] = $neworder->total_products;
+            $return[] = $orderarray;
+
+        }
+
+        return $return;
     }
 
     /**

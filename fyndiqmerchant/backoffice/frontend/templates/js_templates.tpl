@@ -197,10 +197,10 @@
             {{#with this}}
             <tr data-id="{{entity_id}}" data-fyndiqid="{{fyndiq_order}}">
                 <td class="select"><input type="checkbox" id="select_order_{{entity_id}}"></td>
-                <td>{{entity_id}}</td>
-                <td>{{fyndiq_order}}</td>
-                <td>{{base_grand_total}} <?php echo $this->getCurrency(); ?></td>
-                <td>{{total_qty_ordered}}</td>
+                <td>{{order_id}}</td>
+                <td>{{fyndiq_orderid}}</td>
+                <td>{{price}}</td>
+                <td>{{total_products}}</td>
                 <td>{{created_at}}</td>
             </tr>
             {{/with}}
