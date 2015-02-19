@@ -19,6 +19,9 @@ require_once('./models/order.php');
 class FmAjaxService
 {
 
+    private $_itemPerPage = 10;
+    private $_pageFrame = 4;
+
     /**
      * Structure the response back to the client
      *
@@ -102,7 +105,12 @@ class FmAjaxService
     {
         $products = array();
 
-        $rows = FmProduct::get_by_category($args['category']);
+        if(isset($args["page"]) AND $args["page"] != -1) {
+            $rows = FmProduct::get_by_category($args['category'], $args["page"], self::$_itemPerPage);
+        }else {
+            $rows = FmProduct::get_by_category($args['category']);
+        }
+
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
@@ -122,8 +130,14 @@ class FmAjaxService
             $product["expected_price"] = number_format((float)($product["price"]-(($typed_percentage/100)*$product["price"])), 2, '.', '');
             $products[] = $product;
         }
-
-        self::response($products);
+        $object = new stdClass();
+        $object->products = $products;
+        if(!isset($args["page"])) {
+            $object->pagination = self::getPagerProductsHtml($args['category'], 1);
+        } else {
+            $object->pagination = self::getPagerProductsHtml($args['category'], $args["page"]);
+        }
+        self::response($object);
     }
 
 
@@ -193,6 +207,66 @@ class FmAjaxService
             $result = FmProductExport::updateProduct($args["product"], $args['percentage']);
         }
         self::response($result);
+    }
+
+    /**
+     * Get pagination
+     *
+     * @param $category
+     * @param $currentpage
+     * @return bool|string
+     */
+    private static function getPagerProductsHtml($category, $currentpage)
+    {
+        $html = false;
+        $collection = FmProduct::get_by_category($category);
+        if($collection == 'null') return;
+        if(count($collection) > 10)
+        {
+            $curPage = $currentpage;
+            $pager = (int)(count($collection) / self::$_itemPerPage);
+            $count = (count($collection) % self::$_itemPerPage == 0) ? $pager : $pager + 1 ;
+            $start = 1;
+            $end = self::$_pageFrame;
+
+
+            $html .= '<ol class="pageslist">';
+            if(isset($curPage) && $curPage != 1){
+                $start = $curPage - 1;
+                $end = $start + self::$_pageFrame;
+            }else{
+                $end = $start + self::$_pageFrame;
+            }
+            if($end > $count){
+                $start = $count - (self::$_pageFrame-1);
+            }else{
+                $count = $end-1;
+            }
+
+            if($curPage > $count-1) {
+                $html .= '<li><a href="#" data-page="'.($curPage-1).'"><< Previous</a></li>';
+            }
+
+            for($i = $start; $i<=$count; $i++)
+            {
+                if($i >= 1){
+                    if($curPage){
+                        $html .= ($curPage == $i) ? '<li class="current">'. $i .'</li>' : '<li><a href="#" data-page="'.$i.'">'. $i .'</a></li>';
+                    }else{
+                        $html .= ($i == 1) ? '<li class="current">'. $i .'</li>' : '<li><a href="#" data-page="'.$i.'">'. $i .'</a></li>';
+                    }
+                }
+
+            }
+
+            if($curPage < $count) {
+                $html .= '<li><a href="#" data-page="'.($curPage+1).'">Next >></a></li>';
+            }
+
+            $html .= '</ol>';
+        }
+
+        return $html;
     }
 }
 

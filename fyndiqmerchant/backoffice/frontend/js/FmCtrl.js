@@ -50,7 +50,8 @@ var FmCtrl = {
             if (status == 'success') {
                 $('.fm-product-list-container').html(tpl['product-list']({
                     'module_path': module_path,
-                    'products': products
+                    'products': products.products,
+                    'pagination': products.pagination
                 }));
 
                 // set active class on selected category

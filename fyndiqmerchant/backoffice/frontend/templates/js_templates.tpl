@@ -117,6 +117,13 @@
         </div>
     </div>
 </script>
+    <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-pagination">
+        {{#if pagination}}
+        <div class="pages">
+            {{{pagination}}}
+        </div>
+        {{/if}}
+    </script>
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
         {{> fm-product-list-controls}}
         <div class="fm-products-list-container">
@@ -177,6 +184,7 @@
             {{/if}}
         </div>
         {{> fm-product-list-controls}}
+        {{> fm-product-pagination}}
     </script>
     <script type="text/x-handlebars-template" class="handlebars-template" id="fm-orders-list">
         {{> fm-order-list-controls}}
