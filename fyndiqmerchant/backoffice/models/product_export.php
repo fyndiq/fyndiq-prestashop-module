@@ -41,9 +41,17 @@ class FmProductExport
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
-        Db::getInstance()->delete($module->config_name . "_products_combos", "product_id == '{$product_id}'");
+        Db::getInstance()->delete($module->config_name . "_products_combos", "product_id = '{$product_id}'");
 
-        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id == '{$product_id}'", 1);
+        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id = '{$product_id}'", 1);
+    }
+
+    public static function getProduct($product_id)
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}' LIMIT 1";
+        $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+        return reset($products);
     }
 
     /**

@@ -70,6 +70,14 @@ var FmCtrl = {
         });
     },
 
+    update_product: function (product, percentage, callback) {
+        FmCtrl.call_service('update_product', {'product': product, 'percentage': percentage}, function (status) {
+            if (callback) {
+                callback(status);
+            }
+        });
+    },
+
     import_orders: function(callback) {
         FmCtrl.call_service('import_orders', {}, function(status, orders) {
             if (status == 'success') {
@@ -154,6 +162,39 @@ var FmCtrl = {
                     $(this).prop("checked", false);
                 });
             }
+        });
+
+        var savetimeout;
+        $(document).on('keyup', '.fm-product-list tr .prices .fyndiq_price .fyndiq_dicsount', function () {
+            var discount = $(this).val();
+            var product = $(this).parent().parent().parent().attr('data-id');
+
+            if (discount > 100) {
+                discount = 100;
+            }
+
+            var price = $(this).parent().parent().parent().attr('data-price');
+            var field = $(this).parent().children('.price_preview');
+            var counted = price - ((discount / 100) * price);
+            if (isNaN(counted)) {
+                counted = price;
+            }
+
+            field.text("Expected Price: " + counted.toFixed(2));
+
+            clearTimeout(savetimeout);
+            var ajaxdiv = $(this).parent().find('#ajaxFired');
+            ajaxdiv.html('Typing...').show();
+            savetimeout = setTimeout(function () {
+                FmCtrl.update_product(product, discount, function (status) {
+                    if (status == "success") {
+                        ajaxdiv.html('Saved').delay(1000).fadeOut();
+                    }
+                    else {
+                        ajaxdiv.html('Error').delay(1000).fadeOut();
+                    }
+                });
+            }, 1000);
         });
 
         // when clicking the export products submit buttons, export products

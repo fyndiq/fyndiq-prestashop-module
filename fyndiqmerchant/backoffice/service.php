@@ -104,28 +104,22 @@ class FmAjaxService
 
         $rows = FmProduct::get_by_category($args['category']);
 
-        # if there is a configured precentage, set that value
-        if (FmConfig::get('price_percentage')) {
-            $typed_percentage = FmConfig::get('price_percentage');
-        } else {
-            # else set the default value of 10%.
-            $typed_percentage = 10;
-        }
-
-        # if there is a configured quantity precentage, set that value
-        if (FmConfig::get('quantity_percentage')) {
-            $typed_quantity_percentage = FmConfig::get('quantity_percentage');
-        } else {
-            # else set the default value of 10%.
-            $typed_quantity_percentage = 10;
-        }
-
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
+
+            # if there is a configured precentage, set that value
+            if(FmProductExport::productExist($row['id_product'])) {
+                $productexport = FmProductExport::getProduct($row["id_product"]);
+                $typed_percentage = $productexport['exported_price_percentage'];
+            } else {
+                # else set the default value of 10%.
+                $typed_percentage = FmConfig::get('price_percentage');
+            }
+
             $product["fyndiq_precentage"] = $typed_percentage;
             $product["fyndiq_quantity"] = $product["quantity"];
             $product["fyndiq_exported"] = FmProductExport::productExist($row['id_product']);
-            $product["expected_price"] = number_format((float)($product["price"]-(($product["fyndiq_precentage"]/100)*$product["price"])), 2, '.', '');
+            $product["expected_price"] = number_format((float)($product["price"]-(($typed_percentage/100)*$product["price"])), 2, '.', '');
             $products[] = $product;
         }
 
@@ -184,6 +178,14 @@ class FmAjaxService
             $result = true;
         }
 
+        self::response($result);
+    }
+
+    public static function update_product($args) {
+        $result = false;
+        if(FmProductExport::productExist($args["product"])) {
+            $result = FmProductExport::updateProduct($args["product"], $args['percentage']);
+        }
         self::response($result);
     }
 }
