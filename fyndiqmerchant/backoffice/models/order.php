@@ -49,7 +49,6 @@ class FmOrder
 
         // Get order_rows (articles inside the order) for this specific order.
         $order_id = $fyndiq_order->id;
-        $fyndiq_order_infos = FmHelpers::call_api('GET', 'order_row/?order__exact=' . $order_id);
 
         $cart->id_currency = Currency::getDefaultCurrency()->id;
         $cart->id_lang = 1;
@@ -69,16 +68,16 @@ class FmOrder
         }
 
         $customer = new Customer();
-        $customer->getByEmail($fyndiq_order->customer_email);
+        $customer->getByEmail("info@fyndiq.se");
         $checkcustomer = is_null($customer->firstname);
 
         if ($checkcustomer) {
             // Create a customer.
             $customer = new Customer();
-            $customer->firstname = $fyndiq_order->delivery_firstname;
-            $customer->lastname = $fyndiq_order->delivery_lastname;
-            $customer->email = $fyndiq_order->customer_email;
-            $customer->passwd = "test12345";
+            $customer->firstname = "Fyndiq";
+            $customer->lastname = "Orders";
+            $customer->email = "info@fyndiq.se";
+            $customer->passwd = md5(uniqid(rand(), true));
 
             // Add it to the database.
             $customer->add();
@@ -89,8 +88,7 @@ class FmOrder
             $delivery_address = new Address();
             $delivery_address->firstname = $fyndiq_order->delivery_firstname;
             $delivery_address->lastname = $fyndiq_order->delivery_lastname;
-            $delivery_address->email = $fyndiq_order->customer_email;
-            $delivery_address->phone = $fyndiq_order->customer_phone;
+            $delivery_address->phone = $fyndiq_order->delivery_phone;
             $delivery_address->address1 = $fyndiq_order->delivery_address;
             $delivery_address->postcode = $fyndiq_order->delivery_postalcode;
             $delivery_address->city = $fyndiq_order->delivery_city;
@@ -104,14 +102,13 @@ class FmOrder
 
             // Create invoice address
             $invoice_address = new Address();
-            $invoice_address->firstname = $fyndiq_order->invoice_firstname;
-            $invoice_address->lastname = $fyndiq_order->invoice_lastname;
-            $invoice_address->email = $fyndiq_order->customer_email;
-            $invoice_address->phone = $fyndiq_order->customer_phone;
-            $invoice_address->address1 = $fyndiq_order->invoice_address;
-            $invoice_address->postcode = $fyndiq_order->invoice_postalcode;
-            $invoice_address->city = $fyndiq_order->invoice_city;
-            $invoice_address->company = $fyndiq_order->invoice_co;
+            $invoice_address->firstname = $fyndiq_order->delivery_firstname;
+            $invoice_address->lastname = $fyndiq_order->delivery_lastname;
+            $invoice_address->phone = $fyndiq_order->delivery_phone;
+            $invoice_address->address1 = $fyndiq_order->delivery_address;
+            $invoice_address->postcode = $fyndiq_order->delivery_postalcode;
+            $invoice_address->city = $fyndiq_order->delivery_city;
+            $invoice_address->company = $fyndiq_order->delivery_co;
             $invoice_address->id_country = $country;
             $invoice_address->id_customer = $customer->id;
             $invoice_address->alias = "Invoice"; // TODO: fix this!
@@ -183,7 +180,7 @@ class FmOrder
         $cart->add();
 
 
-        foreach ($fyndiq_order_infos["data"]->objects as $row) {
+        foreach ($fyndiq_order->order_rows as $row) {
             // Get article for order row
             $article_id = $row->article;
             //$row_article = FmHelpers::call_api('GET', 'article/'.$article_id.'/');
