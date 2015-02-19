@@ -142,9 +142,8 @@ class FmAjaxService
     public static function import_orders($args)
     {
         try {
-            $ret = FmHelpers::call_api('GET', 'order/');
-
-            foreach ($ret["data"]->objects as $order) {
+            $ret = FmHelpers::call_api('GET', 'orders/');
+            foreach ($ret["data"] as $order) {
                 if(!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
                 }

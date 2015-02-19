@@ -267,8 +267,7 @@ var FmCtrl = {
             e.preventDefault();
             FmGui.show_load_screen();
             FmCtrl.import_orders(function () {
-                var page = $('div.pages > ol > li.current').html();
-                FmCtrl.load_orders(page, function () {
+                FmCtrl.load_orders(function () {
                     FmGui.hide_load_screen();
                 });
             });
