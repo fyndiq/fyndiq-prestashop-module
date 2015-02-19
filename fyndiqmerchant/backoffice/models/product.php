@@ -109,17 +109,27 @@ class FmProduct {
         return $result;
     }
 
-    public static function get_by_category($category_id) {
+    public static function get_by_category($category_id, $p = -1, $perpage = -1) {
+
         # fetch products per category manually,
         # Product::getProducts doesnt work in backoffice,
         # it's hard coded to work only with front office controllers
-        $rows = Db::getInstance()->ExecuteS('
+
+        $sqlquery = '
             select p.id_product
             from '._DB_PREFIX_.'product as p
             join '._DB_PREFIX_.'category_product as cp
             where p.id_product = cp.id_product
             and cp.id_category = '.FmHelpers::db_escape($category_id).'
-        ');
+        ';
+
+        $offset = $perpage * ($p-1);
+
+        if($p != -1 && $perpage != -1) {
+            $sqlquery .= 'LIMIT '.$offset.', '.(int)($perpage);
+        }
+
+        $rows = Db::getInstance()->ExecuteS($sqlquery);
         return $rows;
     }
 }

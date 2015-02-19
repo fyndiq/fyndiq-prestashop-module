@@ -12,12 +12,11 @@ class FmProductExport
         return count($data) > 0;
     }
 
-    static function addProduct($product_id, $export_qty, $exported_price_percentage)
+    static function addProduct($product_id, $exported_price_percentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $data = array(
             'product_id' => (int)$product_id,
-            'exported_qty' => (int)$export_qty,
             'exported_price_percentage' => (int)$exported_price_percentage
         );
         $return = Db::getInstance()->insert($module->config_name . "_products", $data);
@@ -25,15 +24,15 @@ class FmProductExport
         return $return;
     }
 
-    public static function updateProduct($product_id, $export_qty, $exported_price_percentage)
+    public static function updateProduct($product_id, $exported_price_percentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('exported_qty' => $export_qty, 'exported_price_percentage' => $exported_price_percentage);
+        $data = array('exported_price_percentage' => $exported_price_percentage);
 
         return (bool)Db::getInstance()->update(
             $module->config_name . "_products",
             $data,
-            "product_id == '{$product_id}'",
+            "product_id = '{$product_id}'",
             1
         );
     }
@@ -42,85 +41,17 @@ class FmProductExport
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
-        Db::getInstance()->delete($module->config_name . "_products_combos", "product_id == '{$product_id}'");
+        Db::getInstance()->delete($module->config_name . "_products_combos", "product_id = '{$product_id}'");
 
-        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id == '{$product_id}'", 1);
+        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id = '{$product_id}'", 1);
     }
 
-
-    /**
-     * Check if combonation exists
-     *
-     * @param $product_id
-     * @param $combo_id
-     * @return bool
-     */
-    static function comboExist($product_id, $combo_id)
+    public static function getProduct($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products_combos WHERE product_id='" . $product_id . "' AND combo_id='" . $combo_id . "' LIMIT 1";
-        $data = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($sql);
-
-        return count($data) > 0;
-    }
-
-    /**
-     * add a combo for product
-     *
-     * @param integer $product_id
-     * @param integer $combo_id
-     * @param integer $export_qty
-     * @param integer $exported_price_percentage
-     * @return mixed
-     */
-    static function addCombo($product_id, $combo_id, $export_qty, $exported_price_percentage)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array(
-            'product_id' => (int)$product_id,
-            'combo_id' => (int)$combo_id,
-            'exported_qty' => (int)$export_qty,
-            'exported_price_percentage' => (int)$exported_price_percentage
-        );
-        $return = Db::getInstance()->insert($module->config_name . "_products_combos", $data);
-
-        return $return;
-    }
-
-    /**
-     * update combo for product
-     *
-     * @param integer $product_id
-     * @param integer $combo_id
-     * @param integer $export_qty
-     * @param integer $exported_price_percentage
-     * @return bool
-     */
-    public static function updateCombo($product_id, $combo_id, $export_qty, $exported_price_percentage)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('exported_qty' => $export_qty, 'exported_price_percentage' => $exported_price_percentage);
-
-        return (bool)Db::getInstance()->update(
-            $module->config_name . "_products_combos",
-            $data,
-            "product_id == '{$product_id}' AND combo_id == '{$combo_id}'",
-            1
-        );
-    }
-
-    /**
-     * delete a combo for product
-     *
-     * @param integer $product_id
-     * @param integer $combo_id
-     * @return bool
-     */
-    public static function deleteCombo($product_id, $combo_id)
-    {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-
-        return (bool)Db::getInstance()->delete($module->config_name . "_products_combos", "product_id == '{$product_id}' AND combo_id == '{$combo_id}'", 1);
+        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}' LIMIT 1";
+        $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+        return reset($products);
     }
 
     /**
@@ -135,21 +66,11 @@ class FmProductExport
             'create table if not exists ' . _DB_PREFIX_ . $module->config_name . '_products (
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
-            exported_qty int(20) unsigned,
-            exported_price_percentage int(20) unsigned)
-        '
-        );
-        $ret2 = (bool)Db::getInstance()->Execute(
-            'create table if not exists ' . _DB_PREFIX_ . $module->config_name . '_products_combos (
-            id int(20) unsigned primary key AUTO_INCREMENT,
-            product_id int(10) unsigned,
-            combo_id int(10) unsigned,
-            exported_qty int(20) unsigned,
             exported_price_percentage int(20) unsigned)
         '
         );
 
-        return $ret && $ret2;
+        return $ret;
     }
 
     /**
@@ -180,16 +101,55 @@ class FmProductExport
                 $magarray = FmProduct::get($product["product_id"]);
                 $real_array = array();
 
-                $real_array["product-id"] = $product["product_id"];
-                $real_array["article-quantity"] = $product["exported_qty"];
-                $real_array["product-price"] = $magarray["price"] - ($magarray["price"] * ($product["exported_price_percentage"] / 100));
-                if (isset($product["image"])) {
-                    $real_array["product-image-1"] = $product["image"];
+                $real_array = self::getProductData($magarray,$product);
+
+
+                if (count($magarray['combinations']) > 0) {
+                    $first_array = array_shift($magarray['combinations']);
+                    $real_array["article-quantity"] = $first_array["quantity"];
+                    $real_array["product-price"] = $first_array["price"] - ($first_array["price"] * ($product["exported_price_percentage"] / 100));
+                    $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
+                    $name = "";
+                    $id=1;
+                    foreach($first_array["attributes"] as $attr) {
+                        $name .= addslashes($attr["name"] . ": " . $attr["value"]);
+                        $real_array["article‑property‑name‑".$id] = $attr["name"];
+                        $real_array["article‑property‑value‑".$id] = $attr["value"];
+                        $id++;
+                    }
+                    $real_array["article-name"] = $name;
+                    $return_array[] = $real_array;
+                    $imageid = 2;
+                    foreach($magarray["combinations"] as $combo) {
+                        $real_array = self::getProductData($magarray,$product);
+                        $real_array["article-quantity"] = $combo["quantity"];
+                        $real_array["article-location"] =
+                        $real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
+                        $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
+
+                        if (isset($combo["image"])) {
+                            $real_array["product-image-".$imageid."-url"] = addslashes(strval($combo["image"]));
+                            $real_array["product-image-".$imageid."-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($combo["image"])),0,10));
+                        }
+                        $name = "";
+                        $id=1;
+                        foreach($combo["attributes"] as $attr) {
+                            $name .= addslashes($attr["name"] . ": " . $attr["value"]);
+                            $real_array["article‑property‑name‑".$id] = $attr["name"];
+                            $real_array["article‑property‑value‑".$id] = $attr["value"];
+                            $id++;
+                        }
+                        $real_array["article-name"] = $name;
+                        $return_array[] = $real_array;
+                        $imageid++;
+                    }
                 }
-                $real_array["product-title"] = $magarray["name"];
-                $return_array[] = $real_array;
+                else {
+                    $return_array[] = $real_array;
+                }
             }
-            $first_array = array_values($return_array)[0];
+
+            $first_array = array_values($return_array)[1];
             $key_values = array_keys($first_array);
             array_unshift($return_array, $key_values);
             $filehandler = new FmFileHandler("w+");
@@ -199,5 +159,28 @@ class FmProductExport
         } else {
             return false;
         }
+    }
+    private static function getProductData($magarray, $product) {
+        $real_array = array();
+        $real_array["product-id"] = $product["product_id"];
+        $real_array["article-quantity"] = 0;
+        $real_array["product-price"] = $magarray["price"] - ($magarray["price"] * ($product["exported_price_percentage"] / 100));
+        $real_array["product-oldprice"] = number_format((float)$magarray["price"], 2, '.', '');
+        $real_array["product-brand"] = "test";
+        if (isset($product["image"])) {
+            $real_array["product-image-1-url"] = addslashes(strval($product["image"]));
+            $real_array["product-image-1-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($product["image"])),0,10));
+        }
+        $real_array["product-title"] = addslashes($magarray["name"]);
+        $real_array["product-vat-percent"] = "25";
+        return $real_array;
+    }
+    static function getL2Keys($array)
+    {
+        $result = array();
+        foreach($array as $sub) {
+            $result = array_merge($result, $sub);
+        }
+        return array_keys($result);
     }
 }

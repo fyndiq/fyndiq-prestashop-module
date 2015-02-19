@@ -58,6 +58,11 @@ class FmBackofficeControllers {
                     }
                 }
 
+                # if user pressed Save Settings button on settings page
+                if (Tools::isSubmit('order') ) {
+                    $page = 'order';
+                }
+
                 # if not all settings exist yet (first time using module)
                 if (!FmHelpers::all_settings_exist()) {
                     $page = 'settings';
@@ -140,6 +145,13 @@ class FmBackofficeControllers {
                 'path' => $path
             ));
         }
+        if ($page == "order") {
+            $path = FmHelpers::get_module_url();
+            $output .= self::show_template($module, 'order', array(
+                    'messages'=> FmMessages::get_all(),
+                    'path' => $path
+                ));
+        }
 
         return $output;
     }
@@ -190,7 +202,6 @@ class FmBackofficeControllers {
         $auto_import = boolval(Tools::getValue('auto_import'));
         $auto_export = boolval(Tools::getValue('auto_export'));
         $price_percentage = intval(Tools::getValue('price_percentage'));
-        $quantity_percentage = intval(Tools::getValue('quantity_percentage'));
 
         if ($auto_import) {
 
@@ -214,7 +225,6 @@ class FmBackofficeControllers {
 
         if (!$error) {
             FmConfig::set('price_percentage', $price_percentage);
-            FmConfig::set('quantity_percentage', $quantity_percentage);
             FmConfig::set('language', $language_id);
             FmConfig::set('currency', $currency_id);
             FmConfig::set('auto_import', $auto_import);

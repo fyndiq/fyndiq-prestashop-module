@@ -112,132 +112,119 @@
 
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
-        <div class="select">
-            <button class="fm-button" name="select-all">Select All</button>
-            <button class="fm-button" name="deselect-all">Deselect All</button>
-        </div>
         <div class="export">
             <button class="fm-button fyndiq" name="export-products">Send to Fyndiq</button>
         </div>
     </div>
 </script>
-
+    <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-pagination">
+        {{#if pagination}}
+        <div class="pages">
+            {{{pagination}}}
+        </div>
+        {{/if}}
+    </script>
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
-{{> fm-product-list-controls}}
-{{#if products}}
-    <ul class="fm-product-list">
-        {{#each products}}
-            {{#with this}}
-            <li
-                data-id="{{id}}"
-                data-name="{{name}}"
-                data-reference="{{reference}}"
-                data-price="{{price}}"
-                data-quantity="{{quantity}}"
-                data-image="{{image}}"
-            >
-                <div class="product">
-                    <div class="title">
-                        <label for="select_product_{{id}}">
-                            <h4>{{name}} <span class="reference">({{reference}})</span></h4>
-                        </label>
-                    </div>
-
-                    <div class="select">
-                        <input type="checkbox" id="select_product_{{id}}">
-                    </div>
-
-                    <div class="image">
-                        {{#if image}}
-                        <label for="select_product_{{id}}">
-                            <img src="{{image}}" alt="Product image">
-                        </label>
-                        {{/if}}
-                    </div>
-
-                    <div class="prices">
+        {{> fm-product-list-controls}}
+        <div class="fm-products-list-container">
+            {{#if products}}
+            <table>
+                <thead>
+                <tr>
+                    <th><input id="select-all" type="checkbox"></th>
+                    <th colspan="2">Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody class="fm-product-list">
+                {{#each products}}
+                {{#with this}}
+                <tr
+                        data-id="{{id}}"
+                        data-name="{{name}}"
+                        data-reference="{{reference}}"
+                        data-description="{{description}}"
+                        data-price="{{price}}"
+                        data-quantity="{{quantity}}"
+                        data-image="{{image}}"
+                        class="product">
+                    <td class="select"><input type="checkbox" id="select_product_{{id}}"></td>
+                    <td><img src="{{image}}" alt="Product image"></td>
+                    <td><strong>{{name}}</strong> ({{reference}})<br/>{{properties}}</td>
+                    <td class="prices">
                         <div class="price">
-                            <strong>Price:</strong> {{price}}
+                            Price: {{price}} SEK
                         </div>
-                        <div class="price">
+                        <div class="fyndiq_price">
                             <label>Fyndiq Discount:</label>
-                            <input type="text" value="{{fyndiq_precentage}}">
+                            <input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">% <span
+                                id="ajaxFired"></span><br/>
+                            <span class="price_preview">Expected Price: {{expected_price}}</span> SEK
                         </div>
-                    </div>
-
-                    <div class="quantities">
-                        <div>Qty: {{quantity}}</div>
-                    </div>
-                    <div class="status">
+                    </td>
+                    <td class="quantities">
+                        {{quantity}}
+                    </td>
+                    <td class="status">
                         {{#if fyndiq_exported}}
                         <div class="label green">On Fyndiq</div>
                         {{else}}
                         <div class="label yellow">Not on Fyndiq</div>
                         {{/if}}
-                    </div>
-                    <div class="expand
-                        {{#unless combinations}}
-                            inactive
-                        {{/unless}}
-                        ">
-                        <a href="#">
-                            <img src="{{../../module_path}}backoffice/frontend/images/icons/down-arrow.png"
-                                alt="Down pointing arrow"
-                                {{#if combinations}}
-                                    title="Show combinations"
-                                {{else}}
-                                    title="Product does not have any combinations"
-                                {{/if}}
-                                >
-                        </a>
-                    </div>
-                </div>
-                {{#if combinations}}
-                    <ul class="combinations">
-                    {{#each combinations}}
-                        <li
-                            data-id="{{id}}"
-                            data-price="{{price}}"
-                            data-quantity="{{quantity}}"
-                        >
-                            <div class="select">
-                                <input type="checkbox" class="checkbox" id="select_combination_{{id}}">
-                            </div>
-
-                            <div class="image">
-                                {{#if image}}
-                                <label for="select_combination_{{id}}">
-                                    <img src="{{image}}" alt="Product combination image">
-                                </label>
-                                {{/if}}
-                            </div>
-
-                            <div class="data">
-                                <ul class="attributes">
-                                    {{#each attributes}}
-                                        <li>
-                                            {{name}}: {{value}}<span class="separator">,&nbsp;</span>
-                                        </li>
-                                    {{/each}}
-                                </ul>
-
-                                <div>
-                                    Price: {{price}}
-                                    Qty: {{quantity}}
-                                </div>
-                            </div>
-                        </li>
-                    {{/each}}
-                    </ul>
-                {{/if}}
-            </li>
+                    </td>
+                </tr>
+                {{/with}}
+                {{/each}}
+                </tbody>
+            </table>
+            {{else}}
+            Category is empty.
+            {{/if}}
+        </div>
+        {{> fm-product-list-controls}}
+        {{> fm-product-pagination}}
+    </script>
+    <script type="text/x-handlebars-template" class="handlebars-template" id="fm-orders-list">
+        {{> fm-order-list-controls}}
+        {{#if orders}}
+        <table>
+            <thead>
+            <tr>
+                <th><input id="select-all" type="checkbox"></th>
+                <th colspan="1">Order</th>
+                <th>Fyndiq Order</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Created</th>
+            </tr>
+            </thead>
+            <tbody class="fm-orders-list">
+            {{#each orders}}
+            {{#with this}}
+            <tr data-id="{{entity_id}}" data-fyndiqid="{{fyndiq_order}}">
+                <td class="select"><input type="checkbox" id="select_order_{{entity_id}}"></td>
+                <td>{{order_id}}</td>
+                <td>{{fyndiq_orderid}}</td>
+                <td>{{price}}</td>
+                <td>{{total_products}}</td>
+                <td>{{created_at}}</td>
+            </tr>
             {{/with}}
-        {{/each}}
-    </ul>
-{{else}}
-    Category is empty.
-{{/if}}
-{{> fm-product-list-controls}}
-</script>
-
+            {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        Orders is empty.
+        {{/if}}
+        {{> fm-order-list-controls}}
+    </script>
+    <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
+        <div class="fm-order-list-controls">
+            <div class="export">
+                <button class="fm-button fyndiq" id="getdeliverynote">Get Delivery Notes</button>
+            </div>
+        </div>
+    </script>
 {/literal}

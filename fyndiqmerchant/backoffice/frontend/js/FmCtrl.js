@@ -42,15 +42,16 @@ var FmCtrl = {
         });
     },
 
-    load_products: function(category_id, callback) {
+    load_products: function(category_id, page, callback) {
         // unset active class on previously selected category
         $('.fm-category-tree li').removeClass('active');
 
-        FmCtrl.call_service('get_products', {'category': category_id}, function(status, products) {
+        FmCtrl.call_service('get_products', {'category': category_id, 'page':page}, function(status, products) {
             if (status == 'success') {
                 $('.fm-product-list-container').html(tpl['product-list']({
                     'module_path': module_path,
-                    'products': products
+                    'products': products.products,
+                    'pagination': products.pagination
                 }));
 
                 // set active class on selected category
@@ -62,6 +63,30 @@ var FmCtrl = {
                     $(v).css('height', $(v).height());
                     $(v).hide();
                 });
+            }
+
+            if (callback) {
+                callback();
+            }
+        });
+    },
+
+    update_product: function (product, percentage, callback) {
+        FmCtrl.call_service('update_product', {'product': product, 'percentage': percentage}, function (status) {
+            if (callback) {
+                callback(status);
+            }
+        });
+    },
+
+    load_orders: function(callback) {
+        FmCtrl.call_service('load_orders', {}, function (status, orders) {
+            if (status == 'success') {
+                $('.fm-order-list-container').html("");
+                $('.fm-order-list-container').html(tpl['orders-list']({
+                    'module_path': module_path,
+                    'orders': orders
+                }));
             }
 
             if (callback) {
@@ -125,6 +150,18 @@ var FmCtrl = {
             });
         });
 
+        $(document).on('click', 'div.pages > ol > li > a', function (e) {
+            e.preventDefault();
+
+            var category = $('.fm-category-tree li.active').attr('data-category_id');
+            FmGui.show_load_screen(function () {
+                var page = $(e.target).attr('data-page');
+                FmCtrl.load_products(category, page, function () {
+                    FmGui.hide_load_screen();
+                });
+            });
+        });
+
         // when clicking product's expand icon, show its combinations
         $(document).on('click', '.fm-product-list .product .expand a', function(e) {
             e.preventDefault();
@@ -143,14 +180,50 @@ var FmCtrl = {
         });
 
         // when clicking select all products checkbox, set checked on all product's checkboxes
-        $(document).on('click', '.fm-product-list-controls .select button', function(e) {
-            e.preventDefault();
-            if ($(this).attr('name') == 'select-all') {
-                $('.fm-product-list .product .select input').prop('checked', true).change();
+        $(document).on('click', '#select-all', function (e) {
+            if ($(this).is(':checked')) {
+                $(".fm-product-list tr .select input").each(function () {
+                    $(this).prop("checked", true);
+                });
+
+            } else {
+                $(".fm-product-list tr .select input").each(function () {
+                    $(this).prop("checked", false);
+                });
             }
-            if ($(this).attr('name') == 'deselect-all') {
-                $('.fm-product-list .product .select input').prop('checked', false).change();
+        });
+
+        var savetimeout;
+        $(document).on('keyup', '.fm-product-list tr .prices .fyndiq_price .fyndiq_dicsount', function () {
+            var discount = $(this).val();
+            var product = $(this).parent().parent().parent().attr('data-id');
+
+            if (discount > 100) {
+                discount = 100;
             }
+
+            var price = $(this).parent().parent().parent().attr('data-price');
+            var field = $(this).parent().children('.price_preview');
+            var counted = price - ((discount / 100) * price);
+            if (isNaN(counted)) {
+                counted = price;
+            }
+
+            field.text("Expected Price: " + counted.toFixed(2));
+
+            clearTimeout(savetimeout);
+            var ajaxdiv = $(this).parent().find('#ajaxFired');
+            ajaxdiv.html('Typing...').show();
+            savetimeout = setTimeout(function () {
+                FmCtrl.update_product(product, discount, function (status) {
+                    if (status == "success") {
+                        ajaxdiv.html('Saved').delay(1000).fadeOut();
+                    }
+                    else {
+                        ajaxdiv.html('Error').delay(1000).fadeOut();
+                    }
+                });
+            }, 1000);
         });
 
         // when clicking the export products submit buttons, export products
@@ -160,41 +233,22 @@ var FmCtrl = {
             var products = [];
 
             // find all products
-            $('.fm-product-list > li').each(function(k, v) {
+            $('.fm-product-list > tr').each(function(k, v) {
 
                 // check if product is selected
-                var active = $(this).find('.product .select input').prop('checked');
+                var active = $(this).find('.select input').prop('checked');
                 if (active) {
 
-                    // find all combinations
-                    var combinations = [];
-                    $(this).find('.combinations > li').each(function(k, v) {
-
-                        // check if combination is selected, and store it
-                        var active = $(this).find('> .select input').prop('checked');
-                        if (active) {
-                            combinations.push({
-                                'id': $(this).data('id'),
-                                'price': $(this).data('price'),
-                                'quantity': $(this).data('quantity'),
-                            });
-                        }
-                    });
 
                     // store product id and combinations
-                    var price = $(this).find(".prices > div.price > input").val();
-                    var fyndiq_percentage = $(this).find("div > div.prices > div:nth-child(2) > input").val();
+                    var price = $(this).find("td.prices > div.price > input").val();
+                    var fyndiq_percentage = $(this).find("td.prices > div.fyndiq_price > input").val();
                     console.log(fyndiq_percentage);
                     products.push({
                         'product': {
                             'id': $(this).data('id'),
-                            'name': $(this).data('name'),
-                            'image': $(this).data('image'),
-                            'price': price,
-                            'fyndiq_percentage':fyndiq_percentage,
-                            'quantity': $(this).data('quantity')
-                        },
-                        'combinations': combinations
+                            'fyndiq_percentage':fyndiq_percentage
+                        }
                     });
                 }
             });
@@ -205,43 +259,6 @@ var FmCtrl = {
                     messages['products-not-selected-message']);
 
             } else {
-
-                // check all products for warnings
-                var product_warnings = [];
-                for (var i = 0; i < products.length; i++) {
-                    var product = products[i];
-
-                    var product_warning = false;
-                    var lowest_price = false;
-                    var highest_price = false;
-
-                    // check each combination for warnings
-                    for (var j = 0; j < product['combinations'].length; j++) {
-                        var combination = product['combinations'][j];
-
-                        // if combination price differs from product price, show warning for this product
-                        if (combination['price'] != product['price']) {
-                            product_warning = true;
-
-                            // also record the highest and lowest price
-                            if (combination['price'] < lowest_price || lowest_price === false) {
-                                lowest_price = combination['price'];
-                            }
-                            if (combination['price'] > highest_price || highest_price === false) {
-                                highest_price = combination['price'];
-                            }
-                        }
-                    }
-
-                    // if product needs a warning, store relevant data
-                    if (product_warning) {
-                        product_warnings.push({
-                            'product': product,
-                            'highest_price': highest_price,
-                            'lowest_price': lowest_price
-                        });
-                    }
-                }
 
                 // helper function that does the actual product export
                 var export_products = function(products) {
@@ -255,6 +272,56 @@ var FmCtrl = {
                 // export the products
                 export_products(products);
             }
+        });
+    },
+    bind_order_event_handlers: function () {
+        // import orders submit button
+        $(document).on('click', '#fm-import-orders', function (e) {
+            e.preventDefault();
+            FmGui.show_load_screen();
+            FmCtrl.import_orders(function () {
+                FmCtrl.load_orders(function () {
+                    FmGui.hide_load_screen();
+                });
+            });
+        });
+
+        // when clicking select all orders checkbox, set checked on all order's checkboxes
+        $(document).on('click', '#select-all', function (e) {
+            if ($(this).is(':checked')) {
+                $(".fm-orders-list tr .select input").each(function () {
+                    $(this).prop("checked", true);
+                });
+
+            } else {
+                $(".fm-orders-list tr .select input").each(function () {
+                    $(this).prop("checked", false);
+                });
+            }
+        });
+        $(document).on('click', '#getdeliverynote', function () {
+            var orders = [];
+
+            $('.fm-orders-list > tr').each(function (k, v) {
+                // check if product is selected
+                var active = $(this).find('.select input').prop('checked');
+                if (active) {
+                    orders.push($(this).data('fyndiqid'));
+                }
+            });
+
+            FmGui.show_load_screen(function () {
+                FmCtrl.get_delivery_notes(orders, function (status) {
+                    FmGui.hide_load_screen();
+                    if (status == 'success') {
+                        var wins = window.open(urlpath0 + "fyndiq/files/deliverynote.pdf", '_blank');
+                        if (wins) {
+                            //Browser has allowed it to be opened
+                            wins.focus();
+                        }
+                    }
+                });
+            });
         });
     }
 };
