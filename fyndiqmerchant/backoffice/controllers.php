@@ -190,7 +190,6 @@ class FmBackofficeControllers {
         $auto_import = boolval(Tools::getValue('auto_import'));
         $auto_export = boolval(Tools::getValue('auto_export'));
         $price_percentage = intval(Tools::getValue('price_percentage'));
-        $quantity_percentage = intval(Tools::getValue('quantity_percentage'));
 
         if ($auto_import) {
 
@@ -214,7 +213,6 @@ class FmBackofficeControllers {
 
         if (!$error) {
             FmConfig::set('price_percentage', $price_percentage);
-            FmConfig::set('quantity_percentage', $quantity_percentage);
             FmConfig::set('language', $language_id);
             FmConfig::set('currency', $currency_id);
             FmConfig::set('auto_import', $auto_import);
