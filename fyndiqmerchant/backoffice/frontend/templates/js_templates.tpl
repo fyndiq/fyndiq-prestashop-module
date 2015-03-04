@@ -111,7 +111,8 @@
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
         <div class="export">
-            <button class="fm-button fyndiq" name="export-products">Send to Fyndiq</button>
+            <a class="fm-button disabled" id="delete-products">Remove from Fyndiq</a>
+            <a class="fm-button green" id="export-products">Send to Fyndiq</a>
         </div>
     </div>
 </script>
@@ -207,12 +208,12 @@
             {{#each orders}}
             {{#with this}}
             <tr data-id="{{entity_id}}" data-fyndiqid="{{fyndiq_order}}">
-                <td class="select"><input type="checkbox" id="select_order_{{entity_id}}"></td>
-                <td>{{order_id}}</td>
-                <td>{{fyndiq_orderid}}</td>
-                <td>{{price}}</td>
-                <td>{{total_products}}</td>
-                <td>{{created_at}}</td>
+                <td class="select center"><input type="checkbox" id="select_order_{{entity_id}}"></td>
+                <td class="center">{{order_id}}</td>
+                <td class="center">{{fyndiq_orderid}}</td>
+                <td class="center">{{price}}</td>
+                <td class="center">{{total_products}}</td>
+                <td class="center">{{created_at}}</td>
             </tr>
             {{/with}}
             {{/each}}
@@ -226,7 +227,7 @@
     <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
         <div class="fm-order-list-controls">
             <div class="export">
-                <button class="fm-button fyndiq" id="getdeliverynote">Get Delivery Notes</button>
+                <button class="fm-button green" id="getdeliverynote">Get Delivery Notes</button>
             </div>
         </div>
     </script>

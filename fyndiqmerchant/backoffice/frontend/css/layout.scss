@@ -229,7 +229,7 @@
     color: #333;
     background-color: white;
     border-radius: 2px;
-    width: 720px;
+    width: 700px;
   }
 
   .fm-sidebar {
@@ -353,7 +353,7 @@
   text-align: center;
 }
 .content {
-  width:240px;
+  width:220px;
   height:100%;
   padding:10px;
 }
@@ -561,11 +561,13 @@ table {
 
 .pages {
   margin: 10px 0;
-  width: 550px;
+  width: 400px;
   float: left;
   ol {
     float: left;
+    margin:0px;
     margin-left:15px;
+    padding:0px;
     li {
       float: left;
       list-style: none;

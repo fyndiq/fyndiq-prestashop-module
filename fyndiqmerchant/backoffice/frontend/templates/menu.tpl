@@ -24,7 +24,7 @@
         <div class="fm-header">
             <img class="fyndiqlogo" src="{$module_path}/backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
             <div class="right">
-                <a href="{$path}" class="active"{if $current == "main"} class="active"{/if}><i class="menu-icon comp"></i> Export Products</a>
+                <a href="{$path}"{if $current == "main"} class="active"{/if}><i class="menu-icon comp"></i> Export Products</a>
                 <a href="{$path}&order=1"{if $current == "order"} class="active"{/if}><i class="menu-icon boxes"></i> Imported Orders</a>
                 <a href="{$path}&submit_show_settings=1"{if $current == "settings"} class="active"{/if}><i class="menu-icon cog"></i> Settings</a>
             </div>
