@@ -101,8 +101,6 @@
     {{#each categories}}
         {{#with this}}
             <li data-category_id="{{id}}">
-                {{level}}
-
                 <a href="#" title="Open category">{{name}}</a>
             </li>
         {{/with}}
@@ -150,18 +148,23 @@
                         data-quantity="{{quantity}}"
                         data-image="{{image}}"
                         class="product">
-                    <td class="select"><input type="checkbox" id="select_product_{{id}}"></td>
+                    {{#if image}}
+                    <td class="select center"><input type="checkbox" id="select_product_{{id}}"></td>
                     <td><img src="{{image}}" alt="Product image"></td>
+                    {{else}}
+                    <td class="select center"></td>
+                    <td>No Image</td>
+                    {{/if}}
                     <td><strong>{{name}}</strong> ({{reference}})<br/>{{properties}}</td>
                     <td class="prices">
                         <div class="price">
-                            Price: {{price}} SEK
+                            Price: <span class="pricetag">{{price}} SEK</span>
                         </div>
                         <div class="fyndiq_price">
                             <label>Fyndiq Discount:</label>
-                            <input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">% <span
-                                id="ajaxFired"></span><br/>
-                            <span class="price_preview">Expected Price: {{expected_price}}</span> SEK
+                            <div class="inputdiv"><input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">%</div><span
+                                id="ajaxFired"></span><br />
+                            <span style="float:left;">Expected Price: </span><span class="price_preview"><span class="price_preview_price">{{expected_price}}</span> SEK</span>
                         </div>
                     </td>
                     <td class="quantities">
@@ -169,9 +172,9 @@
                     </td>
                     <td class="status">
                         {{#if fyndiq_exported}}
-                        <div class="label green">On Fyndiq</div>
+                        <i class="icon on big"></i>
                         {{else}}
-                        <div class="label yellow">Not on Fyndiq</div>
+                        <i class="icon noton big"></i>
                         {{/if}}
                     </td>
                 </tr>
