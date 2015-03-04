@@ -644,3 +644,12 @@ table {
     display:block;
   }
 }
+.nobootstrap .form-group {
+  label {
+    width: 48%;
+  }
+  input, select {
+    margin-left: .4em;
+    float: left;
+  }
+}

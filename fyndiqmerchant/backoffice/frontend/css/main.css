@@ -158,7 +158,7 @@
     background-color: transparent;
     border: none;
     padding: 0px;
-    margin: 0; }
+    margin: 0px; }
 
 #content {
   background-color: #e7eef4 !important;
@@ -638,5 +638,11 @@ table {
     margin-bottom: -5px;
     margin-top: 3px;
     display: block; }
+
+.nobootstrap .form-group label {
+  width: 48%; }
+.nobootstrap .form-group input, .nobootstrap .form-group select {
+  margin-left: .4em;
+  float: left; }
 
 /*# sourceMappingURL=main.css.map */
