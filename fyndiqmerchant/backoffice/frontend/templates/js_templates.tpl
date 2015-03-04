@@ -101,8 +101,6 @@
     {{#each categories}}
         {{#with this}}
             <li data-category_id="{{id}}">
-                {{level}}
-
                 <a href="#" title="Open category">{{name}}</a>
             </li>
         {{/with}}
@@ -113,7 +111,8 @@
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
         <div class="export">
-            <button class="fm-button fyndiq" name="export-products">Send to Fyndiq</button>
+            <a class="fm-button disabled" id="delete-products">Remove from Fyndiq</a>
+            <a class="fm-button green" id="export-products">Send to Fyndiq</a>
         </div>
     </div>
 </script>
@@ -150,18 +149,23 @@
                         data-quantity="{{quantity}}"
                         data-image="{{image}}"
                         class="product">
-                    <td class="select"><input type="checkbox" id="select_product_{{id}}"></td>
+                    {{#if image}}
+                    <td class="select center"><input type="checkbox" id="select_product_{{id}}"></td>
                     <td><img src="{{image}}" alt="Product image"></td>
-                    <td><strong>{{name}}</strong> ({{reference}})<br/>{{properties}}</td>
+                    {{else}}
+                    <td class="select center"></td>
+                    <td>No Image</td>
+                    {{/if}}
+                    <td><strong>{{name}}</strong> <span class="shadow">({{reference}})</span><br/>{{properties}}</td>
                     <td class="prices">
                         <div class="price">
-                            Price: {{price}} SEK
+                            Price: <span class="pricetag">{{price}} SEK</span>
                         </div>
                         <div class="fyndiq_price">
                             <label>Fyndiq Discount:</label>
-                            <input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">% <span
-                                id="ajaxFired"></span><br/>
-                            <span class="price_preview">Expected Price: {{expected_price}}</span> SEK
+                            <div class="inputdiv"><input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">%</div><span
+                                id="ajaxFired"></span><br />
+                            <span style="float:left;">Expected Price: </span><span class="price_preview"><span class="price_preview_price">{{expected_price}}</span> SEK</span>
                         </div>
                     </td>
                     <td class="quantities">
@@ -169,9 +173,9 @@
                     </td>
                     <td class="status">
                         {{#if fyndiq_exported}}
-                        <div class="label green">On Fyndiq</div>
+                        <i class="icon on big"></i>
                         {{else}}
-                        <div class="label yellow">Not on Fyndiq</div>
+                        <i class="icon noton big"></i>
                         {{/if}}
                     </td>
                 </tr>
@@ -204,12 +208,12 @@
             {{#each orders}}
             {{#with this}}
             <tr data-id="{{entity_id}}" data-fyndiqid="{{fyndiq_order}}">
-                <td class="select"><input type="checkbox" id="select_order_{{entity_id}}"></td>
-                <td>{{order_id}}</td>
-                <td>{{fyndiq_orderid}}</td>
-                <td>{{price}}</td>
-                <td>{{total_products}}</td>
-                <td>{{created_at}}</td>
+                <td class="select center"><input type="checkbox" id="select_order_{{entity_id}}"></td>
+                <td class="center">{{order_id}}</td>
+                <td class="center">{{fyndiq_orderid}}</td>
+                <td class="center">{{price}}</td>
+                <td class="center">{{total_products}}</td>
+                <td class="center">{{created_at}}</td>
             </tr>
             {{/with}}
             {{/each}}
@@ -223,7 +227,7 @@
     <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
         <div class="fm-order-list-controls">
             <div class="export">
-                <button class="fm-button fyndiq" id="getdeliverynote">Get Delivery Notes</button>
+                <button class="fm-button green" id="getdeliverynote">Get Delivery Notes</button>
             </div>
         </div>
     </script>

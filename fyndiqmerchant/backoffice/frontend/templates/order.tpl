@@ -19,33 +19,29 @@
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmCtrl.js"></script>
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/order.js"></script>
 
+{include file='./menu.tpl' current='order'}
 
 <div class="fm-container">
 
-    <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
+    <div class="fm-orderlist-panel">
+        <div class="fm-subheader">Imported Orders</div>
 
-    {include file='./menu.tpl' current='order'}
+        <form action="" method="post" class="fm-form orders-form">
 
-    <div class="fm-sidebar">
-        <h3>Import Order</h3>
-
-        <form action="" method="post" class="fm-form orders">
-            <fieldset>
-                <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
-                <button class="fm-button fyndiq" id="fm-import-orders">Import Orders</button>
-            </fieldset>
+            <div class="fm-order-list-container"></div>
         </form>
     </div>
 
-    <div class="fm-main-panel">
-
-        {* Product list form *}
-        <form action="" method="post" class="fm-form products">
-            <fieldset>
-                <legend>Orders</legend>
-
-                <div class="fm-order-list-container"></div>
-            </fieldset>
-        </form>
+    <div class="fm-sidebar">
+        <div class="fm-subheader">Manual Order Import</div>
+        <div class="content">
+            <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
+                <div class="lastupdated">
+                    <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
+                    <span class="last-header">Latest Import</span>
+                    Today 14:20:12
+                </div>
+            <a class="fm-button green block" id="fm-import-orders">Import Orders</a>
+        </div>
     </div>
 </div>
