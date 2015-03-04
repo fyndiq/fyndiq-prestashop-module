@@ -6,6 +6,20 @@
   margin-left:150px;
 }
 
+.nobootstrap fieldset {
+  background-color: transparent;
+  border: none;
+  color:black;
+  margin:0px;
+  padding:0px;
+  legend {
+    background-color: transparent;
+    border:none;
+    padding:0px;
+    margin:0px;
+  }
+}
+
 #content {
   background-color: rgb(231, 238, 244) !important;
   padding-bottom: 20px;

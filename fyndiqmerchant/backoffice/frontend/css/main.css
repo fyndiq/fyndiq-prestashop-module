@@ -148,6 +148,18 @@
 .page-sidebar #content {
   margin-left: 150px; }
 
+.nobootstrap fieldset {
+  background-color: transparent;
+  border: none;
+  color: black;
+  margin: 0px;
+  padding: 0px; }
+  .nobootstrap fieldset legend {
+    background-color: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0; }
+
 #content {
   background-color: #e7eef4 !important;
   padding-bottom: 20px; }

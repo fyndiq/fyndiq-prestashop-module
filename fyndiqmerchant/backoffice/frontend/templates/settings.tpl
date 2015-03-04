@@ -2,17 +2,13 @@
 <style type="text/css">
     {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
-
+{include file='./menu.tpl' current='settings'}
 <div class="fm-container">
-
-    <img class="fyndiqlogo" src="{$module_path}backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
-
-    {include file='./menu.tpl' current='settings'}
-
-    <form action="" method="post" class="fm-form choose-language">
+    <div class="fm-main-panel">
+        <div class="fm-subheader center">Settings</div>
+        <div class="content">
+    <form action="" method="post">
         <fieldset>
-            <legend>Choose language</legend>
-
             <p>
                 In order to use this module, you have to select which language and currency you will be using.<br>
                 The language and currency you select will be used when exporting products to Fyndiq.<br>
@@ -61,7 +57,9 @@
                 <label for="fm-price_percentage">Percentage in numbers only</label>
             </p>
 
-            <button class="fm-button" type="submit" name="submit_save_settings">Save Settings</button>
+            <button class="fm-button green" type="submit" name="submit_save_settings">Save Settings</button>
         </fieldset>
     </form>
+            </div>
+        </div>
 </div>
