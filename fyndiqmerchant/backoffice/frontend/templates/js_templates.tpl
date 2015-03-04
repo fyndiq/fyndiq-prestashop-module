@@ -156,7 +156,7 @@
                     <td class="select center"></td>
                     <td>No Image</td>
                     {{/if}}
-                    <td><strong>{{name}}</strong> ({{reference}})<br/>{{properties}}</td>
+                    <td><strong>{{name}}</strong> <span class="shadow">({{reference}})</span><br/>{{properties}}</td>
                     <td class="prices">
                         <div class="price">
                             Price: <span class="pricetag">{{price}} SEK</span>
