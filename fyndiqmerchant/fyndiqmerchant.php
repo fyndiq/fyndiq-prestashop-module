@@ -57,6 +57,8 @@ class FyndiqMerchant extends Module
         );
         $ret &= (bool)$this->registerHook($hook_name[FMPSV]);
 
+        $this->_createTab();
+
         // create product mapping database
         $ret &= FmProductExport::install();
 
@@ -88,6 +90,37 @@ class FyndiqMerchant extends Module
         $ret &= FmOrder::uninstall();
 
         return (bool)$ret;
+    }
+
+    private function _createTab()
+    {
+        /* define data array for the tab  */
+        $data = array(
+            'id_tab' => '',
+            'id_parent' => 13,
+            'class_name' => 'AdminPage',
+            'module' => 'fyndiqmerchant',
+            'position' => 1, 'active' => 1
+        );
+
+        /* Insert the data to the tab table*/
+        $res = Db::getInstance()->insert('tab', $data);
+
+        //Get last insert id from db which will be the new tab id
+        $id_tab = Db::getInstance()->Insert_ID();
+
+        //Define tab multi language data
+        $data_lang = array(
+            'id_tab' => $id_tab,
+            'id_lang' => Configuration::get('PS_LANG_DEFAULT'),
+            'name' => 'Fyndiq'
+        );
+
+        // Now insert the tab lang data
+        $res &= Db::getInstance()->insert('tab_lang', $data_lang);
+
+        return true;
+
     }
 
     // 1.4
