@@ -2,9 +2,21 @@
 // If you're wondering why a lot of things are prefixed with 'fm-'
 // it's because PrestaShop defines style for lots of common words like 'error' and 'info'
 
+@import 'const';
 @import 'colors';
 @import 'typography';
 @import 'mixins';
-@import 'overlays';
-@import 'style';
+@import 'helpers';
+
+// Layouts
+@import 'header';
+
+// Components
+@import 'button';
+@import 'panel';
+@import 'form';
+
+//@import 'overlays';
+//@import 'style';
 @import 'layout';
+

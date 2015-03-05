@@ -1,0 +1,13 @@
+.form-horizontal {
+  label {
+    text-align: right;
+    margin-top: -3pt;
+    width: 48%;
+  }
+  input, select {
+    float: left;
+    border: 1px solid #ccc;
+    font-size: 12pt;
+    text-align: left;
+  }
+}

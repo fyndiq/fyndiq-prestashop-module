@@ -19,15 +19,13 @@
         background-image: url('{$module_path}/backoffice/frontend/images/icons/cog_white.png');
     }
 </style>
-<div class="fm-header-background">
-    <div class="fm-header-container">
-        <div class="fm-header">
-            <img class="fyndiqlogo" src="{$module_path}/backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
-            <div class="right">
-                <a href="{$path}"{if $current == "main"} class="active"{/if}><i class="menu-icon comp"></i> Export Products</a>
-                <a href="{$path}&order=1"{if $current == "order"} class="active"{/if}><i class="menu-icon boxes"></i> Imported Orders</a>
-                <a href="{$path}&submit_show_settings=1"{if $current == "settings"} class="active"{/if}><i class="menu-icon cog"></i> Settings</a>
-            </div>
-        </div>
+<div class="fm-header">
+    <div class="fm-header-wrapper">
+        <img class="navbar-brand" src="{$module_path}/backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
+        <ul class="navbar-right">
+            <li><a href="{$path}" {if $current == "main"}class="btn active"{else}class="btn"{/if}><i class="menu-icon comp"></i> Export Products</a></li>
+            <li><a class="btn" href="{$path}&order=1" {if $current == "order"}class="btn active"{else}class="btn"{/if}><i class="menu-icon boxes"></i> Imported Orders</a></li>
+            <li><a class="btn" href="{$path}&submit_show_settings=1" {if $current == "settings"}class="btn active"{else}class="btn"{/if}><i class="menu-icon cog"></i> Settings</a></li>
+        </ul>
     </div>
 </div>
