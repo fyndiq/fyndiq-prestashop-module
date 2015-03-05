@@ -1,6 +1,8 @@
 .fm-panel {
+  @include border-radius(3px);
   background-color: $color-panel-body-background;
   margin-top: 30px;
+  overflow: hidden;
 
   .fm-panel-header {
     background-color: $color-panel-header-background;

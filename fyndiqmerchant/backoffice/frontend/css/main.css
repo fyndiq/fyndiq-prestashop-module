@@ -65,8 +65,12 @@
   color: #fff; }
 
 .fm-panel {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
   background-color: #fff;
-  margin-top: 30px; }
+  margin-top: 30px;
+  overflow: hidden; }
   .fm-panel .fm-panel-header {
     background-color: #799ec4;
     color: #fff;

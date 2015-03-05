@@ -19,30 +19,31 @@
 <div class="fm-container">
     {include file='./header.tpl' current='settings'}
 
-
-    <div class="fm-orderlist-panel">
-        <div class="fm-panel">
-            <div class="fm-panel-header">Imported Orders</div>
-            <div class="fm-panel-body">
-                <form action="" method="post" class="fm-form orders-form">
-                    <div class="fm-order-list-container"></div>
-                </form>
+    <div class="fm-content-wrapper">
+        <div class="fm-orderlist-panel">
+            <div class="fm-panel">
+                <div class="fm-panel-header">Imported Orders</div>
+                <div class="fm-panel-body">
+                    <form action="" method="post" class="fm-form orders-form">
+                        <div class="fm-order-list-container"></div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
 
-    <div class="fm-sidebar">
-        <div class="fm-panel">
-            <div class="fm-panel-header">Manual Order Import</div>
-            <div class="fm-panel-body">
-                <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
-                <div class="lastupdated">
-                    <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
-                    <span class="last-header">Latest Import</span>
-                    Today 14:20:12
+        <div class="fm-sidebar">
+            <div class="fm-panel">
+                <div class="fm-panel-header">Manual Order Import</div>
+                <div class="fm-panel-body">
+                    <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
+                    <div class="lastupdated">
+                        <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
+                        <span class="last-header">Latest Import</span>
+                        Today 14:20:12
+                    </div>
+                    <a class="btn btn-green" id="fm-import-orders">Import Orders</a>
                 </div>
-                <a class="btn btn-green" id="fm-import-orders">Import Orders</a>
             </div>
         </div>
     </div>
