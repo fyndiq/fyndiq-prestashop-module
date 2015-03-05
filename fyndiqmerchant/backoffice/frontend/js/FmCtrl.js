@@ -181,15 +181,13 @@ var FmCtrl = {
             if ($(this).is(':checked')) {
                 $(".fm-product-list tr .select input").each(function () {
                     $(this).prop("checked", true);
-                    $('.fm-product-list-controls #delete-products').removeClass('disabled');
-                    $('.fm-product-list-controls #delete-products').addClass('red');
+                    $('#delete-products').removeClass('disabled').addClass('red');
                 });
 
             } else {
                 $(".fm-product-list tr .select input").each(function () {
                     $(this).prop("checked", false);
-                    $('.fm-product-list-controls #delete-products').removeClass('red');
-                    $('.fm-product-list-controls #delete-products').addClass('disabled');
+                    $('#delete-products').removeClass('red').addClass('disabled');
                 });
             }
         });
