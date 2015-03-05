@@ -645,4 +645,12 @@ table {
   margin-left: .4em;
   float: left; }
 
+.text-right {
+  text-align: right; }
+
+.fm-disconnect {
+  width: 98%; }
+  .fm-disconnect a {
+    color: #e85353; }
+
 /*# sourceMappingURL=main.css.map */

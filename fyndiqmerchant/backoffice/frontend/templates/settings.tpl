@@ -61,6 +61,9 @@
                     <button class="fm-button green" type="submit" name="submit_save_settings">Save Settings</button>
                 </fieldset>
             </form>
+            <p class="text-right fm-disconnect">
+                <a href="{$path}&disconnect=1">{l s='Disconnect Account' mod='fyndiqmerchant'}</a>
+            </p>
         </div>
     </div>
 </div>
