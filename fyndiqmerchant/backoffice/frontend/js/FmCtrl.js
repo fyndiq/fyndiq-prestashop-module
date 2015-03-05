@@ -1,13 +1,13 @@
 "use strict";
 
 var FmCtrl = {
-    call_service: function(action, args, callback) {
+    call_service: function (action, args, callback) {
         $.ajax({
             type: 'POST',
-            url: module_path+'backoffice/service.php',
+            url: module_path + 'backoffice/service.php',
             data: {'action': action, 'args': args},
             dataType: 'json'
-        }).always(function(data) {
+        }).always(function (data) {
             var status = 'error';
             var result = null;
             if ($.isPlainObject(data) && ('fm-service-status' in data)) {
@@ -28,8 +28,8 @@ var FmCtrl = {
         });
     },
 
-    load_categories: function(callback) {
-        FmCtrl.call_service('get_categories', {}, function(status, categories) {
+    load_categories: function (callback) {
+        FmCtrl.call_service('get_categories', {}, function (status, categories) {
             if (status == 'success') {
                 $('.fm-category-tree-container').html(tpl['category-tree']({
                     'categories': categories
@@ -42,11 +42,11 @@ var FmCtrl = {
         });
     },
 
-    load_products: function(category_id, page, callback) {
+    load_products: function (category_id, page, callback) {
         // unset active class on previously selected category
         $('.fm-category-tree li').removeClass('active');
 
-        FmCtrl.call_service('get_products', {'category': category_id, 'page':page}, function(status, products) {
+        FmCtrl.call_service('get_products', {'category': category_id, 'page': page}, function (status, products) {
             if (status == 'success') {
                 $('.fm-product-list-container').html(tpl['product-list']({
                     'module_path': module_path,
@@ -55,11 +55,11 @@ var FmCtrl = {
                 }));
 
                 // set active class on selected category
-                $('.fm-category-tree li[data-category_id='+category_id+']').addClass('active');
+                $('.fm-category-tree li[data-category_id=' + category_id + ']').addClass('active');
 
                 // http://stackoverflow.com/questions/5943994/jquery-slidedown-snap-back-issue
                 // set correct height on combinations to fix jquery slideDown jump issue
-                $('.fm-product-list .combinations').each(function(k, v) {
+                $('.fm-product-list .combinations').each(function (k, v) {
                     $(v).css('height', $(v).height());
                     $(v).hide();
                 });
@@ -79,7 +79,7 @@ var FmCtrl = {
         });
     },
 
-    load_orders: function(callback) {
+    load_orders: function (callback) {
         FmCtrl.call_service('load_orders', {}, function (status, orders) {
             if (status == 'success') {
                 $('.fm-order-list-container').html("");
@@ -95,8 +95,8 @@ var FmCtrl = {
         });
     },
 
-    import_orders: function(callback) {
-        FmCtrl.call_service('import_orders', {}, function(status, orders) {
+    import_orders: function (callback) {
+        FmCtrl.call_service('import_orders', {}, function (status, orders) {
             if (status == 'success') {
                 FmGui.show_message('success', messages['orders-imported-title'],
                     messages['orders-imported-message']);
@@ -107,15 +107,15 @@ var FmCtrl = {
         });
     },
 
-    export_products: function(products, callback) {
-        FmCtrl.call_service('export_products', {'products': products}, function(status, data) {
+    export_products: function (products, callback) {
+        FmCtrl.call_service('export_products', {'products': products}, function (status, data) {
             if (status == 'success') {
                 FmGui.show_message('success', messages['products-exported-title'],
                     messages['products-exported-message']);
 
                 // reload category to ensure that everything is reset properly
                 var category = $('.fm-category-tree li.active').attr('data-category_id');
-                FmCtrl.load_products(category, function() {
+                FmCtrl.load_products(category, function () {
                     if (callback) {
                         callback();
                     }
@@ -142,23 +142,23 @@ var FmCtrl = {
         });
     },
 
-    bind_event_handlers: function() {
+    bind_event_handlers: function () {
 
         // import orders submit button
-        $(document).on('submit', '.fm-form.orders', function(e) {
+        $(document).on('submit', '.fm-form.orders', function (e) {
             e.preventDefault();
             FmGui.show_load_screen();
-            FmCtrl.import_orders(function() {
+            FmCtrl.import_orders(function () {
                 FmGui.hide_load_screen();
             });
         });
 
         // when clicking category in tree, load its products
-        $(document).on('click', '.fm-category-tree a', function(e) {
+        $(document).on('click', '.fm-category-tree a', function (e) {
             e.preventDefault();
             var category_id = $(this).parent().attr('data-category_id');
-            FmGui.show_load_screen(function(){
-                FmCtrl.load_products(category_id, function() {
+            FmGui.show_load_screen(function () {
+                FmCtrl.load_products(category_id, function () {
                     FmGui.hide_load_screen();
                 });
             });
@@ -193,7 +193,7 @@ var FmCtrl = {
         });
 
         // When clicking select on one product, check if any other is select and make delete button red.
-        $(document).on('click','.fm-product-list > tr', function() {
+        $(document).on('click', '.fm-product-list > tr', function () {
             var red = false;
             $('.fm-product-list .select input').each(function (k, v) {
                 var active = $(this).prop('checked');
@@ -201,7 +201,7 @@ var FmCtrl = {
                     red = true;
                 }
             });
-            if(red) {
+            if (red) {
                 $('#delete-products').removeClass('disabled').addClass('red');
             }
             else {
@@ -243,13 +243,13 @@ var FmCtrl = {
         });
 
         // when clicking the export products submit buttons, export products
-        $(document).on('click', '#export-products', function(e) {
+        $(document).on('click', '#export-products', function (e) {
             e.preventDefault();
 
             var products = [];
 
             // find all products
-            $('.fm-product-list > tr').each(function(k, v) {
+            $('.fm-product-list > tr').each(function (k, v) {
 
                 // check if product is selected
                 var active = $(this).find('.select input').prop('checked');
@@ -263,7 +263,7 @@ var FmCtrl = {
                     products.push({
                         'product': {
                             'id': $(this).data('id'),
-                            'fyndiq_percentage':fyndiq_percentage
+                            'fyndiq_percentage': fyndiq_percentage
                         }
                     });
                 }
@@ -277,9 +277,9 @@ var FmCtrl = {
             } else {
 
                 // helper function that does the actual product export
-                var export_products = function(products) {
-                    FmGui.show_load_screen(function() {
-                        FmCtrl.export_products(products, function() {
+                var export_products = function (products) {
+                    FmGui.show_load_screen(function () {
+                        FmCtrl.export_products(products, function () {
                             FmGui.hide_load_screen();
                         });
                     });
@@ -293,25 +293,19 @@ var FmCtrl = {
         //Deleting selected products from export table
         $(document).on('click', '#delete-products', function (e) {
             e.preventDefault();
-            if($(this).hasClass( "disabled" )) {
+            if ($(this).hasClass("disabled")) {
                 return;
             }
             FmGui.show_load_screen(function () {
                 var products = [];
 
                 // find all products
-                $('.fm-product-list > tr').each(function (k, v) {
-
-                    // check if product is selected
-                    var active = $('.select input').prop('checked');
-                    if (active) {
-                        // store product id
-                        products.push({
-                            'product': {
-                                'id': $(this).data('id')
-                            }
-                        });
-                    }
+                $('.fm-product-list .select input:checked').each(function (k, v) {
+                    products.push({
+                        'product': {
+                            'id': $(this).parent().parent().data('id')
+                        }
+                    });
                 });
 
                 // if no products selected, show info message
