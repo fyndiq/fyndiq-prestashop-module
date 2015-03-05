@@ -201,6 +201,15 @@ class FmAjaxService
         $this->response($result);
     }
 
+    public function delete_exported_products($args)
+    {
+        foreach ($args['products'] as $v) {
+            $product = $v["product"];
+            FmProductExport::deleteProduct($product['id']);
+        }
+        $this->response();
+    }
+
     public function update_product($args) {
         $result = false;
         if(FmProductExport::productExist($args["product"])) {
