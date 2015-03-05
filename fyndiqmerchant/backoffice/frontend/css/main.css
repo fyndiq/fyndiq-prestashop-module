@@ -8,45 +8,61 @@
   background-color: #fff; }
 
 .fm-header-wrapper {
-  width: 950px;
   height: 90px;
-  margin: 0 auto; }
+  margin: 0 auto;
+  width: 950px; }
 
 .navbar-brand {
   margin-top: 15px; }
 
 .navbar-right {
-  float: right;
-  padding-right: 10px;
-  vertical-align: middle;
   display: table-cell;
-  height: 64px;
-  line-height: 64px; }
-  .navbar-right li {
-    float: left; }
+  float: right;
+  margin-top: 26px;
+  padding-right: 10px;
+  vertical-align: middle; }
+
+.menu-icon {
+  display: inline-block;
+  height: 30px;
+  margin-bottom: 3px;
+  vertical-align: middle;
+  width: 30px; }
 
 .btn {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
   border: 1px solid transparent;
-  display: inline-block;
-  padding: 6px 12px;
-  border: none;
   cursor: pointer;
-  outline: none;
-  text-decoration: none;
+  display: inline-block;
   font-size: 13pt;
+  outline: none;
+  padding: 6px 12px;
+  text-decoration: none; }
+
+.btn-green,
+.btn-green:visited {
+  background-color: #83c070;
   color: #fff; }
 
-a.btn:visited {
+.btn-red,
+.btn-red:visited {
+  background-color: #e85353;
   color: #fff; }
 
-.btn-green {
-  background-color: #83c070; }
+.btn-nav,
+.btn-nav:visited {
+  background-color: #fff;
+  border: 1px solid #e3e8ec;
+  color: #333; }
 
-.btn-red {
-  background-color: #e85353; }
+.btn-nav.active,
+.btn-nav.active:visited,
+.btn-nav:hover {
+  background-color: #ea524f;
+  border: 1px solid #ea524f;
+  color: #fff; }
 
 .fm-panel {
   background-color: #fff;
@@ -55,17 +71,18 @@ a.btn:visited {
     background-color: #799ec4;
     color: #fff;
     font-size: 20pt;
-    padding: 0.4em; }
+    padding: .4em; }
   .fm-panel .fm-panel-body {
-    margin: 1em; }
+    padding: 1em; }
 
 .form-horizontal label {
-  text-align: right;
   margin-top: -3pt;
+  text-align: right;
   width: 48%; }
-.form-horizontal input, .form-horizontal select {
-  float: left;
+.form-horizontal input,
+.form-horizontal select {
   border: 1px solid #ccc;
+  float: left;
   font-size: 12pt;
   text-align: left; }
 
@@ -75,7 +92,7 @@ a.btn:visited {
   font-size: 13pt; }
 
 .fm-content-wrapper {
-  width: 950px;
-  margin: 0 auto; }
+  margin: 0 auto;
+  width: 950px; }
 
 /*# sourceMappingURL=main.css.map */

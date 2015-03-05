@@ -1,10 +1,11 @@
 .fm-header {
   background-color: $color-navigation-background;
 }
-.fm-header-wrapper{
-  width: $content-width;
+
+.fm-header-wrapper {
   height: $header-height;
   margin: 0 auto;
+  width: $content-width;
 }
 
 .navbar-brand {
@@ -12,14 +13,17 @@
 }
 
 .navbar-right {
+  display: table-cell;
   float: right;
+  margin-top: 26px;
   padding-right: 10px;
   vertical-align: middle;
-  display: table-cell;
-  height: 64px;
-  line-height: 64px;
+}
 
-  li {
-    float:left;
-  }
+.menu-icon {
+  display: inline-block;
+  height: 30px;
+  margin-bottom: 3px;
+  vertical-align: middle;
+  width: 30px;
 }

@@ -1,24 +1,37 @@
 .btn {
   @include border-radius(5px);
   border: 1px solid transparent;
-  display: inline-block;
-  padding: 6px 12px;
-  border: none;
   cursor: pointer;
-  outline: none;
-  text-decoration: none;
+  display: inline-block;
   font-size: $font-size-button;
-  color: $color-button-primary-text;
+  outline: none;
+  padding: 6px 12px;
+  text-decoration: none;
 }
 
-a.btn:visited {
-  color: $color-button-primary-text;
-}
-
-.btn-green {
+.btn-green,
+.btn-green:visited {
   background-color: $color-button-primary-background;
+  color: $color-button-primary-text;
 }
 
-.btn-red {
+.btn-red,
+.btn-red:visited {
   background-color: $color-inactive;
+  color: $color-button-primary-text;
+}
+
+.btn-nav,
+.btn-nav:visited {
+  background-color: $color-navigation-inactive-background;
+  border: 1px solid $color-navigation-inactive-border;
+  color: $color-navigation-inactive-text;
+}
+
+.btn-nav.active,
+.btn-nav.active:visited,
+.btn-nav:hover {
+  background-color: $color-navigation-active-background;
+  border: 1px solid $color-navigation-active-border;
+  color: $color-navigation-active-text;
 }
