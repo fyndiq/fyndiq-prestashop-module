@@ -195,7 +195,7 @@ var FmCtrl = {
         // When clicking select on one product, check if any other is select and make delete button red.
         $(document).on('click', '.fm-product-list > tr', function () {
             var red = false;
-            $('.fm-product-list .select input').each(function (k, v) {
+            $('.fm-product-list .select input').each(function () {
                 var active = $(this).prop('checked');
                 if (active) {
                     red = true;
@@ -210,25 +210,26 @@ var FmCtrl = {
         });
 
         var savetimeout;
-        $(document).on('keyup', '.fm-product-list tr .prices .fyndiq_price .fyndiq_dicsount', function () {
+        $(document).on('keyup', '.prices .fyndiq_price .inputdiv .fyndiq_dicsount', function () {
             var discount = $(this).val();
-            var product = $(this).parent().parent().parent().attr('data-id');
+            var product = $(this).parent().parent().parent().parent().attr('data-id');
 
             if (discount > 100) {
                 discount = 100;
             }
 
-            var price = $(this).parent().parent().parent().attr('data-price');
-            var field = $(this).parent().children('.price_preview');
+            var price = $(this).parent().parent().parent().parent().attr('data-price');
+            var field = $(this).parent().parent().find('.price_preview_price');
+            console.log(field)
             var counted = price - ((discount / 100) * price);
             if (isNaN(counted)) {
                 counted = price;
             }
 
-            field.text("Expected Price: " + counted.toFixed(2));
+            field.text(counted.toFixed(2));
 
             clearTimeout(savetimeout);
-            var ajaxdiv = $(this).parent().find('#ajaxFired');
+            var ajaxdiv = $(this).parent().parent().find('#ajaxFired');
             ajaxdiv.html('Typing...').show();
             savetimeout = setTimeout(function () {
                 FmCtrl.update_product(product, discount, function (status) {
