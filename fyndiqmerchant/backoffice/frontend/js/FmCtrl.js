@@ -195,8 +195,8 @@ var FmCtrl = {
         // When clicking select on one product, check if any other is select and make delete button red.
         $(document).on('click','.fm-product-list > tr', function() {
             var red = false;
-            $('.fm-product-list > tr').each(function (k, v) {
-                var active = $(this).find('.select input').prop('checked');
+            $('.fm-product-list .select input').each(function (k, v) {
+                var active = $(this).prop('checked');
                 if (active) {
                     red = true;
                 }
@@ -315,7 +315,7 @@ var FmCtrl = {
                 });
 
                 // if no products selected, show info message
-                if (products.length == 0) {
+                if (products.length === 0) {
                     FmGui.show_message('info', messages['products-not-selected-title'],
                         messages['products-not-selected-message']);
                     FmGui.hide_load_screen();
