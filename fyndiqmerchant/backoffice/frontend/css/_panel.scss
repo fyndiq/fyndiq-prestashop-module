@@ -9,6 +9,12 @@
     color: $color-panel-header-text;
     font-size: $font-size-panel-header;
     padding: .4em;
+
+    .legend {
+      float: right;
+      font-size: $font-size-panel-header-subtext;
+      margin-top: 8px;
+    }
   }
 
   .fm-panel-body {

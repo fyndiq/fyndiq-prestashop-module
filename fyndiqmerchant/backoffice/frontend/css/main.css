@@ -75,6 +75,10 @@
     color: #fff;
     font-size: 20pt;
     padding: .4em; }
+    .fm-panel .fm-panel-header .legend {
+      float: right;
+      font-size: 12pt;
+      margin-top: 8px; }
   .fm-panel .fm-panel-body {
     padding: 1em; }
 
@@ -89,8 +93,11 @@
   font-size: 12pt;
   text-align: left; }
 
+#main {
+  background-color: #e7eef4 !important; }
+
 #content.nobootstrap {
-  padding: 62px 0; }
+  padding: 62px 0 0; }
 
 .fm-container {
   background-color: #e7eef4;
@@ -101,5 +108,14 @@
 .fm-content-wrapper {
   margin: 0 auto;
   width: 950px; }
+
+.fm-left-sidebar {
+  width: 240px;
+  float: left;
+  margin-right: 10px; }
+
+.fm-product-panel {
+  float: left;
+  width: 700px; }
 
 /*# sourceMappingURL=main.css.map */

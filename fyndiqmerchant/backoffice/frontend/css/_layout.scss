@@ -1,5 +1,9 @@
+// Adapt the PrestaShop layout
+#main {
+  background-color: $color-page-background !important;
+}
 #content.nobootstrap {
-  padding: 62px 0;
+    padding: 62px 0 0;
 }
 
 .fm-container {
@@ -12,4 +16,15 @@
 .fm-content-wrapper {
   margin: 0 auto;
   width: $content-width;
+}
+
+.fm-left-sidebar {
+  width: $sidebar-width;
+  float: left;
+  margin-right: 10px;
+}
+
+.fm-product-panel {
+  float: left;
+  width: 700px;
 }

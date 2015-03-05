@@ -32,7 +32,7 @@
             <div class="fm-panel">
                 <div class="fm-panel-header">
                     Products: <span id="categoryname"></span>
-                    <div class="right"><i class="icon on"></i> On Fyndiq  <i class="icon pending"></i> Pending <i class="icon noton"></i> Not On Fyndiq </div>
+                    <div class="legend"><i class="icon on"></i> On Fyndiq  <i class="icon pending"></i> Pending <i class="icon noton"></i> Not On Fyndiq </div>
                 </div>
                 <div class="fm-panel-body">
                     <form action="" method="post" class="fm-form products">
