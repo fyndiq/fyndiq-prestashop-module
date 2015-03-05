@@ -220,7 +220,7 @@ var FmCtrl = {
 
             var price = $(this).parent().parent().parent().parent().attr('data-price');
             var field = $(this).parent().parent().find('.price_preview_price');
-            console.log(field)
+
             var counted = price - ((discount / 100) * price);
             if (isNaN(counted)) {
                 counted = price;
