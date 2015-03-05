@@ -132,7 +132,7 @@ var FmCtrl = {
     products_delete: function (products, callback) {
 
         FmCtrl.call_service('delete_exported_products', {'products': products}, function (status, data) {
-            if (status == 'success') {
+            if (status === 'success') {
                 FmGui.show_message('success', messages['products-deleted-title'],
                     messages['products-deleted-message']);
             }
