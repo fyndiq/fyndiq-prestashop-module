@@ -243,7 +243,7 @@ var FmCtrl = {
         });
 
         // when clicking the export products submit buttons, export products
-        $(document).on('click', '.fm-product-list-controls #export-products', function(e) {
+        $(document).on('click', '#export-products', function(e) {
             e.preventDefault();
 
             var products = [];
@@ -291,7 +291,7 @@ var FmCtrl = {
         });
 
         //Deleting selected products from export table
-        $(document).on('click', '.fm-product-list-controls #delete-products', function (e) {
+        $(document).on('click', '#delete-products', function (e) {
             e.preventDefault();
             if($(this).hasClass( "disabled" )) {
                 return;
