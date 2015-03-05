@@ -213,7 +213,7 @@ var FmCtrl = {
         $(document).on('keyup', '.prices .fyndiq_price .inputdiv .fyndiq_dicsount', function () {
             var discount = parseFloat($(this).val());
             var $product = $(this).closest('.product');
-            var product = $product.attr('data-id');
+            var product_id = $product.attr('data-id');
 
             if (discount > 100) {
                 discount = 100;
@@ -236,7 +236,7 @@ var FmCtrl = {
             var ajaxdiv = $(this).parent().parent().find('#ajaxFired');
             ajaxdiv.html('Typing...').show();
             savetimeout = setTimeout(function () {
-                FmCtrl.update_product(product, discount, function (status) {
+                FmCtrl.update_product(product_id, discount, function (status) {
                     if (status == "success") {
                         ajaxdiv.html('Saved').delay(1000).fadeOut();
                     }
