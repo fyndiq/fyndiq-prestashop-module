@@ -128,6 +128,20 @@ var FmCtrl = {
         });
     },
 
+
+    products_delete: function (products, callback) {
+
+        FmCtrl.call_service('delete_exported_products', {'products': products}, function (status, data) {
+            if (status == 'success') {
+                FmGui.show_message('success', messages['products-deleted-title'],
+                    messages['products-deleted-message']);
+            }
+            if (callback) {
+                callback();
+            }
+        });
+    },
+
     bind_event_handlers: function() {
 
         // import orders submit button
@@ -162,34 +176,40 @@ var FmCtrl = {
             });
         });
 
-        // when clicking product's expand icon, show its combinations
-        $(document).on('click', '.fm-product-list .product .expand a', function(e) {
-            e.preventDefault();
-            $(this).parents('li').find('.combinations').slideToggle(250);
-        });
-
-        // when clicking product's checkbox, toggle checked on all its combination's checkboxes
-        $(document).on('change', '.fm-product-list .product .select input', function(e) {
-            var combination_checkboxes = $(this).parents('li').find('.combinations .select input');
-            combination_checkboxes.prop('checked', $(this).prop('checked'));
-        });
-
-        // when clicking a combination's checkbox, set checked on its parent product's checkbox
-        $(document).on('change', '.fm-product-list .combinations .select input', function(e) {
-            $(this).parents('li').find('.product .select input').prop('checked', true);
-        });
-
         // when clicking select all products checkbox, set checked on all product's checkboxes
         $(document).on('click', '#select-all', function (e) {
             if ($(this).is(':checked')) {
                 $(".fm-product-list tr .select input").each(function () {
                     $(this).prop("checked", true);
+                    $('.fm-product-list-controls #delete-products').removeClass('disabled');
+                    $('.fm-product-list-controls #delete-products').addClass('red');
                 });
 
             } else {
                 $(".fm-product-list tr .select input").each(function () {
                     $(this).prop("checked", false);
+                    $('.fm-product-list-controls #delete-products').removeClass('red');
+                    $('.fm-product-list-controls #delete-products').addClass('disabled');
                 });
+            }
+        });
+
+        // When clicking select on one product, check if any other is select and make delete button red.
+        $(document).on('click','.fm-product-list > tr', function() {
+            var red = false;
+            $('.fm-product-list > tr').each(function (k, v) {
+                var active = $(this).find('.select input').prop('checked');
+                if (active) {
+                    red = true;
+                }
+            });
+            if(red) {
+                $('.fm-product-list-controls #delete-products').removeClass('disabled');
+                $('.fm-product-list-controls #delete-products').addClass('red');
+            }
+            else {
+                $('.fm-product-list-controls #delete-products').removeClass('red');
+                $('.fm-product-list-controls #delete-products').addClass('disabled');
             }
         });
 
@@ -227,7 +247,7 @@ var FmCtrl = {
         });
 
         // when clicking the export products submit buttons, export products
-        $(document).on('click', '.fm-product-list-controls button[name=export-products]', function(e) {
+        $(document).on('click', '.fm-product-list-controls #export-products', function(e) {
             e.preventDefault();
 
             var products = [];
@@ -242,7 +262,7 @@ var FmCtrl = {
 
                     // store product id and combinations
                     var price = $(this).find("td.prices > div.price > input").val();
-                    var fyndiq_percentage = $(this).find("td.prices > div.fyndiq_price > input").val();
+                    var fyndiq_percentage = $(this).find(".fyndiq_price .inputdiv .fyndiq_dicsount").val();
                     console.log(fyndiq_percentage);
                     products.push({
                         'product': {
@@ -272,6 +292,56 @@ var FmCtrl = {
                 // export the products
                 export_products(products);
             }
+        });
+
+        //Deleting selected products from export table
+        $(document).on('click', '.fm-product-list-controls #delete-products', function (e) {
+            e.preventDefault();
+            if($(this).hasClass( "disabled" )) {
+                return;
+            }
+            FmGui.show_load_screen(function () {
+                var products = [];
+
+                // find all products
+                $('.fm-product-list > tr').each(function (k, v) {
+
+                    // check if product is selected
+                    var active = $(this).find('.select input').prop('checked');
+                    if (active) {
+                        // store product id
+                        products.push({
+                            'product': {
+                                'id': $(this).data('id')
+                            }
+                        });
+                    }
+                });
+
+                // if no products selected, show info message
+                if (products.length == 0) {
+                    FmGui.show_message('info', messages['products-not-selected-title'],
+                        messages['products-not-selected-message']);
+                    FmGui.hide_load_screen();
+
+                } else {
+                    // delete selected products
+                    FmCtrl.products_delete(products, function () {
+                        // reload category to ensure that everything is reset properly
+                        var category = $('.fm-category-tree li.active').attr('data-category_id');
+                        var page = $('div.pages > ol > li.current').html();
+                        if (page == 'undefined') {
+                            page = 1;
+                        }
+                        FmCtrl.load_products(category, page, function () {
+                            FmGui.hide_load_screen();
+                        });
+
+                    });
+
+                }
+            });
+
         });
     },
     bind_order_event_handlers: function () {

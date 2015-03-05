@@ -41,8 +41,6 @@ class FmProductExport
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
-        Db::getInstance()->delete($module->config_name . "_products_combos", "product_id = '{$product_id}'");
-
         return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id = '{$product_id}'", 1);
     }
 
