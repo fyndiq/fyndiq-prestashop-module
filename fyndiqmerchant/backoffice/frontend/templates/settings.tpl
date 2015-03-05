@@ -62,7 +62,7 @@
                 </fieldset>
             </form>
             <p class="text-right fm-disconnect">
-                <a href="{$path}&disconnect=1">{l s='Disconnect Account' mod='fyndiqmerchant'}</a>
+                <a href="{$path}&disconnect=1" class="fm-button red">{l s='Disconnect Account' mod='fyndiqmerchant'}</a>
             </p>
         </div>
     </div>
