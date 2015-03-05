@@ -1,4 +1,54 @@
+// General colors
+$color-brand: #ea524f;
+$color-light: #fff;
+$color-dark: #333;
+$color-page-background: #e7eef4;
+$color-disabled-text: #b3b3b3;
+$color-disabled-background: #e3e3e3;
+$color-muted: #999;
+$color-pending: #f08c48;
+$color-enabled: #83c070;
+$color-inactive: #e85353;
 
+// Dialog
+$color-dialog-header-background: #799ec4;
+$color-dialog-header-text: $color-light;
+$color-dialog-body-background: $color-light;
+$color-dialog-body-text: $color-dark;
+$color-dialog-footer-background: #f5f9fc;
+$color-dialog-footer-text: $color-dark;
+
+// Buttons
+$color-button-primary-background: $color-enabled;
+$color-button-primary-text: $color-light;
+
+// Messages
+$color-message-success-background: #6eb755;
+$color-message-success-text: $color-light;
+
+// Navigation
+$color-navigation-background: $color-light;
+$color-navigation-active-background: $color-brand;
+$color-navigation-active-text: $color-light;
+$color-navigation-active-border: $color-brand;
+$color-navigation-inactive-background: $color-light;
+$color-navigation-inactive-text: $color-dark;
+$color-navigation-inactive-border: #e3e8ec;
+
+
+// Table
+$color-table-header-background: #f5f8fb;
+$color-table-odd-row-background: #fcfdff;
+
+// Pagination
+$color-pagination-inactive-background: #fcfdff;
+$color-pagination-inactive-text: $color-light;
+$color-pagination-active-background: $color-pending;
+$color-pagination-inactive-text: $color-dark;
+$color-pagination-disabled-text: $color-disabled-text;
+
+
+// obsolete
 $color-modal-light: #fff;
 $color-modal-dark: #555555;
 $color-modal-darker: #484848;
