@@ -172,7 +172,7 @@
   margin: 8px 0; }
   .fm-accept-product-export ul > li {
     overflow: hidden;
-    background-color: #f5f5f5;
+    background-color: #999;
     margin-bottom: 2px;
     padding: 2px;
     font-size: 12px; }
@@ -452,11 +452,11 @@
   padding: 2px; }
   .fm-product-list > li {
     overflow: hidden;
-    background-color: #f5f5f5;
+    background-color: #999;
     margin-bottom: 5px;
     padding: 3px;
-    border: 1px solid #757575;
-    border-left: 2px solid #757575; }
+    border: 1px solid #999;
+    border-left: 2px solid #999; }
     .fm-product-list > li:last-child {
       margin-bottom: 0; }
   .fm-product-list .product .title h4 {

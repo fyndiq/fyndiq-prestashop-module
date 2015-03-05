@@ -37,7 +37,7 @@
 
     > li {
       overflow: hidden;
-      background-color: $color-item-lighter;
+      background-color: $color-muted;
       margin-bottom: 2px;
       padding: 2px;
       font-size: 12px;
@@ -400,11 +400,11 @@
 
   > li {
     overflow: hidden;
-    background-color: $color-item-lighter;
+    background-color: $color-muted;
     margin-bottom: 5px;
     padding: 3px;
-    border: 1px solid $color-item-darker;
-    border-left: 2px solid $color-item-darker;
+    border: 1px solid $color-muted;
+    border-left: 2px solid $color-muted;
 
     &:last-child {
       margin-bottom: 0;
