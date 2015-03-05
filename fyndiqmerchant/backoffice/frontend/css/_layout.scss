@@ -1,7 +1,12 @@
-#content {
+#content.nobootstrap {
+  padding: 62px 0;
+}
+
+.fm-container {
   background-color: $color-page-background;
   font-family: $font-family-default;
   font-size: $font-text-default;
+  padding-bottom: 3em;
 }
 
 .fm-content-wrapper {

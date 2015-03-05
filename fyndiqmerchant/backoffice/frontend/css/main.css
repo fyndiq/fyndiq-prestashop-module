@@ -86,10 +86,14 @@
   font-size: 12pt;
   text-align: left; }
 
-#content {
+#content.nobootstrap {
+  padding: 62px 0; }
+
+.fm-container {
   background-color: #e7eef4;
   font-family: "Montserrat", sans-serif;
-  font-size: 13pt; }
+  font-size: 13pt;
+  padding-bottom: 3em; }
 
 .fm-content-wrapper {
   margin: 0 auto;
