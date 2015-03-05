@@ -14,7 +14,7 @@
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/handlebars-v1.1.2.js"></script>
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmGui.js"></script>
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmCtrl.js"></script>
-<script type="text/javascript" src="{$module_path}backoffice/frontend/js/main.js"></script>
+<script type="text/javascript" src="{$module_path}backoffice/frontend/js/order.js"></script>
 
 <div class="fm-container">
     {include file='./header.tpl' current='settings'}

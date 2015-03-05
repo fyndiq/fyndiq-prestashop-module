@@ -13,13 +13,12 @@
   width: 950px; }
 
 .navbar-brand {
-  margin-top: 15px; }
+  margin-top: 20px; }
 
 .navbar-right {
   display: table-cell;
   float: right;
   margin-top: 26px;
-  padding-right: 10px;
   vertical-align: middle; }
 
 .menu-icon {
