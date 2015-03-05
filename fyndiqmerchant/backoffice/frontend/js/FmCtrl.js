@@ -211,14 +211,18 @@ var FmCtrl = {
 
         var savetimeout;
         $(document).on('keyup', '.prices .fyndiq_price .inputdiv .fyndiq_dicsount', function () {
-            var discount = $(this).val();
-            var product = $(this).parent().parent().parent().parent().attr('data-id');
+            var discount = parseFloat($(this).val());
+            var $product = $(this).closest('.product');
+            var product = $product.attr('data-id');
 
             if (discount > 100) {
                 discount = 100;
             }
+            else if(discount < 0) {
+                discount = 0;
+            }
 
-            var price = $(this).parent().parent().parent().parent().attr('data-price');
+            var price = $product.attr('data-price');
             var field = $(this).parent().parent().find('.price_preview_price');
 
             var counted = price - ((discount / 100) * price);
