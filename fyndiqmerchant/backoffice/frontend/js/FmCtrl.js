@@ -303,7 +303,7 @@ var FmCtrl = {
                 $('.fm-product-list > tr').each(function (k, v) {
 
                     // check if product is selected
-                    var active = $(this).find('.select input').prop('checked');
+                    var active = $('.select input').prop('checked');
                     if (active) {
                         // store product id
                         products.push({
