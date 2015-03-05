@@ -19,9 +19,8 @@
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmCtrl.js"></script>
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/order.js"></script>
 
-{include file='./menu.tpl' current='order'}
-
 <div class="fm-container">
+    {include file='./header.tpl' current='settings'}
 
     <div class="fm-orderlist-panel">
         <div class="fm-subheader">Imported Orders</div>
