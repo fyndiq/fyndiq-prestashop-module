@@ -202,12 +202,10 @@ var FmCtrl = {
                 }
             });
             if(red) {
-                $('.fm-product-list-controls #delete-products').removeClass('disabled');
-                $('.fm-product-list-controls #delete-products').addClass('red');
+                $('#delete-products').removeClass('disabled').addClass('red');
             }
             else {
-                $('.fm-product-list-controls #delete-products').removeClass('red');
-                $('.fm-product-list-controls #delete-products').addClass('disabled');
+                $('#delete-products').removeClass('red').addClass('disabled');
             }
         });
 
