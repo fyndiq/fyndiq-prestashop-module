@@ -4,6 +4,25 @@
 .text-center {
   text-align: center; }
 
+.icon {
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  display: inline-block;
+  height: 13px;
+  vertical-align: middle;
+  width: 13px; }
+  .icon.pending {
+    background-color: #f08c48; }
+  .icon.on {
+    background-color: #83c070; }
+  .icon.noton {
+    background-color: #e85353; }
+  .icon.big {
+    height: 20px;
+    width: 20px; }
+
 .fm-header {
   background-color: #fff; }
 
@@ -13,12 +32,12 @@
   width: 950px; }
 
 .navbar-brand {
-  margin-top: 20px; }
+  margin-top: 14px; }
 
 .navbar-right {
   display: table-cell;
   float: right;
-  margin-top: 26px;
+  margin-top: 20px;
   vertical-align: middle; }
 
 .menu-icon {

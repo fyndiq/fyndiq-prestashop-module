@@ -5,3 +5,30 @@
 .text-center {
   text-align: center;
 }
+
+.icon {
+  @include border-radius(50%);
+
+  border: 3px solid $color-light;
+  display: inline-block;
+  height: $icon-size;
+  vertical-align: middle;
+  width: $icon-size;
+
+  &.pending {
+    background-color: $color-pending;
+  }
+
+  &.on {
+    background-color: $color-enabled;
+  }
+
+  &.noton {
+    background-color: $color-inactive;
+  }
+
+  &.big {
+    height: $big-icon-size;
+    width: $big-icon-size;
+  }
+}
