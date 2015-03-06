@@ -6,16 +6,18 @@ ul.fm-category-tree {
   padding: 0;
 
   li {
-    border-bottom: 1px solid $color-navigation-inactive-border;
     font-weight: bold;
-    padding: 5px 10px;
+    padding-left: 10px;
 
-    &.active a {
+    &.active > a {
       color: $color-pending;
     }
 
     a {
       text-decoration: none;
+      border-bottom: 1px solid $color-navigation-inactive-border;
+      padding: 5px 10px 5px 0;
+      display: block;
 
       &:hover {
         color: $color-pending;

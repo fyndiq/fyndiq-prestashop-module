@@ -190,13 +190,15 @@ ul.fm-category-tree {
   margin: 0;
   padding: 0; }
   ul.fm-category-tree li {
-    border-bottom: 1px solid #e3e8ec;
     font-weight: bold;
-    padding: 5px 10px; }
-    ul.fm-category-tree li.active a {
+    padding-left: 10px; }
+    ul.fm-category-tree li.active > a {
       color: #f08c48; }
     ul.fm-category-tree li a {
-      text-decoration: none; }
+      text-decoration: none;
+      border-bottom: 1px solid #e3e8ec;
+      padding: 5px 10px 5px 0;
+      display: block; }
       ul.fm-category-tree li a:hover {
         color: #f08c48; }
 

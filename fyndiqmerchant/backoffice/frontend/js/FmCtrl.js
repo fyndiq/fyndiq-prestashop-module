@@ -1,4 +1,5 @@
-"use strict";
+/* global $, FmGui, module_path, messages, tpl */
+'use strict';
 
 var FmCtrl = {
     call_service: function (action, args, callback) {
@@ -11,12 +12,12 @@ var FmCtrl = {
             var status = 'error';
             var result = null;
             if ($.isPlainObject(data) && ('fm-service-status' in data)) {
-                if (data['fm-service-status'] == 'error') {
-                    FmGui.show_message('error', data['title'], data['message']);
+                if (data['fm-service-status'] === 'error') {
+                    FmGui.show_message('error', data['title'], data.message);
                 }
-                if (data['fm-service-status'] == 'success') {
+                if (data['fm-service-status'] === 'success') {
                     status = 'success';
-                    result = data['data'];
+                    result = data.data;
                 }
             } else {
                 FmGui.show_message('error', messages['unhandled-error-title'],
@@ -28,15 +29,15 @@ var FmCtrl = {
         });
     },
 
-    load_categories: function (callback) {
-        FmCtrl.call_service('get_categories', {}, function (status, categories) {
-            if (status == 'success') {
-                $('.fm-category-tree-container').html(tpl['category-tree']({
+    load_categories: function (category_id, $container, callback) {
+        FmCtrl.call_service('get_categories', {category_id: category_id}, function (status, categories) {
+            if (status === 'success') {
+                $(tpl['category-tree']({
                     'categories': categories
-                }));
+                })).appendTo($container);
             }
 
-            if (callback) {
+            if ($.isFunction(callback)) {
                 callback();
             }
         });
@@ -153,14 +154,24 @@ var FmCtrl = {
             });
         });
 
-        // when clicking category in tree, load its products
+        // When clicking category in tree, load its products
         $(document).on('click', '.fm-category-tree a', function (e) {
+            var $li = $(this).parent();
             e.preventDefault();
-            var category_id = $(this).parent().attr('data-category_id');
+            var category_id = parseInt($li.attr('data-category_id'), 10);
             FmGui.show_load_screen(function () {
-                FmCtrl.load_products(category_id, function () {
-                    FmGui.hide_load_screen();
-                });
+                if (!$li.data('expanded')) {
+                    FmCtrl.load_categories(category_id, $li, function() {
+                        $li.data('expanded', true);
+                        FmCtrl.load_products(category_id, function () {
+                            FmGui.hide_load_screen();
+                        });
+                    });
+                } else {
+                    FmCtrl.load_products(category_id, function () {
+                        FmGui.hide_load_screen();
+                    });
+                }
             });
         });
 
