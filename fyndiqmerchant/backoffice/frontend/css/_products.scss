@@ -27,28 +27,12 @@ ul.fm-category-tree {
 // Product list
 
 .fm-products-list-container {
-  table {
-    font-size: $font-text-small;
 
-
-    th {
-      background-color: $color-table-header-background;
-      border-collapse: collapse;
-      border-spacing: 0;
-      padding: .6em;
-    }
-
-    td {
-      border-collapse: collapse;
-      border-spacing: 0;
-      padding: 10px;
-    }
-
-    img {
-      border: 1px solid $color-navigation-inactive-border;
-      max-height: $thumbnail-max-height;
-    }
+  table img {
+    border: 1px solid $color-navigation-inactive-border;
+    max-height: $thumbnail-max-height;
   }
+
 
   .prices {
     th,
