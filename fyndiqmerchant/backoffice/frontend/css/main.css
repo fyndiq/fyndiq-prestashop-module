@@ -133,7 +133,11 @@
   .fm-panel table th {
     border-collapse: collapse;
     border-spacing: 0;
-    padding: .6em; }
+    padding: .6em;
+    border-top: 1px solid #b3b3b3;
+    border-bottom: 1px solid #b3b3b3; }
+  .fm-panel table tbody tr:nth-child(even) {
+    background-color: #f5f8fb; }
 
 .fm-loading-overlay {
   background: black;
