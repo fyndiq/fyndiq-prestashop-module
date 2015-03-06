@@ -23,6 +23,9 @@
     height: 20px;
     width: 20px; }
 
+.shadow, .muted {
+  color: #999; }
+
 .fm-header {
   background-color: #fff; }
 
@@ -137,12 +140,51 @@ ul.fm-category-tree {
       ul.fm-category-tree li a:hover {
         color: #f08c48; }
 
-.fm-products-list-container table img {
-  border: 1px solid #e3e8ec;
-  max-height: 80px; }
+.fm-products-list-container table {
+  font-size: 11pt; }
+  .fm-products-list-container table th {
+    background-color: #f5f8fb;
+    border-collapse: collapse;
+    border-spacing: 0;
+    padding: .6em; }
+  .fm-products-list-container table td {
+    border-collapse: collapse;
+    border-spacing: 0;
+    padding: 10px; }
+  .fm-products-list-container table img {
+    border: 1px solid #e3e8ec;
+    max-height: 80px; }
+.fm-products-list-container .prices th,
+.fm-products-list-container .prices td {
+  background-color: transparent;
+  padding: 3px 0;
+  text-align: left;
+  white-space: nowrap; }
+.fm-products-list-container .prices td {
+  text-align: right; }
+.fm-products-list-container .prices .inputdiv {
+  background-color: #e3e3e3;
+  border: 1px solid #b3b3b3;
+  float: right;
+  height: 15px;
+  line-height: 15px;
+  margin: 0;
+  padding: 0 3px 0 0; }
+.fm-products-list-container .prices input {
+  border: 0;
+  border-right: 1px solid #b3b3b3;
+  height: 11px;
+  line-height: 14px;
+  margin: -2px 3px 0 0;
+  padding: 2px;
+  width: 20px; }
+
+p.info {
+  margin: 1em !important; }
 
 .export {
-  text-align: right; }
+  text-align: right;
+  margin: 1em; }
 
 #main {
   background-color: #e7eef4 !important; }

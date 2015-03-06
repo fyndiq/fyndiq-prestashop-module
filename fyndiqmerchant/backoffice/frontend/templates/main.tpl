@@ -34,7 +34,7 @@
                     Products: <span id="categoryname"></span>
                     <div class="legend"><i class="icon on"></i> On Fyndiq  <i class="icon pending"></i> Pending <i class="icon noton"></i> Not On Fyndiq </div>
                 </div>
-                <div class="fm-panel-body">
+                <div class="fm-panel-body no-padding">
                     <form action="" method="post" class="fm-form products">
                         <p class="info">By using this form, you can export products from the local webshop into Fyndiq.</p>
 
