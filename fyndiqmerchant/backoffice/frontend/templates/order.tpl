@@ -31,7 +31,6 @@
             </div>
         </div>
 
-
         <div class="fm-sidebar">
             <div class="fm-panel">
                 <div class="fm-panel-header">Manual Order Import</div>

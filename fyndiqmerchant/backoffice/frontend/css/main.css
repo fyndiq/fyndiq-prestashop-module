@@ -186,6 +186,33 @@ p.info {
   text-align: right;
   margin: 1em; }
 
+.fm-orderlist-panel {
+  float: left;
+  width: 700px; }
+
+.fm-sidebar {
+  float: left;
+  width: 240px;
+  margin-left: 10px; }
+
+.lastupdated {
+  background-color: #f5f8fb;
+  font-size: 12px;
+  font-weight: 400;
+  height: 41px;
+  line-height: 21px;
+  margin-bottom: 1em;
+  padding: 10px; }
+  .lastupdated img {
+    float: left; }
+  .lastupdated .last-header {
+    display: block;
+    margin: 3px 0 -5px; }
+
+#fm-import-orders {
+  text-align: center;
+  width: 180px; }
+
 #main {
   background-color: #e7eef4 !important; }
 
@@ -197,6 +224,9 @@ p.info {
   font-family: "Montserrat", sans-serif;
   font-size: 13pt;
   padding-bottom: 3em; }
+
+.fm-container p {
+  margin: 0 0 1em 0; }
 
 .fm-content-wrapper {
   margin: 0 auto;
