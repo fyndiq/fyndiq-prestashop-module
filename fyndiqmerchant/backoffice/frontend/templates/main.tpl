@@ -24,7 +24,7 @@
         <div class="fm-left-sidebar">
             <div class="fm-panel">
                 <div class="fm-panel-header">Categories</div>
-                <div class="fm-panel-body fm-category-tree-container"></div>
+                <div class="fm-panel-body fm-category-tree-container no-padding"></div>
             </div>
         </div>
 

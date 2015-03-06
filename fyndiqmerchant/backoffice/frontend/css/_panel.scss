@@ -19,5 +19,9 @@
 
   .fm-panel-body {
     padding: 1em;
+
+    &.no-padding {
+      padding: 0;
+    }
   }
 }
