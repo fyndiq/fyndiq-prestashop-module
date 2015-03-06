@@ -3,24 +3,24 @@
 require_once('config.php');
 
 class FmCategory {
-    public static function get_all() {
+    
+    public static function get_subcategories($category_id) {
 
         $language_id = FmConfig::get('language');
 
         $result = array();
 
-        $levels = Category::getCategories($language_id);
-        foreach ($levels as $level_k => $level_v) {
+        if ($category_id === 0) {
+            $categories = Category::getHomeCategories($language_id);
+        } else {
+            $categories= Category::getChildren($category_id, $language_id);
+        }
 
-            foreach ($level_v as $container) {
-                $category = $container['infos'];
-
-                $result[] = array(
-                    'level' => $level_k,
-                    'id' => $category['id_category'],
-                    'name' => $category['name']
-                );
-            }
+        foreach ($categories as $category) {
+            $result[] = array(
+                'id' => $category['id_category'],
+                'name' => $category['name']
+            );
         }
 
         return $result;

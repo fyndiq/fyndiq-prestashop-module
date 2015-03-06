@@ -92,7 +92,7 @@ class FmAjaxService
      */
     public function get_categories($args)
     {
-        $categories = FmCategory::get_all();
+        $categories = FmCategory::get_subcategories(intval($args['category_id']));
         $this->response($categories);
     }
 
