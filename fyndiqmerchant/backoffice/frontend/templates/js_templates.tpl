@@ -161,7 +161,7 @@
                         <table>
                             <tr>
                                 <th>Price:</th>
-                                <td class="pricetag">{{price}}&nbsp;SEK</td>
+                                <td class="pricetag">{{price}}&nbsp;{{currency}}</td>
                             </tr>
                             <tr>
                                 <th>Fyndiq Discount:</th>
@@ -171,7 +171,7 @@
                             </tr>
                             <tr>
                                 <th>Expected Price:</th>
-                                <td class="price_preview"><span class="price_preview_price">{{expected_price}}</span>&nbsp;SEK</td>
+                                <td class="price_preview"><span class="price_preview_price">{{expected_price}}</span>&nbsp;{{currency}}</td>
                             </tr>
                         </table>
                         <!--

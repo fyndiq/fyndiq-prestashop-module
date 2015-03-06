@@ -33,20 +33,6 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="fm-currency-choice"><b>Currency</b></label>
-                        <select name="currency_id" id="fm-currency-choice">
-                            {foreach $currencies as $currency}
-                                <option
-                                    value="{$currency.id_currency}"
-                                    {if $currency.id_currency == $selected_currency}
-                                        selected="selected"
-                                    {/if}
-                                    >{$currency.name}</option>
-                            {/foreach}
-                        </select>
-                    </div>
-
                     <h2>System</h2>
                     <b>Percentage of price</b>
                     <p>This percentage is the percentage of the price that will be cut off your price, if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).</p>

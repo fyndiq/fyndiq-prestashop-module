@@ -105,6 +105,9 @@ class FmAjaxService
     {
         $products = array();
 
+        // get currency
+        $current_currency = Currency::getDefaultCurrency()->iso_code;
+        
         if (isset($args["page"]) AND $args["page"] > 0) {
             $rows = FmProduct::get_by_category($args['category'], $args["page"], $this->_itemPerPage);
         } else {
@@ -133,6 +136,7 @@ class FmAjaxService
                 '.',
                 ''
             );
+            $product["currency"] = $current_currency;
             $products[] = $product;
         }
         $object = new stdClass();
