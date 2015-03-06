@@ -1,0 +1,77 @@
+// Categories
+ul.fm-category-tree {
+  font-size: $font-size-category-list-item;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    border-bottom: 1px solid $color-navigation-inactive-border;
+    font-weight: bold;
+    padding: 5px 10px;
+
+    &.active a {
+      color: $color-pending;
+    }
+
+    a {
+      text-decoration: none;
+
+      &:hover {
+        color: $color-pending;
+      }
+    }
+  }
+}
+
+// Product list
+
+.fm-products-list-container {
+
+  table img {
+    border: 1px solid $color-navigation-inactive-border;
+    max-height: $thumbnail-max-height;
+  }
+
+
+  .prices {
+    th,
+    td {
+      background-color: transparent;
+      padding: 3px 0;
+      text-align: left;
+      white-space: nowrap;
+    }
+    td {
+      text-align: right;
+    }
+
+    .inputdiv {
+      background-color: $color-disabled-background;
+      border: 1px solid $color-disabled-text;
+      float: right;
+      height: 15px;
+      line-height: 15px;
+      margin: 0;
+      padding: 0 3px 0 0;
+    }
+
+    input {
+      border: 0;
+      border-right: 1px solid $color-disabled-text;
+      height: 11px;
+      line-height: 14px;
+      margin: -2px 3px 0 0;
+      padding: 2px;
+      width: 20px;
+    }
+  }
+}
+
+p.info {
+  margin: 1em !important;
+}
+.export {
+  text-align: right;
+  margin: 1em;
+}

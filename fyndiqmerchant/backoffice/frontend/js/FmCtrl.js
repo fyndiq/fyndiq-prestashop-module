@@ -221,7 +221,7 @@ var FmCtrl = {
         });
 
         var savetimeout;
-        $(document).on('keyup', '.prices .fyndiq_price .inputdiv .fyndiq_dicsount', function () {
+        $(document).on('keyup', '.fyndiq_dicsount', function () {
             var discount = parseFloat($(this).val());
             var $product = $(this).closest('.product');
             var product_id = $product.attr('data-id');
@@ -234,7 +234,7 @@ var FmCtrl = {
             }
 
             var price = $product.attr('data-price');
-            var field = $(this).parent().parent().find('.price_preview_price');
+            var field = $(this).closest('.prices').find('.price_preview_price');
 
             var counted = price - ((discount / 100) * price);
             if (isNaN(counted)) {
@@ -274,7 +274,7 @@ var FmCtrl = {
 
                     // store product id and combinations
                     var price = $(this).find("td.prices > div.price > input").val();
-                    var fyndiq_percentage = $(this).find(".fyndiq_price .inputdiv .fyndiq_dicsount").val();
+                    var fyndiq_percentage = $(this).find('.fyndiq_dicsount').val();
                     console.log(fyndiq_percentage);
                     products.push({
                         'product': {

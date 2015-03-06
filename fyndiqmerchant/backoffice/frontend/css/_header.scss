@@ -1,0 +1,28 @@
+.fm-header {
+  background-color: $color-navigation-background;
+}
+
+.fm-header-wrapper {
+  height: $header-height;
+  margin: 0 auto;
+  width: $content-width;
+}
+
+.navbar-brand {
+  margin-top: 14px;
+}
+
+.navbar-right {
+  display: table-cell;
+  float: right;
+  margin-top: 20px;
+  vertical-align: middle;
+}
+
+.menu-icon {
+  display: inline-block;
+  height: 30px;
+  margin-bottom: 3px;
+  vertical-align: middle;
+  width: 30px;
+}

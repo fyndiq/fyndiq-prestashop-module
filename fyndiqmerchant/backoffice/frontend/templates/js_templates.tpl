@@ -158,15 +158,32 @@
                     {{/if}}
                     <td><strong>{{name}}</strong> <span class="shadow">({{reference}})</span><br/>{{properties}}</td>
                     <td class="prices">
+                        <table>
+                            <tr>
+                                <th>Price:</th>
+                                <td class="pricetag">{{price}}&nbsp;SEK</td>
+                            </tr>
+                            <tr>
+                                <th>Fyndiq Discount:</th>
+                                <td><div class="inputdiv"><input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">%</div><span
+                                            id="ajaxFired"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Expected Price:</th>
+                                <td class="price_preview"><span class="price_preview_price">{{expected_price}}</span>&nbsp;SEK</td>
+                            </tr>
+                        </table>
+                        <!--
                         <div class="price">
-                            Price: <span class="pricetag">{{price}} SEK</span>
+                            <label>Price:</label><span class="pricetag">{{price}}&nbsp;SEK</span>
                         </div>
                         <div class="fyndiq_price">
                             <label>Fyndiq Discount:</label>
-                            <div class="inputdiv"><input type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">%</div><span
-                                id="ajaxFired"></span><br />
-                            <span style="float:left;">Expected Price: </span><span class="price_preview"><span class="price_preview_price">{{expected_price}}</span> SEK</span>
+                            <br />
+                            <label>Expected Price:</label><span class="price_preview"><span class="price_preview_price">{{expected_price}}</span>&nbsp;SEK</span>
                         </div>
+                        -->
                     </td>
                     <td class="quantities">
                         {{quantity}}
