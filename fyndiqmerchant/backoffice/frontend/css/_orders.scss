@@ -1,0 +1,39 @@
+.fm-orderlist-panel {
+  float: left;
+  width: 700px;
+}
+
+.fm-sidebar {
+  float: left;
+  width: 240px;
+  margin-left: 10px;
+
+  .fm-panel-header {
+    font-size: 15pt;
+    line-height: 32pt;
+  }
+}
+
+.lastupdated {
+  background-color: $color-table-header-background;
+  font-size: 12px;
+  font-weight: 400;
+  height: 41px;
+  line-height: 21px;
+  margin-bottom: 1em;
+  padding: 10px;
+
+  img {
+    float: left;
+  }
+
+  .last-header {
+    display: block;
+    margin: 3px 0 -5px;
+  }
+}
+
+#fm-import-orders {
+  text-align: center;
+  width: 180px;
+}
