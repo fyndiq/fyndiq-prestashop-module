@@ -253,7 +253,7 @@ class FmAjaxService
             }
 
             if($curPage > $count-1) {
-                $html .= '<li><a href="#" data-page="'.($curPage-1).'"><< Previous</a></li>';
+                $html .= '<li><a href="#" data-page="'.($curPage-1).'">&lt;</a></li>';
             }
 
             for($i = $start; $i<=$count; $i++)
@@ -269,7 +269,7 @@ class FmAjaxService
             }
 
             if($curPage < $count) {
-                $html .= '<li><a href="#" data-page="'.($curPage+1).'">Next >></a></li>';
+                $html .= '<li><a href="#" data-page="'.($curPage+1).'">&gt;</a></li>';
             }
 
             $html .= '</ol>';
