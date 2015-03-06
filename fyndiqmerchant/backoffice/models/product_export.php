@@ -94,13 +94,17 @@ class FmProductExport
         $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
         if ($products != false) {
             $return_array = array();
+
+            // get current currency
+            $current_currency = Currency::getDefaultCurrency()->iso_code;
+
             foreach ($products as $product) {
 
                 $magarray = FmProduct::get($product["product_id"]);
                 $real_array = array();
 
                 $real_array = self::getProductData($magarray,$product);
-
+                $real_array['product-currency'] = $current_currency;
 
                 if (count($magarray['combinations']) > 0) {
                     $first_array = array_shift($magarray['combinations']);
