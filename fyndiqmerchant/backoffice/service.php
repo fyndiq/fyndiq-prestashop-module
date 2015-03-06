@@ -197,10 +197,6 @@ class FmAjaxService
         }
         $result = FmProductExport::saveFile();
 
-        if ($result != false) {
-            $result = true;
-        }
-
         $this->response($result);
     }
 
@@ -211,9 +207,7 @@ class FmAjaxService
             FmProductExport::deleteProduct($product['id']);
         }
         $result = FmProductExport::saveFile();
-        if ($result != false) {
-            $result = true;
-        }
+        
         $this->response($result);
     }
 

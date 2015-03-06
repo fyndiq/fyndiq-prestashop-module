@@ -154,6 +154,7 @@ class FmProductExport
             foreach ($return_array as $product_array) {
                 $filehandler->appendToFile($product_array);
             }
+            return true;
         } else {
             return false;
         }
