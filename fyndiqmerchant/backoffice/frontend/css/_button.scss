@@ -1,4 +1,4 @@
-.btn {
+.btn, .fm-button {
   @include border-radius(5px);
   border: 1px solid transparent;
   cursor: pointer;
@@ -9,12 +9,14 @@
   text-decoration: none;
 }
 
+.fm-button.green,
 .btn-green,
 .btn-green:visited {
   background-color: $color-button-primary-background;
   color: $color-button-primary-text;
 }
 
+.fm-button.red,
 .btn-red,
 .btn-red:visited {
   background-color: $color-inactive;
@@ -34,4 +36,10 @@
   background-color: $color-navigation-active-background;
   border: 1px solid $color-navigation-active-border;
   color: $color-navigation-active-text;
+}
+
+.fm-button.disabled {
+  background-color: $color-disabled-background;
+  border: 1px solid $color-disabled-background;
+  color: $color-disabled-text;
 }

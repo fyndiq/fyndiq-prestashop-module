@@ -47,7 +47,7 @@
   vertical-align: middle;
   width: 30px; }
 
-.btn {
+.btn, .fm-button {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -59,11 +59,13 @@
   padding: 6px 12px;
   text-decoration: none; }
 
+.fm-button.green,
 .btn-green,
 .btn-green:visited {
   background-color: #83c070;
   color: #fff; }
 
+.fm-button.red,
 .btn-red,
 .btn-red:visited {
   background-color: #e85353;
@@ -81,6 +83,11 @@
   background-color: #ea524f;
   border: 1px solid #ea524f;
   color: #fff; }
+
+.fm-button.disabled {
+  background-color: #e3e3e3;
+  border: 1px solid #e3e3e3;
+  color: #b3b3b3; }
 
 .fm-panel {
   -webkit-border-radius: 3px;
@@ -129,6 +136,13 @@ ul.fm-category-tree {
       text-decoration: none; }
       ul.fm-category-tree li a:hover {
         color: #f08c48; }
+
+.fm-products-list-container table img {
+  border: 1px solid #e3e8ec;
+  max-height: 80px; }
+
+.export {
+  text-align: right; }
 
 #main {
   background-color: #e7eef4 !important; }

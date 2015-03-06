@@ -23,3 +23,18 @@ ul.fm-category-tree {
     }
   }
 }
+
+// Product list
+
+.fm-products-list-container {
+  table {
+    img {
+      border: 1px solid $color-navigation-inactive-border;
+      max-height: $thumbnail-max-height;
+    }
+  }
+}
+
+.export {
+  text-align: right;
+}
