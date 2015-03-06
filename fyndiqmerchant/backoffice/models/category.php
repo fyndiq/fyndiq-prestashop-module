@@ -3,7 +3,7 @@
 require_once('config.php');
 
 class FmCategory {
-    
+
     public static function get_subcategories($category_id) {
 
         $language_id = FmConfig::get('language');

@@ -160,11 +160,18 @@ var FmCtrl = {
             e.preventDefault();
             var category_id = parseInt($li.attr('data-category_id'), 10);
             FmGui.show_load_screen(function () {
-                FmCtrl.load_categories(category_id, $li, function() {
+                if (!$li.data('expanded')) {
+                    FmCtrl.load_categories(category_id, $li, function() {
+                        $li.data('expanded', true);
+                        FmCtrl.load_products(category_id, function () {
+                            FmGui.hide_load_screen();
+                        });
+                    });
+                } else {
                     FmCtrl.load_products(category_id, function () {
                         FmGui.hide_load_screen();
                     });
-                });
+                }
             });
         });
 
