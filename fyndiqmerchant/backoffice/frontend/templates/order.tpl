@@ -23,7 +23,7 @@
         <div class="fm-orderlist-panel">
             <div class="fm-panel">
                 <div class="fm-panel-header">Imported Orders</div>
-                <div class="fm-panel-body">
+                <div class="fm-panel-body no-padding">
                     <form action="" method="post" class="fm-form orders-form">
                         <div class="fm-order-list-container"></div>
                     </form>

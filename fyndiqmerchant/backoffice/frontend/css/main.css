@@ -194,6 +194,9 @@ p.info {
   float: left;
   width: 240px;
   margin-left: 10px; }
+  .fm-sidebar .fm-panel-header {
+    font-size: 15pt;
+    line-height: 32pt; }
 
 .lastupdated {
   background-color: #f5f8fb;
