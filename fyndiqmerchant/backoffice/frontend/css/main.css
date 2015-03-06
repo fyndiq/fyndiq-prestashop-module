@@ -193,7 +193,7 @@ ul.fm-category-tree {
     border-bottom: 1px solid #e3e8ec;
     font-weight: bold;
     padding: 5px 10px; }
-    ul.fm-category-tree li.active a {
+    ul.fm-category-tree li.active > a {
       color: #f08c48; }
     ul.fm-category-tree li a {
       text-decoration: none; }
