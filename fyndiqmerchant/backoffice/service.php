@@ -105,9 +105,9 @@ class FmAjaxService
     {
         $products = array();
 
-        if(isset($args["page"]) AND $args["page"] > 0) {
+        if (isset($args["page"]) AND $args["page"] > 0) {
             $rows = FmProduct::get_by_category($args['category'], $args["page"], $this->_itemPerPage);
-        }else {
+        } else {
             $rows = FmProduct::get_by_category($args['category']);
         }
 
@@ -116,7 +116,7 @@ class FmAjaxService
             $product = FmProduct::get($row['id_product']);
 
             # if there is a configured precentage, set that value
-            if(FmProductExport::productExist($row['id_product'])) {
+            if (FmProductExport::productExist($row['id_product'])) {
                 $productexport = FmProductExport::getProduct($row["id_product"]);
                 $typed_percentage = $productexport['exported_price_percentage'];
             } else {
@@ -127,12 +127,17 @@ class FmAjaxService
             $product["fyndiq_precentage"] = $typed_percentage;
             $product["fyndiq_quantity"] = $product["quantity"];
             $product["fyndiq_exported"] = FmProductExport::productExist($row['id_product']);
-            $product["expected_price"] = number_format((float)($product["price"]-(($typed_percentage/100)*$product["price"])), 2, '.', '');
+            $product["expected_price"] = number_format(
+                (float)($product["price"] - (($typed_percentage / 100) * $product["price"])),
+                2,
+                '.',
+                ''
+            );
             $products[] = $product;
         }
         $object = new stdClass();
         $object->products = $products;
-        if(!isset($args["page"])) {
+        if (!isset($args["page"])) {
             $object->pagination = $this->getPagerProductsHtml($args['category'], 1);
         } else {
             $object->pagination = $this->getPagerProductsHtml($args['category'], $args["page"]);
@@ -158,7 +163,7 @@ class FmAjaxService
         try {
             $ret = FmHelpers::call_api('GET', 'orders/');
             foreach ($ret["data"] as $order) {
-                if(!FmOrder::orderExists($order->id)) {
+                if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
                 }
             }
@@ -184,17 +189,15 @@ class FmAjaxService
         foreach ($args['products'] as $v) {
             $product = $v['product'];
 
-            if(FmProductExport::productExist($product["id"])) {
+            if (FmProductExport::productExist($product["id"])) {
                 FmProductExport::updateProduct($product["id"], $product['fyndiq_percentage']);
-            }
-            else {
+            } else {
                 FmProductExport::addProduct($product["id"], $product['fyndiq_percentage']);
             }
         }
         $result = FmProductExport::saveFile();
 
-        if($result != false)
-        {
+        if ($result != false) {
             $result = true;
         }
 
@@ -207,12 +210,17 @@ class FmAjaxService
             $product = $v["product"];
             FmProductExport::deleteProduct($product['id']);
         }
-        $this->response();
+        $result = FmProductExport::saveFile();
+        if ($result != false) {
+            $result = true;
+        }
+        $this->response($result);
     }
 
-    public function update_product($args) {
+    public function update_product($args)
+    {
         $result = false;
-        if(FmProductExport::productExist($args["product"])) {
+        if (FmProductExport::productExist($args["product"])) {
             $result = FmProductExport::updateProduct($args["product"], $args['percentage']);
         }
         $this->response($result);
@@ -229,40 +237,40 @@ class FmAjaxService
     {
         $html = false;
         $collection = FmProduct::get_by_category($category);
-        if($collection == 'null') return;
-        if(count($collection) > 10)
-        {
+        if ($collection == 'null') {
+            return;
+        }
+        if (count($collection) > 10) {
             $curPage = $currentpage;
             $pager = (int)(count($collection) / $this->_itemPerPage);
-            $count = (count($collection) % $this->_itemPerPage == 0) ? $pager : $pager + 1 ;
+            $count = (count($collection) % $this->_itemPerPage == 0) ? $pager : $pager + 1;
             $start = 1;
             $end = $this->_pageFrame;
 
 
             $html .= '<ol class="pageslist">';
-            if(isset($curPage) && $curPage != 1){
+            if (isset($curPage) && $curPage != 1) {
                 $start = $curPage - 1;
                 $end = $start + $this->_pageFrame;
-            }else{
+            } else {
                 $end = $start + $this->_pageFrame;
             }
-            if($end > $count){
-                $start = $count - ($this->_pageFrame-1);
-            }else{
-                $count = $end-1;
+            if ($end > $count) {
+                $start = $count - ($this->_pageFrame - 1);
+            } else {
+                $count = $end - 1;
             }
 
             if($curPage > $count-1) {
                 $html .= '<li><a href="#" data-page="'.($curPage-1).'">&lt;</a></li>';
             }
 
-            for($i = $start; $i<=$count; $i++)
-            {
-                if($i >= 1){
-                    if($curPage){
-                        $html .= ($curPage == $i) ? '<li class="current">'. $i .'</li>' : '<li><a href="#" data-page="'.$i.'">'. $i .'</a></li>';
-                    }else{
-                        $html .= ($i == 1) ? '<li class="current">'. $i .'</li>' : '<li><a href="#" data-page="'.$i.'">'. $i .'</a></li>';
+            for ($i = $start; $i <= $count; $i++) {
+                if ($i >= 1) {
+                    if ($curPage) {
+                        $html .= ($curPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
+                    } else {
+                        $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
                     }
                 }
 
@@ -278,5 +286,6 @@ class FmAjaxService
         return $html;
     }
 }
+
 $ajaxService = new FmAjaxService();
 $ajaxService->handle_request();
