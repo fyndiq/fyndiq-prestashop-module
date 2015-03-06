@@ -18,7 +18,7 @@
 
 <div class="fm-container">
 
-    {include file='./header.tpl' current='settings'}
+    {include file='./header.tpl' current='main'}
 
     <div class="fm-content-wrapper">
         <div class="fm-left-sidebar">
@@ -37,7 +37,6 @@
                 <div class="fm-panel-body no-padding">
                     <form action="" method="post" class="fm-form products">
                         <p class="info">By using this form, you can export products from the local webshop into Fyndiq.</p>
-
                         <div class="fm-product-list-container"></div>
                     </form>
                 </div>
