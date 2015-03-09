@@ -119,6 +119,13 @@ class FmProductExport
                     $first_array = array_shift($magarray['combinations']);
                     $real_array_copy["article-quantity"] = $first_array["quantity"];
                     $real_array_copy["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
+                    $imageid = 1;
+                    if (isset($magarray["image"])) {
+                        $real_array_copy["product-image-" . $imageid . "-url"] = addslashes(strval($magarray["image"]));
+                        $real_array_copy["product-image-" . $imageid . "-identifier"] = addslashes(
+                            substr(md5($product["product_id"] . "-" . strval($magarray["image"])), 0, 10)
+                        );
+                    }
                     $name = "";
                     $id = 1;
                     foreach ($first_array["attributes"] as $attr) {
@@ -130,7 +137,6 @@ class FmProductExport
                     $real_array_copy["article-name"] = $name;
                     $tempKeys = array_merge($tempKeys, array_keys($real_array_copy));
                     $return_array[] = $real_array_copy;
-                    $imageid = 1;
                     foreach ($magarray["combinations"] as $combo) {
                         $real_array["article-quantity"] = $combo["quantity"];
                         $real_array['product-currency'] = $current_currency;
