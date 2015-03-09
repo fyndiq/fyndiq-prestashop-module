@@ -2,8 +2,9 @@
 #main {
   background-color: $color-page-background !important;
 }
+
 #content.nobootstrap {
-    padding: 62px 0 0;
+  padding: 62px 0 0;
 }
 
 .fm-container {
@@ -11,10 +12,10 @@
   font-family: $font-family-default;
   font-size: $font-text-default;
   padding-bottom: 3em;
-}
 
-.fm-container p {
-  margin: 0 0 1em 0;
+  p {
+    margin: 0 0 1em;
+  }
 }
 
 .fm-content-wrapper {
@@ -23,9 +24,9 @@
 }
 
 .fm-left-sidebar {
-  width: $sidebar-width;
   float: left;
   margin-right: 10px;
+  width: $sidebar-width;
 }
 
 .fm-product-panel {

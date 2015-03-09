@@ -1,4 +1,5 @@
-.btn, .fm-button {
+.btn,
+.fm-button {
   @include border-radius(5px);
   border: 1px solid transparent;
   cursor: pointer;
