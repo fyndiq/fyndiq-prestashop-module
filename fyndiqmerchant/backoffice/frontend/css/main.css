@@ -1,7 +1,7 @@
 .text-right {
   text-align: right; }
 
-.text-center {
+.text-center, .center {
   text-align: center; }
 
 .icon {
@@ -102,12 +102,12 @@
   .fm-panel .fm-panel-header {
     background-color: #799ec4;
     color: #fff;
-    font-size: 20pt;
+    font-size: 15pt;
     padding: .4em; }
     .fm-panel .fm-panel-header .legend {
       float: right;
-      font-size: 12pt;
-      margin-top: 8px; }
+      font-size: 10pt;
+      margin-top: 4px; }
   .fm-panel .fm-panel-body {
     padding: 1em; }
     .fm-panel .fm-panel-body.no-padding {
@@ -251,9 +251,6 @@ p.info {
   float: left;
   width: 240px;
   margin-left: 10px; }
-  .fm-sidebar .fm-panel-header {
-    font-size: 15pt;
-    line-height: 32pt; }
 
 .lastupdated {
   background-color: #f5f8fb;
