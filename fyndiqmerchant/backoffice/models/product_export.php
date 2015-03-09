@@ -179,9 +179,7 @@ class FmProductExport
 
             // Save products to CSV file
             $filehandler = new FmFileHandler("w+");
-            foreach ($return_array as $product_array) {
-                $filehandler->appendToFile($product_array);
-            }
+            $filehandler->writeOverFile($return_array);
             return true;
         } else {
             return false;
