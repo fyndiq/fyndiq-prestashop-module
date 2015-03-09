@@ -25,12 +25,12 @@ class FmFileHandler
      * @param $products
      * @param $keys
      */
-    function writeOverFile($products, $keys)
+    function writeOverFile($keys, $products)
     {
         $this->openFile(true);
         $this->writeheader($keys);
         foreach ($products as $product) {
-            $this->writeToFile($product, $keys);
+            $this->writeToFile($keys, $product);
         }
         $this->closeFile();
     }
@@ -52,7 +52,7 @@ class FmFileHandler
      * @param $keys
      * @return int|boolean
      */
-    private function writeToFile($fields, $keys)
+    private function writeToFile($keys, $fields)
     {
         $printarray = array();
         foreach ($keys as $key) {

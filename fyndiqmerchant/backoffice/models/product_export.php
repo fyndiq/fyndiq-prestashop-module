@@ -174,7 +174,7 @@ class FmProductExport
 
             // Save products to CSV file
             $filehandler = new FmFileHandler(_PS_ROOT_DIR_, "w+");
-            $filehandler->writeOverFile($return_array, array_unique($tempKeys));
+            $filehandler->writeOverFile(array_unique($tempKeys), $return_array);
 
             return true;
         } else {
