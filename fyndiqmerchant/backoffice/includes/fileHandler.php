@@ -56,10 +56,9 @@ class FmFileHandler
     {
         $printarray = array();
         foreach ($keys as $key) {
-            if(isset($fields[$key])) {
+            if (isset($fields[$key])) {
                 $printarray[] = $fields[$key];
-            }
-            else {
+            } else {
                 $printarray[] = "";
             }
         }
