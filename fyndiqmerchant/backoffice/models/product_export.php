@@ -109,7 +109,7 @@ class FmProductExport
                 if (count($magarray['combinations']) > 0) {
                     $first_array = array_shift($magarray['combinations']);
                     $real_array["article-quantity"] = $first_array["quantity"];
-                    $real_array["product-price"] = $first_array["price"] - ($first_array["price"] * ($product["exported_price_percentage"] / 100));
+                    #$real_array["product-price"] = $first_array["price"] - ($first_array["price"] * ($product["exported_price_percentage"] / 100));
                     $real_array["product-price"] = number_format((float)$real_array["product-price"], 2, '.', '');
                     $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
                     $name = "";
@@ -133,10 +133,10 @@ class FmProductExport
                             $real_array["article-sku"] = $combo["reference"];
                         }
                         else {
-                            $real_array["article-sku"] = $magarray["reference"]." ".$combo["id"];
+                            $real_array["article-sku"] = $magarray["reference"]."-".$combo["id"];
                         }
                         $real_array["article-location"] = "test";
-                        $real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
+                        #$real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
                         $real_array["product-price"] = number_format((float)$real_array["product-price"], 2, '.', '');
                         $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
 
