@@ -133,7 +133,7 @@
   .fm-panel table th {
     border-collapse: collapse;
     border-spacing: 0;
-    padding: .6em;
+    padding: .4em;
     border-top: 1px solid #e3e8ec;
     border-bottom: 1px solid #e3e8ec; }
   .fm-panel table tbody tr:nth-child(even) {
