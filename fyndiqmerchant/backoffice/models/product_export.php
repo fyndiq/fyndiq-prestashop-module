@@ -121,7 +121,7 @@ class FmProductExport
                     }
                     $real_array["article-name"] = $name;
                     $return_array[] = $real_array;
-                    $imageid = 2;
+                    $imageid = 1;
                     foreach($magarray["combinations"] as $combo) {
                         $real_array = self::getProductData($magarray,$product);
                         $real_array["article-quantity"] = $combo["quantity"];
@@ -143,7 +143,6 @@ class FmProductExport
                         }
                         $real_array["article-name"] = $name;
                         $return_array[] = $real_array;
-                        $imageid++;
                     }
                 }
                 else {
@@ -151,9 +150,34 @@ class FmProductExport
                 }
             }
 
-            $first_array = array_values($return_array)[1];
-            $key_values = array_keys($first_array);
-            array_unshift($return_array, $key_values);
+            // Get are key values for header
+            $tempKeys = array();
+            foreach ($return_array as $array) {
+                $keyarray = array_keys($array);
+                if (count($tempKeys) == 0) {
+                    $tempKeys = $keyarray;
+                    continue;
+                }
+                foreach ($keyarray as $keys) {
+                    if (!in_array($keys, $tempKeys)) {
+                        $tempKeys[] = $keys;
+                    }
+                }
+            }
+
+            foreach ($return_array as $key => $array) {
+                foreach ($tempKeys as $keys) {
+                    if (!array_key_exists($keys, $array)) {
+                        $array[$keys] = "";
+                    }
+                }
+                $return_array[$key] = $array;
+            }
+
+            // Add keys to product array as first array.
+            array_unshift($return_array, $tempKeys);
+
+            // Save products to CSV file
             $filehandler = new FmFileHandler("w+");
             foreach ($return_array as $product_array) {
                 $filehandler->appendToFile($product_array);
