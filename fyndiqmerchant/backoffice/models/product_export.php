@@ -111,7 +111,8 @@ class FmProductExport
 
                 $magarray = FmProduct::get($product["product_id"]);
 
-                $real_array = self::getProductData($magarray, $product);
+                $product_array = self::getProductData($magarray, $product);
+                $real_array = $product_array
                 $real_array['product-currency'] = $current_currency;
 
                 if (count($magarray['combinations']) > 0) {
@@ -131,7 +132,7 @@ class FmProductExport
                     $return_array[] = $real_array;
                     $imageid = 1;
                     foreach ($magarray["combinations"] as $combo) {
-                        $real_array = self::getProductData($magarray, $product);
+                        $real_array = $product_array;
                         $real_array["article-quantity"] = $combo["quantity"];
                         $real_array['product-currency'] = $current_currency;
 
