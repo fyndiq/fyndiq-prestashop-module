@@ -5,8 +5,13 @@
 
 .fm-sidebar {
   float: left;
-  width: 240px;
   margin-left: 10px;
+  width: 240px;
+
+  .btn {
+    text-align: center;
+    width: 180px;
+  }
 }
 
 .lastupdated {
@@ -26,9 +31,4 @@
     display: block;
     margin: 3px 0 -5px;
   }
-}
-
-#fm-import-orders {
-  text-align: center;
-  width: 180px;
 }

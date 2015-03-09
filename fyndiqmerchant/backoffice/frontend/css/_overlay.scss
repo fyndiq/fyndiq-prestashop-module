@@ -2,10 +2,10 @@
   @include overlay;
 
   img {
-    width: 128px;
-    height: 128px;
     display: block;
+    height: 128px;
     margin: 200px auto;
+    width: 128px;
   }
 }
 
@@ -14,44 +14,44 @@
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .3);
   color: $color-light;
   left: 0;
-  padding: 30px 0px 30px 10px;
+  padding: 30px 0 30px 10px;
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 9999 !important;
 
   &.fm-info {
-    background-color: #799ec4;
-    border-color: #87acd3;
+    background-color: $color-message-info-background;
+    border-color: $color-message-info-border;
   }
+
   &.fm-error {
-    background-color: #e85353;
-    border-color: #f55454;
+    background-color: $color-message-error-background;
+    border-color: $color-message-error-border;
   }
+
   &.fm-warning {
-    background-color: #f08c48;
-    border-color: #fa9549;
+    background-color: $color-message-warning-background;
+    border-color: $color-message-warning-border;
   }
+
   &.fm-success {
-    background-color: #83c070;
-    border-color: #9bde87;
+    background-color: $color-message-success-background;
+    border-color: $color-message-success-border;
   }
 
   .close {
-    display: block;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 30px;
-    height: 30px;
     cursor: pointer;
+    display: block;
+    height: 30px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 30px;
   }
 
-  h3 {
-    text-align: center
-  }
-
+  h3,
   p {
-    text-align: center
+    text-align: center;
   }
 }

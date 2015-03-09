@@ -1,7 +1,8 @@
 .text-right {
   text-align: right; }
 
-.text-center, .center {
+.text-center,
+.center {
   text-align: center; }
 
 .icon {
@@ -23,7 +24,8 @@
     height: 20px;
     width: 20px; }
 
-.shadow, .muted {
+.shadow,
+.muted {
   color: #999; }
 
 .fm-header {
@@ -50,7 +52,8 @@
   vertical-align: middle;
   width: 30px; }
 
-.btn, .fm-button {
+.btn,
+.fm-button {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -132,11 +135,11 @@
     background-color: #f5f8fb; }
   .fm-panel table td,
   .fm-panel table th {
+    border-bottom: 1px solid #e3e8ec;
     border-collapse: collapse;
     border-spacing: 0;
-    padding: .4em;
     border-top: 1px solid #e3e8ec;
-    border-bottom: 1px solid #e3e8ec; }
+    padding: .4em; }
   .fm-panel table tbody tr:nth-child(even) {
     background-color: #f5f8fb; }
 
@@ -150,16 +153,16 @@
   height: 100%;
   z-index: 999; }
   .fm-loading-overlay img {
-    width: 128px;
-    height: 128px;
     display: block;
-    margin: 200px auto; }
+    height: 128px;
+    margin: 200px auto;
+    width: 128px; }
 
 .fm-message-overlay {
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.3);
   color: #fff;
   left: 0;
-  padding: 30px 0px 30px 10px;
+  padding: 30px 0 30px 10px;
   position: fixed;
   top: 0;
   width: 100%;
@@ -171,41 +174,40 @@
     background-color: #e85353;
     border-color: #f55454; }
   .fm-message-overlay.fm-warning {
-    background-color: #f08c48;
-    border-color: #fa9549; }
+    background-color: #e85353;
+    border-color: #f55454; }
   .fm-message-overlay.fm-success {
     background-color: #83c070;
     border-color: #9bde87; }
   .fm-message-overlay .close {
+    cursor: pointer;
     display: block;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 30px;
     height: 30px;
-    cursor: pointer; }
-  .fm-message-overlay h3 {
-    text-align: center; }
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 30px; }
+  .fm-message-overlay h3,
   .fm-message-overlay p {
     text-align: center; }
 
-ul.fm-category-tree {
+.fm-category-tree {
   font-size: 12pt;
   list-style: none;
   margin: 0;
   padding: 0; }
-  ul.fm-category-tree li {
+  .fm-category-tree li {
     font-weight: bold;
     padding-left: 10px; }
-    ul.fm-category-tree li.active > a {
+    .fm-category-tree li.active > a {
       color: #f08c48; }
-    ul.fm-category-tree li a {
-      text-decoration: none;
-      border-bottom: 1px solid #e3e8ec;
-      padding: 5px 10px 5px 0;
-      display: block; }
-      ul.fm-category-tree li a:hover {
-        color: #f08c48; }
+  .fm-category-tree a {
+    border-bottom: 1px solid #e3e8ec;
+    display: block;
+    padding: 5px 10px 5px 0;
+    text-decoration: none; }
+    .fm-category-tree a:hover {
+      color: #f08c48; }
 
 .fm-products-list-container table img {
   border: 1px solid #e3e8ec;
@@ -216,8 +218,7 @@ ul.fm-category-tree {
   border: 0;
   padding: 3px 0;
   text-align: left;
-  white-space: nowrap;
-  border: none; }
+  white-space: nowrap; }
 .fm-products-list-container .prices td {
   text-align: right; }
 .fm-products-list-container .prices .inputdiv {
@@ -239,12 +240,12 @@ ul.fm-category-tree {
   padding: 2px;
   width: 20px; }
 
-p.info {
+.info {
   margin: 1em !important; }
 
 .export {
-  text-align: right;
-  margin: 1em; }
+  margin: 1em;
+  text-align: right; }
 
 .fm-orderlist-panel {
   float: left;
@@ -252,8 +253,11 @@ p.info {
 
 .fm-sidebar {
   float: left;
-  width: 240px;
-  margin-left: 10px; }
+  margin-left: 10px;
+  width: 240px; }
+  .fm-sidebar .btn {
+    text-align: center;
+    width: 180px; }
 
 .lastupdated {
   background-color: #f5f8fb;
@@ -269,10 +273,6 @@ p.info {
     display: block;
     margin: 3px 0 -5px; }
 
-#fm-import-orders {
-  text-align: center;
-  width: 180px; }
-
 #main {
   background-color: #e7eef4 !important; }
 
@@ -284,18 +284,17 @@ p.info {
   font-family: "Montserrat", sans-serif;
   font-size: 13pt;
   padding-bottom: 3em; }
-
-.fm-container p {
-  margin: 0 0 1em 0; }
+  .fm-container p {
+    margin: 0 0 1em; }
 
 .fm-content-wrapper {
   margin: 0 auto;
   width: 950px; }
 
 .fm-left-sidebar {
-  width: 240px;
   float: left;
-  margin-right: 10px; }
+  margin-right: 10px;
+  width: 240px; }
 
 .fm-product-panel {
   float: left;
