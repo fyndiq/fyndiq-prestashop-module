@@ -49,6 +49,7 @@ class FmProductExport
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}' LIMIT 1";
         $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+
         return reset($products);
     }
 
@@ -86,9 +87,17 @@ class FmProductExport
         return $ret;
     }
 
-
+    /**
+     * Saving the feed
+     *
+     * @return bool
+     */
     public static function saveFile()
     {
+        //Tempkeys
+        $tempKeys = array();
+
+        // Database connection
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sql = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_products';
         $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
@@ -101,9 +110,8 @@ class FmProductExport
             foreach ($products as $product) {
 
                 $magarray = FmProduct::get($product["product_id"]);
-                $real_array = array();
 
-                $real_array = self::getProductData($magarray,$product);
+                $real_array = self::getProductData($magarray, $product);
                 $real_array['product-currency'] = $current_currency;
 
                 if (count($magarray['combinations']) > 0) {
@@ -113,27 +121,26 @@ class FmProductExport
                     $real_array["product-price"] = number_format((float)$real_array["product-price"], 2, '.', '');
                     $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
                     $name = "";
-                    $id=1;
-                    foreach($first_array["attributes"] as $attr) {
+                    $id = 1;
+                    foreach ($first_array["attributes"] as $attr) {
                         $name .= addslashes($attr["name"] . ": " . $attr["value"]);
-                        $real_array["article‑property‑name‑".$id] = $attr["name"];
-                        $real_array["article‑property‑value‑".$id] = $attr["value"];
+                        $real_array["article‑property‑name‑" . $id] = $attr["name"];
+                        $real_array["article‑property‑value‑" . $id] = $attr["value"];
                         $id++;
                     }
                     $real_array["article-name"] = $name;
+                    $tempKeys = array_merge($tempKeys, array_keys($real_array));
                     $return_array[] = $real_array;
                     $imageid = 1;
-                    foreach($magarray["combinations"] as $combo) {
-                        $real_array = self::getProductData($magarray,$product);
+                    foreach ($magarray["combinations"] as $combo) {
+                        $real_array = self::getProductData($magarray, $product);
                         $real_array["article-quantity"] = $combo["quantity"];
                         $real_array['product-currency'] = $current_currency;
 
-                        if(isset($combo["reference"]) AND $combo["reference"] != "")
-                        {
+                        if (isset($combo["reference"]) AND $combo["reference"] != "") {
                             $real_array["article-sku"] = $combo["reference"];
-                        }
-                        else {
-                            $real_array["article-sku"] = $magarray["reference"]."-".$combo["id"];
+                        } else {
+                            $real_array["article-sku"] = $magarray["reference"] . "-" . $combo["id"];
                         }
                         $real_array["article-location"] = "test";
                         #$real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
@@ -141,62 +148,42 @@ class FmProductExport
                         $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
 
                         if (isset($combo["image"])) {
-                            $real_array["product-image-".$imageid."-url"] = addslashes(strval($combo["image"]));
-                            $real_array["product-image-".$imageid."-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($combo["image"])),0,10));
+                            $real_array["product-image-" . $imageid . "-url"] = addslashes(strval($combo["image"]));
+                            $real_array["product-image-" . $imageid . "-identifier"] = addslashes(
+                                substr(md5($product["product_id"] . "-" . strval($combo["image"])), 0, 10)
+                            );
                         }
                         $name = "";
-                        $id=1;
-                        foreach($combo["attributes"] as $attr) {
+                        $id = 1;
+                        foreach ($combo["attributes"] as $attr) {
                             $name .= addslashes($attr["name"] . ": " . $attr["value"]);
-                            $real_array["article‑property‑name‑".$id] = $attr["name"];
-                            $real_array["article‑property‑value‑".$id] = $attr["value"];
+                            $real_array["article‑property‑name‑" . $id] = $attr["name"];
+                            $real_array["article‑property‑value‑" . $id] = $attr["value"];
                             $id++;
                         }
                         $real_array["article-name"] = $name;
+                        $tempKeys = array_merge($tempKeys, array_keys($real_array));
                         $return_array[] = $real_array;
                     }
-                }
-                else {
+                } else {
+                    $tempKeys = array_merge($tempKeys, array_keys($real_array));
                     $return_array[] = $real_array;
                 }
-            }
 
-            // Get are key values for header
-            $tempKeys = array();
-            foreach ($return_array as $array) {
-                $keyarray = array_keys($array);
-                if (count($tempKeys) == 0) {
-                    $tempKeys = $keyarray;
-                    continue;
-                }
-                foreach ($keyarray as $keys) {
-                    if (!in_array($keys, $tempKeys)) {
-                        $tempKeys[] = $keys;
-                    }
-                }
             }
-
-            foreach ($return_array as $key => $array) {
-                foreach ($tempKeys as $keys) {
-                    if (!array_key_exists($keys, $array)) {
-                        $array[$keys] = "";
-                    }
-                }
-                $return_array[$key] = $array;
-            }
-
-            // Add keys to product array as first array.
-            array_unshift($return_array, $tempKeys);
 
             // Save products to CSV file
-            $filehandler = new FmFileHandler(_PS_ROOT_DIR_,"w+");
-            $filehandler->writeOverFile($return_array);
+            $filehandler = new FmFileHandler(_PS_ROOT_DIR_, "w+");
+            $filehandler->writeOverFile($return_array, array_unique($tempKeys));
+
             return true;
         } else {
             return false;
         }
     }
-    private static function getProductData($magarray, $product) {
+
+    private static function getProductData($magarray, $product)
+    {
         $real_array = array();
         $real_array["product-id"] = $product["product_id"];
         $real_array["article-quantity"] = 0;
@@ -208,18 +195,23 @@ class FmProductExport
         $real_array["article-location"] = "test";
         if (isset($product["image"])) {
             $real_array["product-image-1-url"] = addslashes(strval($product["image"]));
-            $real_array["product-image-1-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($product["image"])),0,10));
+            $real_array["product-image-1-identifier"] = addslashes(
+                substr(md5($product["product_id"] . "-" . strval($product["image"])), 0, 10)
+            );
         }
         $real_array["product-title"] = addslashes($magarray["name"]);
         $real_array["product-vat-percent"] = "25";
+
         return $real_array;
     }
+
     static function getL2Keys($array)
     {
         $result = array();
-        foreach($array as $sub) {
+        foreach ($array as $sub) {
             $result = array_merge($result, $sub);
         }
+
         return array_keys($result);
     }
 }

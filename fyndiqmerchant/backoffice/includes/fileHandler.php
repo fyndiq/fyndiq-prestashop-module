@@ -12,7 +12,8 @@ class FmFileHandler
     private $fileresource = null;
     private $mode = null;
 
-    function __construct($path, $mode = "w+",$remove = false) {
+    function __construct($path, $mode = "w+", $remove = false)
+    {
         $this->rootpath = $path;
         $this->mode = $mode;
         $this->openFile($remove);
@@ -22,11 +23,11 @@ class FmFileHandler
      * Write over a existing file if it exists and write all fields.
      *
      * @param $products
+     * @param $keys
      */
-    function writeOverFile($products)
+    function writeOverFile($products, $keys)
     {
         $this->openFile(true);
-        $keys = array_shift($products);
         $this->writeheader($keys);
         foreach ($products as $product) {
             $this->writeToFile($product, $keys);
@@ -34,11 +35,12 @@ class FmFileHandler
         $this->closeFile();
     }
 
-    function removeFile($recreate = false) {
+    function removeFile($recreate = false)
+    {
         if (file_exists($this->filepath)) {
             unlink($this->filepath);
         }
-        if($recreate) {
+        if ($recreate) {
             touch($this->filepath);
         }
     }
@@ -54,8 +56,14 @@ class FmFileHandler
     {
         $printarray = array();
         foreach ($keys as $key) {
-            $printarray[] = $fields[$key];
+            if(isset($fields[$key])) {
+                $printarray[] = $fields[$key];
+            }
+            else {
+                $printarray[] = "";
+            }
         }
+
         return fputcsv($this->fileresource, $printarray);
     }
 
@@ -67,11 +75,11 @@ class FmFileHandler
      */
     private function openFile($removeFile = false)
     {
-        if ($removeFile && file_exists($this->rootpath.$this->filepath)) {
-            unlink($this->rootpath.$this->filepath);
+        if ($removeFile && file_exists($this->rootpath . $this->filepath)) {
+            unlink($this->rootpath . $this->filepath);
         }
         $this->closeFile();
-        $this->fileresource = fopen($this->rootpath.$this->filepath, $this->mode) or die("Can't open file");
+        $this->fileresource = fopen($this->rootpath . $this->filepath, $this->mode) or die("Can't open file");
     }
 
     /**
