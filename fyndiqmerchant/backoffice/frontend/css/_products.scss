@@ -40,10 +40,13 @@ ul.fm-category-tree {
     th,
     td {
       background-color: transparent;
+      border: 0;
       padding: 3px 0;
       text-align: left;
       white-space: nowrap;
+      border:none
     }
+
     td {
       text-align: right;
     }
@@ -58,6 +61,9 @@ ul.fm-category-tree {
       padding: 0 3px 0 0;
     }
 
+    tbody tr:nth-child(even) {
+      background-color: transparent;
+    }
     input {
       border: 0;
       border-right: 1px solid $color-disabled-text;
