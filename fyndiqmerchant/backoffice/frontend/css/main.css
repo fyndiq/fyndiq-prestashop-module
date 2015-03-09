@@ -213,7 +213,8 @@ ul.fm-category-tree {
   border: 0;
   padding: 3px 0;
   text-align: left;
-  white-space: nowrap; }
+  white-space: nowrap;
+  border: none; }
 .fm-products-list-container .prices td {
   text-align: right; }
 .fm-products-list-container .prices .inputdiv {
@@ -224,6 +225,8 @@ ul.fm-category-tree {
   line-height: 15px;
   margin: 0;
   padding: 0 3px 0 0; }
+.fm-products-list-container .prices tbody tr:nth-child(even) {
+  background-color: transparent; }
 .fm-products-list-container .prices input {
   border: 0;
   border-right: 1px solid #b3b3b3;
