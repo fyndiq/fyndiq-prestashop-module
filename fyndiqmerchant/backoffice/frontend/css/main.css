@@ -1,7 +1,7 @@
 .text-right {
   text-align: right; }
 
-.text-center {
+.text-center, .center {
   text-align: center; }
 
 .icon {
@@ -57,7 +57,7 @@
   border: 1px solid transparent;
   cursor: pointer;
   display: inline-block;
-  font-size: 13pt;
+  font-size: 10pt;
   outline: none;
   padding: 6px 12px;
   text-decoration: none; }
@@ -78,7 +78,8 @@
 .btn-nav:visited {
   background-color: #fff;
   border: 1px solid #e3e8ec;
-  color: #333; }
+  color: #333;
+  font-size: 13pt; }
 
 .btn-nav.active,
 .btn-nav.active:visited,
@@ -102,12 +103,12 @@
   .fm-panel .fm-panel-header {
     background-color: #799ec4;
     color: #fff;
-    font-size: 20pt;
+    font-size: 15pt;
     padding: .4em; }
     .fm-panel .fm-panel-header .legend {
       float: right;
-      font-size: 12pt;
-      margin-top: 8px; }
+      font-size: 10pt;
+      margin-top: 4px; }
   .fm-panel .fm-panel-body {
     padding: 1em; }
     .fm-panel .fm-panel-body.no-padding {
@@ -133,7 +134,11 @@
   .fm-panel table th {
     border-collapse: collapse;
     border-spacing: 0;
-    padding: .6em; }
+    padding: .4em;
+    border-top: 1px solid #e3e8ec;
+    border-bottom: 1px solid #e3e8ec; }
+  .fm-panel table tbody tr:nth-child(even) {
+    background-color: #f5f8fb; }
 
 .fm-loading-overlay {
   background: black;
@@ -208,9 +213,11 @@ ul.fm-category-tree {
 .fm-products-list-container .prices th,
 .fm-products-list-container .prices td {
   background-color: transparent;
+  border: 0;
   padding: 3px 0;
   text-align: left;
-  white-space: nowrap; }
+  white-space: nowrap;
+  border: none; }
 .fm-products-list-container .prices td {
   text-align: right; }
 .fm-products-list-container .prices .inputdiv {
@@ -221,6 +228,8 @@ ul.fm-category-tree {
   line-height: 15px;
   margin: 0;
   padding: 0 3px 0 0; }
+.fm-products-list-container .prices tbody tr:nth-child(even) {
+  background-color: transparent; }
 .fm-products-list-container .prices input {
   border: 0;
   border-right: 1px solid #b3b3b3;
@@ -245,9 +254,6 @@ p.info {
   float: left;
   width: 240px;
   margin-left: 10px; }
-  .fm-sidebar .fm-panel-header {
-    font-size: 15pt;
-    line-height: 32pt; }
 
 .lastupdated {
   background-color: #f5f8fb;

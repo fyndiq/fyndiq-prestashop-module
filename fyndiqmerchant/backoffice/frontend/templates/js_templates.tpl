@@ -174,21 +174,11 @@
                                 <td class="price_preview"><span class="price_preview_price">{{expected_price}}</span>&nbsp;{{currency}}</td>
                             </tr>
                         </table>
-                        <!--
-                        <div class="price">
-                            <label>Price:</label><span class="pricetag">{{price}}&nbsp;SEK</span>
-                        </div>
-                        <div class="fyndiq_price">
-                            <label>Fyndiq Discount:</label>
-                            <br />
-                            <label>Expected Price:</label><span class="price_preview"><span class="price_preview_price">{{expected_price}}</span>&nbsp;SEK</span>
-                        </div>
-                        -->
                     </td>
-                    <td class="quantities">
+                    <td class="quantities text-right">
                         {{quantity}}
                     </td>
-                    <td class="status">
+                    <td class="status text-center">
                         {{#if fyndiq_exported}}
                         <i class="icon on big"></i>
                         {{else}}
