@@ -189,7 +189,7 @@ class FmProductExport
             array_unshift($return_array, $tempKeys);
 
             // Save products to CSV file
-            $filehandler = new FmFileHandler("w+");
+            $filehandler = new FmFileHandler(_PS_ROOT_DIR_,"w+");
             $filehandler->writeOverFile($return_array);
             return true;
         } else {

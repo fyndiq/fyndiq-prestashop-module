@@ -8,20 +8,14 @@
 class FmFileHandler
 {
     private $filepath = "/files/feed.csv";
+    private $rootpath = "";
     private $fileresource = null;
+    private $mode = null;
 
-    function __construct($mode = "w+",$remove = false) {
-        $this->openFile($mode, $remove);
-    }
-
-    /**
-     * Write the header to file
-     *
-     * @param $keys
-     */
-    function writeHeader($keys)
-    {
-        fputcsv($this->fileresource, $keys);
+    function __construct($path, $mode = "w+",$remove = false) {
+        $this->rootpath = $path;
+        $this->mode = $mode;
+        $this->openFile($remove);
     }
 
     /**
@@ -71,24 +65,35 @@ class FmFileHandler
      * @param bool $removeFile
      * @internal param string $mode
      */
-    function openFile($removeFile = false)
+    private function openFile($removeFile = false)
     {
-        if ($removeFile && file_exists(_PS_ROOT_DIR_.$this->filepath)) {
-            unlink(_PS_ROOT_DIR_.$this->filepath);
+        if ($removeFile && file_exists($this->rootpath.$this->filepath)) {
+            unlink($this->rootpath.$this->filepath);
         }
         $this->closeFile();
-        $this->fileresource = fopen(_PS_ROOT_DIR_.$this->filepath, "w+") or die("Can't open file");
+        $this->fileresource = fopen($this->rootpath.$this->filepath, $this->mode) or die("Can't open file");
     }
 
     /**
      * Closing the file if isn't already closed
      */
-    function closeFile()
+    private function closeFile()
     {
         if ($this->fileresource != null) {
             fclose($this->fileresource);
             $this->fileresource = null;
         }
+    }
+
+
+    /**
+     * Write the header to file
+     *
+     * @param $keys
+     */
+    private function writeHeader($keys)
+    {
+        fputcsv($this->fileresource, $keys);
     }
 
     /**
