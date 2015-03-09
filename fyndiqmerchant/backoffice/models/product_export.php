@@ -117,8 +117,6 @@ class FmProductExport
                 if (count($magarray['combinations']) > 0) {
                     $first_array = array_shift($magarray['combinations']);
                     $real_array["article-quantity"] = $first_array["quantity"];
-                    #$real_array["product-price"] = $first_array["price"] - ($first_array["price"] * ($product["exported_price_percentage"] / 100));
-                    $real_array["product-price"] = number_format((float)$real_array["product-price"], 2, '.', '');
                     $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
                     $name = "";
                     $id = 1;
@@ -143,8 +141,6 @@ class FmProductExport
                             $real_array["article-sku"] = $magarray["reference"] . "-" . $combo["id"];
                         }
                         $real_array["article-location"] = "test";
-                        #$real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
-                        $real_array["product-price"] = number_format((float)$real_array["product-price"], 2, '.', '');
                         $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
 
                         if (isset($combo["image"])) {
@@ -189,7 +185,8 @@ class FmProductExport
         $real_array["article-quantity"] = 0;
         $real_array["article-sku"] = $magarray["reference"];
         $real_array["product-description"] = $magarray["description"];
-        $real_array["product-price"] = $magarray["price"] - ($magarray["price"] * ($product["exported_price_percentage"] / 100));
+        $price = $magarray["price"] - ($magarray["price"] * ($product["exported_price_percentage"] / 100));
+        $real_array["product-price"] = number_format((float)$price, 2, '.', '');
         $real_array["product-oldprice"] = number_format((float)$magarray["price"], 2, '.', '');
         $real_array["product-brand"] = "test";
         $real_array["article-location"] = "test";
