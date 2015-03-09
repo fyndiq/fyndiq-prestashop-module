@@ -111,28 +111,27 @@ class FmProductExport
 
                 $magarray = FmProduct::get($product["product_id"]);
 
-                $product_array = self::getProductData($magarray, $product);
-                $real_array = $product_array
-                $real_array['product-currency'] = $current_currency;
+                $real_array = self::getProductData($magarray, $product);
+                $real_array_copy = $real_array;
+                $real_array_copy['product-currency'] = $current_currency;
 
                 if (count($magarray['combinations']) > 0) {
                     $first_array = array_shift($magarray['combinations']);
-                    $real_array["article-quantity"] = $first_array["quantity"];
-                    $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
+                    $real_array_copy["article-quantity"] = $first_array["quantity"];
+                    $real_array_copy["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
                     $name = "";
                     $id = 1;
                     foreach ($first_array["attributes"] as $attr) {
                         $name .= addslashes($attr["name"] . ": " . $attr["value"]);
-                        $real_array["article‑property‑name‑" . $id] = $attr["name"];
-                        $real_array["article‑property‑value‑" . $id] = $attr["value"];
+                        $real_array_copy["article‑property‑name‑" . $id] = $attr["name"];
+                        $real_array_copy["article‑property‑value‑" . $id] = $attr["value"];
                         $id++;
                     }
-                    $real_array["article-name"] = $name;
-                    $tempKeys = array_merge($tempKeys, array_keys($real_array));
-                    $return_array[] = $real_array;
+                    $real_array_copy["article-name"] = $name;
+                    $tempKeys = array_merge($tempKeys, array_keys($real_array_copy));
+                    $return_array[] = $real_array_copy;
                     $imageid = 1;
                     foreach ($magarray["combinations"] as $combo) {
-                        $real_array = $product_array;
                         $real_array["article-quantity"] = $combo["quantity"];
                         $real_array['product-currency'] = $current_currency;
 
