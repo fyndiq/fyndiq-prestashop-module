@@ -111,7 +111,25 @@ class FmProductExport
 
                 $magarray = FmProduct::get($product["product_id"]);
 
+                $real_array = self::getProductData($magarray, $product);
+                $real_array['product-currency'] = $current_currency;
+
                 if (count($magarray['combinations']) > 0) {
+                    $first_array = array_shift($magarray['combinations']);
+                    $real_array["article-quantity"] = $first_array["quantity"];
+                    $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
+                    $name = "";
+                    $id = 1;
+                    foreach ($first_array["attributes"] as $attr) {
+                        $name .= addslashes($attr["name"] . ": " . $attr["value"]);
+                        $real_array["article‑property‑name‑" . $id] = $attr["name"];
+                        $real_array["article‑property‑value‑" . $id] = $attr["value"];
+                        $id++;
+                    }
+                    $real_array["article-name"] = $name;
+                    $tempKeys = array_merge($tempKeys, array_keys($real_array));
+                    $return_array[] = $real_array;
+                    $imageid = 1;
                     foreach ($magarray["combinations"] as $combo) {
                         $real_array = self::getProductData($magarray, $product);
                         $real_array["article-quantity"] = $combo["quantity"];
@@ -125,7 +143,6 @@ class FmProductExport
                         $real_array["article-location"] = "test";
                         $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
 
-                        $imageid = 1;
                         if (isset($combo["image"])) {
                             $real_array["product-image-" . $imageid . "-url"] = addslashes(strval($combo["image"]));
                             $real_array["product-image-" . $imageid . "-identifier"] = addslashes(
