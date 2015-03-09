@@ -36,6 +36,7 @@ class FmProduct {
         $result['reference'] = $product->reference;
         $result['quantity'] = Product::getQuantity($product->id);
         $result['price'] = self::get_price($product->price);
+        $result['description'] = $product->description;
 
         ### get the medium image type
         $image_type_name = array(
@@ -74,8 +75,10 @@ class FmProduct {
 
         foreach ($product_attributes as $product_attribute) {
             $id = $product_attribute['id_product_attribute'];
+            $combo_product = new Product($id, false, $language_id);
 
             $result['combinations'][$id]['id'] = $id;
+            $result['combinations'][$id]['reference'] = $combo_product->reference;
             $result['combinations'][$id]['price'] = self::get_price($product->price + $product_attribute['price']);
             $result['combinations'][$id]['quantity'] = $product_attribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
