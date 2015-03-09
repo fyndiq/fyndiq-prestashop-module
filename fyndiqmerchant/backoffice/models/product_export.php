@@ -127,7 +127,14 @@ class FmProductExport
                         $real_array = self::getProductData($magarray,$product);
                         $real_array["article-quantity"] = $combo["quantity"];
                         $real_array['product-currency'] = $current_currency;
-                        $real_array["article-sku"] = $combo["reference"];
+
+                        if(isset($combo["reference"]) AND $combo["reference"] != "")
+                        {
+                            $real_array["article-sku"] = $combo["reference"];
+                        }
+                        else {
+                            $real_array["article-sku"] = $magarray["reference"]." ".$combo["id"];
+                        }
                         $real_array["article-location"] = "test";
                         $real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
                         $real_array["product-price"] = number_format((float)$real_array["product-price"], 2, '.', '');
