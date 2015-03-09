@@ -134,8 +134,8 @@
     border-collapse: collapse;
     border-spacing: 0;
     padding: .6em;
-    border-top: 1px solid #b3b3b3;
-    border-bottom: 1px solid #b3b3b3; }
+    border-top: 1px solid #e3e8ec;
+    border-bottom: 1px solid #e3e8ec; }
   .fm-panel table tbody tr:nth-child(even) {
     background-color: #f5f8fb; }
 
