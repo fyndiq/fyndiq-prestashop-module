@@ -35,7 +35,7 @@
 
                     <h2>{l s='System' mod='fyndiqmerchant'}</h2>
                     <b>{l s='Percentage of price' mod='fyndiqmerchant'}</b>
-                    <p>{l s='This percentage is the percentage of the price that will be cut off your price, if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK)' mod='fyndiqmerchant'}.</p>
+                    <p>{l s='This percentage is the percentage of the price that will be cut off your price, if 10%% percentage it will be 27 SEK of 30 SEK (10%% of 30 SEK is 3 SEK)' mod='fyndiqmerchant' sprintf=[]}.</p>
                     <div class="form-group">
                         <label for="fm-price_percentage">{l s='Percentage in numbers only' mod='fyndiqmerchant'}</label>
                         <input type="number" name="price_percentage" id="fm-price_percentage"

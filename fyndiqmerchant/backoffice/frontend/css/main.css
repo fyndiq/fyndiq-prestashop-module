@@ -123,6 +123,8 @@
   float: left;
   font-size: 12pt;
   text-align: left; }
+.form-horizontal .form-group {
+  height: 1.4em; }
 
 .fm-panel table {
   font-size: 11pt;
