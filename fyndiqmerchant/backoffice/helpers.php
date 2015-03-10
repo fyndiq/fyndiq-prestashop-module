@@ -16,16 +16,20 @@ class FyndiqAPIBadRequest extends Exception{}
 
 class FyndiqAPIUnsupportedStatus extends Exception{}
 
-function pd($v) {
+function pd($v)
+{
     echo '<pre>';
     var_dump($v);
     echo '</pre>';
 }
 
-function startsWith($haystack, $needle) {
+function startsWith($haystack, $needle)
+{
     return $needle === "" || strpos($haystack, $needle) === 0;
 }
-function endsWith($haystack, $needle) {
+
+function endsWith($haystack, $needle)
+{
     return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 }
 
@@ -43,25 +47,41 @@ if (startswith(_PS_VERSION_, '1.6.')) {
     define('FMPSV', FMPSV16);
 }
 
-class FmHelpers {
+class FmHelpers
+{
 
-    public static function api_connection_exists($module=null) {
+    const HTTP_SUCCESS_DEFAUT = 200;
+    const HTTP_SUCCESS_CREATED = 201;
+    const HTTP_SUCCESS_NONCONTENT = 204;
+    const HTTP_ERROR_DEFAULT = 404;
+    const HTTP_ERROR_UNAUTHORIZED = 401;
+    const HTTP_ERROR_TOOMANY = 429;
+    const HTTP_ERROR_SERVER = 500;
+    const HTTP_ERROR_CUSTOM = 400;
+
+
+    public static function api_connection_exists($module = null)
+    {
         $ret = true;
         $ret = $ret && FmConfig::get('username') !== false;
         $ret = $ret && FmConfig::get('api_token') !== false;
+
         return $ret;
     }
 
-    public static function all_settings_exist($module=null) {
+    public static function all_settings_exist($module = null)
+    {
         $ret = true;
         $ret = $ret && FmConfig::get('language') !== false;
         $ret = $ret && FmConfig::get('currency') !== false;
+
         return $ret;
     }
 
     ## wrappers around FyndiqAPI
     # uses stored connection credentials for authentication
-    public static function call_api($method, $path, $data=array()) {
+    public static function call_api($method, $path, $data = array())
+    {
         $username = FmConfig::get('username');
         $api_token = FmConfig::get('api_token');
 
@@ -69,26 +89,26 @@ class FmHelpers {
     }
 
     # add descriptive error messages for common errors, and re throw same exception
-    public static function call_api_raw($username, $api_token, $method, $path, $data=array()) {
+    public static function call_api_raw($username, $api_token, $method, $path, $data = array())
+    {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
         $response = FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
 
 
-
-        if ($response['status'] == 404) {
+        if ($response['status'] == self::HTTP_ERROR_DEFAULT) {
             throw new FyndiqAPIPageNotFound('Not Found: ' . $path);
         }
 
-        if ($response['status'] == 401) {
+        if ($response['status'] == self::HTTP_ERROR_UNAUTHORIZED) {
             throw new FyndiqAPIAuthorizationFailed('Unauthorized');
         }
 
-        if ($response['status'] == 429) {
+        if ($response['status'] == self::HTTP_ERROR_TOOMANY) {
             throw new FyndiqAPITooManyRequests('Too Many Requests');
         }
 
-        if ($response['status'] == 500) {
+        if ($response['status'] == self::HTTP_ERROR_SERVER) {
             throw new FyndiqAPIServerError('Server Error');
         }
         // if json_decode failed
@@ -97,7 +117,7 @@ class FmHelpers {
         }
 
         // 400 may contain error messages intended for the user
-        if ($response['status'] == 400) {
+        if ($response['status'] == self::HTTP_ERROR_CUSTOM) {
             $message = '';
 
             // if there are any error messages, save them to class static member
@@ -120,7 +140,7 @@ class FmHelpers {
             throw new FyndiqAPIBadRequest('Bad Request');
         }
 
-        $success_http_statuses = array('200', '201', '204');
+        $success_http_statuses = array(self::HTTP_SUCCESS_DEFAUT, self::HTTP_SUCCESS_CREATED, self::HTTP_SUCCESS_NONCONTENT);
 
         if (!in_array($response['status'], $success_http_statuses)) {
             throw new FyndiqAPIUnsupportedStatus('Unsupported HTTP status: ' . $response['status']);
@@ -129,7 +149,8 @@ class FmHelpers {
         return $response;
     }
 
-    public static function db_escape($value) {
+    public static function db_escape($value)
+    {
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             return Db::getInstance()->_escape($value);
         }
@@ -138,7 +159,8 @@ class FmHelpers {
         }
     }
 
-    public static function get_shop_url($context) {
+    public static function get_shop_url($context)
+    {
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             return $context->shop->getBaseURL();
         }
@@ -147,14 +169,16 @@ class FmHelpers {
         }
     }
 
-    public static function get_module_url($withadminurl = true) {
+    public static function get_module_url($withadminurl = true)
+    {
 
-        $url = _PS_BASE_URL_.__PS_BASE_URI__;
-        if($withadminurl) {
+        $url = _PS_BASE_URL_ . __PS_BASE_URI__;
+        if ($withadminurl) {
             $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
             $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
-            $url .= '&token='.Tools::getAdminTokenLite('AdminModules');
+            $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
         }
+
         return $url;
     }
 
