@@ -20,6 +20,9 @@ class FmMessages {
         'products-exported-title'=>     'Products exported!',
         'products-exported-message'=>   'The products you selected have been exported to Fyndiq.',
 
+        'products-deleted-title'=>     'Products Deleted!',
+        'products-deleted-message'=>   'The products you selected have been deleted from the feed.',
+
         'orders-imported-title'=>       'Orders imported!',
         'orders-imported-message'=>    'The orders from Fyndiq have been imported to Prestashop.',
 
