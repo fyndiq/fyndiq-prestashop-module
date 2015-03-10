@@ -3,6 +3,8 @@
 class FmProductExport
 {
 
+    const VAT_PERCENT = 25;
+
     static function productExist($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
@@ -49,6 +51,7 @@ class FmProductExport
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}' LIMIT 1";
         $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+
         return reset($products);
     }
 
@@ -86,104 +89,128 @@ class FmProductExport
         return $ret;
     }
 
-
-    public static function saveFile()
+    /**
+     *  Save the export feed
+     *
+     * @param $directory - Export directory
+     * @return bool
+     */
+    public static function saveFile($directory)
     {
+        // Database connection
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sql = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_products';
-        $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-        if ($products != false) {
-            $return_array = array();
+        $fmProducts = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
 
-            // get current currency
-            $current_currency = Currency::getDefaultCurrency()->iso_code;
-
-            foreach ($products as $product) {
-
-                $magarray = FmProduct::get($product["product_id"]);
-                $real_array = array();
-
-                $real_array = self::getProductData($magarray,$product);
-                $real_array['product-currency'] = $current_currency;
-
-                if (count($magarray['combinations']) > 0) {
-                    $first_array = array_shift($magarray['combinations']);
-                    $real_array["article-quantity"] = $first_array["quantity"];
-                    $real_array["product-price"] = $first_array["price"] - ($first_array["price"] * ($product["exported_price_percentage"] / 100));
-                    $real_array["product-oldprice"] = number_format((float)$first_array["price"], 2, '.', '');
-                    $name = "";
-                    $id=1;
-                    foreach($first_array["attributes"] as $attr) {
-                        $name .= addslashes($attr["name"] . ": " . $attr["value"]);
-                        $real_array["article‑property‑name‑".$id] = $attr["name"];
-                        $real_array["article‑property‑value‑".$id] = $attr["value"];
-                        $id++;
-                    }
-                    $real_array["article-name"] = $name;
-                    $return_array[] = $real_array;
-                    $imageid = 2;
-                    foreach($magarray["combinations"] as $combo) {
-                        $real_array = self::getProductData($magarray,$product);
-                        $real_array["article-quantity"] = $combo["quantity"];
-                        $real_array["article-location"] =
-                        $real_array["product-price"] = $combo["price"] - ($combo["price"] * ($product["exported_price_percentage"] / 100));
-                        $real_array["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
-
-                        if (isset($combo["image"])) {
-                            $real_array["product-image-".$imageid."-url"] = addslashes(strval($combo["image"]));
-                            $real_array["product-image-".$imageid."-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($combo["image"])),0,10));
-                        }
-                        $name = "";
-                        $id=1;
-                        foreach($combo["attributes"] as $attr) {
-                            $name .= addslashes($attr["name"] . ": " . $attr["value"]);
-                            $real_array["article‑property‑name‑".$id] = $attr["name"];
-                            $real_array["article‑property‑value‑".$id] = $attr["value"];
-                            $id++;
-                        }
-                        $real_array["article-name"] = $name;
-                        $return_array[] = $real_array;
-                        $imageid++;
-                    }
-                }
-                else {
-                    $return_array[] = $real_array;
-                }
-            }
-
-            $first_array = array_values($return_array)[1];
-            $key_values = array_keys($first_array);
-            array_unshift($return_array, $key_values);
-            $filehandler = new FmFileHandler("w+");
-            foreach ($return_array as $product_array) {
-                $filehandler->appendToFile($product_array);
-            }
-            return true;
-        } else {
+        if (empty($fmProducts)) {
+            // Exit if there are no products
             return false;
         }
-    }
-    private static function getProductData($magarray, $product) {
-        $real_array = array();
-        $real_array["product-id"] = $product["product_id"];
-        $real_array["article-quantity"] = 0;
-        $real_array["product-price"] = $magarray["price"] - ($magarray["price"] * ($product["exported_price_percentage"] / 100));
-        $real_array["product-oldprice"] = number_format((float)$magarray["price"], 2, '.', '');
-        $real_array["product-brand"] = "test";
-        if (isset($product["image"])) {
-            $real_array["product-image-1-url"] = addslashes(strval($product["image"]));
-            $real_array["product-image-1-identifier"] = addslashes(substr(md5($product["product_id"] . "-".strval($product["image"])),0,10));
+
+        $allProducts = array();
+        $keys = array();
+
+        // get current currency
+        $currentCurrency = Currency::getDefaultCurrency()->iso_code;
+
+        foreach ($fmProducts as $fmProduct) {
+            $storeProduct = FmProduct::get($fmProduct['product_id']);
+            $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
+
+            if (count($storeProduct['combinations']) === 0) {
+                // Product without combinations
+                $keys = array_merge($keys, array_keys($exportProduct));
+                $allProducts[] = $exportProduct;
+            } else {
+                $combinationId = 0;
+                foreach ($storeProduct['combinations'] as $combination) {
+                    // Copy the product data so we have clear slate for each combination
+                    $exportProductCopy = $exportProduct;
+
+
+                    if (empty($combination['reference'])) {
+                        $exportProductCopy["article-sku"] = $storeProduct['reference'] . '-' . $combination['id'];
+                    } else {
+                        $exportProductCopy["article-sku"] = $combination['reference'];
+                    }
+
+                    $exportProductCopy['article-quantity'] = $combination['quantity'];
+                    $exportProductCopy['product-oldprice'] = number_format((float)$combination['price'], 2, '.', '');
+
+                    // Set combination image if present
+                    $imageId = 1;
+                    if (!empty($combination['image'])) {
+                        $exportProductCopy['product-image-' . $imageId . '-url'] =
+                            addslashes(strval($combination['image']));
+                        $exportProductCopy['product-image-' . $imageId . '-identifier'] =
+                            $fmProduct['product_id'] . '-' . strval($combination['id']);
+                    }
+
+                    // Create combination name
+                    $productName = [];
+                    $id = 1;
+                    foreach ($combination['attributes'] as $attribute) {
+                        $productName[] = addslashes($attribute['name'] . ': ' . $attribute['value']);
+                        $exportProductCopy['article‑property‑name‑' . $id] = $attribute['name'];
+                        $exportProductCopy['article‑property‑value‑' . $id] = $attribute['value'];
+                        $id++;
+                    }
+                    $exportProductCopy['article-name'] = implode(', ', $productName);
+
+                    $keys = array_merge($keys, array_keys($exportProductCopy));
+                    $allProducts[] = $exportProductCopy;
+                    $combinationId++;
+                }
+            }
+            // Don't allow $keys to grow too large
+            $keys = array_unique($keys);
         }
-        $real_array["product-title"] = addslashes($magarray["name"]);
-        $real_array["product-vat-percent"] = "25";
-        return $real_array;
+
+        // Save products to CSV file
+        $fileHandler = new FmFileHandler($directory, 'w+');
+        return $fileHandler->writeOverFile(array_unique($keys), $allProducts);
     }
+
+    /**
+     * Collect export data for the product
+     *
+     * @param array $storeProduct - The product information from thr product
+     * @param array $fmProduct - Reference table product
+     * @param string $currentCurrency
+     * @return array
+     */
+
+
+    private static function getProductData($storeProduct, $fmProduct, $currentCurrency)
+    {
+        $exportProduct = array();
+        $exportProduct['product-id'] = $fmProduct['product_id'];
+        $exportProduct['product-currency'] = $currentCurrency;
+        $exportProduct['article-quantity'] = 0;
+        $exportProduct['product-description'] = $storeProduct['description'];
+
+        $price = $storeProduct['price'] - ($storeProduct['price'] * ($fmProduct['exported_price_percentage'] / 100));
+        $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
+        $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
+        $exportProduct['product-brand'] = 'test';
+        $exportProduct['article-location'] = 'test';
+        if (!empty($storeProduct['image'])) {
+            $exportProduct['product-image-1-url'] = addslashes(strval($storeProduct['image']));
+            $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
+        }
+        $exportProduct['product-title'] = addslashes($storeProduct['name']);
+        $exportProduct['product-vat-percent'] = self::VAT_PERCENT;
+
+        return $exportProduct;
+    }
+
     static function getL2Keys($array)
     {
         $result = array();
-        foreach($array as $sub) {
+        foreach ($array as $sub) {
             $result = array_merge($result, $sub);
         }
+
         return array_keys($result);
     }
 }
