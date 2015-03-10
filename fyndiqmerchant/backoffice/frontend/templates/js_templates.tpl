@@ -111,8 +111,8 @@
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
         <div class="export">
-            <a class="fm-button disabled" id="delete-products">Remove from Fyndiq</a>
-            <a class="fm-button green" id="export-products">Send to Fyndiq</a>
+            <a class="fm-button disabled fm-delete-products">Remove from Fyndiq</a>
+            <a class="fm-button green fm-export-products">Send to Fyndiq</a>
         </div>
     </div>
 </script>
