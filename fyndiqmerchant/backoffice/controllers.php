@@ -159,7 +159,7 @@ class FmBackofficeControllers {
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
-                self::_updateFeedurl(FmHelpers::get_module_url(false)."files/feed.csv");
+                self::_updateFeedurl(FmHelpers::get_module_url(false).'files/feed.csv');
 
             } catch (Exception $e) {
                 $error = true;
@@ -206,7 +206,6 @@ class FmBackofficeControllers {
     private static function _updateFeedurl($path) {
         $object = new stdClass();
         $object->product_feed_url = $path;
-        $data = array("product_feed_url" => $path);
         FmHelpers::call_api('PATCH','settings/', $object);
     }
 
