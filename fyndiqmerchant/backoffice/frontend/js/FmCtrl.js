@@ -1,8 +1,8 @@
 /* global $, FmGui, module_path, messages, tpl */
-'use strict';
 
 var FmCtrl = {
     call_service: function (action, args, callback) {
+        'use strict';
         $.ajax({
             type: 'POST',
             url: module_path + 'backoffice/service.php',
@@ -13,7 +13,7 @@ var FmCtrl = {
             var result = null;
             if ($.isPlainObject(data) && ('fm-service-status' in data)) {
                 if (data['fm-service-status'] === 'error') {
-                    FmGui.show_message('error', data['title'], data.message);
+                    FmGui.show_message('error', data.title, data.message);
                 }
                 if (data['fm-service-status'] === 'success') {
                     status = 'success';
@@ -30,6 +30,7 @@ var FmCtrl = {
     },
 
     load_categories: function (category_id, $container, callback) {
+        'use strict';
         FmCtrl.call_service('get_categories', {category_id: category_id}, function (status, categories) {
             if (status === 'success') {
                 $(tpl['category-tree']({
@@ -44,11 +45,12 @@ var FmCtrl = {
     },
 
     load_products: function (category_id, page, callback) {
+        'use strict';
         // unset active class on previously selected category
         $('.fm-category-tree li').removeClass('active');
 
         FmCtrl.call_service('get_products', {'category': category_id, 'page': page}, function (status, products) {
-            if (status == 'success') {
+            if (status === 'success') {
                 $('.fm-product-list-container').html(tpl['product-list']({
                     'module_path': module_path,
                     'products': products.products,
@@ -73,6 +75,7 @@ var FmCtrl = {
     },
 
     update_product: function (product, percentage, callback) {
+        'use strict';
         FmCtrl.call_service('update_product', {'product': product, 'percentage': percentage}, function (status) {
             if (callback) {
                 callback(status);
@@ -81,8 +84,9 @@ var FmCtrl = {
     },
 
     load_orders: function (callback) {
+        'use strict';
         FmCtrl.call_service('load_orders', {}, function (status, orders) {
-            if (status == 'success') {
+            if (status === 'success') {
                 $('.fm-order-list-container').html("");
                 $('.fm-order-list-container').html(tpl['orders-list']({
                     'module_path': module_path,
@@ -97,8 +101,9 @@ var FmCtrl = {
     },
 
     import_orders: function (callback) {
+        'use strict';
         FmCtrl.call_service('import_orders', {}, function (status, orders) {
-            if (status == 'success') {
+            if (status === 'success') {
                 FmGui.show_message('success', messages['orders-imported-title'],
                     messages['orders-imported-message']);
             }
@@ -109,8 +114,9 @@ var FmCtrl = {
     },
 
     export_products: function (products, callback) {
+        'use strict';
         FmCtrl.call_service('export_products', {'products': products}, function (status, data) {
-            if (status == 'success') {
+            if (status === 'success') {
                 FmGui.show_message('success', messages['products-exported-title'],
                     messages['products-exported-message']);
 
@@ -131,7 +137,7 @@ var FmCtrl = {
 
 
     products_delete: function (products, callback) {
-
+        'use strict';
         FmCtrl.call_service('delete_exported_products', {'products': products}, function (status, data) {
             if (status === 'success') {
                 FmGui.show_message('success', messages['products-deleted-title'],
@@ -144,7 +150,7 @@ var FmCtrl = {
     },
 
     bind_event_handlers: function () {
-
+        'use strict';
         // import orders submit button
         $(document).on('submit', '.fm-form.orders', function (e) {
             e.preventDefault();
@@ -248,7 +254,7 @@ var FmCtrl = {
             ajaxdiv.html('Typing...').show();
             savetimeout = setTimeout(function () {
                 FmCtrl.update_product(product_id, discount, function (status) {
-                    if (status == "success") {
+                    if (status === 'success') {
                         ajaxdiv.html('Saved').delay(1000).fadeOut();
                     }
                     else {
@@ -275,7 +281,6 @@ var FmCtrl = {
                     // store product id and combinations
                     var price = $(this).find("td.prices > div.price > input").val();
                     var fyndiq_percentage = $(this).find('.fyndiq_dicsount').val();
-                    console.log(fyndiq_percentage);
                     products.push({
                         'product': {
                             'id': $(this).data('id'),
@@ -286,7 +291,7 @@ var FmCtrl = {
             });
 
             // if no products selected, show info message
-            if (products.length == 0) {
+            if (products.length === 0) {
                 FmGui.show_message('info', messages['products-not-selected-title'],
                     messages['products-not-selected-message']);
 
@@ -336,7 +341,7 @@ var FmCtrl = {
                         // reload category to ensure that everything is reset properly
                         var category = $('.fm-category-tree li.active').attr('data-category_id');
                         var page = $('div.pages > ol > li.current').html();
-                        if (page == 'undefined') {
+                        if (page === 'undefined') {
                             page = 1;
                         }
                         FmCtrl.load_products(category, page, function () {
@@ -351,6 +356,7 @@ var FmCtrl = {
         });
     },
     bind_order_event_handlers: function () {
+        'use strict';
         // import orders submit button
         $(document).on('click', '#fm-import-orders', function (e) {
             e.preventDefault();
@@ -389,7 +395,7 @@ var FmCtrl = {
             FmGui.show_load_screen(function () {
                 FmCtrl.get_delivery_notes(orders, function (status) {
                     FmGui.hide_load_screen();
-                    if (status == 'success') {
+                    if (status === 'success') {
                         var wins = window.open(urlpath0 + "fyndiq/files/deliverynote.pdf", '_blank');
                         if (wins) {
                             //Browser has allowed it to be opened
