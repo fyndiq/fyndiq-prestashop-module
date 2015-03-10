@@ -122,7 +122,7 @@ class FmProductExport
                 // Complete Product with article data
                 $exportProduct['article-sku'] = $storeProduct['reference'];
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
-                $exportProduct['article‑name'] = addslashes($storeProduct['name']);
+                $exportProduct['article-name'] = addslashes($storeProduct['name']);
 
                 $keys = array_merge($keys, array_keys($exportProduct));
                 $allProducts[] = $exportProduct;
