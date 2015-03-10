@@ -24,6 +24,7 @@ class FmFileHandler
      *
      * @param $products
      * @param $keys
+     * @return boolean
      */
     function writeOverFile($keys, $products)
     {
@@ -33,6 +34,7 @@ class FmFileHandler
             $this->writeToFile($keys, $product);
         }
         $this->closeFile();
+        return true;
     }
 
     function removeFile($recreate = false)

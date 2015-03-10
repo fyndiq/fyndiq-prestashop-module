@@ -115,65 +115,52 @@ class FmProductExport
 
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = FmProduct::get($fmProduct['product_id']);
-
             $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
-            $exportProductCopy = $exportProduct;
 
-            if (count($storeProduct['combinations']) > 0) {
-                $first_array = array_shift($storeProduct['combinations']);
-                $exportProductCopy['article-quantity'] = $first_array['quantity'];
-                $exportProductCopy['product-oldprice'] = number_format((float)$first_array['price'], 2, '.', '');
-                $imageId = 1;
-                if (isset($storeProduct['image'])) {
-                    $exportProductCopy['product-image-' . $imageId . '-url'] = addslashes(strval($storeProduct['image']));
-                    $exportProductCopy['product-image-' . $imageId . '-identifier'] = addslashes(
-                        substr(md5($fmProduct['product_id'] . '-' . strval($storeProduct['image'])), 0, 10)
-                    );
-                }
-                $name = [];
-                $id = 1;
-                foreach ($first_array['attributes'] as $attr) {
-                    $name[] = addslashes($attr['name'] . ': ' . $attr['value']);
-                    $exportProductCopy['article‑property‑name‑' . $id] = $attr['name'];
-                    $exportProductCopy['article‑property‑value‑' . $id] = $attr['value'];
-                    $id++;
-                }
-                $exportProductCopy['article-name'] = implode(' ', $name);
-                $keys = array_merge($keys, array_keys($exportProductCopy));
-                $allProducts[] = $exportProductCopy;
-
-                foreach ($storeProduct['combinations'] as $combo) {
-                    $exportProduct['article-quantity'] = $combo['quantity'];
-
-                    if (isset($combo["reference"]) AND $combo["reference"] != "") {
-                        $exportProduct["article-sku"] = $combo["reference"];
-                    } else {
-                        $exportProduct["article-sku"] = $storeProduct["reference"] . "-" . $combo["id"];
-                    }
-                    $exportProduct["article-location"] = "test";
-                    $exportProduct["product-oldprice"] = number_format((float)$combo["price"], 2, '.', '');
-
-                    if (isset($combo["image"])) {
-                        $exportProduct["product-image-" . $imageId . "-url"] = addslashes(strval($combo["image"]));
-                        $exportProduct["product-image-" . $imageId . "-identifier"] = addslashes(
-                            substr(md5($fmProduct["product_id"] . "-" . strval($combo["image"])), 0, 10)
-                        );
-                    }
-                    $name = "";
-                    $id = 1;
-                    foreach ($combo["attributes"] as $attr) {
-                        $name .= addslashes($attr["name"] . ": " . $attr["value"]);
-                        $exportProduct["article‑property‑name‑" . $id] = $attr["name"];
-                        $exportProduct["article‑property‑value‑" . $id] = $attr["value"];
-                        $id++;
-                    }
-                    $exportProduct['article-name'] = $name;
-                    $keys = array_merge($keys, array_keys($exportProduct));
-                    $allProducts[] = $exportProduct;
-                }
-            } else {
+            if (count($storeProduct['combinations']) === 0) {
+                // Product without combinations
                 $keys = array_merge($keys, array_keys($exportProduct));
                 $allProducts[] = $exportProduct;
+            } else {
+                $combinationId = 0;
+                foreach ($storeProduct['combinations'] as $combination) {
+                    // Copy the product data so we have clear slate for each combination
+                    $exportProductCopy = $exportProduct;
+
+
+                    if (empty($combination['reference'])) {
+                        $exportProductCopy["article-sku"] = $storeProduct['reference'] . '-' . $combination['id'];
+                    } else {
+                        $exportProductCopy["article-sku"] = $combination['reference'];
+                    }
+
+                    $exportProductCopy['article-quantity'] = $combination['quantity'];
+                    $exportProductCopy['product-oldprice'] = number_format((float)$combination['price'], 2, '.', '');
+
+                    // Set combination image if present
+                    $imageId = 1;
+                    if (!empty($combination['image'])) {
+                        $exportProductCopy['product-image-' . $imageId . '-url'] =
+                            addslashes(strval($combination['image']));
+                        $exportProductCopy['product-image-' . $imageId . '-identifier'] =
+                            $fmProduct['product_id'] . '-' . strval($combination['id']);
+                    }
+
+                    // Create combination name
+                    $productName = [];
+                    $id = 1;
+                    foreach ($combination['attributes'] as $attribute) {
+                        $productName[] = addslashes($attribute['name'] . ': ' . $attribute['value']);
+                        $exportProductCopy['article‑property‑name‑' . $id] = $attribute['name'];
+                        $exportProductCopy['article‑property‑value‑' . $id] = $attribute['value'];
+                        $id++;
+                    }
+                    $exportProductCopy['article-name'] = implode(', ', $productName);
+
+                    $keys = array_merge($keys, array_keys($exportProductCopy));
+                    $allProducts[] = $exportProductCopy;
+                    $combinationId++;
+                }
             }
             // Don't allow $keys to grow too large
             $keys = array_unique($keys);
@@ -181,9 +168,7 @@ class FmProductExport
 
         // Save products to CSV file
         $fileHandler = new FmFileHandler($directory, 'w+');
-        $fileHandler->writeOverFile(array_unique($keys), $allProducts);
-
-        return true;
+        return $fileHandler->writeOverFile(array_unique($keys), $allProducts);
     }
 
     /**
@@ -200,19 +185,18 @@ class FmProductExport
     {
         $exportProduct = array();
         $exportProduct['product-id'] = $fmProduct['product_id'];
-        $exportProduct ['product-currency'] = $currentCurrency;
+        $exportProduct['product-currency'] = $currentCurrency;
         $exportProduct['article-quantity'] = 0;
         $exportProduct['product-description'] = $storeProduct['description'];
+
         $price = $storeProduct['price'] - ($storeProduct['price'] * ($fmProduct['exported_price_percentage'] / 100));
         $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
         $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
         $exportProduct['product-brand'] = 'test';
         $exportProduct['article-location'] = 'test';
-        if (isset($storeProduct['image'])) {
+        if (!empty($storeProduct['image'])) {
             $exportProduct['product-image-1-url'] = addslashes(strval($storeProduct['image']));
-            $exportProduct['product-image-1-identifier'] = addslashes(
-                substr(md5($fmProduct['product_id'] . '-' . strval($storeProduct['image'])), 0, 10)
-            );
+            $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
         }
         $exportProduct['product-title'] = addslashes($storeProduct['name']);
         $exportProduct['product-vat-percent'] = self::VAT_PERCENT;
