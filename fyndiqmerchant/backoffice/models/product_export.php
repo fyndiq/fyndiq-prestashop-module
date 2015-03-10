@@ -199,7 +199,7 @@ class FmProductExport
             $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
         }
         $exportProduct['product-title'] = addslashes($storeProduct['name']);
-        $exportProduct['product-vat-percent'] = self::VAT_PERCENT;
+        $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
 
         return $exportProduct;
     }

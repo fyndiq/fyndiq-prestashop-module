@@ -34,6 +34,7 @@ class FmProduct {
         $result['id'] = $product->id;
         $result['name'] = $product->name;
         $result['reference'] = $product->reference;
+        $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = Product::getQuantity($product->id);
         $result['price'] = self::get_price($product->price);
         $result['description'] = $product->description;
