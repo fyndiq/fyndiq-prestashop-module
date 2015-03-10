@@ -1,4 +1,4 @@
-/* global $, FmGui, module_path, messages, tpl */
+/* global $, FmGui, module_path, messages, tpl, urlpath0 */
 
 var FmCtrl = {
     call_service: function (action, args, callback) {
@@ -87,7 +87,7 @@ var FmCtrl = {
         'use strict';
         FmCtrl.call_service('load_orders', {}, function (status, orders) {
             if (status === 'success') {
-                $('.fm-order-list-container').html("");
+                $('.fm-order-list-container').html('');
                 $('.fm-order-list-container').html(tpl['orders-list']({
                     'module_path': module_path,
                     'orders': orders
@@ -196,14 +196,14 @@ var FmCtrl = {
         // when clicking select all products checkbox, set checked on all product's checkboxes
         $(document).on('click', '#select-all', function (e) {
             if ($(this).is(':checked')) {
-                $(".fm-product-list tr .select input").each(function () {
-                    $(this).prop("checked", true);
+                $('.fm-product-list tr .select input').each(function () {
+                    $(this).prop('checked', true);
                     $('.fm-delete-products').removeClass('disabled').addClass('red');
                 });
 
             } else {
-                $(".fm-product-list tr .select input").each(function () {
-                    $(this).prop("checked", false);
+                $('.fm-product-list tr .select input').each(function () {
+                    $(this).prop('checked', false);
                     $('.fm-delete-products').removeClass('red').addClass('disabled');
                 });
             }
@@ -279,7 +279,7 @@ var FmCtrl = {
 
 
                     // store product id and combinations
-                    var price = $(this).find("td.prices > div.price > input").val();
+                    var price = $(this).find('td.prices > div.price > input').val();
                     var fyndiq_percentage = $(this).find('.fyndiq_dicsount').val();
                     products.push({
                         'product': {
@@ -314,7 +314,7 @@ var FmCtrl = {
         //Deleting selected products from export table
         $(document).on('click', '.fm-delete-products', function (e) {
             e.preventDefault();
-            if ($(this).hasClass("disabled")) {
+            if ($(this).hasClass('disabled')) {
                 return;
             }
             FmGui.show_load_screen(function () {
@@ -371,13 +371,13 @@ var FmCtrl = {
         // when clicking select all orders checkbox, set checked on all order's checkboxes
         $(document).on('click', '#select-all', function (e) {
             if ($(this).is(':checked')) {
-                $(".fm-orders-list tr .select input").each(function () {
-                    $(this).prop("checked", true);
+                $('.fm-orders-list tr .select input').each(function () {
+                    $(this).prop('checked', true);
                 });
 
             } else {
-                $(".fm-orders-list tr .select input").each(function () {
-                    $(this).prop("checked", false);
+                $('.fm-orders-list tr .select input').each(function () {
+                    $(this).prop('checked', false);
                 });
             }
         });
@@ -396,7 +396,7 @@ var FmCtrl = {
                 FmCtrl.get_delivery_notes(orders, function (status) {
                     FmGui.hide_load_screen();
                     if (status === 'success') {
-                        var wins = window.open(urlpath0 + "fyndiq/files/deliverynote.pdf", '_blank');
+                        var wins = window.open(urlpath0 + 'fyndiq/files/deliverynote.pdf', '_blank');
                         if (wins) {
                             //Browser has allowed it to be opened
                             wins.focus();
