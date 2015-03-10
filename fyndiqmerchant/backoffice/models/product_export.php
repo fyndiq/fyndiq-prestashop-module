@@ -3,8 +3,6 @@
 class FmProductExport
 {
 
-    const VAT_PERCENT = 25;
-
     static function productExist($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
