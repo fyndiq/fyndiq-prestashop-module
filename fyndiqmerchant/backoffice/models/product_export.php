@@ -3,6 +3,8 @@
 class FmProductExport
 {
 
+    private static $skuList = array();
+
     static function productExist($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
@@ -108,6 +110,9 @@ class FmProductExport
         $allProducts = array();
         $keys = array();
 
+        // Clear the SKU dictionary
+        self::$skuList = array();
+
         // get current currency
         $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
@@ -118,7 +123,7 @@ class FmProductExport
                 // Product without combinations
 
                 // Complete Product with article data
-                $exportProduct['article-sku'] = $storeProduct['reference'];
+                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], $storeProduct['id']);
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = addslashes($storeProduct['name']);
 
@@ -132,9 +137,9 @@ class FmProductExport
 
 
                     if (empty($combination['reference'])) {
-                        $exportProductCopy['article-sku'] = $storeProduct['reference'] . '-' . $combination['id'];
+                        $exportProductCopy['article-sku'] = self::getSKU($storeProduct['reference'] . '-' . $combination['id'], $combination['id']);
                     } else {
-                        $exportProductCopy['article-sku'] = $combination['reference'];
+                        $exportProductCopy['article-sku'] = self::getSKU($combination['reference'], $combination['id']);
                     }
 
                     $exportProductCopy['article-quantity'] = $combination['quantity'];
@@ -182,8 +187,6 @@ class FmProductExport
      * @param string $currentCurrency
      * @return array
      */
-
-
     private static function getProductData($storeProduct, $fmProduct, $currentCurrency)
     {
         $exportProduct = array();
@@ -207,13 +210,11 @@ class FmProductExport
         return $exportProduct;
     }
 
-    static function getL2Keys($array)
-    {
-        $result = array();
-        foreach ($array as $sub) {
-            $result = array_merge($result, $sub);
+    private static function getSKU($sku, $backupID) {
+        if (in_array($sku, self::$skuList)) {
+            $sku = 'DUPLICATE-' . $sku . '-' . $backupID;
         }
-
-        return array_keys($result);
+        self::$skuList[] = $sku;
+        return $sku;
     }
 }
