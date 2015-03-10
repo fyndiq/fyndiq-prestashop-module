@@ -10,6 +10,7 @@
     <div class="fm-content-wrapper">
 
         <div class="fm-panel">
+            <div class="fm-panel-header text-center">{l s='Error' mod='fyndiqmerchant'}</div>
             <div class="fm-panel-body text-center">
                 <p>
                     {l s='Unfortunately, Fyndiq API is currently not available.' mod='fyndiqmerchant'}
