@@ -50,7 +50,7 @@ if (startswith(_PS_VERSION_, '1.6.')) {
 class FmHelpers
 {
 
-    const HTTP_SUCCESS_DEFAUT = 200;
+    const HTTP_SUCCESS_DEFAULT = 200;
     const HTTP_SUCCESS_CREATED = 201;
     const HTTP_SUCCESS_NONCONTENT = 204;
     const HTTP_ERROR_DEFAULT = 404;
@@ -140,7 +140,7 @@ class FmHelpers
             throw new FyndiqAPIBadRequest('Bad Request');
         }
 
-        $success_http_statuses = array(self::HTTP_SUCCESS_DEFAUT, self::HTTP_SUCCESS_CREATED, self::HTTP_SUCCESS_NONCONTENT);
+        $success_http_statuses = array(self::HTTP_SUCCESS_DEFAULT, self::HTTP_SUCCESS_CREATED, self::HTTP_SUCCESS_NONCONTENT);
 
         if (!in_array($response['status'], $success_http_statuses)) {
             throw new FyndiqAPIUnsupportedStatus('Unsupported HTTP status: ' . $response['status']);
