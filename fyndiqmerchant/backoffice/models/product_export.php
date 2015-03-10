@@ -195,7 +195,7 @@ class FmProductExport
         $price = $storeProduct['price'] - ($storeProduct['price'] * ($fmProduct['exported_price_percentage'] / 100));
         $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
         $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
-        $exportProduct['product-brand'] = 'test';
+        $exportProduct['product-brand'] = addslashes($storeProduct['manufacturer_name']);
         $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
             $exportProduct['product-image-1-url'] = addslashes(strval($storeProduct['image']));

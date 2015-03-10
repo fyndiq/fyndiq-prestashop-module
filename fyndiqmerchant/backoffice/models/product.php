@@ -38,6 +38,7 @@ class FmProduct {
         $result['quantity'] = Product::getQuantity($product->id);
         $result['price'] = self::get_price($product->price);
         $result['description'] = $product->description;
+        $result['manufacturer_name'] = Manufacturer::getNameById((int)$product->id_manufacturer);
 
         ### get the medium image type
         $image_type_name = array(
