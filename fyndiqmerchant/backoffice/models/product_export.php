@@ -116,9 +116,13 @@ class FmProductExport
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = FmProduct::get($fmProduct['product_id']);
             $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
-
             if (count($storeProduct['combinations']) === 0) {
                 // Product without combinations
+
+                // Complete Product with article data
+                $exportProduct['article-sku'] = $storeProduct['reference'];
+                $exportProduct['article-quantity'] = $storeProduct['quantity'];
+
                 $keys = array_merge($keys, array_keys($exportProduct));
                 $allProducts[] = $exportProduct;
             } else {
@@ -129,9 +133,9 @@ class FmProductExport
 
 
                     if (empty($combination['reference'])) {
-                        $exportProductCopy["article-sku"] = $storeProduct['reference'] . '-' . $combination['id'];
+                        $exportProductCopy['article-sku'] = $storeProduct['reference'] . '-' . $combination['id'];
                     } else {
-                        $exportProductCopy["article-sku"] = $combination['reference'];
+                        $exportProductCopy['article-sku'] = $combination['reference'];
                     }
 
                     $exportProductCopy['article-quantity'] = $combination['quantity'];
@@ -193,7 +197,6 @@ class FmProductExport
         $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
         $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
         $exportProduct['product-brand'] = 'test';
-        $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
             $exportProduct['product-image-1-url'] = addslashes(strval($storeProduct['image']));
             $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
