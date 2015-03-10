@@ -122,6 +122,7 @@ class FmProductExport
                 // Complete Product with article data
                 $exportProduct['article-sku'] = $storeProduct['reference'];
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
+                $exportProduct['article‑name'] = addslashes($storeProduct['name']);
 
                 $keys = array_merge($keys, array_keys($exportProduct));
                 $allProducts[] = $exportProduct;
@@ -197,6 +198,7 @@ class FmProductExport
         $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
         $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
         $exportProduct['product-brand'] = 'test';
+        $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
             $exportProduct['product-image-1-url'] = addslashes(strval($storeProduct['image']));
             $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
