@@ -199,7 +199,7 @@ class FmAjaxService
                 FmProductExport::addProduct($product["id"], $product['fyndiq_percentage']);
             }
         }
-        $result = FmProductExport::saveFile();
+        $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
 
         $this->response($result);
     }
@@ -210,7 +210,7 @@ class FmAjaxService
             $product = $v["product"];
             FmProductExport::deleteProduct($product['id']);
         }
-        $result = FmProductExport::saveFile();
+        $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
         
         $this->response($result);
     }

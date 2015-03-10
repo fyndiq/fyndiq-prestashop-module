@@ -8,45 +8,41 @@
 class FmFileHandler
 {
     private $filepath = "/files/feed.csv";
+    private $rootpath = "";
     private $fileresource = null;
+    private $mode = null;
 
-    function __construct($mode = "w+",$remove = false) {
-        $this->openFile($mode, $remove);
-    }
-
-    function keyvalueFirst($products) {
-        $arraykeys = array_keys($products[0]);
-        $this->writeToFile($arraykeys);
-    }
-
-    /**
-     * Add lines to a already used file
-     *
-     * @param $product
-     */
-    function appendToFile($product)
+    function __construct($path, $mode = "w+", $remove = false)
     {
-        $this->writeToFile($product);
+        $this->rootpath = $path;
+        $this->mode = $mode;
+        $this->openFile($remove);
     }
 
     /**
      * Write over a existing file if it exists and write all fields.
      *
      * @param $products
+     * @param $keys
+     * @return boolean
      */
-    function writeOverFile($products)
+    function writeOverFile($keys, $products)
     {
-        $this->keyvalueFirst($products);
+        $this->openFile(true);
+        $this->writeheader($keys);
         foreach ($products as $product) {
-            $this->writeToFile($product);
+            $this->writeToFile($keys, $product);
         }
+        $this->closeFile();
+        return true;
     }
 
-    function removeFile($recreate = false) {
+    function removeFile($recreate = false)
+    {
         if (file_exists($this->filepath)) {
             unlink($this->filepath);
         }
-        if($recreate) {
+        if ($recreate) {
             touch($this->filepath);
         }
     }
@@ -55,37 +51,58 @@ class FmFileHandler
      * simplifying the way to write to the file.
      *
      * @param $fields
+     * @param $keys
      * @return int|boolean
      */
-    private function writeToFile($fields)
+    private function writeToFile($keys, $fields)
     {
-        return fputcsv($this->fileresource, $fields);
+        $printarray = array();
+        foreach ($keys as $key) {
+            if (isset($fields[$key])) {
+                $printarray[] = $fields[$key];
+            } else {
+                $printarray[] = "";
+            }
+        }
+
+        return fputcsv($this->fileresource, $printarray);
     }
 
     /**
      * opening the file resource
      *
-     * @param string $mode
      * @param bool $removeFile
+     * @internal param string $mode
      */
-    function openFile($mode = "w+",$removeFile = false)
+    private function openFile($removeFile = false)
     {
-        if ($removeFile && file_exists(_PS_ROOT_DIR_.$this->filepath)) {
-            unlink(_PS_ROOT_DIR_.$this->filepath);
+        if ($removeFile && file_exists($this->rootpath . $this->filepath)) {
+            unlink($this->rootpath . $this->filepath);
         }
         $this->closeFile();
-        $this->fileresource = fopen(_PS_ROOT_DIR_.$this->filepath, $mode) or die("Can't open file");
+        $this->fileresource = fopen($this->rootpath . $this->filepath, $this->mode) or die("Can't open file");
     }
 
     /**
      * Closing the file if isn't already closed
      */
-    function closeFile()
+    private function closeFile()
     {
         if ($this->fileresource != null) {
             fclose($this->fileresource);
             $this->fileresource = null;
         }
+    }
+
+
+    /**
+     * Write the header to file
+     *
+     * @param $keys
+     */
+    private function writeHeader($keys)
+    {
+        fputcsv($this->fileresource, $keys);
     }
 
     /**
