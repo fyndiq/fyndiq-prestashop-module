@@ -18,7 +18,7 @@
 
 <div class="fm-container">
 
-    {include file='./header.tpl' current='main'}
+    {include file='./header.tpl' current='main' buttons=true}
 
     <div class="fm-content-wrapper">
         <div class="fm-left-sidebar">

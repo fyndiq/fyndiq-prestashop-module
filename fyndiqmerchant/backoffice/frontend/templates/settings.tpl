@@ -4,7 +4,7 @@
 </style>
 <div class="fm-container">
 
-    {include file='./header.tpl' current='settings'}
+    {include file='./header.tpl' current='settings' buttons=true}
 
     <div class="fm-content-wrapper">
         <div class="fm-panel">

@@ -22,10 +22,12 @@
 <div class="fm-header">
     <div class="fm-header-wrapper">
         <img class="navbar-brand" src="{$module_path}/backoffice/frontend/images/logo.png" alt="Fyndiq logotype">
+        {if $buttons}
         <div class="navbar-right">
             <a href="{$path}" {if $current == "main"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon comp"></i> Export Products</a>
             <a href="{$path}&order=1" {if $current == "order"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon boxes"></i> Imported Orders</a>
             <a href="{$path}&submit_show_settings=1" {if $current == "settings"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon cog"></i> Setings</a>
         </div>
+        {/if}
     </div>
 </div>
