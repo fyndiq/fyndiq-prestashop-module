@@ -84,9 +84,7 @@ class FmBackofficeControllers {
 
         if ($page == 'settings') {
             $configured_language = FmConfig::get('language');
-            $configured_currency = FmConfig::get('currency');
             $configured_price_percentage = FmConfig::get('price_percentage');
-            $configured_quantity_percentage = FmConfig::get('quantity_percentage');
 
             # if there is a configured language, show it as selected
             if ($configured_language) {
@@ -94,13 +92,6 @@ class FmBackofficeControllers {
             } else {
                 # else show the default language as selected
                 $selected_language = Configuration::get('PS_LANG_DEFAULT');
-            }
-            # if there is a configured currency, show it as selected
-            if ($configured_currency) {
-                $selected_currency = $configured_currency;
-            } else {
-                # else show the default currency as selected
-                $selected_currency = Currency::getDefaultCurrency()->id;
             }
 
             # if there is a configured percentage, set that value
@@ -111,25 +102,14 @@ class FmBackofficeControllers {
                 $typed_price_percentage = 10;
             }
 
-            # if there is a configured percentage, set that value
-            if ($configured_quantity_percentage) {
-                $typed_quantity_percentage = $configured_quantity_percentage;
-            } else {
-                # else set the default value of 10%.
-                $typed_quantity_percentage = 20;
-            }
-
             $path = FmHelpers::get_module_url();
 
             $output .= self::show_template($module, 'settings', array(
                 'auto_import'=> FmConfig::get('auto_import'),
                 'auto_export'=> FmConfig::get('auto_export'),
                 'price_percentage' => $typed_price_percentage,
-                'quantity_percentage' => $typed_quantity_percentage,
                 'languages'=> Language::getLanguages(),
-                'currencies'=> Currency::getCurrencies(),
                 'selected_language'=> $selected_language,
-                'selected_currency'=> $selected_currency,
                 'path' => $path
             ));
         }
@@ -179,6 +159,7 @@ class FmBackofficeControllers {
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
+                self::_updateFeedurl(FmHelpers::get_module_url(false)."files/feed.csv");
 
             } catch (Exception $e) {
                 $error = true;
@@ -198,37 +179,10 @@ class FmBackofficeControllers {
         $output = '';
 
         $language_id = intval(Tools::getValue('language_id'));
-        $currency_id = intval(Tools::getValue('currency_id'));
-        $auto_import = boolval(Tools::getValue('auto_import'));
-        $auto_export = boolval(Tools::getValue('auto_export'));
-        $price_percentage = intval(Tools::getValue('price_percentage'));
 
-        if ($auto_import) {
-
-            # get protocol and domain for shop (if multishop is enabled, it uses the main shop)
-            $notification_url = Tools::getShopDomainSsl(true, false);
-            # get full path of the module (based on __PS_BASE_URI__ in settings)
-            $notification_url .= $module->get('_path');
-            # path to the actual file
-            $notification_url .= 'backoffice/notification_service.php';
-
-            try {
-                // FmHelpers::call_api('PATCH', 'account/', array(
-                //     'notify_url'=> $notification_url,
-                //     'notify_answer'=> _COOKIE_KEY_
-                // ));
-            } catch (Exception $e) {
-                $error = true;
-                $output .= $module->displayError($module->l($e->getMessage()));
-            }
-        }
 
         if (!$error) {
-            FmConfig::set('price_percentage', $price_percentage);
             FmConfig::set('language', $language_id);
-            FmConfig::set('currency', $currency_id);
-            FmConfig::set('auto_import', $auto_import);
-            FmConfig::set('auto_export', $auto_export);
         }
 
         return array('error'=> $error, 'output'=> $output);
@@ -246,6 +200,14 @@ class FmBackofficeControllers {
         $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
 
         return array('error'=> $error, 'output'=> $output);
+    }
+
+
+    private static function _updateFeedurl($path) {
+        $object = new stdClass();
+        $object->product_feed_url = $path;
+        $data = array("product_feed_url" => $path);
+        FmHelpers::call_api('PATCH','settings/', $object);
     }
 
     private static function show_template($module, $name, $args=array()) {

@@ -120,13 +120,7 @@ class FmHelpers {
             throw new FyndiqAPIBadRequest('Bad Request');
         }
 
-        $success_http_statuses = array('200', '201');
-
-        if (!in_array($response['status'], $success_http_statuses)) {
-            throw new FyndiqAPIUnsupportedStatus('Unsupported HTTP status: ' . $response['status']);
-        }
-
-        $success_http_statuses = array('200', '201');
+        $success_http_statuses = array('200', '201', '204');
 
         if (!in_array($response['status'], $success_http_statuses)) {
             throw new FyndiqAPIUnsupportedStatus('Unsupported HTTP status: ' . $response['status']);
@@ -153,9 +147,14 @@ class FmHelpers {
         }
     }
 
-    public static function get_module_url() {
-        $url = _PS_BASE_URL_.__PS_BASE_URI__.substr(strrchr(_PS_ADMIN_DIR_, '/'), 1)."/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
-        $url .= '&token='.Tools::getAdminTokenLite('AdminModules');
+    public static function get_module_url($withadminurl = true) {
+
+        $url = _PS_BASE_URL_.__PS_BASE_URI__;
+        if($withadminurl) {
+            $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
+            $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+            $url .= '&token='.Tools::getAdminTokenLite('AdminModules');
+        }
         return $url;
     }
 
