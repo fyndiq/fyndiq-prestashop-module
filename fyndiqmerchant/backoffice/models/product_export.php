@@ -123,7 +123,7 @@ class FmProductExport
                 // Product without combinations
 
                 // Complete Product with article data
-                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], $storeProduct['id']);
+                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id']));
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = addslashes($storeProduct['name']);
 
@@ -137,9 +137,11 @@ class FmProductExport
 
 
                     if (empty($combination['reference'])) {
-                        $exportProductCopy['article-sku'] = self::getSKU($storeProduct['reference'] . '-' . $combination['id'], $combination['id']);
+                        $exportProductCopy['article-sku'] = self::getSKU($storeProduct['reference'] . '-' . $combination['id'],
+                            array($storeProduct['id'], $combination['id']));
                     } else {
-                        $exportProductCopy['article-sku'] = self::getSKU($combination['reference'], $combination['id']);
+                        $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
+                            array($storeProduct['id'], $combination['id']));
                     }
 
                     $exportProductCopy['article-quantity'] = $combination['quantity'];
@@ -210,9 +212,9 @@ class FmProductExport
         return $exportProduct;
     }
 
-    private static function getSKU($sku, $backupID) {
-        if (in_array($sku, self::$skuList)) {
-            $sku = 'DUPLICATE-' . $sku . '-' . $backupID;
+    private static function getSKU($sku, $backupFields = array()) {
+        if (empty($sku) || in_array($sku, self::$skuList)) {
+            $sku = implode('-', array_merge(array('SKU', $sku), $backupFields));
         }
         self::$skuList[] = $sku;
         return $sku;
