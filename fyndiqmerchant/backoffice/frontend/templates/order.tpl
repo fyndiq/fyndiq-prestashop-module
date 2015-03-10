@@ -17,7 +17,7 @@
 <script type="text/javascript" src="{$module_path}backoffice/frontend/js/order.js"></script>
 
 <div class="fm-container">
-    {include file='./header.tpl' current='order'}
+    {include file='./header.tpl' current='order' buttons=true}
 
     <div class="fm-content-wrapper">
         <div class="fm-orderlist-panel">

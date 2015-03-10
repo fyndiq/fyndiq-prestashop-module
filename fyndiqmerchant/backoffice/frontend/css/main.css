@@ -117,6 +117,9 @@
     .fm-panel .fm-panel-body.no-padding {
       padding: 0; }
 
+.form-horizontal fieldset {
+  background-color: transparent;
+  border: 0; }
 .form-horizontal label {
   margin-top: -3pt;
   text-align: right;
