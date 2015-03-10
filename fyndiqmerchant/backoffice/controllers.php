@@ -1,7 +1,9 @@
 <?php
 
-class FmBackofficeControllers {
-    public static function main($module) {
+class FmBackofficeControllers
+{
+    public static function main($module)
+    {
 
         $output = '';
         $page = '';
@@ -24,7 +26,7 @@ class FmBackofficeControllers {
                 FmHelpers::call_api('GET', 'orders/');
                 $api_available = true;
             } catch (Exception $e) {
-                if($e->getMessage() == "Unauthorized") {
+                if ($e->getMessage() == "Unauthorized") {
                     $page = 'authenticate';
                 } else {
                     $page = 'api_unavailable';
@@ -50,7 +52,7 @@ class FmBackofficeControllers {
                 }
 
                 # if user pressed Save Settings button on settings page
-                if (Tools::isSubmit('submit_save_settings') ) {
+                if (Tools::isSubmit('submit_save_settings')) {
                     $ret = self::handle_settings($module);
                     $output .= $ret['output'];
                     if ($ret['error']) {
@@ -59,7 +61,7 @@ class FmBackofficeControllers {
                 }
 
                 # if user pressed Save Settings button on settings page
-                if (Tools::isSubmit('order') ) {
+                if (Tools::isSubmit('order')) {
                     $page = 'order';
                 }
 
@@ -77,9 +79,13 @@ class FmBackofficeControllers {
         }
 
         if ($page == 'api_unavailable') {
-            $output .= self::show_template($module, 'api_unavailable', array(
-                'message'=> $page_args['message']
-            ));
+            $output .= self::show_template(
+                $module,
+                'api_unavailable',
+                array(
+                    'message' => $page_args['message']
+                )
+            );
         }
 
         if ($page == 'settings') {
@@ -104,39 +110,52 @@ class FmBackofficeControllers {
 
             $path = FmHelpers::get_module_url();
 
-            $output .= self::show_template($module, 'settings', array(
-                'auto_import'=> FmConfig::get('auto_import'),
-                'auto_export'=> FmConfig::get('auto_export'),
-                'price_percentage' => $typed_price_percentage,
-                'languages'=> Language::getLanguages(),
-                'selected_language'=> $selected_language,
-                'path' => $path
-            ));
+            $output .= self::show_template(
+                $module,
+                'settings',
+                array(
+                    'auto_import' => FmConfig::get('auto_import'),
+                    'auto_export' => FmConfig::get('auto_export'),
+                    'price_percentage' => $typed_price_percentage,
+                    'languages' => Language::getLanguages(),
+                    'selected_language' => $selected_language,
+                    'path' => $path
+                )
+            );
         }
         if ($page == 'main') {
             $path = FmHelpers::get_module_url();
-            $output .= self::show_template($module, 'main', array(
-                'messages'=> FmMessages::get_all(),
-                'auto_import'=> FmConfig::get('auto_import'),
-                'auto_export'=> FmConfig::get('auto_export'),
-                'language'=> new Language(FmConfig::get('language')),
-                'currency'=> new Currency(FmConfig::get('currency')),
-                'username'=> FmConfig::get('username'),
-                'path' => $path
-            ));
+            $output .= self::show_template(
+                $module,
+                'main',
+                array(
+                    'messages' => FmMessages::get_all(),
+                    'auto_import' => FmConfig::get('auto_import'),
+                    'auto_export' => FmConfig::get('auto_export'),
+                    'language' => new Language(FmConfig::get('language')),
+                    'currency' => new Currency(FmConfig::get('currency')),
+                    'username' => FmConfig::get('username'),
+                    'path' => $path
+                )
+            );
         }
         if ($page == "order") {
             $path = FmHelpers::get_module_url();
-            $output .= self::show_template($module, 'order', array(
-                    'messages'=> FmMessages::get_all(),
+            $output .= self::show_template(
+                $module,
+                'order',
+                array(
+                    'messages' => FmMessages::get_all(),
                     'path' => $path
-                ));
+                )
+            );
         }
 
         return $output;
     }
 
-    private static function handle_authentication($module) {
+    private static function handle_authentication($module)
+    {
 
         $error = false;
         $output = '';
@@ -149,7 +168,7 @@ class FmBackofficeControllers {
             $error = true;
             $output .= $module->displayError($module->l(FmMessages::get('empty-username-token')));
 
-        # ready to perform authentication
+            # ready to perform authentication
         } else {
 
             # authenticate with Fyndiq API
@@ -159,7 +178,7 @@ class FmBackofficeControllers {
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
-                self::_updateFeedurl(FmHelpers::get_module_url(false).'files/feed.csv');
+                self::_updateFeedurl(FmHelpers::get_module_url(false) . 'files/feed.csv');
 
             } catch (Exception $e) {
                 $error = true;
@@ -170,10 +189,11 @@ class FmBackofficeControllers {
             }
         }
 
-        return array('error'=> $error, 'output'=> $output);
+        return array('error' => $error, 'output' => $output);
     }
 
-    private static function handle_settings($module) {
+    private static function handle_settings($module)
+    {
 
         $error = false;
         $output = '';
@@ -185,10 +205,11 @@ class FmBackofficeControllers {
             FmConfig::set('language', $language_id);
         }
 
-        return array('error'=> $error, 'output'=> $output);
+        return array('error' => $error, 'output' => $output);
     }
 
-    private static function handle_disconnect($module) {
+    private static function handle_disconnect($module)
+    {
 
         $error = false;
         $output = '';
@@ -199,24 +220,30 @@ class FmBackofficeControllers {
 
         $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
 
-        return array('error'=> $error, 'output'=> $output);
+        return array('error' => $error, 'output' => $output);
     }
 
 
-    private static function _updateFeedurl($path) {
+    private static function _updateFeedurl($path)
+    {
         $object = new stdClass();
         $object->product_feed_url = $path;
-        FmHelpers::call_api('PATCH','settings/', $object);
+        FmHelpers::call_api('PATCH', 'settings/', $object);
     }
 
-    private static function show_template($module, $name, $args=array()) {
+    private static function show_template($module, $name, $args = array())
+    {
         global $smarty;
 
-        $template_args = array_merge($args, array(
-            'server_path'=> dirname(dirname($_SERVER['SCRIPT_FILENAME'])).'/modules/'.$module->name,
-            'module_path'=> $module->get('_path'),
-        ));
+        $template_args = array_merge(
+            $args,
+            array(
+                'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . '/modules/' . $module->name,
+                'module_path' => $module->get('_path'),
+            )
+        );
         $smarty->assign($template_args);
-        return $module->display($module->name, 'backoffice/frontend/templates/'.$name.'.tpl');
+
+        return $module->display($module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
     }
 }
