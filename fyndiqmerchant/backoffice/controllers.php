@@ -199,9 +199,11 @@ class FmBackofficeControllers
         $output = '';
 
         $language_id = intval(Tools::getValue('language_id'));
+        $price_percentage = intval(Tools::getValue('price_percentage'));
 
 
         if (!$error) {
+            FmConfig::set('price_percentage', $price_percentage);
             FmConfig::set('language', $language_id);
         }
 
