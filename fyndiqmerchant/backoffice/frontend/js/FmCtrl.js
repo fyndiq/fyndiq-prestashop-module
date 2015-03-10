@@ -192,13 +192,13 @@ var FmCtrl = {
             if ($(this).is(':checked')) {
                 $(".fm-product-list tr .select input").each(function () {
                     $(this).prop("checked", true);
-                    $('#delete-products').removeClass('disabled').addClass('red');
+                    $('.fm-delete-products').removeClass('disabled').addClass('red');
                 });
 
             } else {
                 $(".fm-product-list tr .select input").each(function () {
                     $(this).prop("checked", false);
-                    $('#delete-products').removeClass('red').addClass('disabled');
+                    $('.fm-delete-products').removeClass('red').addClass('disabled');
                 });
             }
         });
@@ -213,10 +213,10 @@ var FmCtrl = {
                 }
             });
             if (red) {
-                $('#delete-products').removeClass('disabled').addClass('red');
+                $('.fm-delete-products').removeClass('disabled').addClass('red');
             }
             else {
-                $('#delete-products').removeClass('red').addClass('disabled');
+                $('.fm-delete-products').removeClass('red').addClass('disabled');
             }
         });
 
@@ -259,7 +259,7 @@ var FmCtrl = {
         });
 
         // when clicking the export products submit buttons, export products
-        $(document).on('click', '#export-products', function (e) {
+        $(document).on('click', '.fm-export-products', function (e) {
             e.preventDefault();
 
             var products = [];
@@ -307,7 +307,7 @@ var FmCtrl = {
         });
 
         //Deleting selected products from export table
-        $(document).on('click', '#delete-products', function (e) {
+        $(document).on('click', '.fm-delete-products', function (e) {
             e.preventDefault();
             if ($(this).hasClass("disabled")) {
                 return;
