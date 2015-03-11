@@ -29,8 +29,8 @@ class FmMessages {
         'products-not-selected-title'=>     'No products selected',
         'products-not-selected-message'=>   'You have to select at least one product to export.',
 
-        'delivery-notes-not-selected-title'=>     'No delivery notes selected',
-        'delivery-notes-not-selected-message'=>   'You have to select at least one delivery note for download.'
+        'orders-not-selected-title'=>     'No orders selected',
+        'orders-not-selected-message'=>   'You have to select at least one order to download delivery note for it.'
     );
 
     public static function get($name) {

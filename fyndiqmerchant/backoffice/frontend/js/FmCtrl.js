@@ -385,8 +385,8 @@ var FmCtrl = {
         $(document).on('click', '.getdeliverynote', function (e) {
             if ($('.fm-orders-list > tr .select input:checked').length === 0) {
                 e.preventDefault();
-                FmGui.show_message('info', messages['delivery-notes-not-selected-title'],
-                    messages['delivery-notes-not-selected-message']);
+                FmGui.show_message('info', messages['orders-not-selected-title'],
+                    messages['orders-not-selected-message']);
             }
         });
     }
