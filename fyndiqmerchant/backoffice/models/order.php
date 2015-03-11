@@ -267,11 +267,11 @@ class FmOrder
         
         // Set invoice date (needed to make order to work in prestashop 1.4
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created_at));
+            $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
             $presta_order->delivery_date = date('Y-m-d H:i:s');
         } else {
             if (FMPSV == FMPSV14) {
-                $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created_at));
+                $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
                 $presta_order->delivery_date = date('Y-m-d H:i:s');
             }
         }
