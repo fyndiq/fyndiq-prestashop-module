@@ -13,6 +13,17 @@
  */
 class FmOrder
 {
+
+    const FYNDIQ_ORDERS_EMAIL = 'info@fyndiq.se';
+    const FYNDIQ_ORDERS_NAME_FIRST = 'Fyndiq';
+    const FYNDIQ_ORDERS_NAME_LAST = 'Orders';
+
+    const FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS = 'Delivery';
+    const FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS = 'Invoice';
+
+    const FYNDIQ_ORDERS_MODULE = 'fyndiq';
+    const FYNDIQ_PAYMENT_METHOD = 'Fyndiq';
+
     /**
      * install the table in the database
      *
@@ -40,7 +51,7 @@ class FmOrder
      */
     public static function create($fyndiq_order)
     {
-        // if the prestashop 1.5 and 1.6 is used, use the context class.
+        // if the PrestaShop 1.5 and 1.6 is used, use the context class.
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $context = Context::getContext();
         }
@@ -57,33 +68,25 @@ class FmOrder
             $context->id_lang = 1;
         }
 
-        $country_result = Db::getInstance()->ExecuteS(
-            "SELECT * FROM " . _DB_PREFIX_ . "country WHERE iso_code='SE' LIMIT 1"
-        );
+        // TODO: Handle different countries
+        $countryCode = 'SE';
 
-        $country = 18;
-
-        foreach ($country_result as $row) {
-            $country = $row["id_country"];
-        }
+        $countryId = Country::getByIso($countryCode);
 
         $customer = new Customer();
-        $customer->getByEmail("info@fyndiq.se");
-        $checkcustomer = is_null($customer->firstname);
+        $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
 
-        if ($checkcustomer) {
+        if (is_null($customer->firstname)) {
             // Create a customer.
             $customer = new Customer();
-            $customer->firstname = "Fyndiq";
-            $customer->lastname = "Orders";
-            $customer->email = "info@fyndiq.se";
+            $customer->firstname = self::FYNDIQ_ORDERS_NAME_FIRST;
+            $customer->lastname = self::FYNDIQ_ORDERS_NAME_LAST;
+            $customer->email = self::FYNDIQ_ORDERS_EMAIL;
             $customer->passwd = md5(uniqid(rand(), true));
 
             // Add it to the database.
             $customer->add();
-        }
 
-        if ($checkcustomer) {
             // Create delivery address
             $delivery_address = new Address();
             $delivery_address->firstname = $fyndiq_order->delivery_firstname;
@@ -93,9 +96,9 @@ class FmOrder
             $delivery_address->postcode = $fyndiq_order->delivery_postalcode;
             $delivery_address->city = $fyndiq_order->delivery_city;
             $delivery_address->company = $fyndiq_order->delivery_co;
-            $delivery_address->id_country = $country;
+            $delivery_address->id_country = $countryId;
             $delivery_address->id_customer = $customer->id;
-            $delivery_address->alias = "Delivery"; // TODO: fix this!
+            $delivery_address->alias = self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS; // TODO: fix this!
 
             // Add it to the database.
             $delivery_address->add();
@@ -109,28 +112,28 @@ class FmOrder
             $invoice_address->postcode = $fyndiq_order->delivery_postalcode;
             $invoice_address->city = $fyndiq_order->delivery_city;
             $invoice_address->company = $fyndiq_order->delivery_co;
-            $invoice_address->id_country = $country;
+            $invoice_address->id_country = $countryId;
             $invoice_address->id_customer = $customer->id;
-            $invoice_address->alias = "Invoice"; // TODO: fix this!
+            $invoice_address->alias = self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS; // TODO: fix this!
 
             // Add it to the database.
             $invoice_address->add();
         } else {
             $addresses = $customer->getAddresses($cart->id_lang);
-            foreach ($addresses as $adrss) {
-                if ($adrss["address1"] == $fyndiq_order->invoice_address AND $adrss["postcode"] == $fyndiq_order->invoice_postalcode AND $adrss["firstname"] == $fyndiq_order->invoice_firstname AND $adrss["lastname"] == $fyndiq_order->invoice_lastname) {
+            foreach ($addresses as $address) {
+                if ($address['alias'] === self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS) {
                     $invoice_address = new Address();
-                    foreach ($adrss as $key => $value) {
-                        if ($key == "id_address") {
+                    foreach ($address as $key => $value) {
+                        if ($key == 'id_address') {
                             $invoice_address->id = $value;
                         } else {
                             $invoice_address->$key = $value;
                         }
                     }
-                } else {
+                } elseif ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
                     $delivery_address = new Address();
-                    foreach ($adrss as $key => $value) {
-                        if ($key == "id_address") {
+                    foreach ($address as $key => $value) {
+                        if ($key == 'id_address') {
                             $delivery_address->id = $value;
                         } else {
                             $delivery_address->$key = $value;
@@ -139,18 +142,17 @@ class FmOrder
                 }
             }
         }
-        // Create a order
+
+        // Create an order
         $presta_order = new Order();
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             // create a internal reference for the order.
             $reference = Order::generateReference();
         }
-        $payment_method = 'Fyndiq';
-        $secure_key = md5(uniqid(rand(), true));
-        $amount_paid = 500;
-        $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
 
+        $secure_key = md5(uniqid(rand(), true));
+        $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
         if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
@@ -179,19 +181,19 @@ class FmOrder
         // Save the cart
         $cart->add();
 
-
         foreach ($fyndiq_order->order_rows as $row) {
-            // Get article for order row
-            $article_id = $row->article;
-            //$row_article = FmHelpers::call_api('GET', 'article/'.$article_id.'/');
-
             // get id of the product
-            // TODO: shall be from a table later (to conenct a product in prestashop with a id for a article in Fyndiq)
-            $product_id = 1;
-            $num_article = $row->num_articles;
+            list($productId, $combinationId) = self::getProductBySKU($row->sku);
+            if (!$productId) {
+                // TODO: Figure out what to do when product is not found
+                $productId = 1;
+                $combinationId = 0;
+            }
+
+            $num_article = (int)$row->quantity;
 
             //add product to the cart
-            $cart->updateQty($num_article, $product_id);
+            $cart->updateQty($num_article, $productId, $combinationId);
         }
 
         // create the order
@@ -211,10 +213,8 @@ class FmOrder
         $presta_order->id_shop_group = (int)$context->shop->id_shop_group;
 
         $presta_order->secure_key = $secure_key;
-        $presta_order->payment = $payment_method;
-
-        $presta_order->module = "fyndiq";
-
+        $presta_order->payment = self::FYNDIQ_PAYMENT_METHOD;
+        $presta_order->module = self::FYNDIQ_ORDERS_MODULE;
         $presta_order->recyclable = $cart->recyclable;
         $presta_order->current_state = $id_order_state;
         $presta_order->gift = (int)$cart->gift;
@@ -269,16 +269,15 @@ class FmOrder
         // Set total paid
         $presta_order->total_paid_real = $presta_order->total_products_wt;
         $presta_order->total_paid = $presta_order->total_products_wt;
-
-
+        
         // Set invoice date (needed to make order to work in prestashop 1.4
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->invoice_date = date("Y-m-d H:i:s", strtotime($fyndiq_order->created_at));
-            $presta_order->delivery_date = date("Y-m-d H:i:s");
+            $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
+            $presta_order->delivery_date = date('Y-m-d H:i:s');
         } else {
             if (FMPSV == FMPSV14) {
-                $presta_order->invoice_date = date("Y-m-d H:i:s", strtotime($fyndiq_order->created_at));
-                $presta_order->delivery_date = date("Y-m-d H:i:s");
+                $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
+                $presta_order->delivery_date = date('Y-m-d H:i:s');
             }
         }
 
@@ -292,7 +291,6 @@ class FmOrder
 
         // Insert new Order detail list using cart for the current order
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-
             $order_detail = new OrderDetail();
             $order_detail->createList(
                 $presta_order,
@@ -319,7 +317,7 @@ class FmOrder
             $order_payment = new OrderPayment();
             $order_payment->id_currency = $cart->id_currency;
             $order_payment->amount = $presta_order->total_products_wt;
-            $order_payment->payment_method = $payment_method;
+            $order_payment->payment_method = self::FYNDIQ_PAYMENT_METHOD;
             $order_payment->order_reference = $reference;
             $order_payment->add();
         }
@@ -344,7 +342,7 @@ class FmOrder
         $presta_order->update();
 
         //Add order to log (prestashop database) so it doesn't get added again next time this is run
-        self::addOrderLog($presta_order->id, $fyndiq_order->id);
+        self::addOrderLog($presta_order->id, $order_id);
 
         // Adding an entry in order_carrier table
         if (!is_null($carrier)) {
@@ -356,7 +354,6 @@ class FmOrder
             $order_carrier->shipping_cost_tax_incl = (float)$presta_order->total_shipping_tax_incl;
             $order_carrier->add();
         }
-
     }
 
     /**
@@ -408,7 +405,6 @@ class FmOrder
             'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders;
         '
         );
-
         $return = array();
 
         foreach($orders as $order) {
@@ -437,5 +433,42 @@ class FmOrder
         );
 
         return $ret;
+    }
+
+    /**
+     * Try to match product by SKU
+     *
+     * @param string $productSKU
+     * @return bool|array
+     */
+    private static function getProductBySKU($productSKU) {
+        if (strpos($productSKU, FmProductExport::SKU_PREFIX) === 0) {
+            // Auto-generated SKU format is PREFIX-priduct_id-combination_id
+            $segments = explode(FmProductExport::SKU_SEPARATOR, $productSKU);
+            // It must be three segment SKU
+            if (count($segments) === 3) {
+                return array((int)$segments[1], (int)$segments[2]);
+            }
+        }
+
+        // Check products
+        $query = new DbQuery();
+        $query->select('p.id_product');
+        $query->from('product', 'p');
+        $query->where('p.reference = \''.pSQL($productSKU).'\'');
+        $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+        if ($productId) {
+            return array($productId, 0);
+        }
+        // Check combinations
+        $query = new DbQuery();
+        $query->select('id_product_attribute, id_product');
+        $query->from('product_attribute');
+        $query->where('reference = \''.pSQL($productSKU).'\'');
+        $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
+        if ($combinationRow) {
+            return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
+        }
+        return false;
     }
 }
