@@ -214,8 +214,8 @@
             <tbody class="fm-orders-list">
             {{#each orders}}
             {{#with this}}
-            <tr data-id="{{entity_id}}" data-fyndiqid="{{fyndiq_order}}">
-                <td class="select center"><input type="checkbox" id="select_order_{{entity_id}}"></td>
+            <tr data-id="{{order_id}}" data-fyndiqid="{{fyndiq_orderid}}">
+                <td class="select center"><input type="checkbox" value="{{fyndiq_orderid}}" name="args[orders][]" id="select_order_{{entity_id}}"></td>
                 <td class="center">{{order_id}}</td>
                 <td class="center">{{fyndiq_orderid}}</td>
                 <td class="center">{{price}}</td>
@@ -234,7 +234,7 @@
     <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
         <div class="fm-order-list-controls">
             <div class="export">
-                <button class="fm-button green" id="getdeliverynote">Get Delivery Notes</button>
+                <button type="submit" class="fm-button green getdeliverynote">Get Delivery Notes</button>
             </div>
         </div>
     </script>
