@@ -410,9 +410,14 @@ class FmOrder
         foreach($orders as $order) {
             $orderarray = $order;
             $neworder = new Order((int)$order['order_id']);
-            $orderarray["created_at"] = $neworder->date_add;
-            $orderarray["price"] = $neworder->total_paid_real;
-            $orderarray["total_products"] = $neworder->total_products;
+            $products = $neworder->getProducts();
+            $quantity = 0;
+            foreach($products as $product) {
+                $quantity += $product['product_quantity'];
+            }
+            $orderarray['created_at'] = $neworder->date_add;
+            $orderarray['price'] = $neworder->total_paid_real;
+            $orderarray['total_products'] = $quantity;
             $return[] = $orderarray;
 
         }
