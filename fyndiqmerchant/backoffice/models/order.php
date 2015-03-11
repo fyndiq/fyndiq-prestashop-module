@@ -187,7 +187,7 @@ class FmOrder
             if (!$productId) {
                 // TODO: Figure out what to do when product is not found
                 $productId = 1;
-                $combinationId = 10;
+                $combinationId = 0;
             }
 
             $num_article = (int)$row->quantity;
