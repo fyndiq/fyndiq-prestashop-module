@@ -41,7 +41,7 @@
                         <span class="last-header">Latest Import</span>
                         Today 14:20:12
                     </div>
-                    <a class="btn btn-green" id="fm-import-orders">Import Orders</a>
+                    <a class="fm-button green" id="fm-import-orders">Import Orders</a>
                 </div>
             </div>
         </div>
