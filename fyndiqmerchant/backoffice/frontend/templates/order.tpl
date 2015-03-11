@@ -24,7 +24,8 @@
             <div class="fm-panel">
                 <div class="fm-panel-header">Imported Orders</div>
                 <div class="fm-panel-body no-padding">
-                    <form action="" method="post" class="fm-form orders-form">
+                    <form action="{$module_path}backoffice/service.php" method="post" class="fm-form orders-form">
+                        <input type="hidden" name="action" value="get_delivery_notes" />
                         <div class="fm-order-list-container"></div>
                     </form>
                 </div>

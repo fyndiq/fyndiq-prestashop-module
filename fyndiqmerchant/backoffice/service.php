@@ -283,6 +283,46 @@ class FmAjaxService
 
         return $html;
     }
+
+    public function get_delivery_notes($args)
+    {
+        try {
+            $orders = new stdClass();
+            $orders->orders = array();
+            if(!isset($args['orders'])) {
+                throw new Exception('Pick at least one order');
+            }
+            foreach ($args["orders"] as $order) {
+                $object = new stdClass();
+                $object->order = intval($order);
+                $orders->orders[] = $object;
+            }
+
+            $ret = FmHelpers::call_api('POST', 'delivery_notes/', $orders, true);
+            $fileName = 'delivery_notes-'.implode('-', $args['orders']).'.pdf';
+
+            if ($ret['status'] == 200) {
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="'.$fileName.'"');
+                header('Content-Transfer-Encoding: binary');
+                header('Content-Length: '.strlen($ret['data']));
+                header('Expires: 0');
+                $fp = fopen('php://temp', 'wb+');
+                // Saving data to file
+                fputs($fp, $ret['data']);
+                rewind($fp);
+                fpassthru($fp);
+                fclose($fp);
+                die();
+            }
+            $this->response(true);
+        } catch (Exception $e) {
+            $this->response_error(
+                FmMessages::get('unhandled-error-title'),
+                FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
+            );
+        }
+    }
 }
 
 $ajaxService = new FmAjaxService();

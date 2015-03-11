@@ -27,7 +27,10 @@ class FmMessages {
         'orders-imported-message'=>    'The orders from Fyndiq have been imported to Prestashop.',
 
         'products-not-selected-title'=>     'No products selected',
-        'products-not-selected-message'=>   'You have to select at least one product to export.'
+        'products-not-selected-message'=>   'You have to select at least one product to export.',
+
+        'delivery-notes-not-selected-title'=>     'No delivery notes selected',
+        'delivery-notes-not-selected-message'=>   'You have to select at least one delivery note for download.'
     );
 
     public static function get($name) {

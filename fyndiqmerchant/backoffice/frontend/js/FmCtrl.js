@@ -381,29 +381,13 @@ var FmCtrl = {
                 });
             }
         });
-        $(document).on('click', '#getdeliverynote', function () {
-            var orders = [];
 
-            $('.fm-orders-list > tr').each(function (k, v) {
-                // check if product is selected
-                var active = $(this).find('.select input').prop('checked');
-                if (active) {
-                    orders.push($(this).data('fyndiqid'));
-                }
-            });
-
-            FmGui.show_load_screen(function () {
-                FmCtrl.get_delivery_notes(orders, function (status) {
-                    FmGui.hide_load_screen();
-                    if (status === 'success') {
-                        var wins = window.open(urlpath0 + 'fyndiq/files/deliverynote.pdf', '_blank');
-                        if (wins) {
-                            //Browser has allowed it to be opened
-                            wins.focus();
-                        }
-                    }
-                });
-            });
+        $(document).on('click', '.getdeliverynote', function (e) {
+            if ($('.fm-orders-list > tr .select input:checked').length === 0) {
+                e.preventDefault();
+                FmGui.show_message('info', messages['delivery-notes-not-selected-title'],
+                    messages['delivery-notes-not-selected-message']);
+            }
         });
     }
 };
