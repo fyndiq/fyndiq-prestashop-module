@@ -183,12 +183,17 @@ class FmOrder
 
         foreach ($fyndiq_order->order_rows as $row) {
             // get id of the product
-            // TODO: shall be from a table later (to conenct a product in prestashop with a id for a article in Fyndiq)
-            $product_id = 1;
-            $num_article = $row->quantity;
+            list($productId, $combinationId) = self::getProductBySKU($row->sku);
+            if (!$productId) {
+                // TODO: Figure out what to do when product is not found
+                $productId = 1;
+                $combinationId = 0;
+            }
+
+            $num_article = (int)$row->quantity;
 
             //add product to the cart
-            $cart->updateQty($num_article, $product_id);
+            $cart->updateQty($num_article, $productId, $combinationId);
         }
 
         // create the order
@@ -428,5 +433,42 @@ class FmOrder
         );
 
         return $ret;
+    }
+
+    /**
+     * Try to match product by SKU
+     *
+     * @param string $productSKU
+     * @return bool|array
+     */
+    private static function getProductBySKU($productSKU) {
+        if (strpos($productSKU, FmProductExport::SKU_PREFIX) === 0) {
+            // Auto-generated SKU format is PREFIX-priduct_id-combination_id
+            $segments = explode(FmProductExport::SKU_SEPARATOR, $productSKU);
+            // It must be three segment SKU
+            if (count($segments) === 3) {
+                return array((int)$segments[1], (int)$segments[2]);
+            }
+        }
+
+        // Check products
+        $query = new DbQuery();
+        $query->select('p.id_product');
+        $query->from('product', 'p');
+        $query->where('p.reference = \''.pSQL($productSKU).'\'');
+        $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+        if ($productId) {
+            return array($productId, 0);
+        }
+        // Check combinations
+        $query = new DbQuery();
+        $query->select('id_product_attribute, id_product');
+        $query->from('product_attribute');
+        $query->where('reference = \''.pSQL($productSKU).'\'');
+        $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
+        if ($combinationRow) {
+            return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
+        }
+        return false;
     }
 }
