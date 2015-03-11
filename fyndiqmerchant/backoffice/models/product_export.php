@@ -3,6 +3,9 @@
 class FmProductExport
 {
 
+    const SKU_PREFIX = '~';
+    const SKU_SEPARATOR = '-';
+
     private static $skuList = array();
 
     static function productExist($product_id)
@@ -123,7 +126,7 @@ class FmProductExport
                 // Product without combinations
 
                 // Complete Product with article data
-                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id']));
+                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id'], 0));
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = addslashes($storeProduct['name']);
 
@@ -135,14 +138,8 @@ class FmProductExport
                     // Copy the product data so we have clear slate for each combination
                     $exportProductCopy = $exportProduct;
 
-
-                    if (empty($combination['reference'])) {
-                        $exportProductCopy['article-sku'] = self::getSKU($storeProduct['reference'] . '-' . $combination['id'],
-                            array($storeProduct['id'], $combination['id']));
-                    } else {
-                        $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
-                            array($storeProduct['id'], $combination['id']));
-                    }
+                    $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
+                         array($storeProduct['id'], $combination['id']));
 
                     $exportProductCopy['article-quantity'] = $combination['quantity'];
                     $exportProductCopy['product-oldprice'] = number_format((float)$combination['price'], 2, '.', '');
@@ -214,7 +211,7 @@ class FmProductExport
 
     private static function getSKU($sku, $backupFields = array()) {
         if (empty($sku) || in_array($sku, self::$skuList)) {
-            $sku = implode('-', array_merge(array('SKU', $sku), $backupFields));
+            $sku = implode(self::SKU_SEPARATOR, array_merge(array(self::SKU_PREFIX), $backupFields));
         }
         self::$skuList[] = $sku;
         return $sku;
