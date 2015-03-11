@@ -164,13 +164,20 @@ class FmAjaxService
      */
     public function import_orders($args)
     {
+        $url = "orders/";
+        $date = FmConfig::get('import_date');
+        if (isset($date) && $date != false && $date != "") {
+            $url .= "?min_date=" . urlencode($date);
+        }
         try {
-            $ret = FmHelpers::call_api('GET', 'orders/');
+            $ret = FmHelpers::call_api('GET', $url);
             foreach ($ret["data"] as $order) {
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
                 }
             }
+            $newdate = date("Y-m-d H:i:s");
+            FmConfig::set('import_date', $newdate);
             $this->response($ret);
         } catch (Exception $e) {
             $this->response_error(
