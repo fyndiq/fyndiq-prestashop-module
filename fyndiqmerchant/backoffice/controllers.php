@@ -145,6 +145,7 @@ class FmBackofficeControllers
                 $module,
                 'order',
                 array(
+                    'import_date' => FmConfig::get('import_date'),
                     'messages' => FmMessages::get_all(),
                     'path' => $path
                 )
