@@ -24,6 +24,8 @@ class FmOrder
     const FYNDIQ_ORDERS_MODULE = 'fyndiq';
     const FYNDIQ_PAYMENT_METHOD = 'Fyndiq';
 
+    const DEFAULT_LANGUAGE_ID = 1;
+
     /**
      * install the table in the database
      *
@@ -45,35 +47,49 @@ class FmOrder
         return $ret;
     }
 
-    /**
-     * create orders from Fyndiq orders
-     *
-     * @param $fyndiq_order
-     * @throws PrestaShopException
-     */
-    public static function create($fyndiq_order)
+    private static function getContext()
     {
-        // if the PrestaShop 1.5 and 1.6 is used, use the context class.
+        // mock the context for PS 1.4
+        $context = new stdClass();
+
+        // if the Presta Shop 1.5 and 1.6 is used, use the context class.
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $context = Context::getContext();
+        } else {
+            $context->shop = new stdClass();
+            $context->country = new stdClass();
+            $context->currency = Currency::getDefaultCurrency();
+            $context->country = (int)Country::getDefaultCountryId();
+
         }
+        $context->currency = Currency::getDefaultCurrency();
+        $context->id_lang = self::DEFAULT_LANGUAGE_ID;
+        return $context;
+    }
+
+    private static function fillAddress($fyndiq_order, $customerId, $countryId, $alias)
+    {
+        // Create address
+        $address = new Address();
+        $address->firstname = $fyndiq_order->delivery_firstname;
+        $address->lastname = $fyndiq_order->delivery_lastname;
+        $address->phone = $fyndiq_order->delivery_phone;
+        $address->address1 = $fyndiq_order->delivery_address;
+        $address->postcode = $fyndiq_order->delivery_postalcode;
+        $address->city = $fyndiq_order->delivery_city;
+        $address->company = $fyndiq_order->delivery_co;
+        $address->id_country = $countryId;
+        $address->id_customer = $customerId;
+        $address->alias = $alias;
+        return $address;
+    }
+
+    private static function getCart($fyndiq_order, $context)
+    {
         // create a new cart to add the articles to
         $cart = new Cart();
-
-        // Get order_rows (articles inside the order) for this specific order.
-        $order_id = $fyndiq_order->id;
-
-        $cart->id_currency = Currency::getDefaultCurrency()->id;
-        $cart->id_lang = 1;
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $context->currency = Currency::getDefaultCurrency();
-            $context->id_lang = 1;
-        }
-
-        // TODO: Handle different countries
-        $countryCode = 'SE';
-
-        $countryId = Country::getByIso($countryCode);
+        $cart->id_currency = $context->currency->id;
+        $cart->id_lang = self::DEFAULT_LANGUAGE_ID;
 
         $customer = new Customer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
@@ -89,59 +105,89 @@ class FmOrder
             // Add it to the database.
             $customer->add();
 
-            // Create delivery address
-            $delivery_address = new Address();
-            $delivery_address->firstname = $fyndiq_order->delivery_firstname;
-            $delivery_address->lastname = $fyndiq_order->delivery_lastname;
-            $delivery_address->phone = $fyndiq_order->delivery_phone;
-            $delivery_address->address1 = $fyndiq_order->delivery_address;
-            $delivery_address->postcode = $fyndiq_order->delivery_postalcode;
-            $delivery_address->city = $fyndiq_order->delivery_city;
-            $delivery_address->company = $fyndiq_order->delivery_co;
-            $delivery_address->id_country = $countryId;
-            $delivery_address->id_customer = $customer->id;
-            $delivery_address->alias = self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS; // TODO: fix this!
+            $deliveryAddress = fillAddress($fyndiq_order, $customer->id, $context->country->id,
+                self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS);
+            $deliveryAddress->add();
 
-            // Add it to the database.
-            $delivery_address->add();
+            $invoiceAddress = fillAddress($fyndiq_order, $customer->id, $context->country->id,
+                self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS);
+            $invoiceAddress->add();
 
-            // Create invoice address
-            $invoice_address = new Address();
-            $invoice_address->firstname = $fyndiq_order->delivery_firstname;
-            $invoice_address->lastname = $fyndiq_order->delivery_lastname;
-            $invoice_address->phone = $fyndiq_order->delivery_phone;
-            $invoice_address->address1 = $fyndiq_order->delivery_address;
-            $invoice_address->postcode = $fyndiq_order->delivery_postalcode;
-            $invoice_address->city = $fyndiq_order->delivery_city;
-            $invoice_address->company = $fyndiq_order->delivery_co;
-            $invoice_address->id_country = $countryId;
-            $invoice_address->id_customer = $customer->id;
-            $invoice_address->alias = self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS; // TODO: fix this!
-
-            // Add it to the database.
-            $invoice_address->add();
         } else {
+            $invoiceAddress = new Address();
+            $deliveryAddress = new Address();
             $addresses = $customer->getAddresses($cart->id_lang);
             foreach ($addresses as $address) {
+                $currentAddress = null;
                 if ($address['alias'] === self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS) {
-                    $invoice_address = new Address();
-                    foreach ($address as $key => $value) {
-                        if ($key == 'id_address') {
-                            $invoice_address->id = $value;
-                        } else {
-                            $invoice_address->$key = $value;
-                        }
-                    }
-                } elseif ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
-                    $delivery_address = new Address();
-                    foreach ($address as $key => $value) {
-                        if ($key == 'id_address') {
-                            $delivery_address->id = $value;
-                        } else {
-                            $delivery_address->$key = $value;
-                        }
+                    $currentAddress = $invoiceAddress;
+                }
+                if ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
+                    $currentAddress = $deliveryAddress;
+                }
+                foreach ($address as $key => $value) {
+                    if ($key === 'id_address') {
+                        $currentAddress->id = $value;
+                    } else {
+                        $currentAddress->$key = $value;
                     }
                 }
+            }
+        }
+
+        $cart->id_customer = $customer->id;
+        $cart->id_address_invoice = (int)$invoiceAddress->id;
+        $cart->id_address_delivery = (int)$deliveryAddress->id;
+        return $cart;
+    }
+
+    /**
+     * create orders from Fyndiq orders
+     *
+     * @param $fyndiq_order
+     * @return bool
+     * @throws FyndiqProductSKUNotFound
+     * @throws PrestaShopException
+     */
+    public static function create($fyndiq_order)
+    {
+        foreach ($fyndiq_order->order_rows as &$row) {
+            list($productId, $combinationId) = self::getProductBySKU($row->sku);
+            if (!$productId) {
+                throw new FyndiqProductSKUNotFound(sprintf('Product with SKU "%s", from order #%d cannot be found.',
+                    $row->sku, $fyndiq_order->id));
+                return false;
+            } else {
+                $row->productId = $productId;
+                $row->combinationId = $combinationId;
+            }
+        }
+
+        $context = self::getContext();
+
+        $cart = self::getCart($fyndiq_order, $context);
+        // Save the cart
+        $cart->add();
+
+        foreach ($fyndiq_order->order_rows as $row) {
+            $num_article = (int)$row->quantity;
+            $cart->updateQty($num_article, $row->productId, $row->combinationId);
+        }
+
+
+        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+            // create a internal reference for the order.
+            $reference = Order::generateReference();
+        }
+
+        $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
+
+        // Check address
+        if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
+            $address = new Address($cart->id_address_delivery);
+            $country = new Country($address->id_country, $cart->id_lang);
+            if (!$country->active) {
+                throw new PrestaShopException('The delivery address country is not active.');
             }
         }
 
@@ -149,20 +195,7 @@ class FmOrder
         $presta_order = new Order();
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            // create a internal reference for the order.
-            $reference = Order::generateReference();
-        }
-
-        $secure_key = md5(uniqid(rand(), true));
-        $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
-
-        // Check address
-        if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
-            $address = new Address($delivery_address->id);
-            $country = new Country($address->id_country, $cart->id_lang);
-            if (!$country->active) {
-                throw new PrestaShopException('The delivery address country is not active.');
-            }
+            $presta_order->reference = $reference;
         }
 
         // get the carrier for the cart
@@ -175,45 +208,19 @@ class FmOrder
             $presta_order->id_carrier = 1;
             $id_carrier = 1;
         }
-
-        $cart->id_customer = $customer->id;
-        $cart->id_address_invoice = (int)$invoice_address->id;
-        $cart->id_address_delivery = (int)$delivery_address->id;
-
-        // Save the cart
-        $cart->add();
-
-        foreach ($fyndiq_order->order_rows as $row) {
-            // get id of the product
-            list($productId, $combinationId) = self::getProductBySKU($row->sku);
-            if (!$productId) {
-                // TODO: Figure out what to do when product is not found
-                $productId = 1;
-                $combinationId = 0;
-            }
-
-            $num_article = (int)$row->quantity;
-
-            //add product to the cart
-            $cart->updateQty($num_article, $productId, $combinationId);
-        }
-
         // create the order
-        $presta_order->id_customer = (int)$customer->id;
-        $presta_order->id_address_invoice = (int)$invoice_address->id;
-        $presta_order->id_address_delivery = (int)$delivery_address->id;
+        $presta_order->id_customer = (int)$cart->id_customer;
+        $presta_order->id_address_invoice = $cart->id_address_invoice;
+        $presta_order->id_address_delivery = $cart->id_address_delivery;
         $presta_order->id_currency = $cart->id_currency;
         $presta_order->id_lang = (int)$cart->id_lang;
         $presta_order->id_cart = (int)$cart->id;
-
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->reference = $reference;
-        }
 
         // Setup more settings for the order
         $presta_order->id_shop = (int)$context->shop->id;
         $presta_order->id_shop_group = (int)$context->shop->id_shop_group;
 
+        $secure_key = md5(uniqid(rand(), true));
         $presta_order->secure_key = $secure_key;
         $presta_order->payment = self::FYNDIQ_PAYMENT_METHOD;
         $presta_order->module = self::FYNDIQ_ORDERS_MODULE;
@@ -305,10 +312,10 @@ class FmOrder
                 foreach ($cart->getProducts() as $product) {
                     $order_detail = new OrderDetail();
                     $order_detail->id_order = $presta_order->id;
-                    $order_detail->product_name = $product["name"];
-                    $order_detail->product_quantity = $product["quantity"];
-                    $order_detail->product_price = $product["price"];
-                    $order_detail->tax_rate = $product["rate"];
+                    $order_detail->product_name = $product['name'];
+                    $order_detail->product_quantity = $product['quantity'];
+                    $order_detail->product_price = $product['price'];
+                    $order_detail->tax_rate = $product['rate'];
                     $order_detail->add();
                 }
             }
@@ -336,7 +343,7 @@ class FmOrder
         $order_message->id_order = $presta_order->id;
         $order_message->private = true;
         // TODO: FIX the url!
-        $order_message->message = "Fyndiq delivery note: http://fyndiq.se" . $fyndiq_order->delivery_note . " \n just copy url and paste in the browser to download the delivery note.";
+        $order_message->message = 'Fyndiq delivery note: http://fyndiq.se' . $fyndiq_order->delivery_note . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
         $order_message->add();
 
         // set order as valid
@@ -344,7 +351,7 @@ class FmOrder
         $presta_order->update();
 
         //Add order to log (prestashop database) so it doesn't get added again next time this is run
-        self::addOrderLog($presta_order->id, $order_id);
+        self::addOrderLog($presta_order->id, $fyndiq_order->id);
 
         // Adding an entry in order_carrier table
         if (!is_null($carrier)) {
