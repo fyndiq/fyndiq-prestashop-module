@@ -37,7 +37,7 @@ class FmOrder
             id int(20) unsigned primary key AUTO_INCREMENT,
             fyndiq_orderid INT(10),
             order_id INT(10));
-            CREATE INDEX orderIndex
+            CREATE UNIQUE INDEX orderIndex
             ON ' . _DB_PREFIX_ . $module->config_name . '_orders (fyndiq_orderid);
         '
         );

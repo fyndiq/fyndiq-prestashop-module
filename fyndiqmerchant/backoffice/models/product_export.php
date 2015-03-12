@@ -71,7 +71,7 @@ class FmProductExport
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned);
-            CREATE INDEX productIndex
+            CREATE UNIQUE INDEX productIndex
             ON ' . _DB_PREFIX_ . $module->config_name . '_products (product_id);
         '
         );
