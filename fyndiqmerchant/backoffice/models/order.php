@@ -64,6 +64,22 @@ class FmOrder
         return $context;
     }
 
+    private static function fillAddress($fyndiq_order, $customerId, $countryId, $alias) {
+        // Create address
+        $address = new Address();
+        $address->firstname = $fyndiq_order->delivery_firstname;
+        $address->lastname = $fyndiq_order->delivery_lastname;
+        $address->phone = $fyndiq_order->delivery_phone;
+        $address->address1 = $fyndiq_order->delivery_address;
+        $address->postcode = $fyndiq_order->delivery_postalcode;
+        $address->city = $fyndiq_order->delivery_city;
+        $address->company = $fyndiq_order->delivery_co;
+        $address->id_country = $countryId;
+        $address->id_customer = $customerId;
+        $address->alias = $alias;
+        return $address;
+    }
+
     /**
      * create orders from Fyndiq orders
      *
@@ -93,57 +109,31 @@ class FmOrder
             // Add it to the database.
             $customer->add();
 
-            // Create delivery address
-            $delivery_address = new Address();
-            $delivery_address->firstname = $fyndiq_order->delivery_firstname;
-            $delivery_address->lastname = $fyndiq_order->delivery_lastname;
-            $delivery_address->phone = $fyndiq_order->delivery_phone;
-            $delivery_address->address1 = $fyndiq_order->delivery_address;
-            $delivery_address->postcode = $fyndiq_order->delivery_postalcode;
-            $delivery_address->city = $fyndiq_order->delivery_city;
-            $delivery_address->company = $fyndiq_order->delivery_co;
-            $delivery_address->id_country = $context->country->id;
-            $delivery_address->id_customer = $customer->id;
-            $delivery_address->alias = self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS; // TODO: fix this!
-
-            // Add it to the database.
+            $delivery_address = fillAddress($fyndiq_order, $customer->id, $context->country->id,
+                self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS);
             $delivery_address->add();
 
-            // Create invoice address
-            $invoice_address = new Address();
-            $invoice_address->firstname = $fyndiq_order->delivery_firstname;
-            $invoice_address->lastname = $fyndiq_order->delivery_lastname;
-            $invoice_address->phone = $fyndiq_order->delivery_phone;
-            $invoice_address->address1 = $fyndiq_order->delivery_address;
-            $invoice_address->postcode = $fyndiq_order->delivery_postalcode;
-            $invoice_address->city = $fyndiq_order->delivery_city;
-            $invoice_address->company = $fyndiq_order->delivery_co;
-            $invoice_address->id_country = $context->country->id;
-            $invoice_address->id_customer = $customer->id;
-            $invoice_address->alias = self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS; // TODO: fix this!
-
-            // Add it to the database.
+            $invoice_address = fillAddress($fyndiq_order, $customer->id, $context->country->id,
+                self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS);
             $invoice_address->add();
+
         } else {
+            $invoice_address = new Address();
+            $delivery_address = new Address();
             $addresses = $customer->getAddresses($cart->id_lang);
             foreach ($addresses as $address) {
+                $currentAddress = null;
                 if ($address['alias'] === self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS) {
-                    $invoice_address = new Address();
-                    foreach ($address as $key => $value) {
-                        if ($key == 'id_address') {
-                            $invoice_address->id = $value;
-                        } else {
-                            $invoice_address->$key = $value;
-                        }
-                    }
-                } elseif ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
-                    $delivery_address = new Address();
-                    foreach ($address as $key => $value) {
-                        if ($key == 'id_address') {
-                            $delivery_address->id = $value;
-                        } else {
-                            $delivery_address->$key = $value;
-                        }
+                    $currentAddress = $invoice_address;
+                }
+                if ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
+                    $currentAddress = $delivery_address;
+                }
+                foreach ($address as $key => $value) {
+                    if ($key === 'id_address') {
+                        $currentAddress->id = $value;
+                    } else {
+                        $currentAddress->$key = $value;
                     }
                 }
             }
