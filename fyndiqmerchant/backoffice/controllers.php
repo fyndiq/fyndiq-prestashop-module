@@ -141,11 +141,18 @@ class FmBackofficeControllers
         }
         if ($page == "order") {
             $path = FmHelpers::get_module_url();
+            $import_date = FmConfig::get('import_date');
+            $current = strtotime(date("Y-m-d"));
+            $date    = strtotime(date("Y-m-d",strtotime($import_date)));
+            $datediff = $date - $current;
+            $differance = floor($datediff/(60*60*24));
             $output .= self::show_template(
                 $module,
                 'order',
                 array(
                     'import_date' => FmConfig::get('import_date'),
+                    'date_diff' => $differance,
+                    'import_time' => date ("G:i:s", strtotime($import_date)),
                     'messages' => FmMessages::get_all(),
                     'path' => $path
                 )
