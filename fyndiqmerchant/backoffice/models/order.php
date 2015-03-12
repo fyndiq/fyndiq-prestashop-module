@@ -412,12 +412,14 @@ class FmOrder
             $neworder = new Order((int)$order['order_id']);
             $products = $neworder->getProducts();
             $quantity = 0;
+            $current_state = new OrderState($neworder->getCurrentState());
             foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
             $orderarray['created_at'] = date('Y-m-d', strtotime($neworder->date_add));
             $orderarray['created_at_time'] = date('G:i:s', strtotime($neworder->date_add));
             $orderarray['price'] = $neworder->total_paid_real;
+            $orderarray['state'] = $current_state->name[1];
             $orderarray['total_products'] = $quantity;
             $return[] = $orderarray;
 

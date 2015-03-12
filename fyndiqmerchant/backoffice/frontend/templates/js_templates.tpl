@@ -214,6 +214,7 @@
                 <th>Fyndiq Order</th>
                 <th>Price</th>
                 <th>Qty</th>
+                <th>Status</th>
                 <th>Created</th>
             </tr>
             </thead>
@@ -226,6 +227,7 @@
                 <td class="center">{{fyndiq_orderid}}</td>
                 <td class="center">{{price}}</td>
                 <td class="center">{{total_products}}</td>
+                <td class="center">{{state}}</td>
                 <td class="center">{{created_at}} <span class="shadow">({{created_at_time}})</span></td>
             </tr>
             {{/with}}
