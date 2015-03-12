@@ -24,6 +24,8 @@ class FmOrder
     const FYNDIQ_ORDERS_MODULE = 'fyndiq';
     const FYNDIQ_PAYMENT_METHOD = 'Fyndiq';
 
+    const DEFAULT_LANGUAGE_ID = 1;
+
     /**
      * install the table in the database
      *
@@ -43,6 +45,25 @@ class FmOrder
         return $ret;
     }
 
+    private static function getContext() {
+        // mock the context for PS 1.4
+        $context = new stdClass();
+
+        // if the Presta Shop 1.5 and 1.6 is used, use the context class.
+        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+            $context = Context::getContext();
+        } else {
+            $context->shop = new stdClass();
+            $context->country = new stdClass();
+            $context->currency = Currency::getDefaultCurrency();
+            $context->country = (int)Country::getDefaultCountryId();
+
+        }
+        $context->currency = Currency::getDefaultCurrency();
+        $context->id_lang = self::DEFAULT_LANGUAGE_ID;
+        return $context;
+    }
+
     /**
      * create orders from Fyndiq orders
      *
@@ -51,27 +72,12 @@ class FmOrder
      */
     public static function create($fyndiq_order)
     {
-        // if the PrestaShop 1.5 and 1.6 is used, use the context class.
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $context = Context::getContext();
-        }
+        $context = self::getContext();
+
         // create a new cart to add the articles to
         $cart = new Cart();
-
-        // Get order_rows (articles inside the order) for this specific order.
-        $order_id = $fyndiq_order->id;
-
-        $cart->id_currency = Currency::getDefaultCurrency()->id;
-        $cart->id_lang = 1;
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $context->currency = Currency::getDefaultCurrency();
-            $context->id_lang = 1;
-        }
-
-        // TODO: Handle different countries
-        $countryCode = 'SE';
-
-        $countryId = Country::getByIso($countryCode);
+        $cart->id_currency = $context->currency->id;
+        $cart->id_lang = self::DEFAULT_LANGUAGE_ID;
 
         $customer = new Customer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
@@ -96,7 +102,7 @@ class FmOrder
             $delivery_address->postcode = $fyndiq_order->delivery_postalcode;
             $delivery_address->city = $fyndiq_order->delivery_city;
             $delivery_address->company = $fyndiq_order->delivery_co;
-            $delivery_address->id_country = $countryId;
+            $delivery_address->id_country = $context->country->id;
             $delivery_address->id_customer = $customer->id;
             $delivery_address->alias = self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS; // TODO: fix this!
 
@@ -112,7 +118,7 @@ class FmOrder
             $invoice_address->postcode = $fyndiq_order->delivery_postalcode;
             $invoice_address->city = $fyndiq_order->delivery_city;
             $invoice_address->company = $fyndiq_order->delivery_co;
-            $invoice_address->id_country = $countryId;
+            $invoice_address->id_country = $context->country->id;
             $invoice_address->id_customer = $customer->id;
             $invoice_address->alias = self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS; // TODO: fix this!
 
@@ -342,7 +348,7 @@ class FmOrder
         $presta_order->update();
 
         //Add order to log (prestashop database) so it doesn't get added again next time this is run
-        self::addOrderLog($presta_order->id, $order_id);
+        self::addOrderLog($presta_order->id, $fyndiq_order->id);
 
         // Adding an entry in order_carrier table
         if (!is_null($carrier)) {
