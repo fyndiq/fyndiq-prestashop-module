@@ -138,9 +138,6 @@ class FmProductExport
                 $allProducts[] = $exportProduct;
             } else {
                 foreach ($storeProduct['combinations'] as $combination) {
-                    if (empty($combination['reference'])) {
-                        continue;
-                    }
                     // Copy the product data so we have clear slate for each combination
                     $exportProductCopy = $exportProduct;
 
