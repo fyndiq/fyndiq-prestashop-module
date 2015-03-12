@@ -220,7 +220,7 @@
                 <td class="center">{{fyndiq_orderid}}</td>
                 <td class="center">{{price}}</td>
                 <td class="center">{{total_products}}</td>
-                <td class="center">{{created_at}}</td>
+                <td class="center">{{created_at}} <span class="shadow">({{created_at_time}})</span></td>
             </tr>
             {{/with}}
             {{/each}}
