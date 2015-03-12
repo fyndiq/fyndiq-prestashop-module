@@ -377,7 +377,7 @@ var FmCtrl = {
             FmGui.show_load_screen();
             FmCtrl.import_orders(function (date) {
                 var newdate = new Date(date);
-                var newdate = newdate.getHours() + ":" + (newdate.getMinutes()<10?'0':'') + newdate.getMinutes() + ":" + (newdate.getSeconds()<10?'0':'') + newdate.getSeconds();
+                var newdate = newdate.getHours() + ':' + (newdate.getMinutes() < 10 ? '0' : '') + newdate.getMinutes() + ':' + (newdate.getSeconds() < 10 ? '0' : '') + newdate.getSeconds();
                 $('#import-order-date').html('');
                 console.log(newdate);
                 $('#import-order-date').html(
