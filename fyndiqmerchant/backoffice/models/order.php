@@ -45,7 +45,8 @@ class FmOrder
         return $ret;
     }
 
-    private static function getContext() {
+    private static function getContext()
+    {
         // mock the context for PS 1.4
         $context = new stdClass();
 
@@ -64,7 +65,8 @@ class FmOrder
         return $context;
     }
 
-    private static function fillAddress($fyndiq_order, $customerId, $countryId, $alias) {
+    private static function fillAddress($fyndiq_order, $customerId, $countryId, $alias)
+    {
         // Create address
         $address = new Address();
         $address->firstname = $fyndiq_order->delivery_firstname;
@@ -80,30 +82,8 @@ class FmOrder
         return $address;
     }
 
-    /**
-     * create orders from Fyndiq orders
-     *
-     * @param $fyndiq_order
-     * @return bool
-     * @throws FyndiqProductSKUNotFound
-     * @throws PrestaShopException
-     */
-    public static function create($fyndiq_order)
+    private static function getCart($fyndiq_order, $context)
     {
-        foreach ($fyndiq_order->order_rows as &$row) {
-            list($productId, $combinationId) = self::getProductBySKU($row->sku);
-            if (!$productId) {
-                throw new FyndiqProductSKUNotFound(sprintf('Product with SKU "%s", from order #%d cannot be found.',
-                    $row->sku, $fyndiq_order->id));
-                return false;
-            } else {
-                $row->productId = $productId;
-                $row->combinationId = $combinationId;
-            }
-        }
-
-        $context = self::getContext();
-
         // create a new cart to add the articles to
         $cart = new Cart();
         $cart->id_currency = $context->currency->id;
@@ -153,24 +133,67 @@ class FmOrder
             }
         }
 
-        // Create an order
-        $presta_order = new Order();
+        $cart->id_customer = $customer->id;
+        $cart->id_address_invoice = (int)$invoiceAddress->id;
+        $cart->id_address_delivery = (int)$deliveryAddress->id;
+        return $cart;
+    }
+
+    /**
+     * create orders from Fyndiq orders
+     *
+     * @param $fyndiq_order
+     * @return bool
+     * @throws FyndiqProductSKUNotFound
+     * @throws PrestaShopException
+     */
+    public static function create($fyndiq_order)
+    {
+        foreach ($fyndiq_order->order_rows as &$row) {
+            list($productId, $combinationId) = self::getProductBySKU($row->sku);
+            if (!$productId) {
+                throw new FyndiqProductSKUNotFound(sprintf('Product with SKU "%s", from order #%d cannot be found.',
+                    $row->sku, $fyndiq_order->id));
+                return false;
+            } else {
+                $row->productId = $productId;
+                $row->combinationId = $combinationId;
+            }
+        }
+
+        $context = self::getContext();
+
+        $cart = self::getCart($fyndiq_order, $context);
+        // Save the cart
+        $cart->add();
+
+        foreach ($fyndiq_order->order_rows as $row) {
+            $num_article = (int)$row->quantity;
+            $cart->updateQty($num_article, $row->productId, $row->combinationId);
+        }
+
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             // create a internal reference for the order.
             $reference = Order::generateReference();
         }
 
-        $secure_key = md5(uniqid(rand(), true));
         $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
         if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
-            $address = new Address($deliveryAddress->id);
+            $address = new Address($cart->id_address_delivery);
             $country = new Country($address->id_country, $cart->id_lang);
             if (!$country->active) {
                 throw new PrestaShopException('The delivery address country is not active.');
             }
+        }
+
+        // Create an order
+        $presta_order = new Order();
+
+        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+            $presta_order->reference = $reference;
         }
 
         // get the carrier for the cart
@@ -183,36 +206,19 @@ class FmOrder
             $presta_order->id_carrier = 1;
             $id_carrier = 1;
         }
-
-        $cart->id_customer = $customer->id;
-        $cart->id_address_invoice = (int)$invoiceAddress->id;
-        $cart->id_address_delivery = (int)$deliveryAddress->id;
-
-        // Save the cart
-        $cart->add();
-
-        foreach ($fyndiq_order->order_rows as $row) {
-            $num_article = (int)$row->quantity;
-            //add product to the cart
-            $cart->updateQty($num_article, $row->productId, $row->combinationId);
-        }
-
         // create the order
-        $presta_order->id_customer = (int)$customer->id;
-        $presta_order->id_address_invoice = (int)$invoiceAddress->id;
-        $presta_order->id_address_delivery = (int)$deliveryAddress->id;
+        $presta_order->id_customer = (int)$cart->id_customer;
+        $presta_order->id_address_invoice = $cart->id_address_invoice;
+        $presta_order->id_address_delivery = $cart->id_address_delivery;
         $presta_order->id_currency = $cart->id_currency;
         $presta_order->id_lang = (int)$cart->id_lang;
         $presta_order->id_cart = (int)$cart->id;
-
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->reference = $reference;
-        }
 
         // Setup more settings for the order
         $presta_order->id_shop = (int)$context->shop->id;
         $presta_order->id_shop_group = (int)$context->shop->id_shop_group;
 
+        $secure_key = md5(uniqid(rand(), true));
         $presta_order->secure_key = $secure_key;
         $presta_order->payment = self::FYNDIQ_PAYMENT_METHOD;
         $presta_order->module = self::FYNDIQ_ORDERS_MODULE;
@@ -304,10 +310,10 @@ class FmOrder
                 foreach ($cart->getProducts() as $product) {
                     $order_detail = new OrderDetail();
                     $order_detail->id_order = $presta_order->id;
-                    $order_detail->product_name = $product["name"];
-                    $order_detail->product_quantity = $product["quantity"];
-                    $order_detail->product_price = $product["price"];
-                    $order_detail->tax_rate = $product["rate"];
+                    $order_detail->product_name = $product['name'];
+                    $order_detail->product_quantity = $product['quantity'];
+                    $order_detail->product_price = $product['price'];
+                    $order_detail->tax_rate = $product['rate'];
                     $order_detail->add();
                 }
             }
@@ -335,7 +341,7 @@ class FmOrder
         $order_message->id_order = $presta_order->id;
         $order_message->private = true;
         // TODO: FIX the url!
-        $order_message->message = "Fyndiq delivery note: http://fyndiq.se" . $fyndiq_order->delivery_note . " \n just copy url and paste in the browser to download the delivery note.";
+        $order_message->message = 'Fyndiq delivery note: http://fyndiq.se' . $fyndiq_order->delivery_note . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
         $order_message->add();
 
         // set order as valid
