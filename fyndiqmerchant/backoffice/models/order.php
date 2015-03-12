@@ -269,7 +269,7 @@ class FmOrder
         // Set total paid
         $presta_order->total_paid_real = $presta_order->total_products_wt;
         $presta_order->total_paid = $presta_order->total_products_wt;
-        
+
         // Set invoice date (needed to make order to work in prestashop 1.4
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
@@ -407,16 +407,16 @@ class FmOrder
         );
         $return = array();
 
-        foreach($orders as $order) {
+        foreach ($orders as $order) {
             $orderarray = $order;
             $neworder = new Order((int)$order['order_id']);
             $products = $neworder->getProducts();
             $quantity = 0;
-            foreach($products as $product) {
+            foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
-            $orderarray["created_at"] = date ("Y-m-d", strtotime($neworder->date_add));
-            $orderarray["created_at_time"] = date ("G:i:s", strtotime($neworder->date_add));
+            $orderarray['created_at'] = date("Y-m-d", strtotime($neworder->date_add));
+            $orderarray['created_at_time'] = date("G:i:s", strtotime($neworder->date_add));
             $orderarray['price'] = $neworder->total_paid_real;
             $orderarray['total_products'] = $quantity;
             $return[] = $orderarray;
@@ -447,7 +447,8 @@ class FmOrder
      * @param string $productSKU
      * @return bool|array
      */
-    private static function getProductBySKU($productSKU) {
+    private static function getProductBySKU($productSKU)
+    {
         if (strpos($productSKU, FmProductExport::SKU_PREFIX) === 0) {
             // Auto-generated SKU format is PREFIX-priduct_id-combination_id
             $segments = explode(FmProductExport::SKU_SEPARATOR, $productSKU);
@@ -461,7 +462,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('p.id_product');
         $query->from('product', 'p');
-        $query->where('p.reference = \''.pSQL($productSKU).'\'');
+        $query->where('p.reference = \'' . pSQL($productSKU) . '\'');
         $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
         if ($productId) {
             return array($productId, 0);
@@ -470,11 +471,12 @@ class FmOrder
         $query = new DbQuery();
         $query->select('id_product_attribute, id_product');
         $query->from('product_attribute');
-        $query->where('reference = \''.pSQL($productSKU).'\'');
+        $query->where('reference = \'' . pSQL($productSKU) . '\'');
         $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }
+
         return false;
     }
 }
