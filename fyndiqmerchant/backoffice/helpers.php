@@ -16,6 +16,8 @@ class FyndiqAPIBadRequest extends Exception{}
 
 class FyndiqAPIUnsupportedStatus extends Exception{}
 
+class FyndiqProductSKUNotFound extends Exception{}
+
 function pd($v)
 {
     echo '<pre>';

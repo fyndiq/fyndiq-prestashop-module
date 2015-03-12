@@ -165,7 +165,7 @@ class FmAjaxService
     public function import_orders($args)
     {
         $url = "orders/";
-        $date = FmConfig::get('import_date');
+        //$date = FmConfig::get('import_date');
         if (!empty($date)) {
             $url .= "?min_date=" . urlencode($date);
         }

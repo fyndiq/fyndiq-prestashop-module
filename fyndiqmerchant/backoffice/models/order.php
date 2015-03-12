@@ -84,10 +84,24 @@ class FmOrder
      * create orders from Fyndiq orders
      *
      * @param $fyndiq_order
+     * @return bool
+     * @throws FyndiqProductSKUNotFound
      * @throws PrestaShopException
      */
     public static function create($fyndiq_order)
     {
+        foreach ($fyndiq_order->order_rows as &$row) {
+            list($productId, $combinationId) = self::getProductBySKU($row->sku);
+            if (!$productId) {
+                throw new FyndiqProductSKUNotFound(sprintf('Product with SKU "%s", from order #%d cannot be found.',
+                    $row->sku, $fyndiq_order->id));
+                return false;
+            } else {
+                $row->productId = $productId;
+                $row->combinationId = $combinationId;
+            }
+        }
+
         $context = self::getContext();
 
         // create a new cart to add the articles to
@@ -109,25 +123,25 @@ class FmOrder
             // Add it to the database.
             $customer->add();
 
-            $delivery_address = fillAddress($fyndiq_order, $customer->id, $context->country->id,
+            $deliveryAddress = fillAddress($fyndiq_order, $customer->id, $context->country->id,
                 self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS);
-            $delivery_address->add();
+            $deliveryAddress->add();
 
-            $invoice_address = fillAddress($fyndiq_order, $customer->id, $context->country->id,
+            $invoiceAddress = fillAddress($fyndiq_order, $customer->id, $context->country->id,
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS);
-            $invoice_address->add();
+            $invoiceAddress->add();
 
         } else {
-            $invoice_address = new Address();
-            $delivery_address = new Address();
+            $invoiceAddress = new Address();
+            $deliveryAddress = new Address();
             $addresses = $customer->getAddresses($cart->id_lang);
             foreach ($addresses as $address) {
                 $currentAddress = null;
                 if ($address['alias'] === self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS) {
-                    $currentAddress = $invoice_address;
+                    $currentAddress = $invoiceAddress;
                 }
                 if ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
-                    $currentAddress = $delivery_address;
+                    $currentAddress = $deliveryAddress;
                 }
                 foreach ($address as $key => $value) {
                     if ($key === 'id_address') {
@@ -152,7 +166,7 @@ class FmOrder
 
         // Check address
         if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
-            $address = new Address($delivery_address->id);
+            $address = new Address($deliveryAddress->id);
             $country = new Country($address->id_country, $cart->id_lang);
             if (!$country->active) {
                 throw new PrestaShopException('The delivery address country is not active.');
@@ -171,31 +185,22 @@ class FmOrder
         }
 
         $cart->id_customer = $customer->id;
-        $cart->id_address_invoice = (int)$invoice_address->id;
-        $cart->id_address_delivery = (int)$delivery_address->id;
+        $cart->id_address_invoice = (int)$invoiceAddress->id;
+        $cart->id_address_delivery = (int)$deliveryAddress->id;
 
         // Save the cart
         $cart->add();
 
         foreach ($fyndiq_order->order_rows as $row) {
-            // get id of the product
-            list($productId, $combinationId) = self::getProductBySKU($row->sku);
-            if (!$productId) {
-                // TODO: Figure out what to do when product is not found
-                $productId = 1;
-                $combinationId = 0;
-            }
-
             $num_article = (int)$row->quantity;
-
             //add product to the cart
-            $cart->updateQty($num_article, $productId, $combinationId);
+            $cart->updateQty($num_article, $row->productId, $row->combinationId);
         }
 
         // create the order
         $presta_order->id_customer = (int)$customer->id;
-        $presta_order->id_address_invoice = (int)$invoice_address->id;
-        $presta_order->id_address_delivery = (int)$delivery_address->id;
+        $presta_order->id_address_invoice = (int)$invoiceAddress->id;
+        $presta_order->id_address_delivery = (int)$deliveryAddress->id;
         $presta_order->id_currency = $cart->id_currency;
         $presta_order->id_lang = (int)$cart->id_lang;
         $presta_order->id_cart = (int)$cart->id;
