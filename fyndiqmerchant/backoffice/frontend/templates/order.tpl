@@ -41,7 +41,7 @@
                     <div class="lastupdated">
                         <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
                         <span class="last-header">Latest Import</span>
-                        {if $date_diff === 0}
+                        {if $isToday}
                             Today {$import_time}
                         {else}
                             {$import_date}
