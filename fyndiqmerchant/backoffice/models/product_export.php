@@ -121,6 +121,9 @@ class FmProductExport
 
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = FmProduct::get($fmProduct['product_id']);
+            if (empty($storeProduct['reference'])) {
+                continue;
+            }
             $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
             if (count($storeProduct['combinations']) === 0) {
                 // Product without combinations
@@ -129,12 +132,13 @@ class FmProductExport
                 $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id'], 0));
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = addslashes($storeProduct['name']);
-
                 $keys = array_merge($keys, array_keys($exportProduct));
                 $allProducts[] = $exportProduct;
             } else {
-                $combinationId = 0;
                 foreach ($storeProduct['combinations'] as $combination) {
+                    if (empty($combination['reference'])) {
+                        continue;
+                    }
                     // Copy the product data so we have clear slate for each combination
                     $exportProductCopy = $exportProduct;
 
@@ -163,10 +167,8 @@ class FmProductExport
                         $id++;
                     }
                     $exportProductCopy['article-name'] = implode(', ', $productName);
-
                     $keys = array_merge($keys, array_keys($exportProductCopy));
                     $allProducts[] = $exportProductCopy;
-                    $combinationId++;
                 }
             }
             // Don't allow $keys to grow too large
