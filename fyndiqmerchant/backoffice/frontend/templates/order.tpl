@@ -37,17 +37,19 @@
                 <div class="fm-panel-header">Manual Order Import</div>
                 <div class="fm-panel-body">
                     <p>By clicking this button, you can import all orders from Fyndiq into the local webshop.</p>
-                    {if $import_date}
-                    <div class="lastupdated">
-                        <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
-                        <span class="last-header">Latest Import</span>
-                        {if $isToday}
-                            Today {$import_time}
-                        {else}
-                            {$import_date}
+                    <div id="fm-order-import-date">
+                        {if $import_date}
+                        <div class="lastupdated">
+                            <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
+                            <span class="last-header">Latest Import</span>
+                            {if $isToday}
+                                Today {$import_time}
+                            {else}
+                                {$import_date}
+                            {/if}
+                        </div>
                         {/if}
                     </div>
-                    {/if}
                     <a class="fm-button green" id="fm-import-orders">Import Orders</a>
                 </div>
             </div>

@@ -246,4 +246,12 @@
             </div>
         </div>
     </script>
+
+    <script type="text/x-handlebars-template" class="handlebars-template" id="fm-order-import-date-content">
+        <div class="lastupdated">
+            <img src="{{module_path}}backoffice/frontend/images/icons/refresh.png" />
+            <span class="last-header">Latest Import</span>
+            Today {{import_time}}
+        </div>
+    </script>
 {/literal}
