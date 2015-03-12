@@ -105,13 +105,13 @@ var FmCtrl = {
 
     import_orders: function (callback) {
         'use strict';
-        FmCtrl.call_service('import_orders', {}, function (status, orders) {
+        FmCtrl.call_service('import_orders', {}, function (status, date) {
             if (status === 'success') {
                 FmGui.show_message('success', messages['orders-imported-title'],
                     messages['orders-imported-message']);
             }
             if (callback) {
-                callback();
+                callback(date);
             }
         });
     },
@@ -152,7 +152,7 @@ var FmCtrl = {
         });
     },
 
-    updateCategoryName: function(name){
+    updateCategoryName: function (name) {
         'use strict';
         if (FmCtrl.$categoryName === null) {
             FmCtrl.$categoryName = $('#categoryname');
@@ -179,7 +179,7 @@ var FmCtrl = {
             var category_id = parseInt($li.attr('data-category_id'), 10);
             FmGui.show_load_screen(function () {
                 if (!$li.data('expanded')) {
-                    FmCtrl.load_categories(category_id, $li, function() {
+                    FmCtrl.load_categories(category_id, $li, function () {
                         $li.data('expanded', true);
                         FmCtrl.load_products(category_id, function () {
                             FmCtrl.updateCategoryName(categoryName);
@@ -249,7 +249,7 @@ var FmCtrl = {
             if (discount > 100) {
                 discount = 100;
             }
-            else if(discount < 0) {
+            else if (discount < 0) {
                 discount = 0;
             }
 
@@ -375,7 +375,17 @@ var FmCtrl = {
         $(document).on('click', '#fm-import-orders', function (e) {
             e.preventDefault();
             FmGui.show_load_screen();
-            FmCtrl.import_orders(function () {
+            FmCtrl.import_orders(function (date) {
+                var newdate = new Date(date);
+                var newdate = newdate.getHours() + ":" + (newdate.getMinutes()<10?'0':'') + newdate.getMinutes() + ":" + (newdate.getSeconds()<10?'0':'') + newdate.getSeconds();
+                $('#import-order-date').html('');
+                console.log(newdate);
+                $('#import-order-date').html(
+                    tpl['order-import-date']({
+                        'module_path': module_path,
+                        'import_time': newdate
+                    }));
+
                 FmCtrl.load_orders(function () {
                     FmGui.hide_load_screen();
                 });
