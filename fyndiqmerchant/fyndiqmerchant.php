@@ -15,6 +15,7 @@ require_once('backoffice/models/order.php');
 
 class FyndiqMerchant extends Module
 {
+
     public function __construct()
     {
 
@@ -84,6 +85,7 @@ class FyndiqMerchant extends Module
         // drop product table
         $ret &= FmProductExport::uninstall();
 
+        $ret &= $this->removeTab();
         // drop order table
         // TODO: Should we remove the order? the order in prestashop will still be there and if reinstall it will be duplicates if this is removed.
         $ret &= FmOrder::uninstall();
@@ -91,22 +93,34 @@ class FyndiqMerchant extends Module
         return (bool)$ret;
     }
 
+    /**
+     * Remove tab from menu
+     *
+     * @return mixed
+     */
+    private function removeTab()
+    {
+        $db = Db::getInstance();
+        return $db->delete('tab', 'module = "'.pSQL($this->name).'"');
+    }
+
     private function _createTab()
     {
+        $db = Db::getInstance();
         /* define data array for the tab  */
         $data = array(
             'id_tab' => '',
             'id_parent' => 13,
             'class_name' => 'AdminPage',
-            'module' => 'fyndiqmerchant',
+            'module' => $this->name,
             'position' => 1, 'active' => 1
         );
 
         /* Insert the data to the tab table*/
-        $res = Db::getInstance()->insert('tab', $data);
+        $db->insert('tab', $data);
 
         //Get last insert id from db which will be the new tab id
-        $id_tab = Db::getInstance()->Insert_ID();
+        $id_tab = $db->Insert_ID();
 
         //Define tab multi language data
         $data_lang = array(
@@ -116,10 +130,8 @@ class FyndiqMerchant extends Module
         );
 
         // Now insert the tab lang data
-        $res &= Db::getInstance()->insert('tab_lang', $data_lang);
-
+        $db->insert('tab_lang', $data_lang);
         return true;
-
     }
 
     // 1.4
