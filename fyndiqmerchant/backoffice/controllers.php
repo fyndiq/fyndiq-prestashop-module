@@ -142,14 +142,14 @@ class FmBackofficeControllers
         if ($page == "order") {
             $path = FmHelpers::get_module_url();
             $import_date = FmConfig::get('import_date');
-            $isToday = date('Ymd')  === date('Ymd', strtotime($import_date));
+            $isToday = date('Ymd') === date('Ymd', strtotime($import_date));
             $output .= self::show_template(
                 $module,
                 'order',
                 array(
                     'import_date' => $import_date,
                     'isToday' => $isToday,
-                    'import_time' => date ("G:i:s", strtotime($import_date)),
+                    'import_time' => date("G:i:s", strtotime($import_date)),
                     'messages' => FmMessages::get_all(),
                     'path' => $path
                 )
