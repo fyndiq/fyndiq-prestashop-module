@@ -107,7 +107,7 @@ class FmAjaxService
 
         // get currency
         $current_currency = Currency::getDefaultCurrency()->iso_code;
-        
+
         if (isset($args["page"]) AND $args["page"] > 0) {
             $rows = FmProduct::get_by_category($args['category'], $args["page"], $this->_itemPerPage);
         } else {
@@ -167,18 +167,18 @@ class FmAjaxService
         $url = "orders/";
         $date = FmConfig::get('import_date');
         if (!empty($date)) {
-            $url .= "?min_date=" . urlencode($date);
+            $url .= '?min_date=' . urlencode($date);
         }
         try {
             $ret = FmHelpers::call_api('GET', $url);
-            foreach ($ret["data"] as $order) {
+            foreach ($ret['data'] as $order) {
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
                 }
             }
-            $newdate = date("Y-m-d H:i:s");
+            $newdate = date('Y-m-d H:i:s');
             FmConfig::set('import_date', $newdate);
-            $time = date ("G:i:s", strtotime($newdate));
+            $time = date('G:i:s', strtotime($newdate));
             $this->response($time);
         } catch (Exception $e) {
             $this->response_error(
@@ -219,7 +219,7 @@ class FmAjaxService
             FmProductExport::deleteProduct($product['id']);
         }
         $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
-        
+
         $this->response($result);
     }
 
@@ -267,8 +267,8 @@ class FmAjaxService
                 $count = $end - 1;
             }
 
-            if($curPage > $count-1) {
-                $html .= '<li><a href="#" data-page="'.($curPage-1).'">&lt;</a></li>';
+            if ($curPage > $count - 1) {
+                $html .= '<li><a href="#" data-page="' . ($curPage - 1) . '">&lt;</a></li>';
             }
 
             for ($i = $start; $i <= $count; $i++) {
@@ -282,8 +282,8 @@ class FmAjaxService
 
             }
 
-            if($curPage < $count) {
-                $html .= '<li><a href="#" data-page="'.($curPage+1).'">&gt;</a></li>';
+            if ($curPage < $count) {
+                $html .= '<li><a href="#" data-page="' . ($curPage + 1) . '">&gt;</a></li>';
             }
 
             $html .= '</ol>';
@@ -297,7 +297,7 @@ class FmAjaxService
         try {
             $orders = new stdClass();
             $orders->orders = array();
-            if(!isset($args['orders'])) {
+            if (!isset($args['orders'])) {
                 throw new Exception('Pick at least one order');
             }
             foreach ($args["orders"] as $order) {
@@ -307,13 +307,13 @@ class FmAjaxService
             }
 
             $ret = FmHelpers::call_api('POST', 'delivery_notes/', $orders, true);
-            $fileName = 'delivery_notes-'.implode('-', $args['orders']).'.pdf';
+            $fileName = 'delivery_notes-' . implode('-', $args['orders']) . '.pdf';
 
             if ($ret['status'] == 200) {
                 header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="'.$fileName.'"');
+                header('Content-Disposition: attachment; filename="' . $fileName . '"');
                 header('Content-Transfer-Encoding: binary');
-                header('Content-Length: '.strlen($ret['data']));
+                header('Content-Length: ' . strlen($ret['data']));
                 header('Expires: 0');
                 $fp = fopen('php://temp', 'wb+');
                 // Saving data to file
