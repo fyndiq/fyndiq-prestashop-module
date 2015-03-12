@@ -150,13 +150,19 @@
                         data-image="{{image}}"
                         class="product">
                     {{#if image}}
-                    <td class="select center"><input type="checkbox" id="select_product_{{id}}"></td>
+                    <td class="select center">
+                        {{#if reference}}<input type="checkbox" id="select_product_{{id}}">{{/if}}
+                    </td>
                     <td><img src="{{image}}" alt="Product image"></td>
                     {{else}}
                     <td class="select center"></td>
                     <td>No Image</td>
                     {{/if}}
-                    <td><strong>{{name}}</strong> <span class="shadow">({{reference}})</span><br/>{{properties}}</td>
+                    <td>
+                        <strong>{{name}}</strong> <span class="shadow">({{reference}})</span>
+                        {{#if properties}}<br/>{{properties}}{{/if}}
+                        {{#unless reference}}<p class="text-warning">Missing SKU</p>{{/unless}}
+                    </td>
                     <td class="prices">
                         <table>
                             <tr>

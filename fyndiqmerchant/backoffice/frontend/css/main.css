@@ -52,6 +52,9 @@
   vertical-align: middle;
   width: 30px; }
 
+.text-warning {
+  color: #e85353; }
+
 .btn,
 .fm-button {
   -webkit-border-radius: 5px;
