@@ -375,15 +375,12 @@ var FmCtrl = {
         $(document).on('click', '#fm-import-orders', function (e) {
             e.preventDefault();
             FmGui.show_load_screen();
-            FmCtrl.import_orders(function (date) {
-                var newdate = new Date(date);
-                var newdate = newdate.getHours() + ':' + (newdate.getMinutes() < 10 ? '0' : '') + newdate.getMinutes() + ':' + (newdate.getSeconds() < 10 ? '0' : '') + newdate.getSeconds();
-                $('#import-order-date').html('');
-                console.log(newdate);
-                $('#import-order-date').html(
-                    tpl['order-import-date']({
+            FmCtrl.import_orders(function (time) {
+                $('#fm-order-import-date').html('');
+                $('#fm-order-import-date').html(
+                    tpl['order-import-date-content']({
                         'module_path': module_path,
-                        'import_time': newdate
+                        'import_time': time
                     }));
 
                 FmCtrl.load_orders(function () {
