@@ -24,7 +24,9 @@
             FmCtrl.load_categories(0, $('.fm-category-tree-container'), function() {
 
                 // load products from first category
-                var category_id = $('.fm-category-tree a').eq(0).parent().attr('data-category_id');
+                var $firstCategory = $('.fm-category-tree a').eq(0);
+                FmCtrl.updateCategoryName($firstCategory.text());
+                var category_id = $firstCategory.parent().attr('data-category_id');
                 FmCtrl.load_products(category_id, 1, function() {
                     FmGui.hide_load_screen();
                 });

@@ -1,6 +1,9 @@
 /* global $, FmGui, module_path, messages, tpl, urlpath0 */
 
 var FmCtrl = {
+
+    $categoryName: null,
+
     call_service: function (action, args, callback) {
         'use strict';
         $.ajax({
@@ -149,6 +152,14 @@ var FmCtrl = {
         });
     },
 
+    updateCategoryName: function(name){
+        'use strict';
+        if (FmCtrl.$categoryName === null) {
+            FmCtrl.$categoryName = $('#categoryname');
+        }
+        FmCtrl.$categoryName.html(name);
+    },
+
     bind_event_handlers: function () {
         'use strict';
         // import orders submit button
@@ -163,6 +174,7 @@ var FmCtrl = {
         // When clicking category in tree, load its products
         $(document).on('click', '.fm-category-tree a', function (e) {
             var $li = $(this).parent();
+            var categoryName = $(this).text();
             e.preventDefault();
             var category_id = parseInt($li.attr('data-category_id'), 10);
             FmGui.show_load_screen(function () {
@@ -170,11 +182,13 @@ var FmCtrl = {
                     FmCtrl.load_categories(category_id, $li, function() {
                         $li.data('expanded', true);
                         FmCtrl.load_products(category_id, function () {
+                            FmCtrl.updateCategoryName(categoryName);
                             FmGui.hide_load_screen();
                         });
                     });
                 } else {
                     FmCtrl.load_products(category_id, function () {
+                        FmCtrl.updateCategoryName(categoryName);
                         FmGui.hide_load_screen();
                     });
                 }
