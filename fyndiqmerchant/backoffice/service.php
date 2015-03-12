@@ -178,7 +178,7 @@ class FmAjaxService
             }
             $newdate = date("Y-m-d H:i:s");
             FmConfig::set('import_date', $newdate);
-            $this->response($ret);
+            $this->response($newdate);
         } catch (Exception $e) {
             $this->response_error(
                 FmMessages::get('unhandled-error-title'),
