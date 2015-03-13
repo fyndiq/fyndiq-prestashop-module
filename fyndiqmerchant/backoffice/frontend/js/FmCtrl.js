@@ -90,7 +90,6 @@ var FmCtrl = {
         'use strict';
         FmCtrl.call_service('load_orders', {}, function (status, orders) {
             if (status === 'success') {
-                $('.fm-order-list-container').html('');
                 $('.fm-order-list-container').html(tpl['orders-list']({
                     'module_path': module_path,
                     'orders': orders
@@ -141,7 +140,7 @@ var FmCtrl = {
 
     products_delete: function (products, callback) {
         'use strict';
-        FmCtrl.call_service('delete_exported_products', {'products': products}, function (status, data) {
+        FmCtrl.call_service('delete_exported_products', {'products': products}, function (status) {
             if (status === 'success') {
                 FmGui.show_message('success', messages['products-deleted-title'],
                     messages['products-deleted-message']);
@@ -208,7 +207,7 @@ var FmCtrl = {
         });
 
         // when clicking select all products checkbox, set checked on all product's checkboxes
-        $(document).on('click', '#select-all', function (e) {
+        $(document).on('click', '#select-all', function () {
             if ($(this).is(':checked')) {
                 $('.fm-product-list tr .select input').each(function () {
                     $(this).prop('checked', true);
@@ -285,7 +284,7 @@ var FmCtrl = {
             var products = [];
 
             // find all products
-            $('.fm-product-list > tr').each(function (k, v) {
+            $('.fm-product-list > tr').each(function () {
 
                 // check if product is selected
                 var active = $(this).find('.select input').prop('checked');
@@ -335,7 +334,7 @@ var FmCtrl = {
                 var products = [];
 
                 // find all products
-                $('.fm-product-list .select input:checked').each(function (k, v) {
+                $('.fm-product-list .select input:checked').each(function () {
                     products.push({
                         'product': {
                             'id': $(this).parent().parent().data('id')
@@ -376,7 +375,6 @@ var FmCtrl = {
             e.preventDefault();
             FmGui.show_load_screen();
             FmCtrl.import_orders(function (time) {
-                $('#fm-order-import-date').html('');
                 $('#fm-order-import-date').html(
                     tpl['order-import-date-content']({
                         'module_path': module_path,
@@ -390,7 +388,7 @@ var FmCtrl = {
         });
 
         // when clicking select all orders checkbox, set checked on all order's checkboxes
-        $(document).on('click', '#select-all', function (e) {
+        $(document).on('click', '#select-all', function () {
             if ($(this).is(':checked')) {
                 $('.fm-orders-list tr .select input').each(function () {
                     $(this).prop('checked', true);
