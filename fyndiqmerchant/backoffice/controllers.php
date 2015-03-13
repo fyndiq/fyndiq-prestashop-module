@@ -183,7 +183,7 @@ class FmBackofficeControllers
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
-                self::_updateFeedurl(FmHelpers::get_module_url(false) . 'files/feed.csv');
+                self::_updateFeedurl(FmHelpers::get_module_url(false) . 'modules/fyndiqmerchant/backoffice/filePage.php');
 
             } catch (Exception $e) {
                 $error = true;
