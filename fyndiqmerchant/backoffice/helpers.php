@@ -160,16 +160,6 @@ class FmHelpers
         }
     }
 
-    public static function get_shop_url($context)
-    {
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            return $context->shop->getBaseURL();
-        }
-        if (FMPSV == FMPSV14) {
-            // pd(Tools::getShopDomainSsl(true, false)) pd(__PS_BASE_URI__);
-        }
-    }
-
     public static function get_module_url($withadminurl = true)
     {
 
@@ -181,6 +171,16 @@ class FmHelpers
         }
 
         return $url;
+    }
+
+    public static function get_shop_url()
+    {
+        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+            $shop = new Shop(Shop::getCurrentShop());
+            return $shop->getBaseURL();
+        }
+        // fallback to globals if context is not shop
+        return self::get_module_url(false);
     }
 
 }
