@@ -1,9 +1,10 @@
-"use strict";
+/* global $, window, tpl, module_path*/
 
 var FmGui = {
     messages_z_index_counter: 1,
 
     show_load_screen: function(callback) {
+        'use strict';
         var overlay = tpl['loading-overlay']({
             'module_path': module_path
         });
@@ -21,6 +22,7 @@ var FmGui = {
     },
 
     hide_load_screen: function(callback) {
+        'use strict';
         setTimeout(function() {
             $('.fm-loading-overlay').fadeOut(300, function() {
                 $('.fm-loading-overlay').remove();
@@ -32,6 +34,7 @@ var FmGui = {
     },
 
     show_message: function(type, title, message) {
+        'use strict';
         var overlay = $(tpl['message-overlay']({
             'module_path': module_path,
             'type': type,
@@ -46,7 +49,7 @@ var FmGui = {
         var attached_overlay = $('.fm-message-overlay');
         attached_overlay.slideDown(300);
 
-        attached_overlay.find('.close').bind('click', function(){
+        attached_overlay.find('.close').bind('click', function() {
             $(this).parent().slideUp(200, function() {
                 $(this).remove();
             });
