@@ -125,7 +125,7 @@ class FmProductExport
             $storeProduct = FmProduct::get($fmProduct['product_id']);
 
             // Don't export deactivated or products without SKU
-            if (empty($storeProduct['reference']) || !$storeProduct['active']) {
+            if (!$storeProduct || empty($storeProduct['reference'])) {
                 continue;
             }
             $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
