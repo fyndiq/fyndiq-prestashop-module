@@ -34,15 +34,14 @@ class FilePageController
                 $fileexists = false;
             }
 
-            var_dump($fileexists);
-
             if ($fileexists) {
                 // If feed last modified date is older than 1 hour, create a new one
                 if (filemtime(_PS_ROOT_DIR_.$this->filepath) < strtotime('-1 hour', time())) {
                     FmProductExport::saveFile(_PS_ROOT_DIR_);
                 }
                 else {
-                    return $fileexists;
+                    print($fileexists);
+                    exit;
                 }
             } else {
                 //The file hasn't been created yet, create it.
@@ -51,7 +50,7 @@ class FilePageController
             $result = $fileHandler->getContentfromFile();
         }
         //printing out the content from feed file to the visitor.
-        return $result;
+        print($result);
     }
 }
 $filecontroller = new FilePageController();
