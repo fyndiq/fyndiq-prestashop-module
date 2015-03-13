@@ -23,6 +23,13 @@ class FmProduct {
         return Tools::ps_round($converted_price, 2);
     }
 
+
+    /**
+     * Returns single product with combinations or false if product is not active/found
+     *
+     * @param $product_id
+     * @return array|bool
+     */
     public static function get($product_id) {
 
         $result = array();
@@ -31,8 +38,13 @@ class FmProduct {
 
         $product = new Product($product_id, false, $language_id);
 
+        if (empty($product->id) || !$product->active) {
+            return false;
+        }
+
         $result['id'] = $product->id;
         $result['name'] = $product->name;
+
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = Product::getQuantity($product->id);

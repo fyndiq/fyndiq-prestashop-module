@@ -117,7 +117,10 @@ class FmAjaxService
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
-
+            // Don't show deactivated products
+            if (empty($product)) {
+                continue;
+            }
             # if there is a configured precentage, set that value
             if (FmProductExport::productExist($row['id_product'])) {
                 $productexport = FmProductExport::getProduct($row["id_product"]);
