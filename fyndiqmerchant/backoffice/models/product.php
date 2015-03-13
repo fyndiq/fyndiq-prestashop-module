@@ -33,6 +33,7 @@ class FmProduct {
 
         $result['id'] = $product->id;
         $result['name'] = $product->name;
+        $result['active'] = $product->active;
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = Product::getQuantity($product->id);
