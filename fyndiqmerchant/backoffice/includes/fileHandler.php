@@ -12,11 +12,13 @@ class FmFileHandler
     private $fileresource = null;
     private $mode = null;
 
-    function __construct($path, $mode = "w+", $remove = false)
+    function __construct($path, $mode = null, $remove = false)
     {
         $this->rootpath = $path;
-        $this->mode = $mode;
-        $this->openFile($remove);
+        if(!is_null($mode)) {
+            $this->mode = $mode;
+            $this->openFile($remove);
+        }
     }
 
     /**
@@ -81,6 +83,11 @@ class FmFileHandler
         }
         $this->closeFile();
         $this->fileresource = fopen($this->rootpath . $this->filepath, $this->mode) or die("Can't open file");
+    }
+
+    public function getContentfromFile()
+    {
+        return file_get_contents($this->rootpath . $this->filepath);
     }
 
     /**
