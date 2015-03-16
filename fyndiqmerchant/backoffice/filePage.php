@@ -23,7 +23,6 @@ class FilePageController
     }
     public function getFile()
     {
-        $result = "";
         if (!empty($this->username) && !empty($this->api_token)) {
 
             //Check if feed file exist and if it is too old
