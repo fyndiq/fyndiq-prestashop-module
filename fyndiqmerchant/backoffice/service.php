@@ -298,7 +298,7 @@ class FmAjaxService
     {
         $html = false;
         $amount = FmProduct::getAmount($category);
-        if ($amount > 10) {
+        if ($amount > self::itemPerPage) {
             $curPage = $currentpage;
             $pager = (int)($amount / self::itemPerPage);
             $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
@@ -355,7 +355,7 @@ class FmAjaxService
     {
         $html = false;
         $amount = FmOrder::getAmount();
-        if ($amount > 10) {
+        if ($amount > self::itemPerPage) {
             $curPage = $currentpage;
             $pager = (int)($amount / self::itemPerPage);
             $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
