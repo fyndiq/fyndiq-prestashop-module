@@ -4,8 +4,7 @@ $configPath = dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))) . 
 if (file_exists($configPath)) {
     require_once($configPath);
 } else {
-    echo "Error: Config file not found: {$configPath}";
-    exit;
+    die("Error: Config file not found: {$configPath}");
 }
 
 require_once('./helpers.php');
