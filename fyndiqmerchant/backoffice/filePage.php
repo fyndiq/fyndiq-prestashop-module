@@ -29,11 +29,7 @@ class FilePageController
 
             //Check if feed file exist and if it is too old
             $fileHandler = new FmFileHandler(_PS_ROOT_DIR_);
-            try {
-                $fileexists = $fileHandler->getContentfromFile();
-            } catch (Exception $e) {
-                $fileexists = false;
-            }
+            $fileexists = $fileHandler->fileExists();
 
             if ($fileexists) {
                 // If feed last modified date is older than 1 hour, create a new one
@@ -41,17 +37,16 @@ class FilePageController
                     FmProductExport::saveFile(_PS_ROOT_DIR_);
                 }
                 else {
-                    print($fileexists);
+                    $fileHandler->getContentfromFile();
                     exit;
                 }
             } else {
                 //The file hasn't been created yet, create it.
                 FmProductExport::saveFile(_PS_ROOT_DIR_);
             }
-            $result = $fileHandler->getContentfromFile();
+            //printing out the data
+            $fileHandler->getContentfromFile();
         }
-        //printing out the content from feed file to the visitor.
-        print($result);
     }
 }
 $filecontroller = new FilePageController();

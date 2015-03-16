@@ -39,6 +39,12 @@ class FmFileHandler
         return true;
     }
 
+
+    function fileExists()
+    {
+        return file_exists($this->filepath);
+    }
+
     function removeFile($recreate = false)
     {
         if (file_exists($this->filepath)) {
@@ -87,7 +93,7 @@ class FmFileHandler
 
     public function getContentfromFile()
     {
-        return file_get_contents($this->rootpath . $this->filepath);
+        fpassthru($this->fileresource);
     }
 
     /**
