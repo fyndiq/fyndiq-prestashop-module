@@ -7,15 +7,16 @@
  */
 class FmFileHandler
 {
-    private $filepath = "/files/feed.csv";
-    private $rootpath = "";
+    private $filepath = '';
+    private $rootpath = '';
     private $fileresource = null;
     private $mode = null;
 
-    function __construct($path, $mode = "w+", $remove = false)
+    function __construct($path, $mode = 'w+', $remove = false)
     {
         $this->rootpath = $path;
         $this->mode = $mode;
+        $this->filepath = '/files/' . FmHelpers::getExportFileName();
         $this->openFile($remove);
     }
 
@@ -56,16 +57,16 @@ class FmFileHandler
      */
     private function writeToFile($keys, $fields)
     {
-        $printarray = array();
+        $row = array();
         foreach ($keys as $key) {
             if (isset($fields[$key])) {
-                $printarray[] = $fields[$key];
+                $row[] = $fields[$key];
             } else {
-                $printarray[] = "";
+                $row[] = '';
             }
         }
 
-        return fputcsv($this->fileresource, $printarray);
+        return fputcsv($this->fileresource, $row);
     }
 
     /**

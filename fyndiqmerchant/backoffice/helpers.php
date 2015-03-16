@@ -185,6 +185,11 @@ class FmHelpers
         return self::get_module_url(false);
     }
 
+    /**
+     * Returns export file name depending on the shop context
+     *
+     * @return string export file name
+     */
     public static function getExportFileName()
     {
         if (Shop::getContext() === Shop::CONTEXT_SHOP) {

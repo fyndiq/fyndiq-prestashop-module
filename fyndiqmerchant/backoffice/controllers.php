@@ -182,7 +182,7 @@ class FmBackofficeControllers
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
-                self::_updateFeedurl(FmHelpers::get_shop_url() . 'files/feed.csv');
+                self::_updateFeedurl(FmHelpers::get_shop_url() . 'files/' . FmHelpers::getExportFileName());
 
             } catch (Exception $e) {
                 $error = true;
