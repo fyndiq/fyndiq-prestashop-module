@@ -2,8 +2,10 @@
 
 require_once('config.php');
 
-class FmProduct {
-    private static function get_image_link($link_rewrite, $id_image, $image_type) {
+class FmProduct
+{
+    private static function get_image_link($link_rewrite, $id_image, $image_type)
+    {
         if (FMPSV == FMPSV14) {
             $link = new Link();
             $image = $link->getImageLink($link_rewrite, $id_image, $image_type);
@@ -12,14 +14,17 @@ class FmProduct {
             $context = Context::getContext();
             $image = $context->link->getImageLink($link_rewrite, $id_image, $image_type);
         }
+
         return $image;
     }
 
-    private static function get_price($price) {
+    private static function get_price($price)
+    {
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $currency = new Currency(Configuration::get($module->config_name.'_currency'));
+        $currency = new Currency(Configuration::get($module->config_name . '_currency'));
         $converted_price = $price * $currency->conversion_rate;
+
         return Tools::ps_round($converted_price, 2);
     }
 
@@ -30,7 +35,8 @@ class FmProduct {
      * @param $product_id
      * @return array|bool
      */
-    public static function get($product_id) {
+    public static function get($product_id)
+    {
 
         $result = array();
 
@@ -71,7 +77,10 @@ class FmProduct {
         # assign main product image
         if (count($images) > 0) {
             $result['image'] = self::get_image_link(
-                $product->link_rewrite, $images[0]['id_image'], $image_type['name']);
+                $product->link_rewrite,
+                $images[0]['id_image'],
+                $image_type['name']
+            );
         }
 
         ### handle combinations
@@ -114,7 +123,10 @@ class FmProduct {
                         if ($combination_image['id_product_attribute'] == $product_attribute['id_product_attribute']) {
 
                             $image = $combination_result['image'] = self::get_image_link(
-                                $product->link_rewrite, $combination_image['id_image'], $image_type['name']);
+                                $product->link_rewrite,
+                                $combination_image['id_image'],
+                                $image_type['name']
+                            );
 
                             $result['combinations'][$id]['image'] = $image;
                         }
@@ -126,7 +138,8 @@ class FmProduct {
         return $result;
     }
 
-    public static function get_by_category($category_id, $p = -1, $perpage = -1) {
+    public static function get_by_category($category_id, $p = -1, $perpage = -1)
+    {
 
         # fetch products per category manually,
         # Product::getProducts doesnt work in backoffice,
@@ -134,19 +147,20 @@ class FmProduct {
 
         $sqlquery = '
             select p.id_product
-            from '._DB_PREFIX_.'product as p
-            join '._DB_PREFIX_.'category_product as cp
+            from ' . _DB_PREFIX_ . 'product as p
+            join ' . _DB_PREFIX_ . 'category_product as cp
             where p.id_product = cp.id_product
-            and cp.id_category = '.FmHelpers::db_escape($category_id).'
+            and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
         ';
 
-        $offset = $perpage * ($p-1);
+        $offset = $perpage * ($p - 1);
 
-        if($p != -1 && $perpage != -1) {
-            $sqlquery .= 'LIMIT '.$offset.', '.$perpage;
+        if ($p != -1 && $perpage != -1) {
+            $sqlquery .= 'LIMIT ' . $offset . ', ' . $perpage;
         }
 
         $rows = Db::getInstance()->ExecuteS($sqlquery);
+
         return $rows;
     }
 }
