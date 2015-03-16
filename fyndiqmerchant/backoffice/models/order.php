@@ -457,12 +457,7 @@ class FmOrder
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sqlquery = 'SELECT count(id) as amount FROM ' . _DB_PREFIX_ . $module->config_name . '_orders';
-        $amount = Db::getInstance()->ExecuteS($sqlquery);
-        if(isset($amount[0]['amount']))
-        {
-            return $amount[0]['amount'];
-        }
-        return false;
+        return Db::getInstance()->getValue($sqlquery);
     }
 
     /**

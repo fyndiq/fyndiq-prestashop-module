@@ -147,12 +147,7 @@ class FmProduct
             where p.id_product = cp.id_product
             and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
         ';
-        $amount = Db::getInstance()->ExecuteS($sqlquery);
-        if(isset($amount[0]['amount']))
-        {
-            return $amount[0]['amount'];
-        }
-        return false;
+        return Db::getInstance()->getValue($sqlquery);
     }
 
     public static function get_by_category($category_id, $p, $perpage)
