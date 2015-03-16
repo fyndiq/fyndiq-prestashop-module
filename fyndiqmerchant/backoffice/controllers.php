@@ -4,7 +4,6 @@ class FmBackofficeControllers
 {
     public static function main($module)
     {
-
         $output = '';
         $page = '';
         $page_args = array();
