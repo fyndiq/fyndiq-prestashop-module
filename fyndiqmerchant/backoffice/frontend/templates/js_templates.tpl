@@ -159,9 +159,9 @@
                     <td>No Image</td>
                     {{/if}}
                     <td>
-                        <strong>{{name}}</strong> <span class="shadow">({{reference}})</span>
+                        <strong>{{name}}</strong> <span class="shadow">({{id}})</span>
+                        {{#if reference}}<br/>SKU: {{reference}}{{/if}}
                         {{#if properties}}<br/>{{properties}}{{/if}}
-                        {{#unless reference}}<p class="text-warning">Missing SKU</p>{{/unless}}
                     </td>
                     <td class="prices">
                         <table>

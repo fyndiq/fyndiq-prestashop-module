@@ -125,7 +125,7 @@ class FmProductExport
             $storeProduct = FmProduct::get($fmProduct['product_id']);
 
             // Don't export deactivated or products without SKU
-            if (!$storeProduct || empty($storeProduct['reference'])) {
+            if (!$storeProduct) {
                 continue;
             }
             $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
@@ -133,7 +133,7 @@ class FmProductExport
                 // Product without combinations
 
                 // Complete Product with article data
-                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id'], 0));
+                $exportProduct['article-sku'] = $storeProduct['reference'];
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = addslashes($storeProduct['name']);
                 $keys = array_merge($keys, array_keys($exportProduct));
@@ -143,8 +143,7 @@ class FmProductExport
                     // Copy the product data so we have clear slate for each combination
                     $exportProductCopy = $exportProduct;
 
-                    $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
-                         array($storeProduct['id'], $combination['id']));
+                    $exportProductCopy['article-sku'] = $combination['reference'];
 
                     $exportProductCopy['article-quantity'] = $combination['quantity'];
                     $exportProductCopy['product-oldprice'] = number_format((float)$combination['price'], 2, '.', '');
@@ -159,7 +158,7 @@ class FmProductExport
                     }
 
                     // Create combination name
-                    $productName = [];
+                    $productName = array();
                     $id = 1;
                     foreach ($combination['attributes'] as $attribute) {
                         $productName[] = addslashes($attribute['name'] . ': ' . $attribute['value']);
@@ -210,13 +209,5 @@ class FmProductExport
         $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
 
         return $exportProduct;
-    }
-
-    private static function getSKU($sku, $backupFields = array()) {
-        if (empty($sku) || in_array($sku, self::$skuList)) {
-            $sku = implode(self::SKU_SEPARATOR, array_merge(array(self::SKU_PREFIX), $backupFields));
-        }
-        self::$skuList[] = $sku;
-        return $sku;
     }
 }
