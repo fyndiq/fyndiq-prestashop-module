@@ -109,7 +109,7 @@ class FmAjaxService
         $current_currency = Currency::getDefaultCurrency()->iso_code;
 
         if (isset($args["page"]) AND $args["page"] > 0) {
-            $rows = FmProduct::get_by_category($args['category'], $args["page"], $this->_itemPerPage);
+            $rows = FmProduct::get_by_category($args['category'], $args["page"], self::itemPerPage);
         } else {
             $rows = FmProduct::get_by_category($args['category']);
         }
@@ -162,7 +162,7 @@ class FmAjaxService
         }
 
         $object = new stdClass();
-        $object->products = $orders;
+        $object->orders = $orders;
         if (!isset($args["page"])) {
             $object->pagination = $this->getPagerordersHtml(1);
         } else {
@@ -306,7 +306,7 @@ class FmAjaxService
             $pager = (int)(count($collection) / self::itemPerPage);
             $count = (count($collection) % self::itemPerPage == 0) ? $pager : $pager + 1;
             $start = 1;
-            $end = $this->_pageFrame;
+            $end = self::pageFrame;
 
 
             $html .= '<ol class="pageslist">';
@@ -366,7 +366,7 @@ class FmAjaxService
             $pager = (int)(count($collection) / self::itemPerPage);
             $count = (count($collection) % self::itemPerPage == 0) ? $pager : $pager + 1;
             $start = 1;
-            $end = $this->_pageFrame;
+            $end = self::pageFrame;
 
 
             $html .= '<ol class="pageslist">';
