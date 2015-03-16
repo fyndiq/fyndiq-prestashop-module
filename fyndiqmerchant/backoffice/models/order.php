@@ -64,6 +64,7 @@ class FmOrder
         }
         $context->currency = Currency::getDefaultCurrency();
         $context->id_lang = self::DEFAULT_LANGUAGE_ID;
+
         return $context;
     }
 
@@ -81,6 +82,7 @@ class FmOrder
         $address->id_country = $countryId;
         $address->id_customer = $customerId;
         $address->alias = $alias;
+
         return $address;
     }
 
@@ -105,12 +107,20 @@ class FmOrder
             // Add it to the database.
             $customer->add();
 
-            $deliveryAddress = fillAddress($fyndiq_order, $customer->id, $context->country->id,
-                self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS);
+            $deliveryAddress = fillAddress(
+                $fyndiq_order,
+                $customer->id,
+                $context->country->id,
+                self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
+            );
             $deliveryAddress->add();
 
-            $invoiceAddress = fillAddress($fyndiq_order, $customer->id, $context->country->id,
-                self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS);
+            $invoiceAddress = fillAddress(
+                $fyndiq_order,
+                $customer->id,
+                $context->country->id,
+                self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
+            );
             $invoiceAddress->add();
 
         } else {
@@ -138,6 +148,7 @@ class FmOrder
         $cart->id_customer = $customer->id;
         $cart->id_address_invoice = (int)$invoiceAddress->id;
         $cart->id_address_delivery = (int)$deliveryAddress->id;
+
         return $cart;
     }
 
@@ -154,8 +165,12 @@ class FmOrder
         foreach ($fyndiq_order->order_rows as &$row) {
             list($productId, $combinationId) = self::getProductBySKU($row->sku);
             if (!$productId) {
-                throw new FyndiqProductSKUNotFound(sprintf('Product with SKU "%s", from order #%d cannot be found.',
-                    $row->sku, $fyndiq_order->id));
+                throw new FyndiqProductSKUNotFound(sprintf(
+                    'Product with SKU "%s", from order #%d cannot be found.',
+                    $row->sku,
+                    $fyndiq_order->id
+                ));
+
                 return false;
             } else {
                 $row->productId = $productId;
@@ -407,13 +422,14 @@ class FmOrder
         return $ret;
     }
 
-    public static function getImportedOrders()
+    public static function getImportedOrders($p, $perpage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $orders = Db::getInstance()->ExecuteS(
-            'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders;
-        '
-        );
+
+        $offset = $perpage * ($p - 1);
+        $sqlquery = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders LIMIT ' . $offset . ', ' . $perpage;
+
+        $orders = Db::getInstance()->ExecuteS($sqlquery);
         $return = array();
 
         foreach ($orders as $order) {
@@ -435,6 +451,13 @@ class FmOrder
         }
 
         return $return;
+    }
+
+    public static function getAmount()
+    {
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $sqlquery = 'SELECT count(id) as amount FROM ' . _DB_PREFIX_ . $module->config_name . '_orders';
+        return Db::getInstance()->getValue($sqlquery);
     }
 
     /**

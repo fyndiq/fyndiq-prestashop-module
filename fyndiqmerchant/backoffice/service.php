@@ -19,8 +19,8 @@ require_once('./models/order.php');
 class FmAjaxService
 {
 
-    private $_itemPerPage = 10;
-    private $_pageFrame = 4;
+    const itemPerPage = 10;
+    const pageFrame = 4;
 
     /**
      * Structure the response back to the client
@@ -108,10 +108,10 @@ class FmAjaxService
         // get currency
         $current_currency = Currency::getDefaultCurrency()->iso_code;
 
-        if (isset($args["page"]) AND $args["page"] > 0) {
-            $rows = FmProduct::get_by_category($args['category'], $args["page"], $this->_itemPerPage);
+        if (isset($args['page']) AND $args['page'] > 0) {
+            $rows = FmProduct::get_by_category($args['category'], $args['page'], self::itemPerPage);
         } else {
-            $rows = FmProduct::get_by_category($args['category']);
+            $rows = FmProduct::get_by_category($args['category'], 1, self::itemPerPage);
         }
 
 
@@ -123,31 +123,31 @@ class FmAjaxService
             }
             # if there is a configured precentage, set that value
             if (FmProductExport::productExist($row['id_product'])) {
-                $productexport = FmProductExport::getProduct($row["id_product"]);
+                $productexport = FmProductExport::getProduct($row['id_product']);
                 $typed_percentage = $productexport['exported_price_percentage'];
             } else {
                 # else set the default value of 10%.
                 $typed_percentage = FmConfig::get('price_percentage');
             }
 
-            $product["fyndiq_precentage"] = $typed_percentage;
-            $product["fyndiq_quantity"] = $product["quantity"];
-            $product["fyndiq_exported"] = FmProductExport::productExist($row['id_product']);
-            $product["expected_price"] = number_format(
-                (float)($product["price"] - (($typed_percentage / 100) * $product["price"])),
+            $product['fyndiq_precentage'] = $typed_percentage;
+            $product['fyndiq_quantity'] = $product['quantity'];
+            $product['fyndiq_exported'] = FmProductExport::productExist($row['id_product']);
+            $product['expected_price'] = number_format(
+                (float)($product['price'] - (($typed_percentage / 100) * $product['price'])),
                 2,
                 '.',
                 ''
             );
-            $product["currency"] = $current_currency;
+            $product['currency'] = $current_currency;
             $products[] = $product;
         }
         $object = new stdClass();
         $object->products = $products;
-        if (!isset($args["page"])) {
+        if (!isset($args['page'])) {
             $object->pagination = $this->getPagerProductsHtml($args['category'], 1);
         } else {
-            $object->pagination = $this->getPagerProductsHtml($args['category'], $args["page"]);
+            $object->pagination = $this->getPagerProductsHtml($args['category'], $args['page']);
         }
         $this->response($object);
     }
@@ -155,8 +155,20 @@ class FmAjaxService
 
     public function load_orders($args)
     {
-        $orders = FmOrder::getImportedOrders();
-        $this->response($orders);
+        if (isset($args['page']) AND $args['page'] > 0) {
+            $orders = FmOrder::getImportedOrders($args['page'], self::itemPerPage);
+        } else {
+            $orders = FmOrder::getImportedOrders(1, self::itemPerPage);
+        }
+
+        $object = new stdClass();
+        $object->orders = $orders;
+        if (!isset($args['page'])) {
+            $object->pagination = $this->getPagerordersHtml(1);
+        } else {
+            $object->pagination = $this->getPagerordersHtml($args['page']);
+        }
+        $this->response($object);
     }
 
     /**
@@ -204,10 +216,10 @@ class FmAjaxService
         foreach ($args['products'] as $v) {
             $product = $v['product'];
 
-            if (FmProductExport::productExist($product["id"])) {
-                FmProductExport::updateProduct($product["id"], $product['fyndiq_percentage']);
+            if (FmProductExport::productExist($product['id'])) {
+                FmProductExport::updateProduct($product['id'], $product['fyndiq_percentage']);
             } else {
-                FmProductExport::addProduct($product["id"], $product['fyndiq_percentage']);
+                FmProductExport::addProduct($product['id'], $product['fyndiq_percentage']);
             }
         }
         $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
@@ -218,7 +230,7 @@ class FmAjaxService
     public function delete_exported_products($args)
     {
         foreach ($args['products'] as $v) {
-            $product = $v["product"];
+            $product = $v['product'];
             FmProductExport::deleteProduct($product['id']);
         }
         $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
@@ -229,70 +241,10 @@ class FmAjaxService
     public function update_product($args)
     {
         $result = false;
-        if (FmProductExport::productExist($args["product"])) {
-            $result = FmProductExport::updateProduct($args["product"], $args['percentage']);
+        if (FmProductExport::productExist($args['product'])) {
+            $result = FmProductExport::updateProduct($args['product'], $args['percentage']);
         }
         $this->response($result);
-    }
-
-    /**
-     * Get pagination
-     *
-     * @param $category
-     * @param $currentpage
-     * @return bool|string
-     */
-    private function getPagerProductsHtml($category, $currentpage)
-    {
-        $html = false;
-        $collection = FmProduct::get_by_category($category);
-        if ($collection == 'null') {
-            return;
-        }
-        if (count($collection) > 10) {
-            $curPage = $currentpage;
-            $pager = (int)(count($collection) / $this->_itemPerPage);
-            $count = (count($collection) % $this->_itemPerPage == 0) ? $pager : $pager + 1;
-            $start = 1;
-            $end = $this->_pageFrame;
-
-
-            $html .= '<ol class="pageslist">';
-            if (isset($curPage) && $curPage != 1) {
-                $start = $curPage - 1;
-                $end = $start + $this->_pageFrame;
-            } else {
-                $end = $start + $this->_pageFrame;
-            }
-            if ($end > $count) {
-                $start = $count - ($this->_pageFrame - 1);
-            } else {
-                $count = $end - 1;
-            }
-
-            if ($curPage > $count - 1) {
-                $html .= '<li><a href="#" data-page="' . ($curPage - 1) . '">&lt;</a></li>';
-            }
-
-            for ($i = $start; $i <= $count; $i++) {
-                if ($i >= 1) {
-                    if ($curPage) {
-                        $html .= ($curPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
-                    } else {
-                        $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
-                    }
-                }
-
-            }
-
-            if ($curPage < $count) {
-                $html .= '<li><a href="#" data-page="' . ($curPage + 1) . '">&gt;</a></li>';
-            }
-
-            $html .= '</ol>';
-        }
-
-        return $html;
     }
 
     public function get_delivery_notes($args)
@@ -303,7 +255,7 @@ class FmAjaxService
             if (!isset($args['orders'])) {
                 throw new Exception('Pick at least one order');
             }
-            foreach ($args["orders"] as $order) {
+            foreach ($args['orders'] as $order) {
                 $object = new stdClass();
                 $object->order = intval($order);
                 $orders->orders[] = $object;
@@ -333,6 +285,120 @@ class FmAjaxService
                 FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
         }
+    }
+
+    /**
+     * Get pagination
+     *
+     * @param $category
+     * @param $currentpage
+     * @return bool|string
+     */
+    private function getPagerProductsHtml($category, $currentpage)
+    {
+        $html = false;
+        $amount = FmProduct::getAmount($category);
+        if ($amount > self::itemPerPage) {
+            $curPage = $currentpage;
+            $pager = (int)($amount / self::itemPerPage);
+            $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
+            $start = 1;
+            $end = self::pageFrame;
+
+
+            $html .= '<ol class="pageslist">';
+            if (isset($curPage) && $curPage != 1) {
+                $start = $curPage - 1;
+                $end = $start + self::pageFrame;
+            } else {
+                $end = $start + self::pageFrame;
+            }
+            if ($end > $count) {
+                $start = $count - (self::pageFrame - 1);
+            } else {
+                $count = $end - 1;
+            }
+
+            if ($curPage > $count - 1) {
+                $html .= '<li><a href="#" data-page="' . ($curPage - 1) . '">&lt;</a></li>';
+            }
+
+            for ($i = $start; $i <= $count; $i++) {
+                if ($i >= 1) {
+                    if ($curPage) {
+                        $html .= ($curPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
+                    } else {
+                        $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
+                    }
+                }
+
+            }
+
+            if ($curPage < $count) {
+                $html .= '<li><a href="#" data-page="' . ($curPage + 1) . '">&gt;</a></li>';
+            }
+
+            $html .= '</ol>';
+        }
+
+        return $html;
+    }
+
+
+    /**
+     * Get pagination for orders
+     *
+     * @param $currentpage
+     * @return bool|string
+     */
+    private function getPagerOrdersHtml($currentpage)
+    {
+        $html = false;
+        $amount = FmOrder::getAmount();
+        if ($amount > self::itemPerPage) {
+            $curPage = $currentpage;
+            $pager = (int)($amount / self::itemPerPage);
+            $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
+            $start = 1;
+            $end = self::pageFrame;
+
+
+            $html .= '<ol class="pageslist">';
+            if (isset($curPage) && $curPage != 1) {
+                $start = $curPage - 1;
+                $end = $start + self::pageFrame;
+            } else {
+                $end = $start + self::pageFrame;
+            }
+            if ($end > $count) {
+                $start = $count - (self::pageFrame - 1);
+            } else {
+                $count = $end - 1;
+            }
+
+            if ($curPage > $count - 1) {
+                $html .= '<li><a href="#" data-page="' . ($curPage - 1) . '">&lt;</a></li>';
+            }
+
+            for ($i = $start; $i <= $count; $i++) {
+                if ($i >= 1) {
+                    if ($curPage) {
+                        $html .= ($curPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
+                    } else {
+                        $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
+                    }
+                }
+
+            }
+
+            if ($curPage < $count) {
+                $html .= '<li><a href="#" data-page="' . ($curPage + 1) . '">&gt;</a></li>';
+            }
+
+            $html .= '</ol>';
+        }
+
+        return $html;
     }
 }
 
