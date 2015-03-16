@@ -1,44 +1,53 @@
 .pages {
+  float: left;
   margin: 10px 0;
   width: 350px;
-  float: left;
+
   ol {
     float: left;
-    margin:0px;
-    padding:0px;
+    margin:0;
     margin-left:15px;
+    padding:0;
+
     li {
       float: left;
-      margin-right: 5px;
       list-style: none;
+      margin-right: 5px;
+
       &.current {
-        font-family: 'Montserrat', sans-serif;
-        padding: 8px 12px;
-        font-size: $font-text-default;
-        color: white;
-        outline: none;
-        text-decoration: none;
-        line-height: 16px;
-        @include border-radius(3px);
         background-color: $color-pending;
+        color: $color-light;
         display: inline-block;
-      }
-      a {
         font-family: 'Montserrat', sans-serif;
-        padding: 8px 12px;
         font-size: $font-text-default;
-        color: black;
-        cursor: pointer;
-        outline: none;
-        text-decoration: none;
         line-height: 16px;
-        display: inline-block;
-        background-color: $color-disabled-background;
+        outline: none;
+        padding: 8px 12px;
+        text-decoration: none;
+
         @include border-radius(3px);
+
+
+      }
+
+      a {
+        background-color: $color-disabled-background;
+        color: $color-black;
+        cursor: pointer;
+        display: inline-block;
+        font-family: 'Montserrat', sans-serif;
+        font-size: $font-text-default;
+        line-height: 16px;
+        outline: none;
+        padding: 8px 12px;
+        text-decoration: none;
+
+        @include border-radius(3px);
+
         &:hover {
-          text-decoration: none;
-          color: white;
           background-color: $color-pending;
+          color: $color-light;
+          text-decoration: none;
         }
       }
     }
