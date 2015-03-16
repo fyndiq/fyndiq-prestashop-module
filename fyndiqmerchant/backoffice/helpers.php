@@ -188,9 +188,9 @@ class FmHelpers
     public static function getExportFileName()
     {
         if (Shop::getContext() === Shop::CONTEXT_SHOP) {
-            return springf(self::EXPORT_FILE_NAME_PATTERN, Shop::getCurrentShop());
+            return sprintf(self::EXPORT_FILE_NAME_PATTERN, Shop::getCurrentShop());
         }
         // fallback to 0 for non-multistore setups
-        return return springf(self::EXPORT_FILE_NAME_PATTERN, 0);
+        return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
     }
 }
