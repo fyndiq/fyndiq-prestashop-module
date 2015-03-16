@@ -2,8 +2,8 @@
 <module>
 	<name>fyndiqmerchant</name>
 	<displayName><![CDATA[Fyndiq]]></displayName>
-	<version><![CDATA[0.1]]></version>
-	<description><![CDATA[dfasdf]]></description>
+	<version><![CDATA[1.0]]></version>
+	<description><![CDATA[Export your products to Fyndiq and import and handle Fyndiq Orders in Prestashop.]]></description>
 	<author><![CDATA[Fyndiq AB]]></author>
 	<tab><![CDATA[market_place]]></tab>
 	<confirmUninstall><![CDATA[Are you sure you want to uninstall this module?]]></confirmUninstall>
