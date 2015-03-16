@@ -202,6 +202,51 @@
   .fm-message-overlay p {
     text-align: center; }
 
+.pages {
+  margin: 10px 0;
+  width: 350px;
+  float: left; }
+  .pages ol {
+    float: left;
+    margin: 0px;
+    padding: 0px;
+    margin-left: 15px; }
+    .pages ol li {
+      float: left;
+      margin-right: 5px;
+      list-style: none; }
+      .pages ol li.current {
+        font-family: 'Montserrat', sans-serif;
+        padding: 8px 12px;
+        font-size: 9pt;
+        color: white;
+        outline: none;
+        text-decoration: none;
+        line-height: 16px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        background-color: #f08c48;
+        display: inline-block; }
+      .pages ol li a {
+        font-family: 'Montserrat', sans-serif;
+        padding: 8px 12px;
+        font-size: 9pt;
+        color: black;
+        cursor: pointer;
+        outline: none;
+        text-decoration: none;
+        line-height: 16px;
+        display: inline-block;
+        background-color: #e3e3e3;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px; }
+        .pages ol li a:hover {
+          text-decoration: none;
+          color: white;
+          background-color: #f08c48; }
+
 .fm-category-tree {
   font-size: 12pt;
   list-style: none;
@@ -255,6 +300,8 @@
   margin: 1em !important; }
 
 .export {
+  float: right;
+  width: 300px;
   margin: 1em;
   text-align: right; }
 
@@ -310,5 +357,8 @@
 .fm-product-panel {
   float: left;
   width: 700px; }
+
+.clear {
+  clear: both; }
 
 /*# sourceMappingURL=main.css.map */

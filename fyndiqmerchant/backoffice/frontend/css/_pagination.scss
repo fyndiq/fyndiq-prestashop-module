@@ -1,0 +1,46 @@
+.pages {
+  margin: 10px 0;
+  width: 350px;
+  float: left;
+  ol {
+    float: left;
+    margin:0px;
+    padding:0px;
+    margin-left:15px;
+    li {
+      float: left;
+      margin-right: 5px;
+      list-style: none;
+      &.current {
+        font-family: 'Montserrat', sans-serif;
+        padding: 8px 12px;
+        font-size: $font-text-default;
+        color: white;
+        outline: none;
+        text-decoration: none;
+        line-height: 16px;
+        @include border-radius(3px);
+        background-color: $color-pending;
+        display: inline-block;
+      }
+      a {
+        font-family: 'Montserrat', sans-serif;
+        padding: 8px 12px;
+        font-size: $font-text-default;
+        color: black;
+        cursor: pointer;
+        outline: none;
+        text-decoration: none;
+        line-height: 16px;
+        display: inline-block;
+        background-color: $color-disabled-background;
+        @include border-radius(3px);
+        &:hover {
+          text-decoration: none;
+          color: white;
+          background-color: $color-pending;
+        }
+      }
+    }
+  }
+}
