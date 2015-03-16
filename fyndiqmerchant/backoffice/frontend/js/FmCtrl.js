@@ -86,13 +86,14 @@ var FmCtrl = {
         });
     },
 
-    load_orders: function (callback) {
+    load_orders: function (page, callback) {
         'use strict';
-        FmCtrl.call_service('load_orders', {}, function (status, orders) {
+        FmCtrl.call_service('load_orders', {'page': page}, function (status, orders) {
             if (status === 'success') {
                 $('.fm-order-list-container').html(tpl['orders-list']({
                     'module_path': module_path,
-                    'orders': orders
+                    'orders': orders.orders,
+                    'pagination': orders.pagination
                 }));
             }
 
@@ -380,8 +381,11 @@ var FmCtrl = {
                         'module_path': module_path,
                         'import_time': time
                     }));
-
-                FmCtrl.load_orders(function () {
+                var page = $('div.pages > ol > li.current').html();
+                if (page === 'undefined') {
+                    page = 1;
+                }
+                FmCtrl.load_orders(page, function () {
                     FmGui.hide_load_screen();
                 });
             });
