@@ -108,8 +108,8 @@ class FmAjaxService
         // get currency
         $current_currency = Currency::getDefaultCurrency()->iso_code;
 
-        if (isset($args["page"]) AND $args["page"] > 0) {
-            $rows = FmProduct::get_by_category($args['category'], $args["page"], self::itemPerPage);
+        if (isset($args['page']) AND $args['page'] > 0) {
+            $rows = FmProduct::get_by_category($args['category'], $args['page'], self::itemPerPage);
         } else {
             $rows = FmProduct::get_by_category($args['category']);
         }
@@ -123,31 +123,31 @@ class FmAjaxService
             }
             # if there is a configured precentage, set that value
             if (FmProductExport::productExist($row['id_product'])) {
-                $productexport = FmProductExport::getProduct($row["id_product"]);
+                $productexport = FmProductExport::getProduct($row['id_product']);
                 $typed_percentage = $productexport['exported_price_percentage'];
             } else {
                 # else set the default value of 10%.
                 $typed_percentage = FmConfig::get('price_percentage');
             }
 
-            $product["fyndiq_precentage"] = $typed_percentage;
-            $product["fyndiq_quantity"] = $product["quantity"];
-            $product["fyndiq_exported"] = FmProductExport::productExist($row['id_product']);
-            $product["expected_price"] = number_format(
-                (float)($product["price"] - (($typed_percentage / 100) * $product["price"])),
+            $product['fyndiq_precentage'] = $typed_percentage;
+            $product['fyndiq_quantity'] = $product['quantity'];
+            $product['fyndiq_exported'] = FmProductExport::productExist($row['id_product']);
+            $product['expected_price'] = number_format(
+                (float)($product['price'] - (($typed_percentage / 100) * $product['price'])),
                 2,
                 '.',
                 ''
             );
-            $product["currency"] = $current_currency;
+            $product['currency'] = $current_currency;
             $products[] = $product;
         }
         $object = new stdClass();
         $object->products = $products;
-        if (!isset($args["page"])) {
+        if (!isset($args['page'])) {
             $object->pagination = $this->getPagerProductsHtml($args['category'], 1);
         } else {
-            $object->pagination = $this->getPagerProductsHtml($args['category'], $args["page"]);
+            $object->pagination = $this->getPagerProductsHtml($args['category'], $args['page']);
         }
         $this->response($object);
     }
@@ -155,18 +155,18 @@ class FmAjaxService
 
     public function load_orders($args)
     {
-        if (isset($args["page"]) AND $args["page"] > 0) {
-            $orders = FmOrder::getImportedOrders($args["page"], $this->_itemPerPage);
+        if (isset($args['page']) AND $args['page'] > 0) {
+            $orders = FmOrder::getImportedOrders($args['page'], $this->_itemPerPage);
         } else {
             $orders = FmOrder::getImportedOrders();
         }
 
         $object = new stdClass();
         $object->orders = $orders;
-        if (!isset($args["page"])) {
+        if (!isset($args['page'])) {
             $object->pagination = $this->getPagerordersHtml(1);
         } else {
-            $object->pagination = $this->getPagerordersHtml($args["page"]);
+            $object->pagination = $this->getPagerordersHtml($args['page']);
         }
         $this->response($object);
     }
@@ -216,10 +216,10 @@ class FmAjaxService
         foreach ($args['products'] as $v) {
             $product = $v['product'];
 
-            if (FmProductExport::productExist($product["id"])) {
-                FmProductExport::updateProduct($product["id"], $product['fyndiq_percentage']);
+            if (FmProductExport::productExist($product['id'])) {
+                FmProductExport::updateProduct($product['id'], $product['fyndiq_percentage']);
             } else {
-                FmProductExport::addProduct($product["id"], $product['fyndiq_percentage']);
+                FmProductExport::addProduct($product['id'], $product['fyndiq_percentage']);
             }
         }
         $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
@@ -230,7 +230,7 @@ class FmAjaxService
     public function delete_exported_products($args)
     {
         foreach ($args['products'] as $v) {
-            $product = $v["product"];
+            $product = $v['product'];
             FmProductExport::deleteProduct($product['id']);
         }
         $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
@@ -241,8 +241,8 @@ class FmAjaxService
     public function update_product($args)
     {
         $result = false;
-        if (FmProductExport::productExist($args["product"])) {
-            $result = FmProductExport::updateProduct($args["product"], $args['percentage']);
+        if (FmProductExport::productExist($args['product'])) {
+            $result = FmProductExport::updateProduct($args['product'], $args['percentage']);
         }
         $this->response($result);
     }
@@ -255,7 +255,7 @@ class FmAjaxService
             if (!isset($args['orders'])) {
                 throw new Exception('Pick at least one order');
             }
-            foreach ($args["orders"] as $order) {
+            foreach ($args['orders'] as $order) {
                 $object = new stdClass();
                 $object->order = intval($order);
                 $orders->orders[] = $object;
