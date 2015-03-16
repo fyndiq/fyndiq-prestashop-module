@@ -25,7 +25,7 @@ class FmBackofficeControllers
                 FmHelpers::call_api('GET', 'orders/');
                 $api_available = true;
             } catch (Exception $e) {
-                if ($e->getMessage() == "Unauthorized") {
+                if ($e->getMessage() == 'Unauthorized') {
                     $page = 'authenticate';
                 } else {
                     $page = 'api_unavailable';
@@ -81,9 +81,7 @@ class FmBackofficeControllers
             $output .= self::show_template(
                 $module,
                 'api_unavailable',
-                array(
-                    'message' => $page_args['message']
-                )
+                $page_args
             );
         }
 
@@ -138,7 +136,7 @@ class FmBackofficeControllers
                 )
             );
         }
-        if ($page == "order") {
+        if ($page == 'order') {
             $path = FmHelpers::get_module_url();
             $import_date = FmConfig::get('import_date');
             $isToday = date('Ymd') === date('Ymd', strtotime($import_date));
@@ -148,7 +146,7 @@ class FmBackofficeControllers
                 array(
                     'import_date' => $import_date,
                     'isToday' => $isToday,
-                    'import_time' => date("G:i:s", strtotime($import_date)),
+                    'import_time' => date('G:i:s', strtotime($import_date)),
                     'messages' => FmMessages::get_all(),
                     'path' => $path
                 )
@@ -197,35 +195,24 @@ class FmBackofficeControllers
 
     private static function handle_settings($module)
     {
-
-        $error = false;
-        $output = '';
-
         $language_id = intval(Tools::getValue('language_id'));
         $price_percentage = intval(Tools::getValue('price_percentage'));
-
-
-        if (!$error) {
-            FmConfig::set('price_percentage', $price_percentage);
-            FmConfig::set('language', $language_id);
+        if (FmConfig::set('language', $language_id) &&
+            FmConfig::set('price_percentage', $price_percentage)) {
+            return array('error' => false, 'output' => '');
         }
-
-        return array('error' => $error, 'output' => $output);
+        return array('error' => true, 'output' => '');
     }
 
     private static function handle_disconnect($module)
     {
-
-        $error = false;
-        $output = '';
-
         # delete stored connection values
-        FmConfig::delete('username');
-        FmConfig::delete('api_token');
-
-        $output .= $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
-
-        return array('error' => $error, 'output' => $output);
+        if (FmConfig::delete('username') &&
+            FmConfig::delete('api_token')) {
+            $output = $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
+            return array('error' => false, 'output' => $output);
+        }
+        return array('error' => true, 'output' => '');
     }
 
 
