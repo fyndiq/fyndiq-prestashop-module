@@ -12,12 +12,14 @@ class FmFileHandler
     private $fileresource = null;
     private $mode = null;
 
-    function __construct($path, $mode = 'w+', $remove = false)
+    function __construct($path, $mode = null, $remove = false)
     {
         $this->rootpath = $path;
-        $this->mode = $mode;
         $this->filepath = '/files/' . FmHelpers::getExportFileName();
-        $this->openFile($remove);
+        if(!is_null($mode)) {
+            $this->mode = $mode;
+            $this->openFile($remove);
+        }
     }
 
     /**
@@ -36,6 +38,12 @@ class FmFileHandler
         }
         $this->closeFile();
         return true;
+    }
+
+
+    function fileExists()
+    {
+        return file_exists($this->filepath);
     }
 
     function removeFile($recreate = false)
@@ -82,6 +90,11 @@ class FmFileHandler
         }
         $this->closeFile();
         $this->fileresource = fopen($this->rootpath . $this->filepath, $this->mode) or die("Can't open file");
+    }
+
+    public function getContentfromFile()
+    {
+        fpassthru($this->fileresource);
     }
 
     /**
