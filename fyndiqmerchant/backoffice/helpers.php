@@ -61,6 +61,8 @@ class FmHelpers
     const HTTP_ERROR_SERVER = 500;
     const HTTP_ERROR_CUSTOM = 400;
 
+    const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
+
 
     public static function api_connection_exists($module = null)
     {
@@ -183,4 +185,17 @@ class FmHelpers
         return self::get_module_url(false);
     }
 
+    /**
+     * Returns export file name depending on the shop context
+     *
+     * @return string export file name
+     */
+    public static function getExportFileName()
+    {
+        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+            return sprintf(self::EXPORT_FILE_NAME_PATTERN, Shop::getCurrentShop());
+        }
+        // fallback to 0 for non-multistore setups
+        return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
+    }
 }

@@ -14,7 +14,6 @@ require_once('./models/product.php');
 require_once('./includes/fileHandler.php');
 class FilePageController
 {
-    const FILE_PATH = '/files/feed.csv';
 
     public function __construct()
     {
@@ -24,14 +23,15 @@ class FilePageController
     public function getFile()
     {
         if (!empty($this->username) && !empty($this->api_token)) {
+            $filePath = '/files/' . FmHelpers::getExportFileName();
 
             //Check if feed file exist and if it is too old
             $fileHandler = new FmFileHandler(_PS_ROOT_DIR_, 'w+');
-            $fileexists = $fileHandler->fileExists();
+            $fileExists = $fileHandler->fileExists();
 
-            if ($fileexists) {
+            if ($fileExists) {
                 // If feed last modified date is older than 1 hour, create a new one
-                if (filemtime(_PS_ROOT_DIR_.self::FILE_PATH) < strtotime('-1 hour', time())) {
+                if (filemtime(_PS_ROOT_DIR_. $filePath) < strtotime('-1 hour', time())) {
                     FmProductExport::saveFile(_PS_ROOT_DIR_);
                 }
             } else {
