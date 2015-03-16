@@ -143,7 +143,7 @@ class FmProduct {
         $offset = $perpage * ($p-1);
 
         if($p != -1 && $perpage != -1) {
-            $sqlquery .= 'LIMIT '.$offset.', '.(int)($perpage);
+            $sqlquery .= 'LIMIT '.$offset.', '.$perpage;
         }
 
         $rows = Db::getInstance()->ExecuteS($sqlquery);
