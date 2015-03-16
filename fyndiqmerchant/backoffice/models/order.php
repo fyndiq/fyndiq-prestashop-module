@@ -407,13 +407,19 @@ class FmOrder
         return $ret;
     }
 
-    public static function getImportedOrders()
+    public static function getImportedOrders($p = -1, $perpage = -1)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $orders = Db::getInstance()->ExecuteS(
-            'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders;
-        '
-        );
+
+        $sqlquery = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders';
+
+        $offset = $perpage * ($p-1);
+
+        if($p != -1 && $perpage != -1) {
+            $sqlquery .= 'LIMIT '.$offset.', '.(int)($perpage);
+        }
+
+        $orders = Db::getInstance()->ExecuteS($sqlquery);
         $return = array();
 
         foreach ($orders as $order) {
