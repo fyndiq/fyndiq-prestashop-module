@@ -138,26 +138,37 @@ class FmProduct
         return $result;
     }
 
-    public static function get_by_category($category_id, $p = -1, $perpage = -1)
+    public static function getAmount($category_id)
+    {
+        $sqlquery = '
+            select count(p.id_product) as amount
+            from ' . _DB_PREFIX_ . 'product as p
+            join ' . _DB_PREFIX_ . 'category_product as cp
+            where p.id_product = cp.id_product
+            and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
+        ';
+        $amount = Db::getInstance()->ExecuteS($sqlquery);
+        if(isset($amount[0]['amount']))
+        {
+            return $amount[0]['amount'];
+        }
+        return false;
+    }
+
+    public static function get_by_category($category_id, $p, $perpage)
     {
 
         # fetch products per category manually,
         # Product::getProducts doesnt work in backoffice,
         # it's hard coded to work only with front office controllers
-
+        $offset = $perpage * ($p - 1);
         $sqlquery = '
             select p.id_product
             from ' . _DB_PREFIX_ . 'product as p
             join ' . _DB_PREFIX_ . 'category_product as cp
             where p.id_product = cp.id_product
             and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
-        ';
-
-        $offset = $perpage * ($p - 1);
-
-        if ($p != -1 && $perpage != -1) {
-            $sqlquery .= 'LIMIT ' . $offset . ', ' . $perpage;
-        }
+            LIMIT ' . $offset . ', ' . $perpage;
 
         $rows = Db::getInstance()->ExecuteS($sqlquery);
 

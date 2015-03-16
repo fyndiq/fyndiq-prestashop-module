@@ -111,7 +111,7 @@ class FmAjaxService
         if (isset($args['page']) AND $args['page'] > 0) {
             $rows = FmProduct::get_by_category($args['category'], $args['page'], self::itemPerPage);
         } else {
-            $rows = FmProduct::get_by_category($args['category']);
+            $rows = FmProduct::get_by_category($args['category'], 1, self::itemPerPage);
         }
 
 
@@ -156,9 +156,9 @@ class FmAjaxService
     public function load_orders($args)
     {
         if (isset($args['page']) AND $args['page'] > 0) {
-            $orders = FmOrder::getImportedOrders($args['page'], $this->_itemPerPage);
+            $orders = FmOrder::getImportedOrders($args['page'], self::itemPerPage);
         } else {
-            $orders = FmOrder::getImportedOrders();
+            $orders = FmOrder::getImportedOrders(1, self::itemPerPage);
         }
 
         $object = new stdClass();
@@ -297,14 +297,11 @@ class FmAjaxService
     private function getPagerProductsHtml($category, $currentpage)
     {
         $html = false;
-        $collection = FmProduct::get_by_category($category);
-        if ($collection == 'null') {
-            return;
-        }
-        if (count($collection) > 10) {
+        $amount = FmProduct::getAmount($category);
+        if ($amount > 10) {
             $curPage = $currentpage;
-            $pager = (int)(count($collection) / self::itemPerPage);
-            $count = (count($collection) % self::itemPerPage == 0) ? $pager : $pager + 1;
+            $pager = (int)($amount / self::itemPerPage);
+            $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
             $start = 1;
             $end = self::pageFrame;
 
@@ -357,14 +354,11 @@ class FmAjaxService
     private function getPagerOrdersHtml($currentpage)
     {
         $html = false;
-        $collection = FmOrder::getImportedOrders();
-        if ($collection == 'null') {
-            return;
-        }
-        if (count($collection) > 10) {
+        $amount = FmOrder::getAmount();
+        if ($amount > 10) {
             $curPage = $currentpage;
-            $pager = (int)(count($collection) / self::itemPerPage);
-            $count = (count($collection) % self::itemPerPage == 0) ? $pager : $pager + 1;
+            $pager = (int)($amount / self::itemPerPage);
+            $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
             $start = 1;
             $end = self::pageFrame;
 
