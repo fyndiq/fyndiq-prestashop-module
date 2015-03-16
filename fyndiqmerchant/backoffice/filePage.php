@@ -26,7 +26,7 @@ class FilePageController
         if (!empty($this->username) && !empty($this->api_token)) {
 
             //Check if feed file exist and if it is too old
-            $fileHandler = new FmFileHandler(_PS_ROOT_DIR_);
+            $fileHandler = new FmFileHandler(_PS_ROOT_DIR_, 'w+');
             $fileexists = $fileHandler->fileExists();
 
             if ($fileexists) {
