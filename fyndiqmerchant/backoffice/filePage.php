@@ -4,6 +4,7 @@ $configPath = dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))) . 
 if (file_exists($configPath)) {
     require_once($configPath);
 } else {
+    echo "Error: Config file not found: {$configPath}";
     exit;
 }
 
@@ -14,7 +15,7 @@ require_once('./models/product.php');
 require_once('./includes/fileHandler.php');
 class FilePageController
 {
-    private $filepath = "/files/feed.csv";
+    const FILE_PATH = "/files/feed.csv";
 
     public function __construct()
     {
@@ -36,7 +37,7 @@ class FilePageController
 
             if ($fileexists) {
                 // If feed last modified date is older than 1 hour, create a new one
-                if (filemtime(_PS_ROOT_DIR_.$this->filepath) < strtotime('-1 hour', time())) {
+                if (filemtime(_PS_ROOT_DIR_.FILE_PATH) < strtotime('-1 hour', time())) {
                     FmProductExport::saveFile(_PS_ROOT_DIR_);
                 }
                 else {
