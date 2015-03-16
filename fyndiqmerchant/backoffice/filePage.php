@@ -36,10 +36,6 @@ class FilePageController
                 if (filemtime(_PS_ROOT_DIR_.FILE_PATH) < strtotime('-1 hour', time())) {
                     FmProductExport::saveFile(_PS_ROOT_DIR_);
                 }
-                else {
-                    $fileHandler->getContentfromFile();
-                    exit;
-                }
             } else {
                 //The file hasn't been created yet, create it.
                 FmProductExport::saveFile(_PS_ROOT_DIR_);
