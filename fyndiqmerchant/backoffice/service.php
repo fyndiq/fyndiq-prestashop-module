@@ -144,11 +144,11 @@ class FmAjaxService
         }
         $object = new stdClass();
         $object->products = $products;
-        if (!isset($args['page'])) {
-            $object->pagination = $this->getPagerProductsHtml($args['category'], 1);
-        } else {
-            $object->pagination = $this->getPagerProductsHtml($args['category'], $args['page']);
-        }
+
+        // Setup pagination
+        $page = isset($args['page']) ? intval($args['page']) : 1;
+        $total = FmProduct::getAmount($args['category']);
+        $object->pagination = $this->getPaginationHTML($total, $page);
         $this->response($object);
     }
 
@@ -163,11 +163,11 @@ class FmAjaxService
 
         $object = new stdClass();
         $object->orders = $orders;
-        if (!isset($args['page'])) {
-            $object->pagination = $this->getPagerordersHtml(1);
-        } else {
-            $object->pagination = $this->getPagerordersHtml($args['page']);
-        }
+
+        // Setup pagination
+        $page = isset($args['page']) ? intval($args['page']) : 1;
+        $total = FmOrder::getAmount();
+        $object->pagination = $this->getPaginationHTML($total, $page);
         $this->response($object);
     }
 
@@ -288,29 +288,25 @@ class FmAjaxService
     }
 
     /**
-     * Get pagination
+     * Generates pagination HTML
      *
-     * @param $category
-     * @param $currentpage
-     * @return bool|string
+     * @param $total - total number of items
+     * @param $currentPage - current page
+     * @return string - html string for pagination
      */
-    private function getPagerProductsHtml($category, $currentpage)
+    private function getPaginationHTML($total, $currentPage)
     {
-        $html = false;
-        $amount = FmProduct::getAmount($category);
-        if ($amount > self::itemPerPage) {
-            $curPage = $currentpage;
-            $pager = (int)($amount / self::itemPerPage);
-            $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
+        $html = '';
+        if ($total > self::itemPerPage) {
+            $pages = (int)($total / self::itemPerPage);
+            $count = ($total % self::itemPerPage == 0) ? $pages : $pages + 1;
             $start = 1;
-            $end = self::pageFrame;
-
 
             $html .= '<ol class="pageslist">';
-            if (isset($curPage) && $curPage != 1) {
-                $start = $curPage - 1;
-                $end = $start + self::pageFrame;
-            } else {
+
+            $end = $start + self::pageFrame;
+            if ($currentPage != 1) {
+                $start = $currentPage - 1;
                 $end = $start + self::pageFrame;
             }
             if ($end > $count) {
@@ -319,80 +315,22 @@ class FmAjaxService
                 $count = $end - 1;
             }
 
-            if ($curPage > $count - 1) {
-                $html .= '<li><a href="#" data-page="' . ($curPage - 1) . '">&lt;</a></li>';
+            if ($currentPage > $count - 1) {
+                $html .= '<li><a href="#" data-page="' . ($currentPage - 1) . '">&lt;</a></li>';
             }
 
             for ($i = $start; $i <= $count; $i++) {
                 if ($i >= 1) {
-                    if ($curPage) {
-                        $html .= ($curPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
+                    if ($currentPage) {
+                        $html .= ($currentPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
                     } else {
                         $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
                     }
                 }
-
             }
 
-            if ($curPage < $count) {
-                $html .= '<li><a href="#" data-page="' . ($curPage + 1) . '">&gt;</a></li>';
-            }
-
-            $html .= '</ol>';
-        }
-
-        return $html;
-    }
-
-
-    /**
-     * Get pagination for orders
-     *
-     * @param $currentpage
-     * @return bool|string
-     */
-    private function getPagerOrdersHtml($currentpage)
-    {
-        $html = false;
-        $amount = FmOrder::getAmount();
-        if ($amount > self::itemPerPage) {
-            $curPage = $currentpage;
-            $pager = (int)($amount / self::itemPerPage);
-            $count = ($amount % self::itemPerPage == 0) ? $pager : $pager + 1;
-            $start = 1;
-            $end = self::pageFrame;
-
-
-            $html .= '<ol class="pageslist">';
-            if (isset($curPage) && $curPage != 1) {
-                $start = $curPage - 1;
-                $end = $start + self::pageFrame;
-            } else {
-                $end = $start + self::pageFrame;
-            }
-            if ($end > $count) {
-                $start = $count - (self::pageFrame - 1);
-            } else {
-                $count = $end - 1;
-            }
-
-            if ($curPage > $count - 1) {
-                $html .= '<li><a href="#" data-page="' . ($curPage - 1) . '">&lt;</a></li>';
-            }
-
-            for ($i = $start; $i <= $count; $i++) {
-                if ($i >= 1) {
-                    if ($curPage) {
-                        $html .= ($curPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
-                    } else {
-                        $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
-                    }
-                }
-
-            }
-
-            if ($curPage < $count) {
-                $html .= '<li><a href="#" data-page="' . ($curPage + 1) . '">&gt;</a></li>';
+            if ($currentPage < $count) {
+                $html .= '<li><a href="#" data-page="' . ($currentPage + 1) . '">&gt;</a></li>';
             }
 
             $html .= '</ol>';
