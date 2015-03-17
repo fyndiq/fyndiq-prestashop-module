@@ -14,15 +14,14 @@ class FmBackofficeControllers
         }
 
         # if no api connection exists yet (first time using module, or user pressed Disconnect Account)
-        if (!FmHelpers::api_connection_exists($module)) {
+        elseif (!FmHelpers::api_connection_exists($module)) {
             $page = 'authenticate';
 
         } else {
-
             # check if api is up
             $api_available = false;
             try {
-                FmHelpers::call_api('GET', 'orders/');
+                FmHelpers::call_api('GET', 'settings/');
                 $api_available = true;
             } catch (Exception $e) {
                 if ($e->getMessage() == 'Unauthorized') {
@@ -175,12 +174,14 @@ class FmBackofficeControllers
 
             # authenticate with Fyndiq API
             try {
-                FmHelpers::call_api_raw($username, $api_token, 'GET', 'orders/', array());
-
+                FmHelpers::call_api_raw($username, $api_token, 'GET', 'settings/', array());
+                sleep(1);
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
                 self::_updateFeedurl(FmHelpers::get_module_url(false) . 'modules/fyndiqmerchant/backoffice/filePage.php');
+                sleep(1);
+                Tools::redirect(FmHelpers::get_module_url());
             } catch (Exception $e) {
                 $error = true;
                 $output .= $module->displayError($module->l($e->getMessage()));
