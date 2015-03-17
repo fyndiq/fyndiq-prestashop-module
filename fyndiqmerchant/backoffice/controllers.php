@@ -10,7 +10,7 @@ class FmBackofficeControllers
 
         if (Tools::isSubmit('submit_authenticate')) {
             $ret = self::handle_authentication($module);
-            $output .= $ret['output'];
+            return $ret['output'];
         }
 
         # if no api connection exists yet (first time using module, or user pressed Disconnect Account)
