@@ -97,11 +97,14 @@ class FmProductExport
     /**
      *  Save the export feed
      *
-     * @param $directory - Export directory
+     * @param $file - Export file handler
      * @return bool
      */
-    public static function saveFile($directory)
+    public static function saveFile($file)
     {
+        if (get_resource_type($file) !== 'stream') {
+            return false;
+        }
         // Database connection
         $module = Module::getInstanceByName('fyndiqmerchant');
         $sql = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_products';
@@ -159,7 +162,7 @@ class FmProductExport
                     }
 
                     // Create combination name
-                    $productName = [];
+                    $productName = array();
                     $id = 1;
                     foreach ($combination['attributes'] as $attribute) {
                         $productName[] = addslashes($attribute['name'] . ': ' . $attribute['value']);
@@ -177,8 +180,7 @@ class FmProductExport
         }
 
         // Save products to CSV file
-        $fileHandler = new FmFileHandler($directory, 'w+');
-        return $fileHandler->writeOverFile(array_unique($keys), $allProducts);
+        return FmFileHandler::writeToFile($file, array_unique($keys), $allProducts);
     }
 
     /**
