@@ -19,8 +19,12 @@
         FmGui.show_load_screen(function () {
             FmCtrl.bind_order_event_handlers();
 
-            // load all categories
-            FmCtrl.load_orders(function () {
+            var page = $('div.pages > ol > li.current').html();
+            if (page === 'undefined') {
+                page = 1;
+            }
+            // load all orders
+            FmCtrl.load_orders(page, function () {
                 FmGui.hide_load_screen();
             });
         });

@@ -9,7 +9,7 @@ var FmCtrl = {
         $.ajax({
             type: 'POST',
             url: module_path + 'backoffice/service.php',
-            data: {'action': action, 'args': args},
+            data: {action: action, args: args},
             dataType: 'json'
         }).always(function (data) {
             var status = 'error';
@@ -37,7 +37,7 @@ var FmCtrl = {
         FmCtrl.call_service('get_categories', {category_id: category_id}, function (status, categories) {
             if (status === 'success') {
                 $(tpl['category-tree']({
-                    'categories': categories
+                    categories: categories
                 })).appendTo($container);
             }
 
@@ -52,12 +52,12 @@ var FmCtrl = {
         // unset active class on previously selected category
         $('.fm-category-tree li').removeClass('active');
 
-        FmCtrl.call_service('get_products', {'category': category_id, 'page': page}, function (status, products) {
+        FmCtrl.call_service('get_products', {category: category_id, page: page}, function (status, products) {
             if (status === 'success') {
                 $('.fm-product-list-container').html(tpl['product-list']({
-                    'module_path': module_path,
-                    'products': products.products,
-                    'pagination': products.pagination
+                    module_path: module_path,
+                    products: products.products,
+                    pagination: products.pagination
                 }));
 
                 // set active class on selected category
@@ -79,20 +79,21 @@ var FmCtrl = {
 
     update_product: function (product, percentage, callback) {
         'use strict';
-        FmCtrl.call_service('update_product', {'product': product, 'percentage': percentage}, function (status) {
+        FmCtrl.call_service('update_product', {product: product, percentage: percentage}, function (status) {
             if (callback) {
                 callback(status);
             }
         });
     },
 
-    load_orders: function (callback) {
+    load_orders: function (page, callback) {
         'use strict';
-        FmCtrl.call_service('load_orders', {}, function (status, orders) {
+        FmCtrl.call_service('load_orders', {page: page}, function (status, orders) {
             if (status === 'success') {
                 $('.fm-order-list-container').html(tpl['orders-list']({
-                    'module_path': module_path,
-                    'orders': orders
+                    module_path: module_path,
+                    orders: orders.orders,
+                    pagination: orders.pagination
                 }));
             }
 
@@ -117,7 +118,7 @@ var FmCtrl = {
 
     export_products: function (products, callback) {
         'use strict';
-        FmCtrl.call_service('export_products', {'products': products}, function (status, data) {
+        FmCtrl.call_service('export_products', {products: products}, function (status, data) {
             if (status === 'success') {
                 FmGui.show_message('success', messages['products-exported-title'],
                     messages['products-exported-message']);
@@ -140,7 +141,7 @@ var FmCtrl = {
 
     products_delete: function (products, callback) {
         'use strict';
-        FmCtrl.call_service('delete_exported_products', {'products': products}, function (status) {
+        FmCtrl.call_service('delete_exported_products', {products: products}, function (status) {
             if (status === 'success') {
                 FmGui.show_message('success', messages['products-deleted-title'],
                     messages['products-deleted-message']);
@@ -295,9 +296,9 @@ var FmCtrl = {
                     var price = $(this).find('td.prices > div.price > input').val();
                     var fyndiq_percentage = $(this).find('.fyndiq_dicsount').val();
                     products.push({
-                        'product': {
-                            'id': $(this).data('id'),
-                            'fyndiq_percentage': fyndiq_percentage
+                        product: {
+                            id: $(this).data('id'),
+                            fyndiq_percentage: fyndiq_percentage
                         }
                     });
                 }
@@ -336,8 +337,8 @@ var FmCtrl = {
                 // find all products
                 $('.fm-product-list .select input:checked').each(function () {
                     products.push({
-                        'product': {
-                            'id': $(this).parent().parent().data('id')
+                        product: {
+                            id: $(this).parent().parent().data('id')
                         }
                     });
                 });
@@ -353,10 +354,7 @@ var FmCtrl = {
                     FmCtrl.products_delete(products, function () {
                         // reload category to ensure that everything is reset properly
                         var category = $('.fm-category-tree li.active').attr('data-category_id');
-                        var page = $('div.pages > ol > li.current').html();
-                        if (page === 'undefined') {
-                            page = 1;
-                        }
+                        var page = parseInt($('div.pages > ol > li.current').html(), 10) || 1;
                         FmCtrl.load_products(category, page, function () {
                             FmGui.hide_load_screen();
                         });
@@ -377,11 +375,11 @@ var FmCtrl = {
             FmCtrl.import_orders(function (time) {
                 $('#fm-order-import-date').html(
                     tpl['order-import-date-content']({
-                        'module_path': module_path,
-                        'import_time': time
+                        module_path: module_path,
+                        import_time: time
                     }));
-
-                FmCtrl.load_orders(function () {
+                var page = parseInt($('div.pages > ol > li.current').html(), 10) || 1;
+                FmCtrl.load_orders(page, function () {
                     FmGui.hide_load_screen();
                 });
             });

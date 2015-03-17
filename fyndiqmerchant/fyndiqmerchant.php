@@ -50,15 +50,8 @@ class FyndiqMerchant extends Module
 
         $ret &= (bool)parent::install();
 
-        // hook to product update
-        $hook_name = array(
-            FMPSV14 => 'updateproduct',
-            FMPSV15 => 'actionProductUpdate',
-            FMPSV16 => 'actionProductUpdate'
-        );
-        $ret &= (bool)$this->registerHook($hook_name[FMPSV]);
-
-        $this->_createTab();
+        // Create tab
+        $ret &= $this->createTab();
 
         // create product mapping database
         $ret &= FmProductExport::install();
@@ -104,7 +97,7 @@ class FyndiqMerchant extends Module
         return $db->delete('tab', 'module = "'.pSQL($this->name).'"');
     }
 
-    private function _createTab()
+    private function createTab()
     {
         $db = Db::getInstance();
         /* define data array for the tab  */
@@ -113,7 +106,8 @@ class FyndiqMerchant extends Module
             'id_parent' => 13,
             'class_name' => 'AdminPage',
             'module' => $this->name,
-            'position' => 1, 'active' => 1
+            'position' => 1,
+            'active' => 1
         );
 
         /* Insert the data to the tab table*/
@@ -132,32 +126,6 @@ class FyndiqMerchant extends Module
         // Now insert the tab lang data
         $db->insert('tab_lang', $data_lang);
         return true;
-    }
-
-    // 1.4
-    public function hookupdateproduct($data)
-    {
-        // $product = $data['product'];
-        // $quantity = $product->quantity;
-        // $id = $product->id;
-        // $ts = date('Y-m-d H:i:s', time());
-        // file_put_contents('test14.apa', $ts.' | '.$quantity.' | '.$id);
-    }
-
-    // 1.5
-    public function hookActionProductUpdate($data)
-    {
-        // ob_start();
-        // var_dump($data);
-        // $s = ob_get_contents();
-        // ob_end_clean();
-        // file_put_contents('test.apa', $s);
-
-        // $product = $data['product'];
-        // $quantity = $product->quantity;
-        // $id = $product->id;
-        // $ts = date('Y-m-d H:i:s', time());
-        // file_put_contents('test15.apa', $ts.' | '.$quantity.' | '.$id);
     }
 
     public function getContent()

@@ -238,6 +238,7 @@
         Orders is empty.
         {{/if}}
         {{> fm-order-list-controls}}
+        {{> fm-product-pagination}}
     </script>
     <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
         <div class="fm-order-list-controls">
