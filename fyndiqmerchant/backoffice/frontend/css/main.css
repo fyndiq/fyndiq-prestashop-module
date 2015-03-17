@@ -135,7 +135,7 @@
   font-size: 12pt;
   text-align: left; }
 .form-horizontal .form-group {
-  height: 1.4em; }
+  height: 2em; }
 
 .fm-panel table {
   font-size: 11pt;
@@ -219,7 +219,6 @@
         background-color: #f08c48;
         color: #fff;
         display: inline-block;
-        font-family: 'Montserrat', sans-serif;
         font-size: 9pt;
         line-height: 16px;
         outline: none;
@@ -233,7 +232,6 @@
         color: #000;
         cursor: pointer;
         display: inline-block;
-        font-family: 'Montserrat', sans-serif;
         font-size: 9pt;
         line-height: 16px;
         outline: none;
@@ -300,8 +298,6 @@
   margin: 1em !important; }
 
 .export {
-  float: right;
-  width: 300px;
   margin: 1em;
   text-align: right; }
 

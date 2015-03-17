@@ -116,13 +116,13 @@
         </div>
     </div>
 </script>
-    <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-pagination">
-        {{#if pagination}}
-        <div class="pages">
-            {{{pagination}}}
-        </div>
-        {{/if}}
-    </script>
+<script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-pagination">
+    {{#if pagination}}
+    <div class="pages">
+        {{{pagination}}}
+    </div>
+    {{/if}}
+</script>
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
         {{> fm-product-list-controls}}
         <div class="fm-products-list-container">
@@ -200,8 +200,8 @@
             Category is empty.
             {{/if}}
         </div>
-        {{> fm-product-list-controls}}
         {{> fm-product-pagination}}
+        {{> fm-product-list-controls}}
     </script>
     <script type="text/x-handlebars-template" class="handlebars-template" id="fm-orders-list">
         {{> fm-order-list-controls}}
@@ -237,8 +237,8 @@
         {{else}}
         Orders is empty.
         {{/if}}
-        {{> fm-order-list-controls}}
         {{> fm-product-pagination}}
+        {{> fm-order-list-controls}}
     </script>
     <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
         <div class="fm-order-list-controls">

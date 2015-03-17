@@ -107,7 +107,7 @@ class FmOrder
             // Add it to the database.
             $customer->add();
 
-            $deliveryAddress = fillAddress(
+            $deliveryAddress = self::fillAddress(
                 $fyndiq_order,
                 $customer->id,
                 $context->country->id,
@@ -115,7 +115,7 @@ class FmOrder
             );
             $deliveryAddress->add();
 
-            $invoiceAddress = fillAddress(
+            $invoiceAddress = self::fillAddress(
                 $fyndiq_order,
                 $customer->id,
                 $context->country->id,

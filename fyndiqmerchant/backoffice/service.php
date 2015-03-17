@@ -233,7 +233,10 @@ class FmAjaxService
      */
     private function saveFeed() {
         $fileName = _PS_ROOT_DIR_ . '/files/' . FmHelpers::getExportFileName();
-        $file = fopen($fileName, 'w+');
+        $file = @fopen($fileName, 'w+');
+        if ($file === false) {
+            return false;
+        }
         $result = FmProductExport::saveFile($file);
         fclose($file);
         return $result;
