@@ -120,20 +120,24 @@ var FmCtrl = {
         'use strict';
         FmCtrl.call_service('export_products', {products: products}, function (status, data) {
             if (status === 'success') {
-                FmGui.show_message('success', messages['products-exported-title'],
-                    messages['products-exported-message']);
+                if (data) {
+                    FmGui.show_message('success', messages['products-exported-title'],
+                        messages['products-exported-message']);
 
-                // reload category to ensure that everything is reset properly
-                var category = $('.fm-category-tree li.active').attr('data-category_id');
-                FmCtrl.load_products(category, function () {
-                    if (callback) {
-                        callback();
-                    }
-                });
-            } else {
-                if (callback) {
-                    callback();
+                    // reload category to ensure that everything is reset properly
+                    var category = $('.fm-category-tree li.active').attr('data-category_id');
+                    FmCtrl.load_products(category, function () {
+                        if (callback) {
+                            callback();
+                        }
+                    });
+                    return;
                 }
+                FmGui.show_message('error', messages['unhandled-error-title'],
+                    messages['unhandled-error-message']);
+            }
+            if (callback) {
+                callback();
             }
         });
     },
@@ -310,18 +314,11 @@ var FmCtrl = {
                     messages['products-not-selected-message']);
 
             } else {
-
-                // helper function that does the actual product export
-                var export_products = function (products) {
-                    FmGui.show_load_screen(function () {
-                        FmCtrl.export_products(products, function () {
-                            FmGui.hide_load_screen();
-                        });
+                FmGui.show_load_screen(function () {
+                    FmCtrl.export_products(products, function () {
+                        FmGui.hide_load_screen();
                     });
-                };
-
-                // export the products
-                export_products(products);
+                });
             }
         });
 

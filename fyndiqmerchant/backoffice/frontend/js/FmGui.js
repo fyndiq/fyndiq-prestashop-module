@@ -9,12 +9,12 @@ var FmGui = {
             'module_path': module_path
         });
         $(overlay).hide().prependTo($('body'));
-        var attached_overlay = $('.fm-loading-overlay');
+        var $attached_overlay = $('.fm-loading-overlay');
 
         var top = $(document).scrollTop() + 100;
-        attached_overlay.find('img').css({'marginTop': top+'px'});
+        $attached_overlay.find('img').css({'marginTop': top+'px'});
 
-        attached_overlay.fadeIn(300, function() {
+        $attached_overlay.fadeIn(300, function() {
             if (callback) {
                 callback();
             }
@@ -35,28 +35,28 @@ var FmGui = {
 
     show_message: function(type, title, message) {
         'use strict';
-        var overlay = $(tpl['message-overlay']({
+        var $overlay = $(tpl['message-overlay']({
             'module_path': module_path,
             'type': type,
             'title': title,
             'message': message
         }));
 
-        overlay.hide()
+        $overlay.hide()
             .css({'z-index': 999+FmGui.messages_z_index_counter++})
             .prependTo($('.fm-container'));
 
-        var attached_overlay = $('.fm-message-overlay');
-        attached_overlay.slideDown(300);
+        var $attached_overlay = $('.fm-message-overlay');
+        $attached_overlay.slideDown(300);
 
-        attached_overlay.find('.close').bind('click', function() {
+        $attached_overlay.find('.close').bind('click', function() {
             $(this).parent().slideUp(200, function() {
                 $(this).remove();
             });
         });
 
         setTimeout(function() {
-            attached_overlay.find('.close').click();
+            $attached_overlay.find('.close').click();
         }, 12000);
     }
 };
