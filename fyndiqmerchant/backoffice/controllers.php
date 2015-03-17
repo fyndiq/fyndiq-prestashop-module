@@ -170,8 +170,6 @@ class FmBackofficeControllers
 
             # authenticate with Fyndiq API
             try {
-                FmHelpers::call_api_raw($username, $api_token, 'GET', 'settings/', array());
-                sleep(1);
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
