@@ -222,9 +222,21 @@ class FmAjaxService
                 FmProductExport::addProduct($product['id'], $product['fyndiq_percentage']);
             }
         }
-        $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
-
+        $result = $this->saveFeed();
         $this->response($result);
+    }
+
+    /**
+     * Save the feed to file
+     *
+     * @return bool
+     */
+    private function saveFeed() {
+        $fileName = _PS_ROOT_DIR_ . '/files/' . FmHelpers::getExportFileName();
+        $file = fopen($fileName, 'w+');
+        $result = FmProductExport::saveFile($file);
+        fclose($file);
+        return $result;
     }
 
     public function delete_exported_products($args)
@@ -233,8 +245,7 @@ class FmAjaxService
             $product = $v['product'];
             FmProductExport::deleteProduct($product['id']);
         }
-        $result = FmProductExport::saveFile(_PS_ROOT_DIR_);
-
+        $result = $this->saveFeed();
         $this->response($result);
     }
 
