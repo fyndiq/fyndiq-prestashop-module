@@ -110,8 +110,6 @@ class FmBackofficeControllers
                 $module,
                 'settings',
                 array(
-                    'auto_import' => FmConfig::get('auto_import'),
-                    'auto_export' => FmConfig::get('auto_export'),
                     'price_percentage' => $typed_price_percentage,
                     'languages' => Language::getLanguages(),
                     'selected_language' => $selected_language,
@@ -126,8 +124,6 @@ class FmBackofficeControllers
                 'main',
                 array(
                     'messages' => FmMessages::get_all(),
-                    'auto_import' => FmConfig::get('auto_import'),
-                    'auto_export' => FmConfig::get('auto_export'),
                     'language' => new Language(FmConfig::get('language')),
                     'currency' => new Currency(FmConfig::get('currency')),
                     'username' => FmConfig::get('username'),
