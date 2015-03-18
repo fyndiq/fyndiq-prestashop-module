@@ -1,7 +1,20 @@
 <?php
 
+$storeRoot = dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME']))));
+
+$timer_start = microtime(true);
+
+// NOTE: This root is wrong but config relies on these constants to be set to populate the proper context
+if (!defined('_PS_ADMIN_DIR_')){
+    define('_PS_ADMIN_DIR_', $storeRoot);
+}
+if (!defined('PS_ADMIN_DIR')) {
+    define('PS_ADMIN_DIR', _PS_ADMIN_DIR_);
+}
+
 # import PrestaShop config, to enable use of PrestaShop classes, like Configuration
-$configPath = dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))) . '/config/config.inc.php';
+$configPath = $storeRoot . '/config/config.inc.php';
+
 if (file_exists($configPath)) {
     require_once($configPath);
 } else {

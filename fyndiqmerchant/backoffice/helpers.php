@@ -205,9 +205,12 @@ class FmHelpers
      */
     public static function getCurrentShopId()
     {
-        $context = Shop::getContext();
-        if (Shop::isFeatureActive() && !is_numeric($context->cookie->shopContext)) {
-            return intval($context->cookie->shopContext);
+        $context = Context::getContext();
+        if (Shop::isFeatureActive() && $context->cookie->shopContext) {
+            $split = explode('-', $context->cookie->shopContext);
+            if (count($split) === 2) {
+                return intval($split[1]);
+            }
         }
         return intval(Shop::getCurrentShop());
     }
