@@ -6,6 +6,8 @@
   text-align: center; }
 
 .icon {
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
   border-radius: 50%;
   border: 3px solid #fff;
   display: inline-block;
@@ -56,6 +58,8 @@
 
 .btn,
 .fm-button {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
   border: 1px solid transparent;
   cursor: pointer;
@@ -97,6 +101,8 @@
   color: #b3b3b3; }
 
 .fm-panel {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
   background-color: #fff;
   margin-top: 30px;
@@ -143,14 +149,15 @@
     border-collapse: collapse;
     border-spacing: 0;
     border-top: 1px solid #e3e8ec;
-    font-size: 9pt;
-    padding: .4em; }
-  .fm-panel table tr:nth-child(even) {
+    padding: .4em;
+    font-size: 9pt; }
+  .fm-panel table tbody tr:nth-child(even) {
     background-color: #f5f8fb; }
 
 .fm-loading-overlay {
   background: black;
   background: rgba(0, 0, 0, 0.4);
+  -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#66000000, endColorstr=#66000000);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#66000000, endColorstr=#66000000);
   position: fixed;
   width: 100%;
@@ -170,7 +177,7 @@
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 9999; }
+  z-index: 9999 !important; }
   .fm-message-overlay.fm-info {
     background-color: #799ec4;
     border-color: #87acd3; }
@@ -204,35 +211,39 @@
     margin: 0;
     margin-left: 15px;
     padding: 0; }
-  .pages li {
-    float: left;
-    list-style: none;
-    margin-right: 5px; }
-    .pages li.current {
-      border-radius: 3px;
-      background-color: #f08c48;
-      color: #fff;
-      display: inline-block;
-      font-size: 9pt;
-      line-height: 16px;
-      outline: none;
-      padding: 8px 12px;
-      text-decoration: none; }
-  .pages a {
-    border-radius: 3px;
-    background-color: #e3e3e3;
-    color: #000;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 9pt;
-    line-height: 16px;
-    outline: none;
-    padding: 8px 12px;
-    text-decoration: none; }
-    .pages a:hover {
-      background-color: #f08c48;
-      color: #fff;
-      text-decoration: none; }
+    .pages ol li {
+      float: left;
+      list-style: none;
+      margin-right: 5px; }
+      .pages ol li.current {
+        background-color: #f08c48;
+        color: #fff;
+        display: inline-block;
+        font-size: 9pt;
+        line-height: 16px;
+        outline: none;
+        padding: 8px 12px;
+        text-decoration: none;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px; }
+      .pages ol li a {
+        background-color: #e3e3e3;
+        color: #000;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 9pt;
+        line-height: 16px;
+        outline: none;
+        padding: 8px 12px;
+        text-decoration: none;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px; }
+        .pages ol li a:hover {
+          background-color: #f08c48;
+          color: #fff;
+          text-decoration: none; }
 
 .fm-category-tree {
   font-size: 12pt;
@@ -272,7 +283,7 @@
   line-height: 15px;
   margin: 0;
   padding: 0 3px 0 0; }
-.fm-products-list-container .prices tr:nth-child(even) {
+.fm-products-list-container .prices tbody tr:nth-child(even) {
   background-color: transparent; }
 .fm-products-list-container .prices input {
   border: 0;
@@ -284,13 +295,11 @@
   width: 20px; }
 
 .info {
-  margin: 1em; }
+  margin: 1em !important; }
 
 .export {
-  float: right;
   margin: 1em;
-  text-align: right;
-  width: 350px; }
+  text-align: right; }
 
 .fm-orderlist-panel {
   float: left;
@@ -318,6 +327,12 @@
     display: block;
     margin: 3px 0 -5px; }
 
+#main {
+  background-color: #e7eef4 !important; }
+
+#content.nobootstrap {
+  padding: 62px 0 0; }
+
 .fm-container {
   background-color: #e7eef4;
   font-family: "Montserrat", sans-serif;
@@ -341,11 +356,5 @@
 
 .clear {
   clear: both; }
-
-#main {
-  background-color: #e7eef4 !important; }
-
-#content.nobootstrap {
-  padding: 62px 0 0; }
 
 /*# sourceMappingURL=main.css.map */
