@@ -1,21 +1,5 @@
 <?php
 
-class FyndiqAPIDataInvalid extends Exception{}
-
-class FyndiqAPIConnectionFailed extends Exception{}
-
-class FyndiqAPIPageNotFound extends Exception{}
-
-class FyndiqAPIAuthorizationFailed extends Exception{}
-
-class FyndiqAPITooManyRequests extends Exception{}
-
-class FyndiqAPIServerError extends Exception{}
-
-class FyndiqAPIBadRequest extends Exception{}
-
-class FyndiqAPIUnsupportedStatus extends Exception{}
-
 class FyndiqProductSKUNotFound extends Exception{}
 
 function pd($v)
@@ -27,12 +11,12 @@ function pd($v)
 
 function startsWith($haystack, $needle)
 {
-    return $needle === "" || strpos($haystack, $needle) === 0;
+    return $needle === '' || strpos($haystack, $needle) === 0;
 }
 
 function endsWith($haystack, $needle)
 {
-    return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+    return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
 }
 
 # FyndiqMerchant PrestaShop Version 1.4|1.5|1.6
@@ -51,16 +35,6 @@ if (startswith(_PS_VERSION_, '1.6.')) {
 
 class FmHelpers
 {
-
-    const HTTP_SUCCESS_DEFAULT = 200;
-    const HTTP_SUCCESS_CREATED = 201;
-    const HTTP_SUCCESS_NONCONTENT = 204;
-    const HTTP_ERROR_DEFAULT = 404;
-    const HTTP_ERROR_UNAUTHORIZED = 401;
-    const HTTP_ERROR_TOOMANY = 429;
-    const HTTP_ERROR_SERVER = 500;
-    const HTTP_ERROR_CUSTOM = 400;
-
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
 
 
@@ -81,75 +55,30 @@ class FmHelpers
         return $ret;
     }
 
-    ## wrappers around FyndiqAPI
-    # uses stored connection credentials for authentication
+    /**
+     * Wrappers around FyndiqAPI -  uses stored connection credentials for authentication
+     *
+     * @param $method
+     * @param $path
+     * @param array $data
+     * @return mixed
+     * @throws FyndiqAPIAuthorizationFailed
+     * @throws FyndiqAPIBadRequest
+     * @throws FyndiqAPIDataInvalid
+     * @throws FyndiqAPINoAPIClass
+     * @throws FyndiqAPIPageNotFound
+     * @throws FyndiqAPIServerError
+     * @throws FyndiqAPITooManyRequests
+     * @throws FyndiqAPIUnsupportedStatus
+     */
     public static function call_api($method, $path, $data = array())
     {
         $username = FmConfig::get('username');
-        $api_token = FmConfig::get('api_token');
-
-        return FmHelpers::call_api_raw($username, $api_token, $method, $path, $data);
-    }
-
-    # add descriptive error messages for common errors, and re throw same exception
-    public static function call_api_raw($username, $api_token, $method, $path, $data = array())
-    {
+        $apiToken = FmConfig::get('api_token');
         $module = Module::getInstanceByName('fyndiqmerchant');
+        $userAgent = $module->user_agent;
 
-        $response = FyndiqAPI::call($module->user_agent, $username, $api_token, $method, $path, $data);
-
-
-        if ($response['status'] == self::HTTP_ERROR_DEFAULT) {
-            throw new FyndiqAPIPageNotFound('Not Found: ' . $path);
-        }
-
-        if ($response['status'] == self::HTTP_ERROR_UNAUTHORIZED) {
-            throw new FyndiqAPIAuthorizationFailed('Unauthorized');
-        }
-
-        if ($response['status'] == self::HTTP_ERROR_TOOMANY) {
-            throw new FyndiqAPITooManyRequests('Too Many Requests');
-        }
-
-        if ($response['status'] == self::HTTP_ERROR_SERVER) {
-            throw new FyndiqAPIServerError('Server Error');
-        }
-        // if json_decode failed
-        if (json_last_error() != JSON_ERROR_NONE) {
-            throw new FyndiqAPIDataInvalid('Error in response data');
-        }
-
-        // 400 may contain error messages intended for the user
-        if ($response['status'] == self::HTTP_ERROR_CUSTOM) {
-            $message = '';
-
-            // if there are any error messages, save them to class static member
-            if (property_exists($response["data"], 'error_messages')) {
-                $error_messages = $response["data"]->error_messages;
-
-                // if it contains several messages as an array
-                if (is_array($error_messages)) {
-
-                    foreach ($response["data"]->error_messages as $error_message) {
-                        self::$error_messages[] = $error_message;
-                    }
-
-                    // if it contains just one message as a string
-                } else {
-                    self::$error_messages[] = $error_messages;
-                }
-            }
-
-            throw new FyndiqAPIBadRequest('Bad Request');
-        }
-
-        $success_http_statuses = array(self::HTTP_SUCCESS_DEFAULT, self::HTTP_SUCCESS_CREATED, self::HTTP_SUCCESS_NONCONTENT);
-
-        if (!in_array($response['status'], $success_http_statuses)) {
-            throw new FyndiqAPIUnsupportedStatus('Unsupported HTTP status: ' . $response['status']);
-        }
-
-        return $response;
+        return FyndiqAPICall::callApiRaw($userAgent, $username, $apiToken, $method, $path, $data);
     }
 
     public static function db_escape($value)

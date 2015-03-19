@@ -9,6 +9,7 @@ require_once('backoffice/models/config.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/FyndiqFeedWriter.php';
 require_once 'backoffice/includes/shared/src/FyndiqCSVFeedWriter.php';
+require_once 'backoffice/includes/shared/src/FyndiqAPICall.php';
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
 require_once('backoffice/models/product_export.php');
@@ -95,7 +96,7 @@ class FyndiqMerchant extends Module
     private function removeTab()
     {
         $db = Db::getInstance();
-        return $db->delete('tab', 'module = "'.pSQL($this->name).'"');
+        return $db->delete('tab', 'module = "'.FmHelpers::db_escape($this->name).'"');
     }
 
     private function createTab()
