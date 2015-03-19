@@ -77,7 +77,8 @@ class FmHelpers
         $module = Module::getInstanceByName('fyndiqmerchant');
         $userAgent = $module->user_agent;
 
-        return FyndiqAPICall::callApiRaw($userAgent, $username, $apiToken, $method, $path, $data);
+        return FyndiqAPICall::callApiRaw($userAgent, $username, $apiToken, $method, $path, $data,
+            array('FyndiqAPI', 'call'));
     }
 
     public static function db_escape($value)
