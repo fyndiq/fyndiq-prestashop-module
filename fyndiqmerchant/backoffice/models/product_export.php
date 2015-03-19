@@ -135,7 +135,7 @@ class FmProductExport
                 // Complete Product with article data
                 $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id'], 0));
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
-                $exportProduct['article-name'] = addslashes($storeProduct['name']);
+                $exportProduct['article-name'] = $storeProduct['name'];
                 $feedWriter->addProduct($exportProduct);
             } else {
                 foreach ($storeProduct['combinations'] as $combination) {
@@ -152,7 +152,7 @@ class FmProductExport
                     $imageId = 1;
                     if (!empty($combination['image'])) {
                         $exportProductCopy['product-image-' . $imageId . '-url'] =
-                            addslashes(strval($combination['image']));
+                            strval($combination['image']);
                         $exportProductCopy['product-image-' . $imageId . '-identifier'] =
                             $fmProduct['product_id'] . '-' . strval($combination['id']);
                     }
@@ -161,7 +161,7 @@ class FmProductExport
                     $productName = array();
                     $id = 1;
                     foreach ($combination['attributes'] as $attribute) {
-                        $productName[] = addslashes($attribute['name'] . ': ' . $attribute['value']);
+                        $productName[] = $attribute['name'] . ': ' . $attribute['value'];
                         $exportProductCopy['article‑property‑name‑' . $id] = $attribute['name'];
                         $exportProductCopy['article‑property‑value‑' . $id] = $attribute['value'];
                         $id++;
@@ -194,13 +194,13 @@ class FmProductExport
         $price = $storeProduct['price'] - ($storeProduct['price'] * ($fmProduct['exported_price_percentage'] / 100));
         $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
         $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
-        $exportProduct['product-brand'] = addslashes($storeProduct['manufacturer_name']);
+        $exportProduct['product-brand'] = $storeProduct['manufacturer_name'];
         $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
-            $exportProduct['product-image-1-url'] = addslashes(strval($storeProduct['image']));
+            $exportProduct['product-image-1-url'] = strval($storeProduct['image']);
             $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
         }
-        $exportProduct['product-title'] = addslashes($storeProduct['name']);
+        $exportProduct['product-title'] = $storeProduct['name'];
         $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
         $exportProduct['product-market'] = Context::getContext()->country->iso_code;
 
