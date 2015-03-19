@@ -7,7 +7,8 @@ if (!defined('_PS_VERSION_')) {
 require_once('messages.php');
 require_once('backoffice/models/config.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
-require_once('backoffice/includes/fileHandler.php');
+require_once 'backoffice/includes/shared/src/FyndiqFeedWriter.php';
+require_once 'backoffice/includes/shared/src/FyndiqCSVFeedWriter.php';
 require_once('backoffice/helpers.php');
 require_once('backoffice/controllers.php');
 require_once('backoffice/models/product_export.php');
