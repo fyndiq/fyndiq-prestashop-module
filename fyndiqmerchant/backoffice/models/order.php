@@ -496,7 +496,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('p.id_product');
         $query->from('product', 'p');
-        $query->where('p.reference = \'' . pSQL($productSKU) . '\'');
+        $query->where('p.reference = \'' . FmHelpers::db_escape($productSKU) . '\'');
         $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
         if ($productId) {
             return array($productId, 0);
@@ -505,7 +505,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('id_product_attribute, id_product');
         $query->from('product_attribute');
-        $query->where('reference = \'' . pSQL($productSKU) . '\'');
+        $query->where('reference = \'' . FmHelpers::db_escape($productSKU) . '\'');
         $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
