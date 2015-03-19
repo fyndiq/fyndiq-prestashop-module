@@ -37,7 +37,6 @@ class FmHelpers
 {
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
 
-
     public static function api_connection_exists($module = null)
     {
         $ret = true;
