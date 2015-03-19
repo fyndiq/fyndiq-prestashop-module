@@ -212,6 +212,6 @@ class FmHelpers
                 return intval($split[1]);
             }
         }
-        return intval(Shop::getCurrentShop());
+        return intval($context->shop->id);
     }
 }
