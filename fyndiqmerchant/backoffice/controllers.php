@@ -227,7 +227,8 @@ class FmBackofficeControllers
             array(
                 'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . '/modules/' . $module->name,
                 'module_path' => $module->get('_path'),
-                'shared_path' => $module->get('_path') . 'backoffice/includes/shared/'
+                'shared_path' => $module->get('_path') . 'backoffice/includes/shared/',
+                'service_path' => $module->get('_path') . 'backoffice/service.php'
             )
         );
         $smarty->assign($template_args);
