@@ -6,15 +6,16 @@
 
 <script type="text/javascript">
     var module_path = '{$module_path}';
+    var shared_path = '{$shared_path}';
     var messages = {};
     {foreach $messages as $k => $v}
     messages['{$k}'] = '{$v}';
     {/foreach}
 </script>
-<script type="text/javascript" src="{$module_path}backoffice/frontend/js/handlebars-v1.1.2.js"></script>
-<script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmGui.js"></script>
-<script type="text/javascript" src="{$module_path}backoffice/frontend/js/FmCtrl.js"></script>
-<script type="text/javascript" src="{$module_path}backoffice/frontend/js/order.js"></script>
+<script type="text/javascript" src="{$shared_path}frontend/js/handlebars-v1.1.2.js"></script>
+<script type="text/javascript" src="{$shared_path}frontend/js/FmGui.js"></script>
+<script type="text/javascript" src="{$shared_path}frontend/js/FmCtrl.js"></script>
+<script type="text/javascript" src="{$shared_path}frontend/js/order.js"></script>
 
 <div class="fm-container">
     {include file='./header.tpl' current='order' buttons=true}
@@ -40,7 +41,7 @@
                     <div id="fm-order-import-date">
                         {if $import_date}
                         <div class="lastupdated">
-                            <img src="{$module_path}/backoffice/frontend/images/icons/refresh.png" />
+                            <img src="{$shared_path}frontend/images/icons/refresh.png" />
                             <span class="last-header">Latest Import</span>
                             {if $isToday}
                                 Today {$import_time}
