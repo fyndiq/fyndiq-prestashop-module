@@ -5,11 +5,14 @@
 {include './js_templates.tpl'}
 
 <script type="text/javascript">
-    var module_path = '{$module_path}';
-    var shared_path = '{$shared_path}';
+    var FmPaths = {
+        module: '{$module_path}',
+        shared: '{$shared_path}',
+        service: '{$service_path}'
+    };
     var messages = {};
     {foreach $messages as $k => $v}
-    messages['{$k}'] = '{$v}';
+        messages['{$k}'] = '{$v}';
     {/foreach}
 </script>
 <script type="text/javascript" src="{$shared_path}frontend/js/handlebars-v1.1.2.js"></script>
@@ -25,8 +28,9 @@
             <div class="fm-panel">
                 <div class="fm-panel-header">Imported Orders</div>
                 <div class="fm-panel-body no-padding">
-                    <form action="{$module_path}backoffice/service.php" method="post" class="fm-form orders-form">
+                    <form action="{$service_path}" method="post" class="fm-form orders-form">
                         <input type="hidden" name="action" value="get_delivery_notes" />
+                        <input type="hidden" name="isService" value="1" />
                         <div class="fm-order-list-container"></div>
                     </form>
                 </div>

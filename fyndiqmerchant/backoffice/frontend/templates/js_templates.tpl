@@ -2,13 +2,13 @@
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-loading-overlay">
 <div class="fm-loading-overlay">
-    <img src="{{shared_path}}frontend/images/ajax-loader.gif" alt="Loading animation">
+    <img src="{{paths.shared}}frontend/images/ajax-loader.gif" alt="Loading animation">
 </div>
 </script>
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-message-overlay">
 <div class="fm-message-overlay fm-{{type}}">
-    <img class="close" src="{{shared_path}}frontend/images/icons/close-icon.png" alt="Close" title="Close message">
+    <img class="close" src="{{paths.shared}}frontend/images/icons/close-icon.png" alt="Close" title="Close message">
     <h3>{{title}}</h3>
     <p>{{message}}</p>
 </div>
@@ -25,11 +25,11 @@
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-price-warning-controls">
 <div class="controls">
     <button class="fm-button cancel" name="cancel" data-modal-type="cancel">
-        <img src="{{shared_path}}frontend/images/icons/cancel.png">
+        <img src="{{paths.shared}}frontend/images/icons/cancel.png">
         Cancel
     </button>
     <button class="fm-button accept" name="accept" data-modal-type="accept">
-        <img src="{{shared_path}}backoffice/frontend/images/icons/accept.png">
+        <img src="{{paths.shared}}frontend/images/icons/accept.png">
         Accept
     </button>
 </div>
@@ -253,7 +253,7 @@
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-order-import-date-content">
     <div class="lastupdated">
-        <img src="{{shared_path}}backoffice/frontend/images/icons/refresh.png" />
+        <img src="{{paths.shared}}frontend/images/icons/refresh.png" />
         <span class="last-header">Latest Import</span>
         Today {{import_time}}
     </div>

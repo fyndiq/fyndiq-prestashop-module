@@ -3,8 +3,11 @@
     {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
 <script type="text/javascript">
-    var module_path = '{$module_path}';
-    var shared_path = '{$shared_path}';
+    var FmPaths = {
+        module: '{$module_path}',
+        shared: '{$shared_path}',
+        service: '{$service_path}'
+    };
     var messages = {};
     {foreach $messages as $k => $v}
         messages['{$k}'] = '{$v}';

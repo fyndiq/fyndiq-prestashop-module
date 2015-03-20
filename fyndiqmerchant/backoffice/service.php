@@ -21,6 +21,44 @@ if (file_exists($configPath)) {
     exit;
 }
 
+// Set the correct shop context
+
+$shop_id = '';
+Shop::setContext(Shop::CONTEXT_ALL);
+if ($context->cookie->shopContext)
+{
+    $split = explode('-', $context->cookie->shopContext);
+    if (count($split) == 2)
+    {
+        if ($split[0] == 'g')
+        {
+            if ($context->employee->hasAuthOnShopGroup($split[1]))
+                Shop::setContext(Shop::CONTEXT_GROUP, $split[1]);
+            else
+            {
+                $shop_id = $context->employee->getDefaultShopID();
+                Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
+            }
+        }
+        elseif ($context->employee->hasAuthOnShop($split[1]))
+        {
+            $shop_id = $split[1];
+            Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
+        }
+        else
+        {
+            $shop_id = $context->employee->getDefaultShopID();
+            Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
+        }
+    }
+}
+// Replace existing shop if necessary
+if (!$shop_id)
+    $context->shop = new Shop(Configuration::get('PS_SHOP_DEFAULT'));
+else if ($context->shop->id != $shop_id)
+    $context->shop = new Shop($shop_id);
+
+
 require_once('../messages.php');
 require_once('./helpers.php');
 require_once('./models/product_export.php');
@@ -192,7 +230,7 @@ class FmAjaxService
      */
     public function import_orders($args)
     {
-        $url = "orders/";
+        $url = 'orders/';
         $date = FmConfig::get('import_date');
         if (!empty($date)) {
             $url .= '?min_date=' . urlencode($date);
