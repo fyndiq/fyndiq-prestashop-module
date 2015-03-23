@@ -53,7 +53,7 @@ class FyndiqMerchant extends Module
         $ret &= (bool)parent::install();
 
         // Create tab
-        $ret &= $this->createTab();
+        $ret &= $this->installTab();
 
         // create product mapping database
         $ret &= FmProductExport::install();
@@ -80,7 +80,7 @@ class FyndiqMerchant extends Module
         // drop product table
         $ret &= FmProductExport::uninstall();
 
-        $ret &= $this->removeTab();
+        $ret &= $this->uninstallTab();
         // drop order table
         // TODO: Should we remove the order? the order in prestashop will still be there and if reinstall it will be duplicates if this is removed.
         $ret &= FmOrder::uninstall();
@@ -89,45 +89,37 @@ class FyndiqMerchant extends Module
     }
 
     /**
+     * Install tab to the menu
+     *
+     * @return mixed
+     */
+    private function installTab()
+    {
+        $tab = new Tab();
+        $tab->active = 1;
+        $tab->class_name = 'AdminPage';
+        $tab->name = array();
+        foreach (Language::getLanguages(true) as $lang) {
+            $tab->name[$lang['id_lang']] = 'Fyndiq';
+        }
+        $tab->id_parent = (int)Tab::getIdFromClassName('AdminParentModules');
+        $tab->module = $this->name;
+        return $tab->add();
+    }
+
+    /**
      * Remove tab from menu
      *
      * @return mixed
      */
-    private function removeTab()
+    private function uninstallTab()
     {
-        $db = Db::getInstance();
-        return $db->delete('tab', 'module = "'.FmHelpers::db_escape($this->name).'"');
-    }
-
-    private function createTab()
-    {
-        $db = Db::getInstance();
-        /* define data array for the tab  */
-        $data = array(
-            'id_tab' => '',
-            'id_parent' => 13,
-            'class_name' => 'AdminPage',
-            'module' => $this->name,
-            'position' => 1,
-            'active' => 1
-        );
-
-        /* Insert the data to the tab table*/
-        $db->insert('tab', $data);
-
-        //Get last insert id from db which will be the new tab id
-        $id_tab = $db->Insert_ID();
-
-        //Define tab multi language data
-        $data_lang = array(
-            'id_tab' => $id_tab,
-            'id_lang' => Configuration::get('PS_LANG_DEFAULT'),
-            'name' => 'Fyndiq'
-        );
-
-        // Now insert the tab lang data
-        $db->insert('tab_lang', $data_lang);
-        return true;
+        $id_tab = (int)Tab::getIdFromClassName('AdminPage');
+        if ($id_tab) {
+            $tab = new Tab($id_tab);
+            return $tab->delete();
+        }
+        return false;
     }
 
     public function getContent()
