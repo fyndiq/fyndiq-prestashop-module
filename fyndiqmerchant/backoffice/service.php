@@ -306,7 +306,8 @@ class FmAjaxService
     public function update_product($args)
     {
         $result = false;
-        if (FmProductExport::productExist($args['product'])) {
+        if ( isset($args['product']) && is_numeric($args['product'])
+            && isset($args['percentage']) && is_numeric($args['percentage'])) {
             $result = FmProductExport::updateProduct($args['product'], $args['percentage']);
         }
         $this->response($result);
