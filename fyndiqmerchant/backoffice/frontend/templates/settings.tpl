@@ -45,6 +45,34 @@
                                 >
                     </div>
 
+                    <h2>{l s='Orders' mod='fyndiqmerchant'}</h2>
+
+                    <div class="form-group">
+                        <label for="fm-order-import-state">{l s='Import state' mod='fyndiqmerchant'}</label>
+                        <select name="order_import_state" id="fm-order-import-state">
+                            {foreach $order_states as $order_state}
+                                <option value="{$order_state.id_order_state}"
+                                        {if $order_state.id_order_state == $order_import_state}
+                                            selected="selected"
+                                        {/if}
+                                        >{$order_state.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fm-order-done-state">{l s='Done state' mod='fyndiqmerchant'}</label>
+                        <select name="order_done_state" id="fm-order-done-state">
+                            {foreach $order_states as $order_state}
+                                <option value="{$order_state.id_order_state}"
+                                        {if $order_state.id_order_state == $order_done_state}
+                                            selected="selected"
+                                        {/if}
+                                        >{$order_state.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+
                     <button class="btn btn-green" type="submit" name="submit_save_settings">{l s='Save Settings' mod='fyndiqmerchant'}</button>
                 </form>
                 <div class="text-right">

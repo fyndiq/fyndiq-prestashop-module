@@ -2,6 +2,11 @@
 
 class FmBackofficeControllers
 {
+
+    const DEFAULT_DISCOUNT_PERCENTAGE = 10;
+    const DEFAULT_ORDER_IMPORT_STATE = 3;
+    const DEFAULT_ORDER_DONE_STATE = 4;
+
     public static function main($module)
     {
         $output = '';
@@ -85,34 +90,30 @@ class FmBackofficeControllers
         }
 
         if ($page == 'settings') {
-            $configured_language = FmConfig::get('language');
-            $configured_price_percentage = FmConfig::get('price_percentage');
+            $selectedLanguage = FmConfig::get('language');
+            $pricePercentage = FmConfig::get('price_percentage');
+            $orderImportState = FmConfig::get('order_import_state');
+            $orderDoneState = FmConfig::get('order_done_state');
 
             # if there is a configured language, show it as selected
-            if ($configured_language) {
-                $selected_language = $configured_language;
-            } else {
-                # else show the default language as selected
-                $selected_language = Configuration::get('PS_LANG_DEFAULT');
-            }
-
-            # if there is a configured percentage, set that value
-            if ($configured_price_percentage) {
-                $typed_price_percentage = $configured_price_percentage;
-            } else {
-                # else set the default value of 10%.
-                $typed_price_percentage = 10;
-            }
+            $selectedLanguage =  $selectedLanguage ? $selectedLanguage : Configuration::get('PS_LANG_DEFAULT');
+            $pricePercentage = $pricePercentage ? $pricePercentage : self::DEFAULT_DISCOUNT_PERCENTAGE;
+            $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
+            $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
 
             $path = FmHelpers::get_module_url();
+            $context = Context::getContext();
 
             $output .= self::show_template(
                 $module,
                 'settings',
                 array(
-                    'price_percentage' => $typed_price_percentage,
+                    'price_percentage' => $pricePercentage,
                     'languages' => Language::getLanguages(),
-                    'selected_language' => $selected_language,
+                    'selected_language' => $selectedLanguage,
+                    'order_states' => OrderState::getOrderStates($context->language->id),
+                    'order_import_state' => $orderImportState,
+                    'order_done_state' => $orderDoneState,
                     'path' => $path
                 )
             );
@@ -190,10 +191,16 @@ class FmBackofficeControllers
 
     private static function handle_settings($module)
     {
-        $language_id = intval(Tools::getValue('language_id'));
-        $price_percentage = intval(Tools::getValue('price_percentage'));
-        if (FmConfig::set('language', $language_id) &&
-            FmConfig::set('price_percentage', $price_percentage)) {
+        $languageId = intval(Tools::getValue('language_id'));
+        $pricePercentage = intval(Tools::getValue('price_percentage'));
+        $orderImportState = intval(Tools::getValue('order_import_state'));
+        $orderDoneState = intval(Tools::getValue('order_done_state'));
+
+        if (FmConfig::set('language', $languageId) &&
+            FmConfig::set('price_percentage', $pricePercentage) &&
+            FmConfig::set('order_import_state', $orderImportState) &&
+            FmConfig::set('order_done_state', $orderDoneState)
+        ) {
             return array('error' => false, 'output' => '');
         }
         return array('error' => true, 'output' => '');
