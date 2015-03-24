@@ -184,6 +184,11 @@ class FmOrder
         // Save the cart
         $cart->add();
 
+        $customer = new Customer();
+        $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
+
+        $context->customer = $customer;
+
         foreach ($fyndiq_order->order_rows as $row) {
             $num_article = (int)$row->quantity;
             $cart->updateQty($num_article, $row->productId, $row->combinationId);
