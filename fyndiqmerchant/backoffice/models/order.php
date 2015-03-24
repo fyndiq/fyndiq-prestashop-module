@@ -200,7 +200,8 @@ class FmOrder
             $reference = Order::generateReference();
         }
 
-        $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
+        $id_order_state = FmConfig::get('order_import_state');
+        $id_order_state = $id_order_state ? $id_order_state : (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
         if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
@@ -436,6 +437,7 @@ class FmOrder
 
         $orders = Db::getInstance()->ExecuteS($sqlquery);
         $return = array();
+        $orderDoneState = FmConfig::get('order_done_state');
 
         foreach ($orders as $order) {
             $orderarray = $order;
@@ -451,6 +453,7 @@ class FmOrder
             $orderarray['price'] = $neworder->total_paid_real;
             $orderarray['state'] = $current_state->name[1];
             $orderarray['total_products'] = $quantity;
+            $orderarray['is_done'] = $neworder->getCurrentState() == $orderDoneState;
             $return[] = $orderarray;
 
         }
@@ -517,5 +520,16 @@ class FmOrder
         }
 
         return false;
+    }
+
+    public static function markOrderAsDone($orderId)
+    {
+        $orderDoneState = FmConfig::get('order_done_state');
+        $objOrder = new Order($orderId);
+        $history = new OrderHistory();
+        $history->id_order = (int)$objOrder->id;
+        $history->changeIdOrderState($orderDoneState, (int)$objOrder->id);
+        $currentState = new OrderState($orderDoneState);
+        return $currentState->name[1];
     }
 }
