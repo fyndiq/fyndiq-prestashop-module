@@ -195,7 +195,8 @@ class FmOrder
             $reference = Order::generateReference();
         }
 
-        $id_order_state = (int)Configuration::get('PS_OS_PREPARATION');
+        $id_order_state = FmConfig::get('order_import_state');
+        $id_order_state = $id_order_state ? $id_order_state : (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
         if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
