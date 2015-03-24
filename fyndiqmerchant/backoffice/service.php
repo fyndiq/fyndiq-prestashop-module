@@ -222,6 +222,15 @@ class FmAjaxService
         $this->response($object);
     }
 
+    public function update_order_status($args)
+    {
+        if (isset($args['id']) && is_numeric($args['id'])) {
+            $orderId = intval($args['id']);
+            return $this->response(FmOrder::markOrderAsDone($orderId));
+        }
+        $this->response(false);
+    }
+
     /**
      * Getting the orders to be saved in Prestashop.
      *

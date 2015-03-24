@@ -229,7 +229,13 @@
             <td class="center">{{fyndiq_orderid}}</td>
             <td class="center">{{price}}</td>
             <td class="center">{{total_products}}</td>
-            <td class="center">{{state}}</td>
+            <td class="center">
+                {{#if is_done}}
+                {{state}}
+                {{else}}
+                <a href="#" class="change-order-state" title="Mark order as done">{{state}}</a>
+                {{/if}}
+            </td>
             <td class="center">{{created_at}} <span class="shadow">({{created_at_time}})</span></td>
         </tr>
         {{/with}}
