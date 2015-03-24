@@ -18,7 +18,8 @@ require_once('./helpers.php');
 require_once('./models/product_export.php');
 require_once('./models/config.php');
 require_once('./models/product.php');
-require_once('./includes/fileHandler.php');
+require_once('./includes/shared/src/FyndiqFeedWriter.php');
+require_once('./includes/shared/src/FyndiqCSVFeedWriter.php');
 
 class FilePageController
 {
