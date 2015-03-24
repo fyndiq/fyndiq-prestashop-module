@@ -191,7 +191,7 @@ class FmProductExport
         $exportProduct['article-quantity'] = 0;
         $exportProduct['product-description'] = $storeProduct['description'];
 
-        $price = $storeProduct['price'] - ($storeProduct['price'] * ($fmProduct['exported_price_percentage'] / 100));
+        $price = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
         $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
         $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
         $exportProduct['product-brand'] = $storeProduct['manufacturer_name'];

@@ -119,7 +119,7 @@ a.fm-button:hover {
     .fm-panel .fm-panel-body.no-padding {
       padding: 0; }
   .fm-panel .no-padding p {
-    padding: 1em; }
+    margin: 1em; }
 
 .form-horizontal fieldset {
   background-color: transparent;
