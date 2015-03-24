@@ -175,17 +175,17 @@ class FmAjaxService
             # if there is a configured precentage, set that value
             if (FmProductExport::productExist($row['id_product'])) {
                 $productexport = FmProductExport::getProduct($row['id_product']);
-                $typed_percentage = $productexport['exported_price_percentage'];
+                $discountPercentage = $productexport['exported_price_percentage'];
             } else {
                 # else set the default value of 10%.
-                $typed_percentage = FmConfig::get('price_percentage');
+                $discountPercentage = FmConfig::get('price_percentage');
             }
 
-            $product['fyndiq_precentage'] = $typed_percentage;
+            $product['fyndiq_precentage'] = $discountPercentage;
             $product['fyndiq_quantity'] = $product['quantity'];
             $product['fyndiq_exported'] = FmProductExport::productExist($row['id_product']);
             $product['expected_price'] = number_format(
-                (float)($product['price'] - (($typed_percentage / 100) * $product['price'])),
+                (float)FyndiqUtils::getFyndiqPrice($product['price'], $discountPercentage),
                 2,
                 '.',
                 ''
@@ -199,7 +199,7 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmProduct::getAmount($args['category']);
-        $object->pagination = $this->getPaginationHTML($total, $page);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page);
         $this->response($object);
     }
 
@@ -218,7 +218,7 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmOrder::getAmount();
-        $object->pagination = $this->getPaginationHTML($total, $page);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page);
         $this->response($object);
     }
 
@@ -351,58 +351,6 @@ class FmAjaxService
                 FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
         }
-    }
-
-    /**
-     * Generates pagination HTML
-     *
-     * @param $total - total number of items
-     * @param $currentPage - current page
-     * @return string - html string for pagination
-     */
-    private function getPaginationHTML($total, $currentPage)
-    {
-        $html = '';
-        if ($total > self::itemPerPage) {
-            $pages = (int)($total / self::itemPerPage);
-            $count = ($total % self::itemPerPage == 0) ? $pages : $pages + 1;
-            $start = 1;
-
-            $html .= '<ol class="pageslist">';
-
-            $end = $start + self::pageFrame;
-            if ($currentPage != 1) {
-                $start = $currentPage - 1;
-                $end = $start + self::pageFrame;
-            }
-            if ($end > $count) {
-                $start = $count - (self::pageFrame - 1);
-            } else {
-                $count = $end - 1;
-            }
-
-            if ($currentPage > $count - 1) {
-                $html .= '<li><a href="#" data-page="' . ($currentPage - 1) . '">&lt;</a></li>';
-            }
-
-            for ($i = $start; $i <= $count; $i++) {
-                if ($i >= 1) {
-                    if ($currentPage) {
-                        $html .= ($currentPage == $i) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
-                    } else {
-                        $html .= ($i == 1) ? '<li class="current">' . $i . '</li>' : '<li><a href="#" data-page="' . $i . '">' . $i . '</a></li>';
-                    }
-                }
-            }
-
-            if ($currentPage < $count) {
-                $html .= '<li><a href="#" data-page="' . ($currentPage + 1) . '">&gt;</a></li>';
-            }
-
-            $html .= '</ol>';
-        }
-
-        return $html;
     }
 }
 
