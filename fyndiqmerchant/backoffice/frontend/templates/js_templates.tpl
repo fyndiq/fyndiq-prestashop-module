@@ -229,12 +229,8 @@
             <td class="center">{{fyndiq_orderid}}</td>
             <td class="center">{{price}}</td>
             <td class="center">{{total_products}}</td>
-            <td class="center">
+            <td class="center state">
                 {{state}}
-                <br />
-                {{#unless is_done}}
-                <a href="#" class="change-order-state">Mark order as done</a>
-                {{/unless}}
             </td>
             <td class="center">{{created_at}} <span class="shadow">({{created_at_time}})</span></td>
         </tr>
@@ -252,6 +248,7 @@
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-order-list-controls">
     <div class="fm-order-list-controls">
         <div class="export">
+            <button type="submit" class="fm-button green markasdone">Mark As Done</button>
             <button type="submit" class="fm-button green getdeliverynote">Get Delivery Notes</button>
         </div>
     </div>

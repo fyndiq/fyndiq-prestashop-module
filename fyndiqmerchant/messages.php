@@ -26,6 +26,9 @@ class FmMessages {
         'orders-imported-title'=>       'Orders imported!',
         'orders-imported-message'=>    'The orders from Fyndiq have been imported to Prestashop.',
 
+        'orders-state-updated-title'=>       'Orders Updated!',
+        'orders-state-updated-message'=>    'The selected orders state has now been updated to the new state.',
+
         'products-not-selected-title'=>     'No products selected',
         'products-not-selected-message'=>   'You have to select at least one product to export.',
 
