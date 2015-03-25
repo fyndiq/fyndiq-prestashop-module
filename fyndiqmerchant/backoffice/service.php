@@ -225,13 +225,17 @@ class FmAjaxService
     public function update_order_status($args)
     {
         if(isset($args['orders']) && is_array($args['orders'])) {
+            $donestate = "";
             foreach($args['orders'] as $order) {
                 if (is_numeric($order)) {
-                    return $this->response(FmOrder::markOrderAsDone($order));
+                   $donestate = FmOrder::markOrderAsDone($order);
                 }
             }
+            $this->response($donestate);
         }
-        $this->response(false);
+        else {
+            $this->response(false);
+        }
     }
 
     /**
