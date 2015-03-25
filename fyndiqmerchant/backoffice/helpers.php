@@ -50,6 +50,8 @@ class FmHelpers
     {
         $ret = true;
         $ret = $ret && FmConfig::get('language') !== false;
+        $ret = $ret && FmConfig::get('import_state') !== false;
+        $ret = $ret && FmConfig::get('done_state') !== false;
 
         return $ret;
     }

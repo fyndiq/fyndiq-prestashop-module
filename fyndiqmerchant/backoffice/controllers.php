@@ -92,8 +92,8 @@ class FmBackofficeControllers
         if ($page == 'settings') {
             $selectedLanguage = FmConfig::get('language');
             $pricePercentage = FmConfig::get('price_percentage');
-            $orderImportState = FmConfig::get('order_import_state');
-            $orderDoneState = FmConfig::get('order_done_state');
+            $orderImportState = FmConfig::get('import_state');
+            $orderDoneState = FmConfig::get('done_state');
 
             # if there is a configured language, show it as selected
             $selectedLanguage =  $selectedLanguage ? $selectedLanguage : Configuration::get('PS_LANG_DEFAULT');
@@ -198,8 +198,8 @@ class FmBackofficeControllers
 
         if (FmConfig::set('language', $languageId) &&
             FmConfig::set('price_percentage', $pricePercentage) &&
-            FmConfig::set('order_import_state', $orderImportState) &&
-            FmConfig::set('order_done_state', $orderDoneState)
+            FmConfig::set('import_state', $orderImportState) &&
+            FmConfig::set('done_state', $orderDoneState)
         ) {
             return array('error' => false, 'output' => '');
         }
