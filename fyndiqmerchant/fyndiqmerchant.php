@@ -74,8 +74,8 @@ class FyndiqMerchant extends Module
         $ret &= (bool)FmConfig::delete('language');
         $ret &= (bool)FmConfig::delete('price_percentage');
         $ret &= (bool)FmConfig::delete('import_date');
-        $ret &= (bool)FmConfig::delete('order_import_state');
-        $ret &= (bool)FmConfig::delete('order_done_state');
+        $ret &= (bool)FmConfig::delete('import_state');
+        $ret &= (bool)FmConfig::delete('done_state');
 
         // drop product table
         $ret &= FmProductExport::uninstall();

@@ -251,9 +251,9 @@ class FmAjaxService
                     FmOrder::create($order);
                 }
             }
-            $newdate = date('Y-m-d H:i:s');
-            FmConfig::set('import_date', $newdate);
-            $time = date('G:i:s', strtotime($newdate));
+            $newDate = date('Y-m-d H:i:s');
+            FmConfig::set('import_date', $newDate);
+            $time = date('G:i:s', strtotime($newDate));
             $this->response($time);
         } catch (Exception $e) {
             $this->response_error(

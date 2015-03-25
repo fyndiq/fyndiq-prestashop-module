@@ -21,7 +21,7 @@ class FmOrder
     const FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS = 'Delivery';
     const FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS = 'Invoice';
 
-    const FYNDIQ_ORDERS_MODULE = 'fyndiq';
+    const FYNDIQ_ORDERS_MODULE = 'fyndiqmerchant';
     const FYNDIQ_PAYMENT_METHOD = 'Fyndiq';
 
     const DEFAULT_LANGUAGE_ID = 1;
@@ -200,7 +200,7 @@ class FmOrder
             $reference = Order::generateReference();
         }
 
-        $id_order_state = FmConfig::get('order_import_state');
+        $id_order_state = FmConfig::get('import_state');
         $id_order_state = $id_order_state ? $id_order_state : (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
@@ -344,12 +344,7 @@ class FmOrder
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
-            $order_payment = new OrderPayment();
-            $order_payment->id_currency = $cart->id_currency;
-            $order_payment->amount = $presta_order->total_products_wt;
-            $order_payment->payment_method = self::FYNDIQ_PAYMENT_METHOD;
-            $order_payment->order_reference = $reference;
-            $order_payment->add();
+            $presta_order->addOrderPayment($presta_order->total_products_wt, self::FYNDIQ_PAYMENT_METHOD);
         }
 
         // create state in history
@@ -401,12 +396,7 @@ class FmOrder
         LIMIT 1;
         '
         );
-
-        if (count($orders) > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return count($orders) > 0;
     }
 
     /**
@@ -437,7 +427,7 @@ class FmOrder
 
         $orders = Db::getInstance()->ExecuteS($sqlquery);
         $return = array();
-        $orderDoneState = FmConfig::get('order_done_state');
+        $orderDoneState = FmConfig::get('done_state');
 
         foreach ($orders as $order) {
             $orderarray = $order;
@@ -524,11 +514,11 @@ class FmOrder
 
     public static function markOrderAsDone($orderId)
     {
-        $orderDoneState = FmConfig::get('order_done_state');
+        $orderDoneState = FmConfig::get('done_state');
         $objOrder = new Order($orderId);
         $history = new OrderHistory();
         $history->id_order = (int)$objOrder->id;
-        $history->changeIdOrderState($orderDoneState, (int)$objOrder->id);
+        $history->changeIdOrderState($orderDoneState, $objOrder);
         $currentState = new OrderState($orderDoneState);
         return $currentState->name[1];
     }
