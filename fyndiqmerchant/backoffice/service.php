@@ -224,9 +224,12 @@ class FmAjaxService
 
     public function update_order_status($args)
     {
-        if (isset($args['id']) && is_numeric($args['id'])) {
-            $orderId = intval($args['id']);
-            return $this->response(FmOrder::markOrderAsDone($orderId));
+        if(isset($args['orders']) && is_array($args['orders'])) {
+            foreach($args['orders'] as $order) {
+                if (is_numeric($order)) {
+                    return $this->response(FmOrder::markOrderAsDone($order));
+                }
+            }
         }
         $this->response(false);
     }
