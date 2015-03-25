@@ -401,12 +401,7 @@ class FmOrder
         LIMIT 1;
         '
         );
-
-        if (count($orders) > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return count($orders) > 0;
     }
 
     /**
