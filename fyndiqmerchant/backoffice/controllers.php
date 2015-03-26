@@ -124,7 +124,7 @@ class FmBackofficeControllers
                 $module,
                 'main',
                 array(
-                    'messages' => FmMessages::get_all(),
+                    'messages' => FyndiqTranslation::getAll(),
                     'language' => new Language(FmConfig::get('language')),
                     'currency' => new Currency(FmConfig::get('currency')),
                     'username' => FmConfig::get('username'),
@@ -143,7 +143,7 @@ class FmBackofficeControllers
                     'import_date' => $import_date,
                     'isToday' => $isToday,
                     'import_time' => date('G:i:s', strtotime($import_date)),
-                    'messages' => FmMessages::get_all(),
+                    'messages' => FyndiqTranslation::getAll(),
                     'path' => $path
                 )
             );
@@ -164,7 +164,7 @@ class FmBackofficeControllers
         # validate parameters
         if (empty($username) || empty($api_token)) {
             $error = true;
-            $output .= $module->displayError($module->l(FmMessages::get('empty-username-token')));
+            $output .= $module->displayError(FyndiqTranslation::get('empty-username-token'));
 
             # ready to perform authentication
         } else {
@@ -179,7 +179,7 @@ class FmBackofficeControllers
                 Tools::redirect(FmHelpers::get_module_url());
             } catch (Exception $e) {
                 $error = true;
-                $output .= $module->displayError($module->l($e->getMessage()));
+                $output .= $module->displayError($e->getMessage());
 
                 FmConfig::delete('username');
                 FmConfig::delete('api_token');
@@ -211,7 +211,7 @@ class FmBackofficeControllers
         # delete stored connection values
         if (FmConfig::delete('username') &&
             FmConfig::delete('api_token')) {
-            $output = $module->displayConfirmation($module->l(FmMessages::get('account-disconnected')));
+            $output = $module->displayConfirmation(FyndiqTranslation::get('account-disconnected'));
             return array('error' => false, 'output' => $output);
         }
         return array('error' => true, 'output' => '');

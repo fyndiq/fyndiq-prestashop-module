@@ -11,7 +11,6 @@ if (file_exists($configPath)) {
     exit;
 }
 
-require_once('../messages.php');
 require_once('./helpers.php');
 
 

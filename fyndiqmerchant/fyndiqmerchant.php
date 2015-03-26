@@ -4,7 +4,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once('messages.php');
 require_once('backoffice/models/config.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/init.php';
@@ -18,7 +17,6 @@ class FyndiqMerchant extends Module
 
     public function __construct()
     {
-
         $this->config_name = 'FYNDIQMERCHANT';
         $this->name = 'fyndiqmerchant';
         $this->tab = 'market_place';
@@ -28,13 +26,14 @@ class FyndiqMerchant extends Module
         $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6.7');
 
         parent::__construct();
-
-        $this->displayName = $this->l('Fyndiq');
-        $this->description = $this->l('dfasdf');
-        $this->confirmUninstall = $this->l(FmMessages::get('uninstall-confirm'));
+        //Init translations
+        FyndiqTranslation::init(Language::getIsoById($this->context->language->id));
+        $this->displayName = 'Fyndiq';
+        $this->description = FyndiqTranslation::get('module-description');
+        $this->confirmUninstall = FyndiqTranslation::get('uninstall-confirm');
 
         if (FmHelpers::api_connection_exists($this)) {
-            $this->warning = $this->l(FmMessages::get('not-authenticated-warning'));
+            $this->warning = $this->l(FyndiqTranslation::get('not-authenticated-warning'));
         }
 
         // custom properties specific to this module
