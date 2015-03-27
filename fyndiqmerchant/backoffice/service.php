@@ -360,12 +360,9 @@ class FmAjaxService
                 fclose($fp);
                 die();
             }
-            $this->response(true);
+            echo FmMessages::get('unhandled-error-message');
         } catch (Exception $e) {
-            $this->response_error(
-                FmMessages::get('unhandled-error-title'),
-                FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
-            );
+            echo $e->getMessage();
         }
     }
 }

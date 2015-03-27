@@ -27,6 +27,9 @@
 .muted {
   color: #999; }
 
+.hidden {
+  display: none; }
+
 .fm-header {
   background-color: #fff; }
 
@@ -65,8 +68,8 @@
   padding: 6px 12px;
   text-decoration: none; }
 
-a.btn:hover,
-a.fm-button:hover {
+.btn:hover,
+.fm-button:hover {
   text-decoration: none; }
 
 .fm-button.green,
@@ -138,9 +141,9 @@ a.fm-button:hover {
   height: 2em; }
 
 .fm-panel table {
+  border-collapse: collapse;
   font-size: 11pt;
-  width: 100%;
-  border-collapse: collapse; }
+  width: 100%; }
   .fm-panel table th {
     background-color: #f5f8fb;
     font-size: 9pt; }
