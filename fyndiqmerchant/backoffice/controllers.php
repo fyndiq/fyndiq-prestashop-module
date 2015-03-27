@@ -108,6 +108,8 @@ class FmBackofficeControllers
                 $module,
                 'settings',
                 array(
+                    'json_messages' => json_encode(FyndiqTranslation::getAll()),
+                    'messages' => FyndiqTranslation::getAll(),
                     'price_percentage' => $pricePercentage,
                     'languages' => Language::getLanguages(),
                     'selected_language' => $selectedLanguage,
@@ -124,6 +126,7 @@ class FmBackofficeControllers
                 $module,
                 'main',
                 array(
+                    'json_messages' => json_encode(FyndiqTranslation::getAll()),
                     'messages' => FyndiqTranslation::getAll(),
                     'language' => new Language(FmConfig::get('language')),
                     'currency' => new Currency(FmConfig::get('currency')),
@@ -143,6 +146,7 @@ class FmBackofficeControllers
                     'import_date' => $import_date,
                     'isToday' => $isToday,
                     'import_time' => date('G:i:s', strtotime($import_date)),
+                    'json_messages' => json_encode(FyndiqTranslation::getAll()),
                     'messages' => FyndiqTranslation::getAll(),
                     'path' => $path
                 )

@@ -10,10 +10,7 @@
         shared: '{$shared_path}',
         service: '{$service_path}'
     };
-    var messages = {};
-    {foreach $messages as $k => $v}
-        messages['{$k}'] = '{$v}';
-    {/foreach}
+    var messages = {$json_messages};
 </script>
 <script type="text/javascript" src="{$shared_path}frontend/js/handlebars-v1.1.2.js"></script>
 <script type="text/javascript" src="{$shared_path}frontend/js/FmGui.js"></script>

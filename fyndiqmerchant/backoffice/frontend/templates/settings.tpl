@@ -2,6 +2,10 @@
 <style type="text/css">
     {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
+<script type="text/javascript">
+    var messages = {$json_messages};
+</script>
+
 <div class="fm-container">
 
     {include file='./header.tpl' current='settings' buttons=true}
