@@ -225,7 +225,7 @@
         {{#with this}}
         <tr data-id="{{order_id}}" data-fyndiqid="{{fyndiq_orderid}}">
             <td class="select center"><input type="checkbox" value="{{fyndiq_orderid}}" name="args[orders][]" id="select_order_{{entity_id}}"></td>
-            <td class="center">{{order_id}}</td>
+            <td class="center"><a href="{{link}}">{{order_id}}</a></td>
             <td class="center">{{fyndiq_orderid}}</td>
             <td class="center">{{price}}</td>
             <td class="center">{{total_products}}</td>
