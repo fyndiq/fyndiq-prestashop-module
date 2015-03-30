@@ -159,7 +159,7 @@ class FmBackofficeControllers
     }
 
     private static function orderStateCheck($state) {
-        return !OrderState::invoiceAvailable($state['id_order_state']);
+        return OrderState::invoiceAvailable($state['id_order_state']);
     }
 
     private static function handle_authentication($module)
