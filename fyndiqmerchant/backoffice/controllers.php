@@ -107,13 +107,7 @@ class FmBackofficeControllers
 
 
             $orderStates = OrderState::getOrderStates($context->language->id);
-            $states = array();
-            foreach($orderStates as $state) {
-                if(!OrderState::invoiceAvailable($state['id_order_state']))
-                {
-                    $states[] = $state;
-                }
-            }
+            $states = array_filter($orderStates, array('FmBackofficeControllers', 'orderStateCheck'));
 
 
             $output .= self::show_template(
@@ -162,6 +156,10 @@ class FmBackofficeControllers
         }
 
         return $output;
+    }
+
+    private static function orderStateCheck($state) {
+        return !OrderState::invoiceAvailable($state['id_order_state']);
     }
 
     private static function handle_authentication($module)
