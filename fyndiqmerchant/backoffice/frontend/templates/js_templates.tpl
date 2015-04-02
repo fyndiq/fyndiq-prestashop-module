@@ -109,7 +109,6 @@
 
 <script type="text/x-handlebars-template" class="handlebars-partial" id="fm-product-list-controls">
     <div class="fm-product-list-controls">
-        <button class="fm-button green fm-update-product-status">Update status</button>
         <div class="export">
             <a class="fm-button disabled fm-delete-products">Remove from Fyndiq</a>
             <a class="fm-button green fm-export-products">Send to Fyndiq</a>
