@@ -186,7 +186,7 @@ class FmProductExport
     private static function getProductData($storeProduct, $fmProduct, $currentCurrency)
     {
         $exportProduct = array();
-        $exportProduct['product-id'] = $fmProduct['product_id'];
+        $exportProduct['product-id'] = $fmProduct['id'];
         $exportProduct['product-currency'] = $currentCurrency;
         $exportProduct['article-quantity'] = 0;
         $exportProduct['product-description'] = $storeProduct['description'];
