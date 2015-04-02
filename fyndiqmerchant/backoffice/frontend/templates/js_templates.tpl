@@ -186,11 +186,7 @@
                     {{quantity}}
                 </td>
                 <td class="status text-center">
-                    {{#if fyndiq_exported}}
-                    <i class="icon on big"></i>
-                    {{else}}
-                    <i class="icon noton big"></i>
-                    {{/if}}
+                    <i class="icon {{fyndiq_status}} big"></i>
                 </td>
             </tr>
             {{/with}}

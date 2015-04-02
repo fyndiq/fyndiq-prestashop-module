@@ -51,10 +51,8 @@ class FmProductExport
     public static function getProduct($product_id)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}' LIMIT 1";
-        $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-
-        return reset($products);
+        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}'";
+        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
     }
 
     /**
