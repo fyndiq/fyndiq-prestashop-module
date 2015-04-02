@@ -366,10 +366,17 @@ class FmAjaxService
         }
     }
 
-    public function update_product_status($args) {
+    public function update_product_status() {
         try {
-            FmProduct::updateProductStatus();
-            $this->response(true);
+            $ret = FmHelpers::call_api('GET', 'product_info/');
+            $module = Module::getInstanceByName('fyndiqmerchant');
+            $tableName = $module->config_name . '_products';
+            $db = DB::getInstance();
+            $result = true;
+            foreach ($ret['data'] as $statusRow) {
+                $result &= FmProduct::updateProductStatus($db, $tableName, $statusRow->identifier, $statusRow->for_sale);
+            }
+            $this->response($result);
         } catch (Exception $e) {
             $this->response_error(
                 FmMessages::get('unhandled-error-title'),
