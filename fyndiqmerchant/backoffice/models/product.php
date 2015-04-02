@@ -169,4 +169,8 @@ class FmProduct
 
         return $rows;
     }
+
+    public static function updateProductStatus() {
+
+    }
 }

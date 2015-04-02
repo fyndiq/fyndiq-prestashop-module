@@ -365,6 +365,18 @@ class FmAjaxService
             echo $e->getMessage();
         }
     }
+
+    public function update_product_status($args) {
+        try {
+            FmProduct::updateProductStatus();
+            $this->response(true);
+        } catch (Exception $e) {
+            $this->response_error(
+                FmMessages::get('unhandled-error-title'),
+                FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
+            );
+        }
+    }
 }
 
 $ajaxService = new FmAjaxService();
