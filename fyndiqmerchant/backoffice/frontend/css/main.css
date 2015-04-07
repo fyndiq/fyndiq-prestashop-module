@@ -156,7 +156,8 @@
   width: 100%; }
   .fm-panel table th {
     background-color: #f5f8fb;
-    font-size: 9pt; }
+    font-size: 9pt;
+    text-align: center; }
   .fm-panel table td,
   .fm-panel table th {
     border-bottom: 1px solid #e3e8ec;
@@ -316,6 +317,10 @@
   margin: 1em;
   text-align: right;
   width: 350px; }
+
+.fm-update-product-status {
+  float: left;
+  margin: 1em; }
 
 .fm-orderlist-panel {
   float: left;
