@@ -188,7 +188,12 @@ class FmBackofficeControllers
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $api_token);
-                self::_updateFeedurl(FmHelpers::get_module_url(false) . 'modules/fyndiqmerchant/backoffice/filePage.php');
+                $base = FmHelpers::get_module_url(false);
+                $updateData = array(
+                    'product_feed_url' => $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
+                    'notification_url' => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php'
+                );
+                self::_updateFeedurl($updateData);
                 sleep(1);
                 Tools::redirect(FmHelpers::get_module_url());
             } catch (Exception $e) {
@@ -232,11 +237,9 @@ class FmBackofficeControllers
     }
 
 
-    private static function _updateFeedurl($path)
+    private static function _updateFeedurl($data)
     {
-        $object = new stdClass();
-        $object->product_feed_url = $path;
-        FmHelpers::call_api('PATCH', 'settings/', $object);
+        FmHelpers::call_api('PATCH', 'settings/', $data);
     }
 
     private static function show_template($module, $name, $args = array())
