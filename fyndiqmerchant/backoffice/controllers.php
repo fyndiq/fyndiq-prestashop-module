@@ -253,7 +253,12 @@ class FmBackofficeControllers
             )
         );
         $smarty->assign($template_args);
+        $smarty->registerPlugin('function','fi18n', array('FmBackofficeControllers', 'fi18n'));
 
         return $module->display($module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
+    }
+
+    public static function fi18n($params) {
+        return FyndiqTranslation::get($params['s']);
     }
 }

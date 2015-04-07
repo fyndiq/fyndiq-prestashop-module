@@ -23,7 +23,7 @@
     <div class="fm-content-wrapper">
         <div class="fm-left-sidebar">
             <div class="fm-panel">
-                <div class="fm-panel-header">Categories</div>
+                <div class="fm-panel-header">{fi18n s="Categories"}</div>
                 <div class="fm-panel-body fm-category-tree-container no-padding"></div>
             </div>
         </div>
@@ -31,12 +31,12 @@
         <div class="fm-product-panel">
             <div class="fm-panel">
                 <div class="fm-panel-header">
-                    Products: <span id="categoryname"></span>
-                    <div class="legend"><i class="icon on"></i> On Fyndiq  <i class="icon pending"></i> Pending <i class="icon noton"></i> Not On Fyndiq </div>
+                    {fi18n s='Products'}: <span id="categoryname"></span>
+                    <div class="legend"><i class="icon on"></i> {fi18n s='On Fyndiq'}  <i class="icon pending"></i> {fi18n s='Pending'} <i class="icon noton"></i> {fi18n s='Not On Fyndiq'} </div>
                 </div>
                 <div class="fm-panel-body no-padding">
                     <form action="" method="post" class="fm-form products">
-                        <p class="info">By using this form, you can export products from the local webshop into Fyndiq.</p>
+                        <p class="info">{fi18n s='By using this form, you can export products from the local webshop into Fyndiq.'}</p>
                         <div class="fm-product-list-container"></div>
                     </form>
                 </div>
