@@ -27,8 +27,18 @@
 .muted {
   color: #999; }
 
+.hidden {
+  display: none; }
+
 .fm-header {
   background-color: #fff; }
+
+.fm-switcher {
+  background-color: #fff;
+  border: 0;
+  margin-bottom: 0;
+  padding-left: 5px;
+  padding-top: 10px; }
 
 .fm-header-wrapper {
   height: 90px;
@@ -65,8 +75,8 @@
   padding: 6px 12px;
   text-decoration: none; }
 
-a.btn:hover,
-a.fm-button:hover {
+.btn:hover,
+.fm-button:hover {
   text-decoration: none; }
 
 .fm-button.green,
@@ -109,10 +119,13 @@ a.fm-button:hover {
     background-color: #799ec4;
     color: #fff;
     font-size: 15pt;
+    line-height: 28px;
     padding: .4em; }
     .fm-panel .fm-panel-header .legend {
       float: right;
       font-size: 10pt;
+      height: 20px;
+      line-height: 19px;
       margin-top: 4px; }
   .fm-panel .fm-panel-body {
     padding: 1em; }
@@ -138,12 +151,13 @@ a.fm-button:hover {
   height: 2em; }
 
 .fm-panel table {
+  border-collapse: collapse;
   font-size: 11pt;
-  width: 100%;
-  border-collapse: collapse; }
+  width: 100%; }
   .fm-panel table th {
     background-color: #f5f8fb;
-    font-size: 9pt; }
+    font-size: 9pt;
+    text-align: center; }
   .fm-panel table td,
   .fm-panel table th {
     border-bottom: 1px solid #e3e8ec;
@@ -289,15 +303,24 @@ a.fm-button:hover {
   margin: -2px 3px 0 0;
   padding: 2px;
   width: 20px; }
+.fm-products-list-container .prices input:disabled {
+  background-color: #e3e3e3; }
 
 .info {
   margin: 1em; }
+
+.fm-product-list-controls, .fm-order-list-controls {
+  overflow: auto; }
 
 .export {
   float: right;
   margin: 1em;
   text-align: right;
   width: 350px; }
+
+.fm-update-product-status {
+  float: left;
+  margin: 1em; }
 
 .fm-orderlist-panel {
   float: left;

@@ -158,12 +158,10 @@ class FmAjaxService
         // get currency
         $current_currency = Currency::getDefaultCurrency()->iso_code;
 
-        if (isset($args['page']) AND $args['page'] > 0) {
-            $rows = FmProduct::get_by_category($args['category'], $args['page'], self::itemPerPage);
-        } else {
-            $rows = FmProduct::get_by_category($args['category'], 1, self::itemPerPage);
-        }
+        $page = (isset($args['page']) AND $args['page'] > 0) ? intval($args['page']) : 1;
+        $rows = FmProduct::get_by_category($args['category'], $page, self::itemPerPage);
 
+        $discountPercentage = FmConfig::get('price_percentage');
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
@@ -171,25 +169,28 @@ class FmAjaxService
             if (empty($product)) {
                 continue;
             }
-            # if there is a configured precentage, set that value
-            if (FmProductExport::productExist($row['id_product'])) {
-                $productexport = FmProductExport::getProduct($row['id_product']);
-                $discountPercentage = $productexport['exported_price_percentage'];
-            } else {
-                # else set the default value of 10%.
-                $discountPercentage = FmConfig::get('price_percentage');
+
+            $product['currency'] = $current_currency;
+            $product['fyndiq_quantity'] = $product['quantity'];
+            $product['fyndiq_status'] = 'noton';
+
+            $fynProduct = FmProductExport::getProduct($row['id_product']);
+            if ($fynProduct) {
+                $discountPercentage = $fynProduct['exported_price_percentage'];
+                $product['fyndiq_exported'] = true;
+                switch ($fynProduct['state']) {
+                    case 'FOR_SALE' : $product['fyndiq_status'] = 'on'; break;
+                    default: $product['fyndiq_status'] = 'pending';
+                }
             }
 
             $product['fyndiq_precentage'] = $discountPercentage;
-            $product['fyndiq_quantity'] = $product['quantity'];
-            $product['fyndiq_exported'] = FmProductExport::productExist($row['id_product']);
             $product['expected_price'] = number_format(
                 (float)FyndiqUtils::getFyndiqPrice($product['price'], $discountPercentage),
                 2,
                 '.',
                 ''
             );
-            $product['currency'] = $current_currency;
             $products[] = $product;
         }
         $object = new stdClass();
@@ -359,7 +360,23 @@ class FmAjaxService
                 fclose($fp);
                 die();
             }
-            echo FyndiqTranslation::get('unhandled-error-message');
+            echo FmMessages::get('unhandled-error-message');
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    public function update_product_status() {
+        try {
+            $ret = FmHelpers::call_api('GET', 'product_info/');
+            $module = Module::getInstanceByName('fyndiqmerchant');
+            $tableName = $module->config_name . '_products';
+            $db = DB::getInstance();
+            $result = true;
+            foreach ($ret['data'] as $statusRow) {
+                $result &= FmProduct::updateProductStatus($db, $tableName, $statusRow->identifier, $statusRow->for_sale);
+            }
+            $this->response($result);
         } catch (Exception $e) {
             $this->response_error(
                 FmMessages::get('unhandled-error-title'),

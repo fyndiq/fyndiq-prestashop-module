@@ -25,11 +25,12 @@
             <div class="fm-panel">
                 <div class="fm-panel-header">Imported Orders</div>
                 <div class="fm-panel-body no-padding">
-                    <form action="{$service_path}" method="post" class="fm-form orders-form">
+                    <form action="{$service_path}" method="post" target="download" class="fm-form orders-form">
                         <input type="hidden" name="action" value="get_delivery_notes" />
                         <input type="hidden" name="isService" value="1" />
                         <div class="fm-order-list-container"></div>
                     </form>
+                    <iframe class="hidden" name="download" id="download"></iframe>
                 </div>
             </div>
         </div>

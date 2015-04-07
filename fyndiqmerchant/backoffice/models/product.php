@@ -169,4 +169,18 @@ class FmProduct
 
         return $rows;
     }
+
+    /**
+     * Update product status
+     *
+     * @param DbCore $db
+     * @param string $tableName
+     * @param string $id
+     * @param string $status
+     * @return bool
+     */
+    public static function updateProductStatus($db, $tableName, $id, $status) {
+        $where = 'id=' . $db->escape($id);
+        return $db->update($tableName, array('state' => $status), $where);
+    }
 }

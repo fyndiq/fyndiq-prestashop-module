@@ -438,12 +438,15 @@ class FmOrder
             foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
+            $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
+            $url .= '&token='.Tools::getAdminTokenLite('AdminOrders');
             $orderarray['created_at'] = date('Y-m-d', strtotime($neworder->date_add));
             $orderarray['created_at_time'] = date('G:i:s', strtotime($neworder->date_add));
             $orderarray['price'] = $neworder->total_paid_real;
             $orderarray['state'] = $current_state->name[1];
             $orderarray['total_products'] = $quantity;
             $orderarray['is_done'] = $neworder->getCurrentState() == $orderDoneState;
+            $orderarray['link'] = $url;
             $return[] = $orderarray;
 
         }

@@ -125,6 +125,7 @@
 </script>
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
+    <a class="fm-button green fm-update-product-status">Update status</a>
     {{> fm-product-list-controls}}
     <div class="fm-products-list-container">
         {{#if products}}
@@ -186,11 +187,7 @@
                     {{quantity}}
                 </td>
                 <td class="status text-center">
-                    {{#if fyndiq_exported}}
-                    <i class="icon on big"></i>
-                    {{else}}
-                    <i class="icon noton big"></i>
-                    {{/if}}
+                    <i class="icon {{fyndiq_status}} big"></i>
                 </td>
             </tr>
             {{/with}}
@@ -225,7 +222,7 @@
         {{#with this}}
         <tr data-id="{{order_id}}" data-fyndiqid="{{fyndiq_orderid}}">
             <td class="select center"><input type="checkbox" value="{{fyndiq_orderid}}" name="args[orders][]" id="select_order_{{entity_id}}"></td>
-            <td class="center">{{order_id}}</td>
+            <td class="center"><a href="{{link}}">{{order_id}}</a></td>
             <td class="center">{{fyndiq_orderid}}</td>
             <td class="center">{{price}}</td>
             <td class="center">{{total_products}}</td>

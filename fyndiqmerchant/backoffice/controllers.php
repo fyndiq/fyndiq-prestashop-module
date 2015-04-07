@@ -95,14 +95,20 @@ class FmBackofficeControllers
             $orderImportState = FmConfig::get('import_state');
             $orderDoneState = FmConfig::get('done_state');
 
+
+            $path = FmHelpers::get_module_url();
+            $context = Context::getContext();
+
             # if there is a configured language, show it as selected
             $selectedLanguage =  $selectedLanguage ? $selectedLanguage : Configuration::get('PS_LANG_DEFAULT');
             $pricePercentage = $pricePercentage ? $pricePercentage : self::DEFAULT_DISCOUNT_PERCENTAGE;
             $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
             $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
 
-            $path = FmHelpers::get_module_url();
-            $context = Context::getContext();
+
+            $orderStates = OrderState::getOrderStates($context->language->id);
+            $states = array_filter($orderStates, array('FmBackofficeControllers', 'orderStateCheck'));
+
 
             $output .= self::show_template(
                 $module,
@@ -113,7 +119,7 @@ class FmBackofficeControllers
                     'price_percentage' => $pricePercentage,
                     'languages' => Language::getLanguages(),
                     'selected_language' => $selectedLanguage,
-                    'order_states' => OrderState::getOrderStates($context->language->id),
+                    'order_states' => $states,
                     'order_import_state' => $orderImportState,
                     'order_done_state' => $orderDoneState,
                     'path' => $path
@@ -154,6 +160,10 @@ class FmBackofficeControllers
         }
 
         return $output;
+    }
+
+    private static function orderStateCheck($state) {
+        return OrderState::invoiceAvailable($state['id_order_state']);
     }
 
     private static function handle_authentication($module)
