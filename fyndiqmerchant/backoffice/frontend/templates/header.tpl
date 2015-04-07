@@ -24,9 +24,9 @@
         <img class="navbar-brand" src="{$shared_path}/frontend/images/logo.png" alt="Fyndiq logotype">
         {if $buttons}
         <div class="navbar-right">
-            <a href="{$path}" {if $current == "main"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon comp"></i> {l s='Export Products' mod='fyndiqmerchant'}</a>
-            <a href="{$path}&order=1" {if $current == "order"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon boxes"></i> {l s='Imported Orders' mod='fyndiqmerchant'}</a>
-            <a href="{$path}&submit_show_settings=1" {if $current == "settings"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon cog"></i> {l s='Settings' mod='fyndiqmerchant'}</a>
+            <a href="{$path}" {if $current == "main"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon comp"></i> {fi18n s='Export Products'}</a>
+            <a href="{$path}&order=1" {if $current == "order"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon boxes"></i> {fi18n s='Imported Orders'}</a>
+            <a href="{$path}&submit_show_settings=1" {if $current == "settings"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon cog"></i> {fi18n s='Settings'}</a>
         </div>
         {/if}
     </div>

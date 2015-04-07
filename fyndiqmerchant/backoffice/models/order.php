@@ -166,7 +166,7 @@ class FmOrder
             list($productId, $combinationId) = self::getProductBySKU($row->sku);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
-                    'Product with SKU "%s", from order #%d cannot be found.',
+                    FyndiqTranslation::get('error-import-product-not-found'),
                     $row->sku,
                     $fyndiq_order->id
                 ));
@@ -208,7 +208,7 @@ class FmOrder
             $address = new Address($cart->id_address_delivery);
             $country = new Country($address->id_country, $cart->id_lang);
             if (!$country->active) {
-                throw new PrestaShopException('The delivery address country is not active.');
+                throw new PrestaShopException(FyndiqTranslation::get('error-delivery-country-not-active'));
             }
         }
 
@@ -316,7 +316,7 @@ class FmOrder
 
         // if result is false the add didn't work and it will throw a exception.
         if (!$result) {
-            throw new PrestaShopException('Can\'t save Order');
+            throw new PrestaShopException(FyndiqTranslation::get('error-save-order'));
         }
 
         // Insert new Order detail list using cart for the current order

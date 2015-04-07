@@ -59,7 +59,6 @@ else if ($context->shop->id != $shop_id)
     $context->shop = new Shop($shop_id);
 
 
-require_once('../messages.php');
 require_once('./helpers.php');
 require_once('./models/product_export.php');
 require_once('./models/category.php');
@@ -87,8 +86,8 @@ class FmAjaxService
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
             $this->response_error(
-                FmMessages::get('unhandled-error-title'),
-                FmMessages::get('unhandled-error-message')
+                FyndiqTranslation::get('unhandled-error-title'),
+                FyndiqTranslation::get('unhandled-error-message')
             );
         } else {
             echo $json;
@@ -265,8 +264,8 @@ class FmAjaxService
             $this->response($time);
         } catch (Exception $e) {
             $this->response_error(
-                FmMessages::get('unhandled-error-title'),
-                FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
+                FyndiqTranslation::get('unhandled-error-title'),
+                FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
         }
     }
@@ -336,7 +335,7 @@ class FmAjaxService
             $orders = new stdClass();
             $orders->orders = array();
             if (!isset($args['orders'])) {
-                throw new Exception('Pick at least one order');
+                throw new Exception('Please, pick at least one order');
             }
             foreach ($args['orders'] as $order) {
                 $object = new stdClass();
