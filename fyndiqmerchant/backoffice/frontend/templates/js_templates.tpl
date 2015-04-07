@@ -126,6 +126,7 @@
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
     {{> fm-product-list-controls}}
+    <a class="fm-button green fm-update-product-status">Update status</a>
     <div class="fm-products-list-container">
         {{#if products}}
         <table>

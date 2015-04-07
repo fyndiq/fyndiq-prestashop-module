@@ -40,7 +40,6 @@
                 <div class="fm-panel-body no-padding">
                     <form action="" method="post" class="fm-form products">
                         <p class="info">By using this form, you can export products from the local webshop into Fyndiq.</p>
-                        <p class="info"><a class="fm-button green fm-update-product-status">Update status</a></p>
                         <div class="fm-product-list-container"></div>
                     </form>
                 </div>
