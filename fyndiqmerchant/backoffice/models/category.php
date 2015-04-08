@@ -5,14 +5,14 @@ require_once('config.php');
 class FmCategory {
 
     public static function getSubcategories($categoryId) {
-        $language_id = FmConfig::get('language');
+        $languageId = FmConfig::get('language');
 
         $result = array();
 
         if ($categoryId === 0) {
-            $categories = Category::getHomeCategories($language_id);
+            $categories = Category::getHomeCategories($languageId);
         } else {
-            $categories= Category::getChildren($categoryId, $language_id);
+            $categories= Category::getChildren($categoryId, $languageId);
         }
 
         foreach ($categories as $category) {
