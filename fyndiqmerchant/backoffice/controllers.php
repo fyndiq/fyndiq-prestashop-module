@@ -207,7 +207,7 @@ class FmBackofficeControllers
         return array('error' => $error, 'output' => $output);
     }
 
-    private static function handleSettings($module)
+    private static function handleSettings(/*$module*/)
     {
         $languageId = intval(Tools::getValue('language_id'));
         $pricePercentage = intval(Tools::getValue('price_percentage'));
@@ -244,11 +244,10 @@ class FmBackofficeControllers
     private static function showTemplate($module, $name, $args = array())
     {
         global $smarty;
-
         $templateArgs = array_merge(
             $args,
             array(
-                'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . '/modules/' . $module->name,
+                'server_path' => _PS_ROOT_DIR_ . '/modules/' . $module->name,
                 'module_path' => $module->get('_path'),
                 'shared_path' => $module->get('_path') . 'backoffice/includes/shared/',
                 'service_path' => $module->get('_path') . 'backoffice/service.php',

@@ -183,7 +183,7 @@ class FmAjaxService
      * @param $args
      * @throws PrestaShopException
      */
-    private function import_orders($args)
+    private function import_orders(/*$args*/)
     {
         $url = 'orders/';
         $date = FmConfig::get('import_date');
@@ -216,8 +216,6 @@ class FmAjaxService
      */
     private function export_products($args)
     {
-        $error = false;
-
         // Getting all data
         foreach ($args['products'] as $v) {
             $product = $v['product'];

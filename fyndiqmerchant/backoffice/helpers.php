@@ -37,7 +37,7 @@ class FmHelpers
 {
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
 
-    public static function apiConnectionExists($module = null)
+    public static function apiConnectionExists()
     {
         $ret = true;
         $ret = $ret && FmConfig::get('username') !== false;
@@ -46,7 +46,7 @@ class FmHelpers
         return $ret;
     }
 
-    public static function allSettingsExist($module = null)
+    public static function allSettingsExist()
     {
         $ret = true;
         $ret = $ret && FmConfig::get('language') !== false;
@@ -93,10 +93,10 @@ class FmHelpers
         }
     }
 
-    public static function getModuleUrl($withadminurl = true)
+    public static function getModuleUrl($withAdminUrl = true)
     {
         $url = _PS_BASE_URL_ . __PS_BASE_URI__;
-        if ($withadminurl) {
+        if ($withAdminUrl) {
             $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
             $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
             $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
