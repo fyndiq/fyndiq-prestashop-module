@@ -42,7 +42,7 @@ class FmNotificationService {
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
                 }
-            } catch () {
+            } catch (Exception $e) {
                 header('HTTP/1.0 500 Internal Server Error');
             }
             return true;
@@ -50,6 +50,5 @@ class FmNotificationService {
         header('HTTP/1.0 400 Bad Request');
     }
 }
-
 
 FmNotificationService::main($_GET);
