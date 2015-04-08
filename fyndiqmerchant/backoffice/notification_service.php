@@ -10,6 +10,12 @@ require_once('./models/order.php');
 
 class FmNotificationService {
 
+    /**
+     * Handle request
+     *
+     * @param array $params GET Params
+     * @return mixed
+     */
     public static function main($params) {
         $event = isset($params['event']) ? $params['event'] : false;
         if ($event) {
@@ -23,9 +29,8 @@ class FmNotificationService {
     /**
      * Processes new order notifications
      *
-     * @param $params
+     * @param array $params
      * @return bool
-     * @throws PrestaShopException
      */
     private static function order_created($params) {
         $orderId = isset($params['order_id']) && is_numeric($params['order_id']) ? $params['order_id'] : 0;
@@ -37,9 +42,8 @@ class FmNotificationService {
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
                 }
-            } catch (Exception $e) {
-                header('HTTP/1.0 500 Interna
-                l Server Error');
+            } catch () {
+                header('HTTP/1.0 500 Internal Server Error');
             }
             return true;
         }
