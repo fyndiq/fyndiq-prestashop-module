@@ -7,51 +7,51 @@ class FmProductExport
 
     private static $skuList = array();
 
-    static function productExist($product_id)
+    static function productExist($productId)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='" . $product_id . "' LIMIT 1";
+        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='" . $productId. "' LIMIT 1";
         $data = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($sql);
 
         return count($data) > 0;
     }
 
-    static function addProduct($product_id, $exported_price_percentage)
+    static function addProduct($productId, $exportedPricePercentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $data = array(
-            'product_id' => (int)$product_id,
-            'exported_price_percentage' => (int)$exported_price_percentage
+            'product_id' => (int)$productId,
+            'exported_price_percentage' => $exportedPricePercentage
         );
-        $return = Db::getInstance()->insert($module->config_name . "_products", $data);
+        $return = Db::getInstance()->insert($module->config_name . '_products', $data);
 
         return $return;
     }
 
-    public static function updateProduct($product_id, $exported_price_percentage)
+    public static function updateProduct($productId, $exportedPricePercentage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('exported_price_percentage' => $exported_price_percentage);
+        $data = array('exported_price_percentage' => $exportedPricePercentage);
 
         return (bool)Db::getInstance()->update(
             $module->config_name . "_products",
             $data,
-            "product_id = '{$product_id}'",
+            "product_id = '{$productId}'",
             1
         );
     }
 
-    public static function deleteProduct($product_id)
+    public static function deleteProduct($productId)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
-        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id = '{$product_id}'", 1);
+        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id = '{$productId}'", 1);
     }
 
-    public static function getProduct($product_id)
+    public static function getProduct($productId)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$product_id}'";
+        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$productId}'";
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
     }
 

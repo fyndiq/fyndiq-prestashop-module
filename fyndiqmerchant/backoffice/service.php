@@ -84,7 +84,7 @@ class FmAjaxService
      */
     public function get_categories($args)
     {
-        $categories = FmCategory::get_subcategories(intval($args['category_id']));
+        $categories = FmCategory::getSubcategories(intval($args['category_id']));
         $this->response($categories);
     }
 
@@ -98,7 +98,7 @@ class FmAjaxService
         $products = array();
 
         // get currency
-        $current_currency = Currency::getDefaultCurrency()->iso_code;
+        $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
         $page = (isset($args['page']) AND $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = FmProduct::get_by_category($args['category'], $page, self::itemPerPage);
@@ -112,7 +112,7 @@ class FmAjaxService
                 continue;
             }
 
-            $product['currency'] = $current_currency;
+            $product['currency'] = $currentCurrency;
             $product['fyndiq_quantity'] = $product['quantity'];
             $product['fyndiq_status'] = 'noton';
 
@@ -194,7 +194,7 @@ class FmAjaxService
             $url .= '?min_date=' . urlencode($date);
         }
         try {
-            $ret = FmHelpers::call_api('GET', $url);
+            $ret = FmHelpers::callApi('GET', $url);
             foreach ($ret['data'] as $order) {
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
@@ -285,7 +285,7 @@ class FmAjaxService
                 $orders->orders[] = $object;
             }
 
-            $ret = FmHelpers::call_api('POST', 'delivery_notes/', $orders, true);
+            $ret = FmHelpers::callApi('POST', 'delivery_notes/', $orders, true);
             $fileName = 'delivery_notes-' . implode('-', $args['orders']) . '.pdf';
 
             if ($ret['status'] == 200) {
@@ -310,7 +310,7 @@ class FmAjaxService
 
     public function update_product_status() {
         try {
-            $ret = FmHelpers::call_api('GET', 'product_info/');
+            $ret = FmHelpers::callApi('GET', 'product_info/');
             $module = Module::getInstanceByName('fyndiqmerchant');
             $tableName = $module->config_name . '_products';
             $db = DB::getInstance();

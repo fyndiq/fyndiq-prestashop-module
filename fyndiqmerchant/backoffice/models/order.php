@@ -392,7 +392,7 @@ class FmOrder
         $module = Module::getInstanceByName('fyndiqmerchant');
         $orders = Db::getInstance()->ExecuteS(
             'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders
-        WHERE fyndiq_orderid=' . FmHelpers::db_escape($order_id) . '
+        WHERE fyndiq_orderid=' . FmHelpers::dbEscape($order_id) . '
         LIMIT 1;
         '
         );
@@ -410,9 +410,9 @@ class FmOrder
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $ret = (bool)Db::getInstance()->Execute(
-            'INSERT INTO ' . _DB_PREFIX_ . $module->config_name . '_orders (order_id,fyndiq_orderid) VALUES (' . FmHelpers::db_escape(
+            'INSERT INTO ' . _DB_PREFIX_ . $module->config_name . '_orders (order_id,fyndiq_orderid) VALUES (' . FmHelpers::dbEscape(
                 $order_id
-            ) . ',' . FmHelpers::db_escape($fyndiq_orderid) . ')'
+            ) . ',' . FmHelpers::dbEscape($fyndiq_orderid) . ')'
         );
 
         return $ret;
@@ -497,7 +497,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('p.id_product');
         $query->from('product', 'p');
-        $query->where('p.reference = \'' . FmHelpers::db_escape($productSKU) . '\'');
+        $query->where('p.reference = \'' . FmHelpers::dbEscape($productSKU) . '\'');
         $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
         if ($productId) {
             return array($productId, 0);
@@ -506,7 +506,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('id_product_attribute, id_product');
         $query->from('product_attribute');
-        $query->where('reference = \'' . FmHelpers::db_escape($productSKU) . '\'');
+        $query->where('reference = \'' . FmHelpers::dbEscape($productSKU) . '\'');
         $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);

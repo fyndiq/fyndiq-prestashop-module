@@ -37,7 +37,7 @@ class FmNotificationService {
         if ($orderId) {
             $url = 'orders/' . $orderId . '/';
             try {
-                $ret = FmHelpers::call_api('GET', $url);
+                $ret = FmHelpers::callApi('GET', $url);
                 $order = $ret['data'];
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);

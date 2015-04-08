@@ -145,7 +145,7 @@ class FmProduct
             from ' . _DB_PREFIX_ . 'product as p
             join ' . _DB_PREFIX_ . 'category_product as cp
             where p.id_product = cp.id_product
-            and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
+            and cp.id_category = ' . FmHelpers::dbEscape($category_id) . '
         ';
         return Db::getInstance()->getValue($sqlquery);
     }
@@ -162,7 +162,7 @@ class FmProduct
             from ' . _DB_PREFIX_ . 'product as p
             join ' . _DB_PREFIX_ . 'category_product as cp
             where p.id_product = cp.id_product
-            and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
+            and cp.id_category = ' . FmHelpers::dbEscape($category_id) . '
             LIMIT ' . $offset . ', ' . $perpage;
 
         $rows = Db::getInstance()->ExecuteS($sqlquery);

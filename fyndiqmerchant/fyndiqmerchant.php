@@ -32,7 +32,7 @@ class FyndiqMerchant extends Module
         $this->description = FyndiqTranslation::get('module-description');
         $this->confirmUninstall = FyndiqTranslation::get('uninstall-confirm');
 
-        if (FmHelpers::api_connection_exists($this)) {
+        if (FmHelpers::apiConnectionExists($this)) {
             $this->warning = $this->l(FyndiqTranslation::get('not-authenticated-warning'));
         }
 
@@ -113,9 +113,9 @@ class FyndiqMerchant extends Module
      */
     private function uninstallTab()
     {
-        $id_tab = (int)Tab::getIdFromClassName('AdminPage');
-        if ($id_tab) {
-            $tab = new Tab($id_tab);
+        $idTab = (int)Tab::getIdFromClassName('AdminPage');
+        if ($idTab) {
+            $tab = new Tab($idTab);
             return $tab->delete();
         }
         return false;

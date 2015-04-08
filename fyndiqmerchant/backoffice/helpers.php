@@ -37,7 +37,7 @@ class FmHelpers
 {
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
 
-    public static function api_connection_exists($module = null)
+    public static function apiConnectionExists($module = null)
     {
         $ret = true;
         $ret = $ret && FmConfig::get('username') !== false;
@@ -46,7 +46,7 @@ class FmHelpers
         return $ret;
     }
 
-    public static function all_settings_exist($module = null)
+    public static function allSettingsExist($module = null)
     {
         $ret = true;
         $ret = $ret && FmConfig::get('language') !== false;
@@ -72,7 +72,7 @@ class FmHelpers
      * @throws FyndiqAPITooManyRequests
      * @throws FyndiqAPIUnsupportedStatus
      */
-    public static function call_api($method, $path, $data = array())
+    public static function callApi($method, $path, $data = array())
     {
         $username = FmConfig::get('username');
         $apiToken = FmConfig::get('api_token');
@@ -83,7 +83,7 @@ class FmHelpers
             array('FyndiqAPI', 'call'));
     }
 
-    public static function db_escape($value)
+    public static function dbEscape($value)
     {
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             return Db::getInstance()->_escape($value);
@@ -93,7 +93,7 @@ class FmHelpers
         }
     }
 
-    public static function get_module_url($withadminurl = true)
+    public static function getModuleUrl($withadminurl = true)
     {
         $url = _PS_BASE_URL_ . __PS_BASE_URI__;
         if ($withadminurl) {
@@ -105,14 +105,14 @@ class FmHelpers
         return $url;
     }
 
-    public static function get_shop_url()
+    public static function getShopUrl()
     {
         if (Shop::getContext() === Shop::CONTEXT_SHOP) {
             $shop = new Shop(self::getCurrentShopId());
             return $shop->getBaseURL();
         }
         // fallback to globals if context is not shop
-        return self::get_module_url(false);
+        return self::getModuleUrl(false);
     }
 
     /**
