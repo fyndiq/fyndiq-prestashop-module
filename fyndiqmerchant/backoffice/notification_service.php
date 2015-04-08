@@ -16,11 +16,11 @@ class FmNotificationService {
      * @param array $params GET Params
      * @return mixed
      */
-    public static function main($params) {
-        $event = isset($params['event']) ? $params['event'] : false;
-        if ($event) {
-            if (method_exists('FmNotificationService', $event)) {
-                return self::$event($params);
+    public function main($params) {
+        $eventName = isset($params['event']) ? $params['event'] : false;
+        if ($eventName) {
+            if (method_exists($this, $eventName)) {
+                return $this->$eventName($params);
             }
         }
         header('HTTP/1.0 400 Bad Request');
@@ -32,7 +32,7 @@ class FmNotificationService {
      * @param array $params
      * @return bool
      */
-    private static function order_created($params) {
+    private function order_created($params) {
         $orderId = isset($params['order_id']) && is_numeric($params['order_id']) ? $params['order_id'] : 0;
         if ($orderId) {
             $url = 'orders/' . $orderId . '/';
@@ -51,4 +51,5 @@ class FmNotificationService {
     }
 }
 
-FmNotificationService::main($_GET);
+$notifications = new FmNotificationService();
+$notifications->handleRequest($_GET);

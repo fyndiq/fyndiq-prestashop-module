@@ -168,7 +168,6 @@ class FmBackofficeControllers
 
     private static function handleAuthentication($module)
     {
-
         $error = false;
         $output = '';
 

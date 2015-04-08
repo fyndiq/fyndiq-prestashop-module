@@ -4,7 +4,7 @@ require_once('config.php');
 
 class FmProduct
 {
-    private static function get_image_link($linkRewrite, $idImage, $imageType)
+    private static function getImageLink($linkRewrite, $idImage, $imageType)
     {
         if (FMPSV == FMPSV14) {
             $link = new Link();
@@ -17,7 +17,7 @@ class FmProduct
         return $image;
     }
 
-    private static function get_price($price)
+    private static function getPrice($price)
     {
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
         $module = Module::getInstanceByName('fyndiqmerchant');
@@ -53,7 +53,7 @@ class FmProduct
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = Product::getQuantity($product->id);
-        $result['price'] = self::get_price($product->price);
+        $result['price'] = self::getPrice($product->price);
         $result['description'] = $product->description;
         $result['manufacturer_name'] = Manufacturer::getNameById((int)$product->id_manufacturer);
 
@@ -75,7 +75,7 @@ class FmProduct
 
         # assign main product image
         if (count($images) > 0) {
-            $result['image'] = self::get_image_link(
+            $result['image'] = self::getImageLink(
                 $product->link_rewrite,
                 $images[0]['id_image'],
                 $imageType['name']
@@ -101,7 +101,7 @@ class FmProduct
 
             $result['combinations'][$id]['id'] = $id;
             $result['combinations'][$id]['reference'] = $comboProduct->reference;
-            $result['combinations'][$id]['price'] = self::get_price($product->price + $productAttribute['price']);
+            $result['combinations'][$id]['price'] = self::getPrice($product->price + $productAttribute['price']);
             $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
                 'name' => $productAttribute['group_name'],
@@ -121,7 +121,7 @@ class FmProduct
                         # if combination image belongs to the same product attribute mapping as the current combinationn
                         if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
 
-                            $image = self::get_image_link(
+                            $image = self::getImageLink(
                                 $product->link_rewrite,
                                 $combinationImage['id_image'],
                                 $imageType['name']
@@ -147,7 +147,7 @@ class FmProduct
         return Db::getInstance()->getValue($sqlQuery);
     }
 
-    public static function get_by_category($categoryId, $p, $perPage)
+    public static function getByCategory($categoryId, $p, $perPage)
     {
         # fetch products per category manually,
         # Product::getProducts doesnt work in backoffice,
