@@ -11,42 +11,42 @@ class FmBackofficeControllers
     {
         $output = '';
         $page = '';
-        $page_args = array();
+        $pageArgs = array();
 
         if (Tools::isSubmit('submit_authenticate')) {
-            $ret = self::handle_authentication($module);
+            $ret = self::handleAuthentication($module);
             return $ret['output'];
         }
 
         # if no api connection exists yet (first time using module, or user pressed Disconnect Account)
-        elseif (!FmHelpers::api_connection_exists($module)) {
+        elseif (!FmHelpers::apiConnectionExists($module)) {
             $page = 'authenticate';
 
         } else {
             # check if api is up
-            $api_available = false;
+            $apiAvailable = false;
             try {
-                FmHelpers::call_api('GET', 'settings/');
-                $api_available = true;
+                FmHelpers::callApi('GET', 'settings/');
+                $apiAvailable = true;
             } catch (Exception $e) {
                 if ($e->getMessage() == 'Unauthorized') {
                     $page = 'authenticate';
                 } else {
                     $page = 'api_unavailable';
-                    $page_args['message'] = $e->getMessage();
+                    $pageArgs['message'] = $e->getMessage();
                 }
             }
 
             # if api is up
-            if ($api_available) {
+            if ($apiAvailable) {
 
                 # by default, show main page
                 $page = 'main';
 
                 # if user pressed Disconnect Account on main pages
                 if (Tools::getValue('disconnect')) {
-                    self::handle_disconnect($module);
-                    Tools::redirect(FmHelpers::get_module_url());
+                    self::handleDisconnect($module);
+                    Tools::redirect(FmHelpers::getModuleUrl());
                 }
 
                 # if user pressed Show Settings button on main page
@@ -56,7 +56,7 @@ class FmBackofficeControllers
 
                 # if user pressed Save Settings button on settings page
                 if (Tools::isSubmit('submit_save_settings')) {
-                    $ret = self::handle_settings($module);
+                    $ret = self::handleSettings($module);
                     $output .= $ret['output'];
                     if ($ret['error']) {
                         $page = 'settings';
@@ -69,7 +69,7 @@ class FmBackofficeControllers
                 }
 
                 # if not all settings exist yet (first time using module)
-                if (!FmHelpers::all_settings_exist()) {
+                if (!FmHelpers::allSettingsExist()) {
                     $page = 'settings';
                 }
             }
@@ -78,14 +78,14 @@ class FmBackofficeControllers
         #### render decided page
 
         if ($page == 'authenticate') {
-            $output .= self::show_template($module, 'authenticate');
+            $output .= self::showTemplate($module, 'authenticate');
         }
 
         if ($page == 'api_unavailable') {
-            $output .= self::show_template(
+            $output .= self::showTemplate(
                 $module,
                 'api_unavailable',
-                $page_args
+                $pageArgs
             );
         }
 
@@ -96,7 +96,7 @@ class FmBackofficeControllers
             $orderDoneState = FmConfig::get('done_state');
 
 
-            $path = FmHelpers::get_module_url();
+            $path = FmHelpers::getModuleUrl();
             $context = Context::getContext();
 
             # if there is a configured language, show it as selected
@@ -110,7 +110,7 @@ class FmBackofficeControllers
             $states = array_filter($orderStates, array('FmBackofficeControllers', 'orderStateCheck'));
 
 
-            $output .= self::show_template(
+            $output .= self::showTemplate(
                 $module,
                 'settings',
                 array(
@@ -127,8 +127,8 @@ class FmBackofficeControllers
             );
         }
         if ($page == 'main') {
-            $path = FmHelpers::get_module_url();
-            $output .= self::show_template(
+            $path = FmHelpers::getModuleUrl();
+            $output .= self::showTemplate(
                 $module,
                 'main',
                 array(
@@ -142,16 +142,16 @@ class FmBackofficeControllers
             );
         }
         if ($page == 'order') {
-            $path = FmHelpers::get_module_url();
-            $import_date = FmConfig::get('import_date');
-            $isToday = date('Ymd') === date('Ymd', strtotime($import_date));
-            $output .= self::show_template(
+            $path = FmHelpers::getModuleUrl();
+            $importDate = FmConfig::get('import_date');
+            $isToday = date('Ymd') === date('Ymd', strtotime($importDate));
+            $output .= self::showTemplate(
                 $module,
                 'order',
                 array(
-                    'import_date' => $import_date,
+                    'import_date' => $importDate,
                     'isToday' => $isToday,
-                    'import_time' => date('G:i:s', strtotime($import_date)),
+                    'import_time' => date('G:i:s', strtotime($importDate)),
                     'json_messages' => json_encode(FyndiqTranslation::getAll()),
                     'messages' => FyndiqTranslation::getAll(),
                     'path' => $path
@@ -166,17 +166,16 @@ class FmBackofficeControllers
         return OrderState::invoiceAvailable($state['id_order_state']);
     }
 
-    private static function handle_authentication($module)
+    private static function handleAuthentication($module)
     {
-
         $error = false;
         $output = '';
 
         $username = strval(Tools::getValue('username'));
-        $api_token = strval(Tools::getValue('api_token'));
+        $apiToken = strval(Tools::getValue('api_token'));
 
         # validate parameters
-        if (empty($username) || empty($api_token)) {
+        if (empty($username) || empty($apiToken)) {
             $error = true;
             $output .= $module->displayError(FyndiqTranslation::get('empty-username-token'));
 
@@ -187,15 +186,15 @@ class FmBackofficeControllers
             try {
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
-                FmConfig::set('api_token', $api_token);
-                $base = FmHelpers::get_module_url(false);
+                FmConfig::set('api_token', $apiToken);
+                $base = FmHelpers::getBaseModuleUrl();
                 $updateData = array(
                     'product_feed_url' => $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
                     'notification_url' => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php'
                 );
-                self::_updateFeedurl($updateData);
+                self::updateFeedUrl($updateData);
                 sleep(1);
-                Tools::redirect(FmHelpers::get_module_url());
+                Tools::redirect(FmHelpers::getModuleUrl());
             } catch (Exception $e) {
                 $error = true;
                 $output .= $module->displayError($e->getMessage());
@@ -208,7 +207,7 @@ class FmBackofficeControllers
         return array('error' => $error, 'output' => $output);
     }
 
-    private static function handle_settings($module)
+    private static function handleSettings(/*$module*/)
     {
         $languageId = intval(Tools::getValue('language_id'));
         $pricePercentage = intval(Tools::getValue('price_percentage'));
@@ -225,7 +224,7 @@ class FmBackofficeControllers
         return array('error' => true, 'output' => '');
     }
 
-    private static function handle_disconnect($module)
+    private static function handleDisconnect($module)
     {
         # delete stored connection values
         if (FmConfig::delete('username') &&
@@ -237,25 +236,24 @@ class FmBackofficeControllers
     }
 
 
-    private static function _updateFeedurl($data)
+    private static function updateFeedUrl($data)
     {
-        FmHelpers::call_api('PATCH', 'settings/', $data);
+        FmHelpers::callApi('PATCH', 'settings/', $data);
     }
 
-    private static function show_template($module, $name, $args = array())
+    private static function showTemplate($module, $name, $args = array())
     {
         global $smarty;
-
-        $template_args = array_merge(
+        $templateArgs = array_merge(
             $args,
             array(
-                'server_path' => dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . '/modules/' . $module->name,
+                'server_path' => _PS_ROOT_DIR_ . '/modules/' . $module->name,
                 'module_path' => $module->get('_path'),
                 'shared_path' => $module->get('_path') . 'backoffice/includes/shared/',
                 'service_path' => $module->get('_path') . 'backoffice/service.php',
             )
         );
-        $smarty->assign($template_args);
+        $smarty->assign($templateArgs);
         $smarty->registerPlugin('function','fi18n', array('FmBackofficeControllers', 'fi18n'));
 
         return $module->display($module->name, 'backoffice/frontend/templates/' . $name . '.tpl');

@@ -11,15 +11,15 @@ require_once('./models/order.php');
 class FmAjaxService
 {
 
-    const itemPerPage = 10;
-    const pageFrame = 4;
+    const ITEMS_PER_PAGE = 10;
+    const PAGE_FRAME = 4;
 
     /**
      * Structure the response back to the client
      *
      * @param string $data
      */
-    public function response($data = '')
+    private function response($data = '')
     {
         $response = array(
             'fm-service-status' => 'success',
@@ -27,7 +27,7 @@ class FmAjaxService
         );
         $json = json_encode($response);
         if (json_last_error() != JSON_ERROR_NONE) {
-            $this->response_error(
+            $this->responseError(
                 FyndiqTranslation::get('unhandled-error-title'),
                 FyndiqTranslation::get('unhandled-error-message')
             );
@@ -43,7 +43,7 @@ class FmAjaxService
      * @param $title
      * @param $message
      */
-    public function response_error($title, $message)
+    private function responseError($title, $message)
     {
         $response = array(
             'fm-service-status' => 'error',
@@ -54,24 +54,21 @@ class FmAjaxService
         echo $json;
     }
 
-    # handle incoming ajax request
     /**
+     * Handle incoming ajax request
      *
+     * @param $params
      */
-    public function handle_request()
+    public function handleRequest($params)
     {
-        $action = false;
-        $args = array();
-        if (array_key_exists('action', $_POST)) {
-            $action = $_POST['action'];
-        }
-        if (array_key_exists('args', $_POST)) {
-            $args = $_POST['args'];
-        }
+        $action = isset($params['action']) ? $params['action'] : false;
+        $args = isset($params['args']) ? $params['args'] : false;
 
-        # call function on self with name of the value provided in $action
-        if (method_exists('FmAjaxService', $action)) {
-            $this->$action($args);
+        if ($action) {
+            # call function on self with name of the value provided in $action
+            if (method_exists($this, $action)) {
+                $this->$action($args);
+            }
         }
     }
 
@@ -82,9 +79,9 @@ class FmAjaxService
      *
      * @param $args
      */
-    public function get_categories($args)
+    private function get_categories($args)
     {
-        $categories = FmCategory::get_subcategories(intval($args['category_id']));
+        $categories = FmCategory::getSubcategories(intval($args['category_id']));
         $this->response($categories);
     }
 
@@ -93,15 +90,15 @@ class FmAjaxService
      *
      * @param $args
      */
-    public function get_products($args)
+    private function get_products($args)
     {
         $products = array();
 
         // get currency
-        $current_currency = Currency::getDefaultCurrency()->iso_code;
+        $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
         $page = (isset($args['page']) AND $args['page'] > 0) ? intval($args['page']) : 1;
-        $rows = FmProduct::get_by_category($args['category'], $page, self::itemPerPage);
+        $rows = FmProduct::getByCategory($args['category'], $page, self::ITEMS_PER_PAGE);
 
         $discountPercentage = FmConfig::get('price_percentage');
 
@@ -112,7 +109,7 @@ class FmAjaxService
                 continue;
             }
 
-            $product['currency'] = $current_currency;
+            $product['currency'] = $currentCurrency;
             $product['fyndiq_quantity'] = $product['quantity'];
             $product['fyndiq_status'] = 'noton';
 
@@ -141,18 +138,15 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmProduct::getAmount($args['category']);
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, self::ITEMS_PER_PAGE, self::PAGE_FRAME);
         $this->response($object);
     }
 
 
-    public function load_orders($args)
+    private function load_orders($args)
     {
-        if (isset($args['page']) AND $args['page'] > 0) {
-            $orders = FmOrder::getImportedOrders($args['page'], self::itemPerPage);
-        } else {
-            $orders = FmOrder::getImportedOrders(1, self::itemPerPage);
-        }
+        $page = (isset($args['page']) AND $args['page'] > 0) ? $args['page']: 1;
+        $orders = FmOrder::getImportedOrders($page, self::ITEMS_PER_PAGE);
 
         $object = new stdClass();
         $object->orders = $orders;
@@ -160,33 +154,31 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmOrder::getAmount();
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, self::ITEMS_PER_PAGE, self::PAGE_FRAME);
         $this->response($object);
     }
 
-    public function update_order_status($args)
+    private function update_order_status($args)
     {
         if(isset($args['orders']) && is_array($args['orders'])) {
-            $donestate = "";
+            $doneState = '';
             foreach($args['orders'] as $order) {
                 if (is_numeric($order)) {
-                   $donestate = FmOrder::markOrderAsDone($order);
+                    $doneState = FmOrder::markOrderAsDone($order);
                 }
             }
-            $this->response($donestate);
+            return $this->response($doneState);
         }
-        else {
-            $this->response(false);
-        }
+        $this->response(false);
     }
 
     /**
-     * Getting the orders to be saved in Prestashop.
+     * Getting the orders to be saved in PrestaShop.
      *
      * @param $args
      * @throws PrestaShopException
      */
-    public function import_orders($args)
+    private function import_orders(/*$args*/)
     {
         $url = 'orders/';
         $date = FmConfig::get('import_date');
@@ -194,7 +186,7 @@ class FmAjaxService
             $url .= '?min_date=' . urlencode($date);
         }
         try {
-            $ret = FmHelpers::call_api('GET', $url);
+            $ret = FmHelpers::callApi('GET', $url);
             foreach ($ret['data'] as $order) {
                 if (!FmOrder::orderExists($order->id)) {
                     FmOrder::create($order);
@@ -205,7 +197,7 @@ class FmAjaxService
             $time = date('G:i:s', strtotime($newDate));
             $this->response($time);
         } catch (Exception $e) {
-            $this->response_error(
+            $this->responseError(
                 FyndiqTranslation::get('unhandled-error-title'),
                 FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
@@ -213,17 +205,15 @@ class FmAjaxService
     }
 
     /**
-     * Exporting the products from Prestashop
+     * Exporting the products from PrestaShop
      *
      * @param $args
      */
-    public function export_products($args)
+    private function export_products($args)
     {
-        $error = false;
-
         // Getting all data
-        foreach ($args['products'] as $v) {
-            $product = $v['product'];
+        foreach ($args['products'] as $row) {
+            $product = $row['product'];
 
             if (FmProductExport::productExist($product['id'])) {
                 FmProductExport::updateProduct($product['id'], $product['fyndiq_percentage']);
@@ -251,17 +241,17 @@ class FmAjaxService
         return $result;
     }
 
-    public function delete_exported_products($args)
+    private function delete_exported_products($args)
     {
-        foreach ($args['products'] as $v) {
-            $product = $v['product'];
+        foreach ($args['products'] as $row) {
+            $product = $row['product'];
             FmProductExport::deleteProduct($product['id']);
         }
         $result = $this->saveFeed();
         $this->response($result);
     }
 
-    public function update_product($args)
+    private function update_product($args)
     {
         $result = false;
         if ( isset($args['product']) && is_numeric($args['product'])
@@ -271,7 +261,7 @@ class FmAjaxService
         $this->response($result);
     }
 
-    public function get_delivery_notes($args)
+    private function get_delivery_notes($args)
     {
         try {
             $orders = new stdClass();
@@ -285,7 +275,7 @@ class FmAjaxService
                 $orders->orders[] = $object;
             }
 
-            $ret = FmHelpers::call_api('POST', 'delivery_notes/', $orders, true);
+            $ret = FmHelpers::callApi('POST', 'delivery_notes/', $orders, true);
             $fileName = 'delivery_notes-' . implode('-', $args['orders']) . '.pdf';
 
             if ($ret['status'] == 200) {
@@ -308,19 +298,19 @@ class FmAjaxService
         }
     }
 
-    public function update_product_status() {
+    private function update_product_status() {
         try {
-            $ret = FmHelpers::call_api('GET', 'product_info/');
+            $ret = FmHelpers::callApi('GET', 'product_info/');
             $module = Module::getInstanceByName('fyndiqmerchant');
             $tableName = $module->config_name . '_products';
-            $db = DB::getInstance();
+            $dbConn = DB::getInstance();
             $result = true;
             foreach ($ret['data'] as $statusRow) {
-                $result &= FmProduct::updateProductStatus($db, $tableName, $statusRow->identifier, $statusRow->for_sale);
+                $result &= FmProduct::updateProductStatus($dbConn, $tableName, $statusRow->identifier, $statusRow->for_sale);
             }
             $this->response($result);
         } catch (Exception $e) {
-            $this->response_error(
+            $this->responseError(
                 FmMessages::get('unhandled-error-title'),
                 FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
@@ -329,4 +319,4 @@ class FmAjaxService
 }
 
 $ajaxService = new FmAjaxService();
-$ajaxService->handle_request();
+$ajaxService->handleRequest($_POST);

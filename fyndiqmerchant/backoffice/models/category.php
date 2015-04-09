@@ -4,17 +4,8 @@ require_once('config.php');
 
 class FmCategory {
 
-    public static function get_subcategories($category_id) {
-        $language_id = FmConfig::get('language');
-
+    private static function processCategories($categories) {
         $result = array();
-
-        if ($category_id === 0) {
-            $categories = Category::getHomeCategories($language_id);
-        } else {
-            $categories= Category::getChildren($category_id, $language_id);
-        }
-
         foreach ($categories as $category) {
             $result[] = array(
                 'id' => $category['id_category'],
@@ -22,5 +13,14 @@ class FmCategory {
             );
         }
         return $result;
+    }
+
+    public static function getSubcategories($categoryId) {
+        $languageId = FmConfig::get('language');
+
+        if ($categoryId === 0) {
+            return self::processCategories(Category::getHomeCategories($languageId));
+        }
+        return self::processCategories(Category::getChildren($categoryId, $languageId));
     }
 }

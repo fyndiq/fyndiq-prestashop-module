@@ -27,8 +27,8 @@ class FilePageController
     public static function getFile()
     {
         $username = FmConfig::get('username');
-        $api_token = FmConfig::get('api_token');
-        if (!empty($username) && !empty($api_token)) {
+        $apiToken = FmConfig::get('api_token');
+        if (!empty($username) && !empty($apiToken)) {
 
             $filePath = _PS_ROOT_DIR_.'/files/' . FmHelpers::getExportFileName();
 

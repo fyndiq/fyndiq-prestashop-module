@@ -4,45 +4,72 @@ require_once('config.php');
 
 class FmProduct
 {
-    private static function get_image_link($link_rewrite, $id_image, $image_type)
+    private static function getImageLink($linkRewrite, $idImage, $imageType)
     {
         if (FMPSV == FMPSV14) {
             $link = new Link();
-            $image = $link->getImageLink($link_rewrite, $id_image, $image_type);
+            $image = $link->getImageLink($linkRewrite, $idImage, $imageType);
         }
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $context = Context::getContext();
-            $image = $context->link->getImageLink($link_rewrite, $id_image, $image_type);
+            $image = $context->link->getImageLink($linkRewrite, $idImage, $imageType);
         }
-
         return $image;
     }
 
-    private static function get_price($price)
+    private static function getPrice($price)
     {
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
         $module = Module::getInstanceByName('fyndiqmerchant');
         $currency = new Currency(Configuration::get($module->config_name . '_currency'));
-        $converted_price = $price * $currency->conversion_rate;
+        $convertedPrice = $price * $currency->conversion_rate;
 
-        return Tools::ps_round($converted_price, 2);
+        return Tools::ps_round($convertedPrice, 2);
     }
 
+    private static function getImageType() {
+        ### get the medium image type
+        $imageTypeName = array(
+            FMPSV16 => 'large_default',
+            FMPSV15 => 'large_default',
+            FMPSV14 => 'large'
+        );
+        $imageTypes = ImageType::getImagesTypes();
+        foreach ($imageTypes as $type) {
+            if ($type['name'] == $imageTypeName[FMPSV]) {
+                return  $type;
+            }
+        }
+        return '';
+    }
+
+    private static function getProductAttributes($product, $languageId) {
+        $getAttrCombinations = array(
+            FMPSV14 => 'getAttributeCombinaisons',
+            FMPSV15 => 'getAttributeCombinations',
+            FMPSV16 => 'getAttributeCombinations'
+        );
+
+        # get this products attributes and combination images
+        return $product->$getAttrCombinations[FMPSV]($languageId);
+    }
 
     /**
      * Returns single product with combinations or false if product is not active/found
      *
-     * @param $product_id
+     * @param $productId
      * @return array|bool
      */
-    public static function get($product_id)
+    public static function get($productId)
     {
 
-        $result = array();
+        $result = array(
+            'combinations' => array()
+        );
 
-        $language_id = FmConfig::get('language');
+        $languageId = FmConfig::get('language');
 
-        $product = new Product($product_id, false, $language_id);
+        $product = new Product($productId, false, $languageId);
 
         if (empty($product->id) || !$product->active) {
             return false;
@@ -54,133 +81,111 @@ class FmProduct
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = Product::getQuantity($product->id);
-        $result['price'] = self::get_price($product->price);
+        $result['price'] = self::getPrice($product->price);
         $result['description'] = $product->description;
         $result['manufacturer_name'] = Manufacturer::getNameById((int)$product->id_manufacturer);
 
         ### get the medium image type
-        $image_type_name = array(
-            FMPSV16 => 'large_default',
-            FMPSV15 => 'large_default',
-            FMPSV14 => 'large'
-        );
-        $image_types = ImageType::getImagesTypes();
-        foreach ($image_types as $type) {
-            if ($type['name'] == $image_type_name[FMPSV]) {
-                $image_type = $type;
-            }
-        }
+        $imageType = self::getImageType();
 
         ### get images
-        $images = $product->getImages($language_id);
+        $images = $product->getImages($languageId);
 
         # assign main product image
         if (count($images) > 0) {
-            $result['image'] = self::get_image_link(
+            $result['image'] = self::getImageLink(
                 $product->link_rewrite,
                 $images[0]['id_image'],
-                $image_type['name']
+                $imageType['name']
             );
         }
 
         ### handle combinations
-        $result['combinations'] = array();
+        $productAttributes = self::getProductAttributes($product, $languageId);
+        $combinationImages = $product->getCombinationImages($languageId);
 
-        $get_attribute_combinations_func = array(
-            FMPSV14 => 'getAttributeCombinaisons',
-            FMPSV15 => 'getAttributeCombinations',
-            FMPSV16 => 'getAttributeCombinations'
-        );
-
-        # get this products attributes and combination images
-        $product_attributes = $product->$get_attribute_combinations_func[FMPSV]($language_id);
-        $combination_images = $product->getCombinationImages($language_id);
-
-        foreach ($product_attributes as $product_attribute) {
-            $id = $product_attribute['id_product_attribute'];
-            $combo_product = new Product($id, false, $language_id);
+        foreach ($productAttributes as $productAttribute) {
+            $id = $productAttribute['id_product_attribute'];
+            $comboProduct = new Product($id, false, $languageId);
 
             $result['combinations'][$id]['id'] = $id;
-            $result['combinations'][$id]['reference'] = $combo_product->reference;
-            $result['combinations'][$id]['price'] = self::get_price($product->price + $product_attribute['price']);
-            $result['combinations'][$id]['quantity'] = $product_attribute['quantity'];
+            $result['combinations'][$id]['reference'] = $comboProduct->reference;
+            $result['combinations'][$id]['price'] = self::getPrice($product->price + $productAttribute['price']);
+            $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
-                'name' => $product_attribute['group_name'],
-                'value' => $product_attribute['attribute_name']
+                'name' => $productAttribute['group_name'],
+                'value' => $productAttribute['attribute_name']
             );
 
-            # if this combination has no image yet
+            // if this combination has no image yet
             if (empty($result['combinations'][$id]['image'])) {
 
-                # if this combination has any images
-                if ($combination_images) {
-                    foreach ($combination_images as $combination_image) {
+                // if this combination has any images
+                if ($combinationImages) {
+                    foreach ($combinationImages as $combinationImage) {
 
-                        # data array is stored in another array with only one key: 0. I have no idea why
-                        $combination_image = $combination_image[0];
+                        // data array is stored in another array with only one key: 0. I have no idea why
+                        $combinationImage = $combinationImage[0];
 
-                        # if combination image belongs to the same product attribute mapping as the current combinationn
-                        if ($combination_image['id_product_attribute'] == $product_attribute['id_product_attribute']) {
+                        // if combination image belongs to the same product attribute mapping as the current combinationn
+                        if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
 
-                            $image = $combination_result['image'] = self::get_image_link(
+                            $image = self::getImageLink(
                                 $product->link_rewrite,
-                                $combination_image['id_image'],
-                                $image_type['name']
+                                $combinationImage['id_image'],
+                                $imageType['name']
                             );
 
                             $result['combinations'][$id]['image'] = $image;
+                            // We are getting single image only, no need to loop further
+                            break;
                         }
                     }
                 }
             }
         }
-
         return $result;
     }
 
-    public static function getAmount($category_id)
+    public static function getAmount($categoryId)
     {
-        $sqlquery = '
-            select count(p.id_product) as amount
-            from ' . _DB_PREFIX_ . 'product as p
-            join ' . _DB_PREFIX_ . 'category_product as cp
-            where p.id_product = cp.id_product
-            and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
-        ';
-        return Db::getInstance()->getValue($sqlquery);
+        $sqlQuery = '
+            SELECT count(p.id_product) AS amount
+            FROM ' . _DB_PREFIX_ . 'product as p
+            JOIN ' . _DB_PREFIX_ . 'category_product as cp
+            WHERE p.id_product = cp.id_product
+            AND cp.id_category = ' . FmHelpers::dbEscape($categoryId) . ';';
+        return Db::getInstance()->getValue($sqlQuery);
     }
 
-    public static function get_by_category($category_id, $p, $perpage)
+    public static function getByCategory($categoryId, $page, $perPage)
     {
-
         # fetch products per category manually,
         # Product::getProducts doesnt work in backoffice,
         # it's hard coded to work only with front office controllers
-        $offset = $perpage * ($p - 1);
-        $sqlquery = '
-            select p.id_product
-            from ' . _DB_PREFIX_ . 'product as p
-            join ' . _DB_PREFIX_ . 'category_product as cp
-            where p.id_product = cp.id_product
-            and cp.id_category = ' . FmHelpers::db_escape($category_id) . '
-            LIMIT ' . $offset . ', ' . $perpage;
-
-        $rows = Db::getInstance()->ExecuteS($sqlquery);
-
+        $offset = $perPage * ($page - 1);
+        $sqlQuery = '
+            SELECT p.id_product
+            FROM ' . _DB_PREFIX_ . 'product as p
+            JOIN ' . _DB_PREFIX_ . 'category_product as cp
+            WHERE p.id_product = cp.id_product
+            AND cp.id_category = ' . FmHelpers::dbEscape($categoryId) . '
+            LIMIT ' . $offset . ', ' . $perPage;
+        $rows = Db::getInstance()->ExecuteS($sqlQuery);
         return $rows;
     }
 
     /**
      * Update product status
      *
-     * @param DbCore $db
+     * @param DbCore $dbConn
      * @param string $tableName
      * @param string $id
      * @param string $status
      * @return bool
      */
-    public static function updateProductStatus($db, $tableName, $id, $status) {
-        $where = 'id=' . $db->escape($id);
-        return $db->update($tableName, array('state' => $status), $where);
+    public static function updateProductStatus($dbConn, $tableName, $productId, $status) {
+        $where = 'id=' . $dbConn->escape($productId);
+        return $dbConn->update($tableName, array('state' => $status), $where);
     }
 }

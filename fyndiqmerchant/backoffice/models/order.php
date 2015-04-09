@@ -68,17 +68,17 @@ class FmOrder
         return $context;
     }
 
-    private static function fillAddress($fyndiq_order, $customerId, $countryId, $alias)
+    private static function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)
     {
         // Create address
         $address = new Address();
-        $address->firstname = $fyndiq_order->delivery_firstname;
-        $address->lastname = $fyndiq_order->delivery_lastname;
-        $address->phone = $fyndiq_order->delivery_phone;
-        $address->address1 = $fyndiq_order->delivery_address;
-        $address->postcode = $fyndiq_order->delivery_postalcode;
-        $address->city = $fyndiq_order->delivery_city;
-        $address->company = $fyndiq_order->delivery_co;
+        $address->firstname = $fyndiqOrder->delivery_firstname;
+        $address->lastname = $fyndiqOrder->delivery_lastname;
+        $address->phone = $fyndiqOrder->delivery_phone;
+        $address->address1 = $fyndiqOrder->delivery_address;
+        $address->postcode = $fyndiqOrder->delivery_postalcode;
+        $address->city = $fyndiqOrder->delivery_city;
+        $address->company = $fyndiqOrder->delivery_co;
         $address->id_country = $countryId;
         $address->id_customer = $customerId;
         $address->alias = $alias;
@@ -86,7 +86,7 @@ class FmOrder
         return $address;
     }
 
-    private static function getCart($fyndiq_order, $context)
+    private static function getCart($fyndiqOrder, $context)
     {
         // create a new cart to add the articles to
         $cart = new Cart();
@@ -108,7 +108,7 @@ class FmOrder
             $customer->add();
 
             $deliveryAddress = self::fillAddress(
-                $fyndiq_order,
+                $fyndiqOrder,
                 $customer->id,
                 $context->country->id,
                 self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
@@ -116,7 +116,7 @@ class FmOrder
             $deliveryAddress->add();
 
             $invoiceAddress = self::fillAddress(
-                $fyndiq_order,
+                $fyndiqOrder,
                 $customer->id,
                 $context->country->id,
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
@@ -155,32 +155,31 @@ class FmOrder
     /**
      * create orders from Fyndiq orders
      *
-     * @param $fyndiq_order
+     * @param $fyndiqOrder
      * @return bool
      * @throws FyndiqProductSKUNotFound
      * @throws PrestaShopException
      */
-    public static function create($fyndiq_order)
+    public static function create($fyndiqOrder)
     {
-        foreach ($fyndiq_order->order_rows as &$row) {
+        foreach ($fyndiqOrder->order_rows as &$row) {
             list($productId, $combinationId) = self::getProductBySKU($row->sku);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
                     FyndiqTranslation::get('error-import-product-not-found'),
                     $row->sku,
-                    $fyndiq_order->id
+                    $fyndiqOrder->id
                 ));
 
                 return false;
-            } else {
-                $row->productId = $productId;
-                $row->combinationId = $combinationId;
             }
+            $row->productId = $productId;
+            $row->combinationId = $combinationId;
         }
 
         $context = self::getContext();
 
-        $cart = self::getCart($fyndiq_order, $context);
+        $cart = self::getCart($fyndiqOrder, $context);
         // Save the cart
         $cart->add();
 
@@ -189,9 +188,9 @@ class FmOrder
 
         $context->customer = $customer;
 
-        foreach ($fyndiq_order->order_rows as $row) {
-            $num_article = (int)$row->quantity;
-            $cart->updateQty($num_article, $row->productId, $row->combinationId);
+        foreach ($fyndiqOrder->order_rows as $row) {
+            $numArticle = (int)$row->quantity;
+            $cart->updateQty($numArticle, $row->productId, $row->combinationId);
         }
 
 
@@ -200,8 +199,8 @@ class FmOrder
             $reference = Order::generateReference();
         }
 
-        $id_order_state = FmConfig::get('import_state');
-        $id_order_state = $id_order_state ? $id_order_state : (int)Configuration::get('PS_OS_PREPARATION');
+        $idOrderState = FmConfig::get('import_state');
+        $idOrderState = $idOrderState ? $idOrderState : (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
         if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
@@ -213,106 +212,94 @@ class FmOrder
         }
 
         // Create an order
-        $presta_order = new Order();
+        $prestaOrder = new Order();
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->reference = $reference;
+            $prestaOrder->reference = $reference;
         }
 
         // get the carrier for the cart
         $carrier = null;
+        $prestaOrder->id_carrier = 1;
+        $idCarrier = 1;
         if (!$cart->isVirtualCart() && isset($package['id_carrier'])) {
             $carrier = new Carrier($package['id_carrier'], $cart->id_lang);
-            $presta_order->id_carrier = (int)$carrier->id;
-            $id_carrier = (int)$carrier->id;
-        } else {
-            $presta_order->id_carrier = 1;
-            $id_carrier = 1;
+            $prestaOrder->id_carrier = (int)$carrier->id;
+            $idCarrier = (int)$carrier->id;
         }
         // create the order
-        $presta_order->id_customer = (int)$cart->id_customer;
-        $presta_order->id_address_invoice = $cart->id_address_invoice;
-        $presta_order->id_address_delivery = $cart->id_address_delivery;
-        $presta_order->id_currency = $cart->id_currency;
-        $presta_order->id_lang = (int)$cart->id_lang;
-        $presta_order->id_cart = (int)$cart->id;
+        $prestaOrder->id_customer = (int)$cart->id_customer;
+        $prestaOrder->id_address_invoice = $cart->id_address_invoice;
+        $prestaOrder->id_address_delivery = $cart->id_address_delivery;
+        $prestaOrder->id_currency = $cart->id_currency;
+        $prestaOrder->id_lang = (int)$cart->id_lang;
+        $prestaOrder->id_cart = (int)$cart->id;
 
         // Setup more settings for the order
-        $presta_order->id_shop = (int)$context->shop->id;
-        $presta_order->id_shop_group = (int)$context->shop->id_shop_group;
+        $prestaOrder->id_shop = (int)$context->shop->id;
+        $prestaOrder->id_shop_group = (int)$context->shop->id_shop_group;
 
-        $secure_key = md5(uniqid(rand(), true));
-        $presta_order->secure_key = $secure_key;
-        $presta_order->payment = self::FYNDIQ_PAYMENT_METHOD;
-        $presta_order->module = self::FYNDIQ_ORDERS_MODULE;
-        $presta_order->recyclable = $cart->recyclable;
-        $presta_order->current_state = $id_order_state;
-        $presta_order->gift = (int)$cart->gift;
-        $presta_order->gift_message = $cart->gift_message;
-        $presta_order->mobile_theme = $cart->mobile_theme;
-        $presta_order->conversion_rate = (float)$context->currency->conversion_rate;
+        $secureKey = md5(uniqid(rand(), true));
+        $prestaOrder->secure_key = $secureKey;
+        $prestaOrder->payment = self::FYNDIQ_PAYMENT_METHOD;
+        $prestaOrder->module = self::FYNDIQ_ORDERS_MODULE;
+        $prestaOrder->recyclable = $cart->recyclable;
+        $prestaOrder->current_state = $idOrderState;
+        $prestaOrder->gift = (int)$cart->gift;
+        $prestaOrder->gift_message = $cart->gift_message;
+        $prestaOrder->mobile_theme = $cart->mobile_theme;
+        $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
 
-        $presta_order->total_products = (float)$cart->getOrderTotal(
+        $prestaOrder->total_products = (float)$cart->getOrderTotal(
             false,
             Cart::ONLY_PRODUCTS,
             $cart->getProducts(),
-            $id_carrier
+            $idCarrier
         );
-        $presta_order->total_products_wt = (float)$cart->getOrderTotal(
+        $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
             true,
             Cart::ONLY_PRODUCTS,
             $cart->getProducts(),
-            $id_carrier
+            $idCarrier
         );
 
         // Discounts and shipping tax settings
-        $presta_order->total_discounts_tax_excl = 0.00;
-        $presta_order->total_discounts_tax_incl = 0.00;
-        $presta_order->total_discounts = 0.00;
+        $prestaOrder->total_discounts_tax_excl = 0.00;
+        $prestaOrder->total_discounts_tax_incl = 0.00;
+        $prestaOrder->total_discounts = 0.00;
+        $prestaOrder->total_shipping = 0.00;
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->total_shipping_tax_excl = 0.00;
-            $presta_order->total_shipping_tax_incl = 0.00;
-            $presta_order->total_shipping = 0.00;
-        } else {
-            if (FMPSV == FMPSV14) {
-                $presta_order->total_shipping = 0.00;
-            }
+            $prestaOrder->total_shipping_tax_excl = 0.00;
+            $prestaOrder->total_shipping_tax_incl = 0.00;
         }
 
         if (!is_null($carrier) && Validate::isLoadedObject($carrier)) {
-            $presta_order->carrier_tax_rate = 0.00;
+            $prestaOrder->carrier_tax_rate = 0.00;
         }
 
         // Wrapping settings
-        $presta_order->total_wrapping_tax_excl = 0;
-        $presta_order->total_wrapping_tax_incl = 0;
-        $presta_order->total_wrapping = $presta_order->total_wrapping_tax_incl;
+        $prestaOrder->total_wrapping_tax_excl = 0;
+        $prestaOrder->total_wrapping_tax_incl = 0;
+        $prestaOrder->total_wrapping = $prestaOrder->total_wrapping_tax_incl;
 
         //Taxes
-        $presta_order->total_paid_tax_excl = 0;
-        $presta_order->total_paid_tax_incl = (float)Tools::ps_round(
-            (float)$cart->getOrderTotal(true, Cart::BOTH, $cart->getProducts(), $id_carrier),
+        $prestaOrder->total_paid_tax_excl = 0;
+        $prestaOrder->total_paid_tax_incl = (float)Tools::ps_round(
+            (float)$cart->getOrderTotal(true, Cart::BOTH, $cart->getProducts(), $idCarrier),
             2
         );
 
         // Set total paid
-        $presta_order->total_paid_real = $presta_order->total_products_wt;
-        $presta_order->total_paid = $presta_order->total_products_wt;
+        $prestaOrder->total_paid_real = $prestaOrder->total_products_wt;
+        $prestaOrder->total_paid = $prestaOrder->total_products_wt;
 
         // Set invoice date (needed to make order to work in prestashop 1.4
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
-            $presta_order->delivery_date = date('Y-m-d H:i:s');
-        } else {
-            if (FMPSV == FMPSV14) {
-                $presta_order->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiq_order->created));
-                $presta_order->delivery_date = date('Y-m-d H:i:s');
-            }
-        }
+        $prestaOrder->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiqOrder->created));
+        $prestaOrder->delivery_date = date('Y-m-d H:i:s');
 
         // Creating order
-        $result = $presta_order->add();
+        $result = $prestaOrder->add();
 
         // if result is false the add didn't work and it will throw a exception.
         if (!$result) {
@@ -321,63 +308,63 @@ class FmOrder
 
         // Insert new Order detail list using cart for the current order
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $order_detail = new OrderDetail();
-            $order_detail->createList(
-                $presta_order,
+            $orderDetail = new OrderDetail();
+            $orderDetail->createList(
+                $prestaOrder,
                 $cart,
-                $id_order_state,
+                $idOrderState,
                 $cart->getProducts()
             );
         } else {
             if (FMPSV == FMPSV14) {
                 foreach ($cart->getProducts() as $product) {
-                    $order_detail = new OrderDetail();
-                    $order_detail->id_order = $presta_order->id;
-                    $order_detail->product_name = $product['name'];
-                    $order_detail->product_quantity = $product['quantity'];
-                    $order_detail->product_price = $product['price'];
-                    $order_detail->tax_rate = $product['rate'];
-                    $order_detail->add();
+                    $orderDetail = new OrderDetail();
+                    $orderDetail->id_order = $prestaOrder->id;
+                    $orderDetail->product_name = $product['name'];
+                    $orderDetail->product_quantity = $product['quantity'];
+                    $orderDetail->product_price = $product['price'];
+                    $orderDetail->tax_rate = $product['rate'];
+                    $orderDetail->add();
                 }
             }
         }
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
-            $presta_order->addOrderPayment($presta_order->total_products_wt, self::FYNDIQ_PAYMENT_METHOD);
+            $prestaOrder->addOrderPayment($prestaOrder->total_products_wt, self::FYNDIQ_PAYMENT_METHOD);
         }
 
         // create state in history
-        $order_history = new OrderHistory();
-        $order_history->id_order = $presta_order->id;
-        $order_history->id_order_state = $id_order_state;
-        $order_history->add();
+        $orderHistory = new OrderHistory();
+        $orderHistory->id_order = $prestaOrder->id;
+        $orderHistory->id_order_state = $idOrderState;
+        $orderHistory->add();
 
 
         //add fyndiq delivery note as a message to the order
-        $order_message = new Message();
-        $order_message->id_order = $presta_order->id;
-        $order_message->private = true;
+        $orderMessage = new Message();
+        $orderMessage->id_order = $prestaOrder->id;
+        $orderMessage->private = true;
         // TODO: FIX the url!
-        $order_message->message = 'Fyndiq delivery note: http://fyndiq.se' . $fyndiq_order->delivery_note . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
-        $order_message->add();
+        $orderMessage->message = 'Fyndiq delivery note: http://fyndiq.se' . $fyndiqOrder->delivery_note . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
+        $orderMessage->add();
 
         // set order as valid
-        $presta_order->valid = true;
-        $presta_order->update();
+        $prestaOrder->valid = true;
+        $prestaOrder->update();
 
         //Add order to log (prestashop database) so it doesn't get added again next time this is run
-        self::addOrderLog($presta_order->id, $fyndiq_order->id);
+        self::addOrderLog($prestaOrder->id, $fyndiqOrder->id);
 
         // Adding an entry in order_carrier table
         if (!is_null($carrier)) {
-            $order_carrier = new OrderCarrier();
-            $order_carrier->id_order = (int)$presta_order->id;
-            $order_carrier->id_carrier = (int)$id_carrier;
-            $order_carrier->weight = (float)$presta_order->getTotalWeight();
-            $order_carrier->shipping_cost_tax_excl = (float)$presta_order->total_shipping_tax_excl;
-            $order_carrier->shipping_cost_tax_incl = (float)$presta_order->total_shipping_tax_incl;
-            $order_carrier->add();
+            $orderCarrier = new OrderCarrier();
+            $orderCarrier->id_order = (int)$prestaOrder->id;
+            $orderCarrier->id_carrier = (int)$idCarrier;
+            $orderCarrier->weight = (float)$prestaOrder->getTotalWeight();
+            $orderCarrier->shipping_cost_tax_excl = (float)$prestaOrder->total_shipping_tax_excl;
+            $orderCarrier->shipping_cost_tax_incl = (float)$prestaOrder->total_shipping_tax_incl;
+            $orderCarrier->add();
         }
     }
 
@@ -387,14 +374,12 @@ class FmOrder
      * @param $order_id
      * @return bool
      */
-    public static function orderExists($order_id)
+    public static function orderExists($orderId)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $orders = Db::getInstance()->ExecuteS(
             'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders
-        WHERE fyndiq_orderid=' . FmHelpers::db_escape($order_id) . '
-        LIMIT 1;
-        '
+        WHERE fyndiq_orderid=' . FmHelpers::dbEscape($orderId) . ' LIMIT 1;'
         );
         return count($orders) > 0;
     }
@@ -402,55 +387,53 @@ class FmOrder
     /**
      * Add the order to database. (to check what orders have already been added.
      *
-     * @param $order_id
-     * @param $fyndiq_orderid
+     * @param int $orderId
+     * @param int $fyndiqOrderId
      * @return bool
      */
-    public static function addOrderLog($order_id, $fyndiq_orderid)
+    public static function addOrderLog($orderId, $fyndiqOrderId)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
         $ret = (bool)Db::getInstance()->Execute(
-            'INSERT INTO ' . _DB_PREFIX_ . $module->config_name . '_orders (order_id,fyndiq_orderid) VALUES (' . FmHelpers::db_escape(
-                $order_id
-            ) . ',' . FmHelpers::db_escape($fyndiq_orderid) . ')'
+            'INSERT INTO ' . _DB_PREFIX_ . $module->config_name . '_orders (order_id,fyndiq_orderid) VALUES (' . FmHelpers::dbEscape(
+                $orderId
+            ) . ',' . FmHelpers::dbEscape($fyndiqOrderId) . ')'
         );
 
         return $ret;
     }
 
-    public static function getImportedOrders($p, $perpage)
+    public static function getImportedOrders($page, $perPage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
-        $offset = $perpage * ($p - 1);
-        $sqlquery = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders LIMIT ' . $offset . ', ' . $perpage;
+        $offset = $perPage * ($page - 1);
+        $sqlQuery = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders LIMIT ' . $offset . ', ' . $perPage;
 
-        $orders = Db::getInstance()->ExecuteS($sqlquery);
+        $orders = Db::getInstance()->ExecuteS($sqlQuery);
         $return = array();
         $orderDoneState = FmConfig::get('done_state');
 
         foreach ($orders as $order) {
-            $orderarray = $order;
-            $neworder = new Order((int)$order['order_id']);
-            $products = $neworder->getProducts();
+            $orderArray = $order;
+            $newOrder = new Order((int)$order['order_id']);
+            $products = $newOrder->getProducts();
             $quantity = 0;
-            $current_state = new OrderState($neworder->getCurrentState());
+            $currentState = new OrderState($newOrder->getCurrentState());
             foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
             $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
             $url .= '&token='.Tools::getAdminTokenLite('AdminOrders');
-            $orderarray['created_at'] = date('Y-m-d', strtotime($neworder->date_add));
-            $orderarray['created_at_time'] = date('G:i:s', strtotime($neworder->date_add));
-            $orderarray['price'] = $neworder->total_paid_real;
-            $orderarray['state'] = $current_state->name[1];
-            $orderarray['total_products'] = $quantity;
-            $orderarray['is_done'] = $neworder->getCurrentState() == $orderDoneState;
-            $orderarray['link'] = $url;
-            $return[] = $orderarray;
-
+            $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
+            $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
+            $orderArray['price'] = $newOrder->total_paid_real;
+            $orderArray['state'] = $currentState->name[1];
+            $orderArray['total_products'] = $quantity;
+            $orderArray['is_done'] = $newOrder->getCurrentState() == $orderDoneState;
+            $orderArray['link'] = $url;
+            $return[] = $orderArray;
         }
-
         return $return;
     }
 
@@ -497,7 +480,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('p.id_product');
         $query->from('product', 'p');
-        $query->where('p.reference = \'' . FmHelpers::db_escape($productSKU) . '\'');
+        $query->where('p.reference = \'' . FmHelpers::dbEscape($productSKU) . '\'');
         $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
         if ($productId) {
             return array($productId, 0);
@@ -506,7 +489,7 @@ class FmOrder
         $query = new DbQuery();
         $query->select('id_product_attribute, id_product');
         $query->from('product_attribute');
-        $query->where('reference = \'' . FmHelpers::db_escape($productSKU) . '\'');
+        $query->where('reference = \'' . FmHelpers::dbEscape($productSKU) . '\'');
         $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
