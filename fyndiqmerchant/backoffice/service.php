@@ -11,8 +11,8 @@ require_once('./models/order.php');
 class FmAjaxService
 {
 
-    const itemPerPage = 10;
-    const pageFrame = 4;
+    const ITEMS_PER_PAGE = 10;
+    const PAGE_FRAME = 4;
 
     /**
      * Structure the response back to the client
@@ -98,7 +98,7 @@ class FmAjaxService
         $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
         $page = (isset($args['page']) AND $args['page'] > 0) ? intval($args['page']) : 1;
-        $rows = FmProduct::getByCategory($args['category'], $page, self::itemPerPage);
+        $rows = FmProduct::getByCategory($args['category'], $page, self::ITEMS_PER_PAGE);
 
         $discountPercentage = FmConfig::get('price_percentage');
 
@@ -138,18 +138,15 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmProduct::getAmount($args['category']);
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, self::ITEMS_PER_PAGE, self::PAGE_FRAME);
         $this->response($object);
     }
 
 
     private function load_orders($args)
     {
-        if (isset($args['page']) AND $args['page'] > 0) {
-            $orders = FmOrder::getImportedOrders($args['page'], self::itemPerPage);
-        } else {
-            $orders = FmOrder::getImportedOrders(1, self::itemPerPage);
-        }
+        $page = (isset($args['page']) AND $args['page'] > 0) ? $args['page']: 1;
+        $orders = FmOrder::getImportedOrders($page, self::ITEMS_PER_PAGE);
 
         $object = new stdClass();
         $object->orders = $orders;
@@ -157,28 +154,26 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmOrder::getAmount();
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, self::ITEMS_PER_PAGE, self::PAGE_FRAME);
         $this->response($object);
     }
 
     private function update_order_status($args)
     {
         if(isset($args['orders']) && is_array($args['orders'])) {
-            $donestate = "";
+            $doneState = '';
             foreach($args['orders'] as $order) {
                 if (is_numeric($order)) {
-                   $donestate = FmOrder::markOrderAsDone($order);
+                    $doneState = FmOrder::markOrderAsDone($order);
                 }
             }
-            $this->response($donestate);
+            return $this->response($doneState);
         }
-        else {
-            $this->response(false);
-        }
+        $this->response(false);
     }
 
     /**
-     * Getting the orders to be saved in Prestashop.
+     * Getting the orders to be saved in PrestaShop.
      *
      * @param $args
      * @throws PrestaShopException
@@ -210,15 +205,15 @@ class FmAjaxService
     }
 
     /**
-     * Exporting the products from Prestashop
+     * Exporting the products from PrestaShop
      *
      * @param $args
      */
     private function export_products($args)
     {
         // Getting all data
-        foreach ($args['products'] as $v) {
-            $product = $v['product'];
+        foreach ($args['products'] as $row) {
+            $product = $row['product'];
 
             if (FmProductExport::productExist($product['id'])) {
                 FmProductExport::updateProduct($product['id'], $product['fyndiq_percentage']);
@@ -248,8 +243,8 @@ class FmAjaxService
 
     private function delete_exported_products($args)
     {
-        foreach ($args['products'] as $v) {
-            $product = $v['product'];
+        foreach ($args['products'] as $row) {
+            $product = $row['product'];
             FmProductExport::deleteProduct($product['id']);
         }
         $result = $this->saveFeed();
@@ -308,10 +303,10 @@ class FmAjaxService
             $ret = FmHelpers::callApi('GET', 'product_info/');
             $module = Module::getInstanceByName('fyndiqmerchant');
             $tableName = $module->config_name . '_products';
-            $db = DB::getInstance();
+            $dbConn = DB::getInstance();
             $result = true;
             foreach ($ret['data'] as $statusRow) {
-                $result &= FmProduct::updateProductStatus($db, $tableName, $statusRow->identifier, $statusRow->for_sale);
+                $result &= FmProduct::updateProductStatus($dbConn, $tableName, $statusRow->identifier, $statusRow->for_sale);
             }
             $this->response($result);
         } catch (Exception $e) {

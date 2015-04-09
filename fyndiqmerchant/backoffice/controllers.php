@@ -187,7 +187,7 @@ class FmBackofficeControllers
                 # if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $apiToken);
-                $base = FmHelpers::getModuleUrl(false);
+                $base = FmHelpers::getBaseModuleUrl();
                 $updateData = array(
                     'product_feed_url' => $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
                     'notification_url' => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php'

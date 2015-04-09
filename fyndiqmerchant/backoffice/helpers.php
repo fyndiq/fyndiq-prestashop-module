@@ -2,13 +2,6 @@
 
 class FyndiqProductSKUNotFound extends Exception{}
 
-function pd($v)
-{
-    echo '<pre>';
-    var_dump($v);
-    echo '</pre>';
-}
-
 function startsWith($haystack, $needle)
 {
     return $needle === '' || strpos($haystack, $needle) === 0;
@@ -93,15 +86,16 @@ class FmHelpers
         }
     }
 
-    public static function getModuleUrl($withAdminUrl = true)
-    {
-        $url = _PS_BASE_URL_ . __PS_BASE_URI__;
-        if ($withAdminUrl) {
-            $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
-            $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
-            $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
-        }
+    public function getBaseModuleUrl() {
+        return _PS_BASE_URL_ . __PS_BASE_URI__;
+    }
 
+    public static function getModuleUrl()
+    {
+        $url = self::getBaseModuleUrl();
+        $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
+        $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
         return $url;
     }
 

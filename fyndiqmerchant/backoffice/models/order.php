@@ -172,10 +172,9 @@ class FmOrder
                 ));
 
                 return false;
-            } else {
-                $row->productId = $productId;
-                $row->combinationId = $combinationId;
             }
+            $row->productId = $productId;
+            $row->combinationId = $combinationId;
         }
 
         $context = self::getContext();
@@ -221,13 +220,12 @@ class FmOrder
 
         // get the carrier for the cart
         $carrier = null;
+        $prestaOrder->id_carrier = 1;
+        $idCarrier = 1;
         if (!$cart->isVirtualCart() && isset($package['id_carrier'])) {
             $carrier = new Carrier($package['id_carrier'], $cart->id_lang);
             $prestaOrder->id_carrier = (int)$carrier->id;
             $idCarrier = (int)$carrier->id;
-        } else {
-            $prestaOrder->id_carrier = 1;
-            $idCarrier = 1;
         }
         // create the order
         $prestaOrder->id_customer = (int)$cart->id_customer;
@@ -269,15 +267,11 @@ class FmOrder
         $prestaOrder->total_discounts_tax_excl = 0.00;
         $prestaOrder->total_discounts_tax_incl = 0.00;
         $prestaOrder->total_discounts = 0.00;
+        $prestaOrder->total_shipping = 0.00;
 
         if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
             $prestaOrder->total_shipping_tax_excl = 0.00;
             $prestaOrder->total_shipping_tax_incl = 0.00;
-            $prestaOrder->total_shipping = 0.00;
-        } else {
-            if (FMPSV == FMPSV14) {
-                $prestaOrder->total_shipping = 0.00;
-            }
         }
 
         if (!is_null($carrier) && Validate::isLoadedObject($carrier)) {
@@ -301,15 +295,8 @@ class FmOrder
         $prestaOrder->total_paid = $prestaOrder->total_products_wt;
 
         // Set invoice date (needed to make order to work in prestashop 1.4
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
-            $prestaOrder->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiqOrder->created));
-            $prestaOrder->delivery_date = date('Y-m-d H:i:s');
-        } else {
-            if (FMPSV == FMPSV14) {
-                $prestaOrder->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiqOrder->created));
-                $prestaOrder->delivery_date = date('Y-m-d H:i:s');
-            }
-        }
+        $prestaOrder->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiqOrder->created));
+        $prestaOrder->delivery_date = date('Y-m-d H:i:s');
 
         // Creating order
         $result = $prestaOrder->add();
@@ -416,11 +403,11 @@ class FmOrder
         return $ret;
     }
 
-    public static function getImportedOrders($p, $perPage)
+    public static function getImportedOrders($page, $perPage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
-        $offset = $perPage * ($p - 1);
+        $offset = $perPage * ($page - 1);
         $sqlQuery = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders LIMIT ' . $offset . ', ' . $perPage;
 
         $orders = Db::getInstance()->ExecuteS($sqlQuery);
