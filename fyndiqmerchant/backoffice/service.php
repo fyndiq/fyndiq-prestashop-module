@@ -290,5 +290,10 @@ class FmAjaxService
     }
 }
 
-$ajaxService = new FmAjaxService();
-$ajaxService->handleRequest($_POST);
+$cookie = new Cookie('psAdmin');
+if ($cookie->id_employee) {
+    $ajaxService = new FmAjaxService();
+    $ajaxService->handleRequest($_POST);
+    exit();
+}
+header('HTTP/1.0 401 Unauthorized');
