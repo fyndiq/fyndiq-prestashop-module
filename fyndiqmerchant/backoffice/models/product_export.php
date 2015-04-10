@@ -154,7 +154,7 @@ class FmProductExport
                     array($storeProduct['id'], $combination['id']));
 
                 $exportProductCopy['article-quantity'] = $combination['quantity'];
-                $exportProductCopy['product-oldprice'] = number_format((float)$combination['price'], 2, '.', '');
+                $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
 
                 // Set combination image if present
                 $imageId = 1;
@@ -199,8 +199,8 @@ class FmProductExport
         $exportProduct['product-description'] = $storeProduct['description'];
 
         $price = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
-        $exportProduct['product-price'] = number_format((float)$price, 2, '.', '');
-        $exportProduct['product-oldprice'] = number_format((float)$storeProduct['price'], 2, '.', '');
+        $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
+        $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
         $exportProduct['product-brand'] = $storeProduct['manufacturer_name'];
         $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
