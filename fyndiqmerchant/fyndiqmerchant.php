@@ -72,16 +72,18 @@ class FyndiqMerchant extends Module
         $ret &= (bool)FmConfig::delete('api_token');
         $ret &= (bool)FmConfig::delete('language');
         $ret &= (bool)FmConfig::delete('price_percentage');
-        $ret &= (bool)FmConfig::delete('import_date');
+        // NOTE: Don't delete the import date to prevent duplicated orders on reinstall
+        //$ret &= (bool)FmConfig::delete('import_date');
         $ret &= (bool)FmConfig::delete('import_state');
         $ret &= (bool)FmConfig::delete('done_state');
 
         // drop product table
         $ret &= FmProductExport::uninstall();
 
+        // Remove the menu tab
         $ret &= $this->uninstallTab();
+
         // drop order table
-        // TODO: Should we remove the order? the order in prestashop will still be there and if reinstall it will be duplicates if this is removed.
         $ret &= FmOrder::uninstall();
 
         return (bool)$ret;
