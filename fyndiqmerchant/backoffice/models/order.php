@@ -345,8 +345,9 @@ class FmOrder
         $orderMessage = new Message();
         $orderMessage->id_order = $prestaOrder->id;
         $orderMessage->private = true;
-        // TODO: FIX the url!
-        $orderMessage->message = 'Fyndiq delivery note: http://fyndiq.se' . $fyndiqOrder->delivery_note . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $url = FmHelpers::getShopUrl() . $module->get('_path') . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrder->id;
+        $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
         $orderMessage->add();
 
         // set order as valid
