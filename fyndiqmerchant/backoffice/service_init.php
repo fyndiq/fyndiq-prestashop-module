@@ -1,7 +1,7 @@
 <?php
 
 $storeRoot = dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME']))));
-
+require_once('./includes/shared/src/init.php');
 $timer_start = microtime(true);
 
 // NOTE: This root is wrong but config relies on these constants to be set to populate the proper context
