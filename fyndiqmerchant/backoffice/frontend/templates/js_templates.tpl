@@ -173,7 +173,7 @@
                         </tr>
                         <tr>
                             <th>{{fi18n "Fyndiq Discount"}}:</th>
-                            <td><div class="inputdiv"><input{{#unless fyndiq_exported}} disabled="disabled"{{/unless}} type="text" value="{{fyndiq_precentage}}" class="fyndiq_dicsount">%</div><span
+                            <td><div class="inputdiv"><input{{#unless fyndiq_exported}} disabled="disabled"{{/unless}} type="text" value="{{fyndiq_percentage}}" class="fyndiq_dicsount">%</div><span
                                         id="ajaxFired"></span>
                             </td>
                         </tr>
