@@ -123,7 +123,7 @@ class FmAjaxService
                 }
             }
 
-            $product['fyndiq_precentage'] = $discountPercentage;
+            $product['fyndiq_percentage'] = $discountPercentage;
             $product['expected_price'] = number_format(
                 (float)FyndiqUtils::getFyndiqPrice($product['price'], $discountPercentage),
                 2,
