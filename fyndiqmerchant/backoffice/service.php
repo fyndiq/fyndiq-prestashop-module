@@ -283,8 +283,8 @@ class FmAjaxService
             $this->response($result);
         } catch (Exception $e) {
             $this->responseError(
-                FmMessages::get('unhandled-error-title'),
-                FmMessages::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
+                FyndiqTranslation::get('unhandled-error-title'),
+                FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
         }
     }

@@ -166,7 +166,7 @@ class FmHelpers
                 fclose($fp);
                 die();
             }
-            return FmMessages::get('unhandled-error-message');
+            return FyndiqTranslation::get('unhandled-error-message');
         } catch (Exception $e) {
             return $e->getMessage();
         }
