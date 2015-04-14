@@ -16,7 +16,7 @@ class FmNotificationService {
      * @param array $params GET Params
      * @return mixed
      */
-    public function main($params) {
+    public function handleRequest($params) {
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
             if (method_exists($this, $eventName)) {
