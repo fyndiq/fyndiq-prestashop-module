@@ -55,6 +55,17 @@ class FmProduct
     }
 
     /**
+     * Returns the first category_id the product belongs to
+     *
+     * @param $product
+     * @return s
+     */
+    private static function getCategoryId($product) {
+        $categories = $product->getCategories();
+        return array_pop($categories);
+    }
+
+    /**
      * Returns single product with combinations or false if product is not active/found
      *
      * @param $productId
@@ -77,6 +88,7 @@ class FmProduct
 
         $result['id'] = $product->id;
         $result['name'] = $product->name;
+        $result['category_id'] = self::getCategoryId($product);
 
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();

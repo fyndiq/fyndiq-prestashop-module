@@ -7,6 +7,8 @@ class FmProductExport
     const SKU_SEPARATOR = '-';
 
     private static $skuList = array();
+    private static $categoryCache = array();
+
 
     static function productExist($productId)
     {
@@ -187,6 +189,21 @@ class FmProductExport
     }
 
     /**
+     * Get Category Name
+     *
+     * @param $categoryId
+     * @return string
+     */
+    private static function getCategoryName($categoryId)
+    {
+        if (!isset(self::$categoryCache[$categoryId])) {
+            $category = new Category($categoryId, Context::getContext()->language->id);
+            self::$categoryCache[$categoryId] = $category->name;
+        }
+        return self::$categoryCache[$categoryId];
+    }
+
+    /**
      * Collect export data for the product
      *
      * @param array $storeProduct - The product information from thr product
@@ -198,6 +215,8 @@ class FmProductExport
     {
         $exportProduct = array();
         $exportProduct['product-id'] = $fmProduct['id'];
+        $exportProduct['product-category-id'] = $storeProduct['category_id'];
+        $exportProduct['product-category-name'] = self::getCategoryName($storeProduct['category_id']);
         $exportProduct['product-currency'] = $currentCurrency;
         $exportProduct['article-quantity'] = 0;
         $exportProduct['product-description'] = $storeProduct['description'];
