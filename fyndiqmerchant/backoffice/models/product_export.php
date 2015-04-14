@@ -75,6 +75,10 @@ class FmProductExport
         '
         );
 
+        if (!is_writable(FmHelpers::getExportPath())) {
+            $ret &= createDir(FmHelpers::getExportPath(), 0777);
+        }
+
         return $ret;
     }
 

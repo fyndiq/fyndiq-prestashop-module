@@ -30,7 +30,7 @@ class FilePageController
         $apiToken = FmConfig::get('api_token');
         if (!empty($username) && !empty($apiToken)) {
 
-            $filePath = _PS_ROOT_DIR_.'/files/' . FmHelpers::getExportFileName();
+            $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
 
             if (!file_exists($filePath) || filemtime($filePath) < strtotime('-1 hour', time())) {
                 // Write the file if it does not exist or is older than the interval
