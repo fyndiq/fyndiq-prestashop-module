@@ -125,7 +125,7 @@
 </script>
 
 <script type="text/x-handlebars-template" class="handlebars-template" id="fm-product-list">
-    <a class="fm-button green fm-update-product-status">Update status</a>
+    <a class="fm-button green fm-update-product-status">{{fi18n "Update status"}}</a>
     {{> fm-product-list-controls}}
     <div class="fm-products-list-container">
         {{#if products}}
