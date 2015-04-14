@@ -1,6 +1,8 @@
 <?php
 
-class FyndiqProductSKUNotFound extends Exception{}
+class FyndiqProductSKUNotFound extends Exception
+{
+}
 
 function startsWith($haystack, $needle)
 {
@@ -86,7 +88,8 @@ class FmHelpers
         }
     }
 
-    public function getBaseModuleUrl() {
+    public function getBaseModuleUrl()
+    {
         return _PS_BASE_URL_ . __PS_BASE_URI__;
     }
 
@@ -124,6 +127,16 @@ class FmHelpers
     }
 
     /**
+     * Returns the export filename path
+     *
+     * @return string
+     */
+    public static function getExportPath()
+    {
+        return _PS_CACHE_DIR_ . '/fyndiqmerchant/';
+    }
+
+    /**
      * Returns the current shop id
      *
      * @return int
@@ -145,7 +158,7 @@ class FmHelpers
         $request = array(
             'orders' => array()
         );
-        foreach($orderIds as $orderId) {
+        foreach ($orderIds as $orderId) {
             $request['orders'][] = array('order' => $orderId);
         }
         try {
