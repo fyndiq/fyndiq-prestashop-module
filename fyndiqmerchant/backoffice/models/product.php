@@ -58,7 +58,7 @@ class FmProduct
      * Returns the first category_id the product belongs to
      *
      * @param $product
-     * @return s
+     * @return mixed
      */
     private static function getCategoryId($product) {
         $categories = $product->getCategories();
