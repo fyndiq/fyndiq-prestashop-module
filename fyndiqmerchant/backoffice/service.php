@@ -11,9 +11,6 @@ require_once('./models/order.php');
 class FmAjaxService
 {
 
-    const ITEMS_PER_PAGE = 10;
-    const PAGE_FRAME = 4;
-
     /**
      * Structure the response back to the client
      *
@@ -98,7 +95,7 @@ class FmAjaxService
         $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
         $page = (isset($args['page']) AND $args['page'] > 0) ? intval($args['page']) : 1;
-        $rows = FmProduct::getByCategory($args['category'], $page, self::ITEMS_PER_PAGE);
+        $rows = FmProduct::getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $discountPercentage = FmConfig::get('price_percentage');
 
@@ -138,7 +135,8 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmProduct::getAmount($args['category']);
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, self::ITEMS_PER_PAGE, self::PAGE_FRAME);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
+            FyndiqUtils::PAGINATION_PAGE_FRAME);
         $this->response($object);
     }
 
@@ -146,7 +144,7 @@ class FmAjaxService
     private function load_orders($args)
     {
         $page = (isset($args['page']) AND $args['page'] > 0) ? $args['page']: 1;
-        $orders = FmOrder::getImportedOrders($page, self::ITEMS_PER_PAGE);
+        $orders = FmOrder::getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $object = new stdClass();
         $object->orders = $orders;
@@ -154,7 +152,8 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmOrder::getAmount();
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, self::ITEMS_PER_PAGE, self::PAGE_FRAME);
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
+            FyndiqUtils::PAGINATION_PAGE_FRAME);
         $this->response($object);
     }
 
