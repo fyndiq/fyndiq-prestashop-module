@@ -188,9 +188,13 @@ class FmBackofficeControllers
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $apiToken);
                 $base = FmHelpers::getBaseModuleUrl();
+                $pingToken = Tools::encrypt(time());
+                FmConfig::set('ping_token', $pingToken);
                 $updateData = array(
                     'product_feed_url' => $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
-                    'notification_url' => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php'
+                    'notification_url' => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    // TODO: FIX the name when the feature is implemented
+                    'ping_url' => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
                 );
                 self::updateFeedUrl($updateData);
                 sleep(1);
