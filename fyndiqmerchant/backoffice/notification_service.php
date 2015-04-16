@@ -24,6 +24,7 @@ class FmNotificationService {
             }
         }
         header('HTTP/1.0 400 Bad Request');
+        die('400 Bad Request');
     }
 
     /**
@@ -44,10 +45,43 @@ class FmNotificationService {
                 }
             } catch (Exception $e) {
                 header('HTTP/1.0 500 Internal Server Error');
+                die('500 Internal Server Error');
             }
             return true;
         }
         header('HTTP/1.0 400 Bad Request');
+        die('400 Bad Request');
+    }
+
+    /**
+     * Generate feed
+     *
+     * @param $params
+     */
+    private function ping($params) {
+        $token = isset($params['token']) ? $params['token'] : null;
+        if (is_null($token) || $token != FmConfig::get('ping_token')) {
+            header('HTTP/1.0 400 Bad Request');
+            return die('400 Bad Request');
+        }
+        echo 'OK';
+        flush();
+        $locked = false;
+        $lastPing = FmConfig::get('ping_time');
+        if ($lastPing && $lastPing > strtotime('15 minutes ago')) {
+            $locked = true;
+        }
+        if (!$locked) {
+            FmConfig::set('ping_time', time());
+            $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
+            try {
+                $file = fopen($filePath, 'w+');
+                FmProductExport::saveFile($file);
+                fclose($file);
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
     }
 }
 
