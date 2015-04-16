@@ -64,8 +64,18 @@ class FmNotificationService {
             header('HTTP/1.0 400 Bad Request');
             return die('400 Bad Request');
         }
+
+        // http://stackoverflow.com/questions/138374/close-a-connection-early
+        ob_end_clean();
+        header('Connection: close');
+        ignore_user_abort(true); // just to be safe
+        ob_start();
         echo 'OK';
-        flush();
+        $size = ob_get_length();
+        header('Content-Length: ' . $size);
+        ob_end_flush(); // Strange behaviour, will not work
+        flush(); // Unless both are called !
+
         $locked = false;
         $lastPing = FmConfig::get('ping_time');
         if ($lastPing && $lastPing > strtotime('15 minutes ago')) {
