@@ -7,6 +7,7 @@ require_once('./service_init.php');
 require_once('./helpers.php');
 require_once('./models/config.php');
 require_once('./models/order.php');
+require_once('./models/product_export.php');
 
 class FmNotificationService {
 
