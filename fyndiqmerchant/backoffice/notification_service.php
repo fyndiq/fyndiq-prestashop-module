@@ -89,7 +89,7 @@ class FmNotificationService {
                 FmProductExport::saveFile($file);
                 fclose($file);
             } catch (Exception $e) {
-                die($e->getMessage());
+                error_log($e->getMessage());
             }
         }
     }
