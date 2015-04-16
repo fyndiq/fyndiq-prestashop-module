@@ -29,16 +29,21 @@ class FilePageController
         $username = FmConfig::get('username');
         $apiToken = FmConfig::get('api_token');
         if (!empty($username) && !empty($apiToken)) {
-
             $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
 
-            if (!file_exists($filePath) || filemtime($filePath) < strtotime('-1 hour', time())) {
+            // If ping does not function properly, generate the file if older than 2 hours on request
+            $fileExistsAndFresh = file_exists($filePath) && filemtime($filePath) > strtotime('-2 hour');
+            if (!$fileExistsAndFresh) {
                 // Write the file if it does not exist or is older than the interval
                 $file = fopen($filePath, 'w+');
                 FmProductExport::saveFile($file);
                 fclose($file);
             }
+
+            $lastModified = filemtime($filePath);
+
             $file = fopen($filePath, 'r');
+            header('Last-Modified: ' . date('r', $lastModified));
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename=feed.csv');
             header('Pragma: no-cache');
