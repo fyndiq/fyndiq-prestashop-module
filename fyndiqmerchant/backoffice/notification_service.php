@@ -7,6 +7,7 @@ require_once('./service_init.php');
 require_once('./helpers.php');
 require_once('./models/config.php');
 require_once('./models/order.php');
+require_once('./models/product_export.php');
 
 class FmNotificationService {
 
@@ -24,6 +25,7 @@ class FmNotificationService {
             }
         }
         header('HTTP/1.0 400 Bad Request');
+        die('400 Bad Request');
     }
 
     /**
@@ -44,10 +46,53 @@ class FmNotificationService {
                 }
             } catch (Exception $e) {
                 header('HTTP/1.0 500 Internal Server Error');
+                die('500 Internal Server Error');
             }
             return true;
         }
         header('HTTP/1.0 400 Bad Request');
+        die('400 Bad Request');
+    }
+
+    /**
+     * Generate feed
+     *
+     * @param $params
+     */
+    private function ping($params) {
+        $token = isset($params['token']) ? $params['token'] : null;
+        if (is_null($token) || $token != FmConfig::get('ping_token')) {
+            header('HTTP/1.0 400 Bad Request');
+            return die('400 Bad Request');
+        }
+
+        // http://stackoverflow.com/questions/138374/close-a-connection-early
+        ob_end_clean();
+        header('Connection: close');
+        ignore_user_abort(true); // just to be safe
+        ob_start();
+        echo 'OK';
+        $size = ob_get_length();
+        header('Content-Length: ' . $size);
+        ob_end_flush(); // Strange behaviour, will not work
+        flush(); // Unless both are called !
+
+        $locked = false;
+        $lastPing = FmConfig::get('ping_time');
+        if ($lastPing && $lastPing > strtotime('15 minutes ago')) {
+            $locked = true;
+        }
+        if (!$locked) {
+            FmConfig::set('ping_time', time());
+            $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
+            try {
+                $file = fopen($filePath, 'w+');
+                FmProductExport::saveFile($file);
+                fclose($file);
+            } catch (Exception $e) {
+                error_log($e->getMessage());
+            }
+        }
     }
 }
 
