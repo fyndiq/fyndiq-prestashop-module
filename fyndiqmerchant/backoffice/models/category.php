@@ -19,7 +19,7 @@ class FmCategory {
 
     public static function getSubcategories($categoryId) {
         $languageId = FmConfig::get('language');
-        $categoryId = $categoryId === 0 ? self::HOME_CATEGORY_ID : $categoryId;
+        $categoryId = $categoryId === 0 ? self::ROOT_CATEGORY_ID : $categoryId;
         return self::processCategories(Category::getChildren($categoryId, $languageId));
     }
 }
