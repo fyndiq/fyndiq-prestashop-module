@@ -259,7 +259,7 @@ class FmAjaxService
             $dbConn = DB::getInstance();
             $result = true;
             foreach ($ret['data'] as $statusRow) {
-                $result &= FmProduct::updateProductStatus($dbConn, $tableName, $statusRow->identifier, $statusRow->for_sale);
+                $result &= FmProduct::updateProductStatus($dbConn, $tableName, $statusRow->product_id, $statusRow->for_sale);
             }
             $this->response($result);
         } catch (Exception $e) {
