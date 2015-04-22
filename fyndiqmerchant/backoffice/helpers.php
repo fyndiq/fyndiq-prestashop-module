@@ -133,7 +133,7 @@ class FmHelpers
      */
     public static function getExportPath()
     {
-        return _PS_CACHE_DIR_ . '/fyndiqmerchant/';
+        return _PS_CACHE_DIR_ . 'fyndiqmerchant/';
     }
 
     /**
