@@ -4,6 +4,8 @@ require_once('config.php');
 
 class FmCategory {
 
+    const ROOT_CATEGORY_ID = 1;
+
     private static function processCategories($categories) {
         $result = array();
         foreach ($categories as $category) {
@@ -17,10 +19,7 @@ class FmCategory {
 
     public static function getSubcategories($categoryId) {
         $languageId = FmConfig::get('language');
-
-        if ($categoryId === 0) {
-            return self::processCategories(Category::getHomeCategories($languageId));
-        }
+        $categoryId = $categoryId === 0 ? self::ROOT_CATEGORY_ID : $categoryId;
         return self::processCategories(Category::getChildren($categoryId, $languageId));
     }
 }
