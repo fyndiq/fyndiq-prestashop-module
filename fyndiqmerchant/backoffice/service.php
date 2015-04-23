@@ -8,6 +8,7 @@ require_once('./models/product.php');
 require_once('./models/product_info.php');
 require_once('./models/config.php');
 require_once('./models/order.php');
+require_once('./models/order_fetch.php');
 
 class FmAjaxService
 {
@@ -180,18 +181,9 @@ class FmAjaxService
      */
     private function import_orders(/*$args*/)
     {
-        $url = 'orders/';
-        $date = FmConfig::get('import_date');
-        if (!empty($date)) {
-            $url .= '?min_date=' . urlencode($date);
-        }
         try {
-            $ret = FmHelpers::callApi('GET', $url);
-            foreach ($ret['data'] as $order) {
-                if (!FmOrder::orderExists($order->id)) {
-                    FmOrder::create($order);
-                }
-            }
+            $orderFetch = new FmOrderFetch();
+            $orderFetch->getAll();
             $newDate = date('Y-m-d H:i:s');
             FmConfig::set('import_date', $newDate);
             $time = date('G:i:s', strtotime($newDate));
