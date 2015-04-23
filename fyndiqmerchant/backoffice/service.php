@@ -5,6 +5,7 @@ require_once('./helpers.php');
 require_once('./models/product_export.php');
 require_once('./models/category.php');
 require_once('./models/product.php');
+require_once('./models/product_info.php');
 require_once('./models/config.php');
 require_once('./models/order.php');
 
@@ -253,14 +254,8 @@ class FmAjaxService
 
     private function update_product_status() {
         try {
-            $ret = FmHelpers::callApi('GET', 'product_info/');
-            $module = Module::getInstanceByName('fyndiqmerchant');
-            $tableName = $module->config_name . '_products';
-            $dbConn = DB::getInstance();
-            $result = true;
-            foreach ($ret['data'] as $statusRow) {
-                $result &= FmProduct::updateProductStatus($dbConn, $tableName, $statusRow->product_id, $statusRow->for_sale);
-            }
+            $pi = new FmProductInfo();
+            $result = $pi->getAll();
             $this->response($result);
         } catch (Exception $e) {
             $this->responseError(

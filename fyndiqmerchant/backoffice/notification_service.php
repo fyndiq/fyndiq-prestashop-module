@@ -7,7 +7,9 @@ require_once('./service_init.php');
 require_once('./helpers.php');
 require_once('./models/config.php');
 require_once('./models/order.php');
+require_once('./models/product.php');
 require_once('./models/product_export.php');
+require_once('./models/product_info.php');
 
 class FmNotificationService {
 
@@ -20,7 +22,7 @@ class FmNotificationService {
     public function handleRequest($params) {
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
-            if (method_exists($this, $eventName)) {
+            if ($eventName[0] != '_' && method_exists($this, $eventName)) {
                 return $this->$eventName($params);
             }
         }
@@ -79,7 +81,7 @@ class FmNotificationService {
 
         $locked = false;
         $lastPing = FmConfig::get('ping_time');
-        if ($lastPing && $lastPing > strtotime('15 minutes ago')) {
+        if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
         if (!$locked) {
@@ -89,10 +91,16 @@ class FmNotificationService {
                 $file = fopen($filePath, 'w+');
                 FmProductExport::saveFile($file);
                 fclose($file);
+                $this->_update_product_info();
             } catch (Exception $e) {
                 error_log($e->getMessage());
             }
         }
+    }
+
+    private function _update_product_info() {
+        $pi = new FmProductInfo();
+        $pi->getAll();
     }
 }
 
