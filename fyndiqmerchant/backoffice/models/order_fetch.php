@@ -1,10 +1,7 @@
 <?php
 
-
 class FmOrderFetch extends FyndiqPaginatedFetch
 {
-
-    const SLEEP_INTERVAL_SEC = 1;
 
     function getInitialPath()
     {
@@ -34,6 +31,6 @@ class FmOrderFetch extends FyndiqPaginatedFetch
 
     function getSleepIntervalSeconds()
     {
-        return self::SLEEP_INTERVAL_SEC;
+        return 1 / self::THROTTLE_ORDER_RPS;
     }
 }
