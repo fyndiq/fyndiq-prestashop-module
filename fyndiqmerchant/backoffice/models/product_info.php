@@ -3,8 +3,6 @@
 class FmProductInfo extends FyndiqPaginatedFetch
 {
 
-    const SLEEP_INTERVAL_SEC = 1;
-
     function __construct()
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
@@ -19,7 +17,7 @@ class FmProductInfo extends FyndiqPaginatedFetch
 
     function getSleepIntervalSeconds()
     {
-        return self::SLEEP_INTERVAL_SEC;
+        return 1 / self::THROTTLE_PRODUCT_INFO_RPS;
     }
 
     /**
