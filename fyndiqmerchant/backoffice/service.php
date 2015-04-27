@@ -154,7 +154,7 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmOrder::getAmount();
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, 3,
+        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
             FyndiqUtils::PAGINATION_PAGE_FRAME);
         $this->response($object);
     }
