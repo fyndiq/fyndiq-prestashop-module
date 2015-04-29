@@ -151,14 +151,19 @@ class FmProductExport
                 continue;
             }
 
+            $i = 0;
             // Deal with combinations
             foreach ($storeProduct['combinations'] as $combination) {
                 // Copy the product data so we have clear slate for each combination
                 $exportProductCopy = $exportProduct;
 
-                $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
-                    array($storeProduct['id'], $combination['id']));
-
+                if ($i === 0 ) {
+                    $exportProductCopy['article-sku'] = self::getSKU($storeProduct['reference'],
+                        array($storeProduct['id'], 0));
+                } else {
+                    $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
+                        array($storeProduct['id'], $combination['id']));
+                }
                 $exportProductCopy['article-quantity'] = $combination['quantity'];
                 $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
 
@@ -183,6 +188,7 @@ class FmProductExport
                 $exportProductCopy['article-name'] = implode(', ', $productName);
 
                 $feedWriter->addProduct($exportProductCopy);
+                $i++;
             }
         }
         return $feedWriter->write();
