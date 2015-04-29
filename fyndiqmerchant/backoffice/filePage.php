@@ -31,8 +31,8 @@ class FilePageController
         if (!empty($username) && !empty($apiToken)) {
             $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
 
-            // If ping does not function properly, generate the file if older than 2 hours on request
-            $fileExistsAndFresh = file_exists($filePath) && filemtime($filePath) > strtotime('-2 hour');
+            // If ping does not function properly, generate the file if older than 1 hour on request
+            $fileExistsAndFresh = file_exists($filePath) && filemtime($filePath) > strtotime('-1 hour');
             if (!$fileExistsAndFresh) {
                 // Write the file if it does not exist or is older than the interval
                 $file = fopen($filePath, 'w+');
