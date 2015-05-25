@@ -1,5 +1,9 @@
 .sass-cache
 .idea
 *.css.map
-build
+build/
 docs/*
+composer.lock
+vendor/
+*.sublime-project
+*.sublime-workspace
