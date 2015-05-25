@@ -1,23 +1,30 @@
 <?php
 
-class FmBackofficeControllers
+class FmController
 {
 
     const DEFAULT_DISCOUNT_PERCENTAGE = 10;
     const DEFAULT_ORDER_IMPORT_STATE = 3;
     const DEFAULT_ORDER_DONE_STATE = 4;
 
-    public static function main($module)
+    private $module;
+
+    public function __construct($module)
+    {
+        $this->module = $module;
+    }
+
+    public function handleRequest()
     {
         $output = '';
         $page = '';
         $pageArgs = array();
 
         if (Tools::isSubmit('submit_authenticate')) {
-            $ret = self::handleAuthentication($module);
+            $ret = $this->handleAuthentication();
             return $ret['output'];
         } // if no api connection exists yet (first time using module, or user pressed Disconnect Account)
-        elseif (!FmHelpers::apiConnectionExists($module)) {
+        elseif (!FmHelpers::apiConnectionExists($this->module)) {
             $page = 'authenticate';
 
         } else {
@@ -42,7 +49,7 @@ class FmBackofficeControllers
 
                 // if user pressed Disconnect Account on main pages
                 if (Tools::getValue('disconnect')) {
-                    self::handleDisconnect($module);
+                    $this->handleDisconnect();
                     Tools::redirect(FmHelpers::getModuleUrl());
                 }
 
@@ -75,12 +82,11 @@ class FmBackofficeControllers
         // render decided page
 
         if ($page == 'authenticate') {
-            $output .= self::showTemplate($module, 'authenticate');
+            $output .= $this->showTemplate('authenticate');
         }
 
         if ($page == 'api_unavailable') {
-            $output .= self::showTemplate(
-                $module,
+            $output .= $this->showTemplate(
                 'api_unavailable',
                 $pageArgs
             );
@@ -104,11 +110,9 @@ class FmBackofficeControllers
 
 
             $orderStates = OrderState::getOrderStates($context->language->id);
-            $states = array_filter($orderStates, array('FmBackofficeControllers', 'orderStateCheck'));
-
+            $states = array_filter($orderStates, array('FmController', 'orderStateCheck'));
 
             $output .= self::showTemplate(
-                $module,
                 'settings',
                 array(
                     'json_messages' => json_encode(FyndiqTranslation::getAll()),
@@ -126,7 +130,6 @@ class FmBackofficeControllers
         if ($page == 'main') {
             $path = FmHelpers::getModuleUrl();
             $output .= self::showTemplate(
-                $module,
                 'main',
                 array(
                     'json_messages' => json_encode(FyndiqTranslation::getAll()),
@@ -143,7 +146,6 @@ class FmBackofficeControllers
             $importDate = FmConfig::get('import_date');
             $isToday = date('Ymd') === date('Ymd', strtotime($importDate));
             $output .= self::showTemplate(
-                $module,
                 'order',
                 array(
                     'import_date' => $importDate,
@@ -164,7 +166,7 @@ class FmBackofficeControllers
         return OrderState::invoiceAvailable($state['id_order_state']);
     }
 
-    private static function handleAuthentication($module)
+    private function handleAuthentication()
     {
         $error = false;
         $output = '';
@@ -175,7 +177,7 @@ class FmBackofficeControllers
         // validate parameters
         if (empty($username) || empty($apiToken)) {
             $error = true;
-            $output .= $module->displayError(FyndiqTranslation::get('empty-username-token'));
+            $output .= $this->module->displayError(FyndiqTranslation::get('empty-username-token'));
 
             // ready to perform authentication
         } else {
@@ -200,7 +202,7 @@ class FmBackofficeControllers
                 Tools::redirect(FmHelpers::getModuleUrl());
             } catch (Exception $e) {
                 $error = true;
-                $output .= $module->displayError($e->getMessage());
+                $output .= $this->module->displayError($e->getMessage());
 
                 FmConfig::delete('username');
                 FmConfig::delete('api_token');
@@ -227,12 +229,12 @@ class FmBackofficeControllers
         return array('error' => true, 'output' => '');
     }
 
-    private static function handleDisconnect($module)
+    private function handleDisconnect()
     {
         // delete stored connection values
         if (FmConfig::delete('username') &&
             FmConfig::delete('api_token')) {
-            $output = $module->displayConfirmation(FyndiqTranslation::get('account-disconnected'));
+            $output = $this->module->displayConfirmation(FyndiqTranslation::get('account-disconnected'));
             return array('error' => false, 'output' => $output);
         }
         return array('error' => true, 'output' => '');
@@ -244,22 +246,22 @@ class FmBackofficeControllers
         FmHelpers::callApi('PATCH', 'settings/', $data);
     }
 
-    private static function showTemplate($module, $name, $args = array())
+    private function showTemplate($name, $args = array())
     {
         global $smarty;
         $templateArgs = array_merge(
             $args,
             array(
-                'server_path' => _PS_ROOT_DIR_ . '/modules/' . $module->name,
-                'module_path' => $module->get('_path'),
-                'shared_path' => $module->get('_path') . 'backoffice/includes/shared/',
-                'service_path' => $module->get('_path') . 'backoffice/service.php',
+                'server_path' => _PS_ROOT_DIR_ . '/modules/' . $this->module->name,
+                'module_path' => $this->module->get('_path'),
+                'shared_path' => $this->module->get('_path') . 'backoffice/includes/shared/',
+                'service_path' => $this->module->get('_path') . 'backoffice/service.php',
             )
         );
         $smarty->assign($templateArgs);
-        $smarty->registerPlugin('function', 'fi18n', array('FmBackofficeControllers', 'fi18n'));
+        $smarty->registerPlugin('function', 'fi18n', array('FmController', 'fi18n'));
 
-        return $module->display($module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
+        return $this->module->display($this->module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
     }
 
     public static function fi18n($params)

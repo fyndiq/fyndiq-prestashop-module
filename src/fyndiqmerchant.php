@@ -8,7 +8,7 @@ require_once('backoffice/models/config.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/init.php';
 require_once('backoffice/helpers.php');
-require_once('backoffice/controllers.php');
+require_once('backoffice/FmController.php');
 require_once('backoffice/models/product_export.php');
 require_once('backoffice/models/order.php');
 
@@ -37,7 +37,7 @@ class FyndiqMerchant extends Module
         }
 
         // custom properties specific to this module
-        // determines which prestashop language should be used when getting from database
+        // determines which PrestaShop language should be used when getting from database
         $this->language_id = 1;
         // used as user agent string when calling the API
         $this->user_agent = $this->name . '-' . $this->version;
@@ -67,17 +67,15 @@ class FyndiqMerchant extends Module
 
         $ret &= (bool)parent::uninstall();
 
-        // delete configuration
+        // Delete configuration
         $ret &= (bool)FmConfig::delete('username');
         $ret &= (bool)FmConfig::delete('api_token');
         $ret &= (bool)FmConfig::delete('language');
         $ret &= (bool)FmConfig::delete('price_percentage');
-        // NOTE: Don't delete the import date to prevent duplicated orders on reinstall
-        //$ret &= (bool)FmConfig::delete('import_date');
         $ret &= (bool)FmConfig::delete('import_state');
         $ret &= (bool)FmConfig::delete('done_state');
 
-        // drop product table
+        // Drop product table
         $ret &= FmProductExport::uninstall();
 
         // Remove the menu tab
@@ -125,7 +123,8 @@ class FyndiqMerchant extends Module
 
     public function getContent()
     {
-        return FmBackofficeControllers::main($this);
+        $controller = new FmController($this);
+        return $controller->handleRequest();
     }
 
     public function get($name)

@@ -3,7 +3,7 @@
 require_once('./service_init.php');
 require_once('./helpers.php');
 require_once('./models/product_export.php');
-require_once('./models/category.php');
+require_once('./models/FmCategory.php');
 require_once('./models/product.php');
 require_once('./models/product_info.php');
 require_once('./models/config.php');
