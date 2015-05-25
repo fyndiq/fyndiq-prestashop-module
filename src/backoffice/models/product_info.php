@@ -38,8 +38,8 @@ class FmProductInfo extends FyndiqPaginatedFetch
      * @param mixed $data
      * @return bool
      */
-     public function processData($data)
-     {
+    public function processData($data)
+    {
         $result = true;
         foreach ($data as $statusRow) {
             $result &= FmProduct::updateProductStatus(
@@ -50,5 +50,5 @@ class FmProductInfo extends FyndiqPaginatedFetch
             );
         }
         return $result;
-     }
+    }
 }

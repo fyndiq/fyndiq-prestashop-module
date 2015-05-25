@@ -16,12 +16,12 @@ class FmBackofficeControllers
         if (Tools::isSubmit('submit_authenticate')) {
             $ret = self::handleAuthentication($module);
             return $ret['output'];
-        }         # if no api connection exists yet (first time using module, or user pressed Disconnect Account)
+        } // if no api connection exists yet (first time using module, or user pressed Disconnect Account)
         elseif (!FmHelpers::apiConnectionExists($module)) {
             $page = 'authenticate';
 
         } else {
-            # check if api is up
+            // check if api is up
             $apiAvailable = false;
             try {
                 FmHelpers::callApi('GET', 'settings/');
@@ -35,23 +35,23 @@ class FmBackofficeControllers
                 }
             }
 
-            # if api is up
+            // if api is up
             if ($apiAvailable) {
-                # by default, show main page
+                // by default, show main page
                 $page = 'main';
 
-                # if user pressed Disconnect Account on main pages
+                // if user pressed Disconnect Account on main pages
                 if (Tools::getValue('disconnect')) {
                     self::handleDisconnect($module);
                     Tools::redirect(FmHelpers::getModuleUrl());
                 }
 
-                # if user pressed Show Settings button on main page
+                // if user pressed Show Settings button on main page
                 if (Tools::getValue('submit_show_settings')) {
                     $page = 'settings';
                 }
 
-                # if user pressed Save Settings button on settings page
+                // if user pressed Save Settings button on settings page
                 if (Tools::isSubmit('submit_save_settings')) {
                     $ret = self::handleSettings($module);
                     $output .= $ret['output'];
@@ -60,19 +60,19 @@ class FmBackofficeControllers
                     }
                 }
 
-                # if user pressed Save Settings button on settings page
+                // if user pressed Save Settings button on settings page
                 if (Tools::isSubmit('order')) {
                     $page = 'order';
                 }
 
-                # if not all settings exist yet (first time using module)
+                // if not all settings exist yet (first time using module)
                 if (!FmHelpers::allSettingsExist()) {
                     $page = 'settings';
                 }
             }
         }
 
-        #### render decided page
+        // render decided page
 
         if ($page == 'authenticate') {
             $output .= self::showTemplate($module, 'authenticate');
@@ -96,7 +96,7 @@ class FmBackofficeControllers
             $path = FmHelpers::getModuleUrl();
             $context = Context::getContext();
 
-            # if there is a configured language, show it as selected
+            // if there is a configured language, show it as selected
             $selectedLanguage =  $selectedLanguage ? $selectedLanguage : Configuration::get('PS_LANG_DEFAULT');
             $pricePercentage = $pricePercentage ? $pricePercentage : self::DEFAULT_DISCOUNT_PERCENTAGE;
             $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
@@ -172,25 +172,28 @@ class FmBackofficeControllers
         $username = strval(Tools::getValue('username'));
         $apiToken = strval(Tools::getValue('api_token'));
 
-        # validate parameters
+        // validate parameters
         if (empty($username) || empty($apiToken)) {
             $error = true;
             $output .= $module->displayError(FyndiqTranslation::get('empty-username-token'));
 
-            # ready to perform authentication
+            // ready to perform authentication
         } else {
-            # authenticate with Fyndiq API
+            // authenticate with Fyndiq API
             try {
-                # if no exceptions, authentication is successful
+                // if no exceptions, authentication is successful
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $apiToken);
                 $base = FmHelpers::getBaseModuleUrl();
                 $pingToken = Tools::encrypt(time());
                 FmConfig::set('ping_token', $pingToken);
                 $updateData = array(
-                    FyndiqUtils::NAME_PRODUCT_FEED_URL => $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
-                    FyndiqUtils::NAME_NOTIFICATION_URL => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php',
-                    FyndiqUtils::NAME_PING_URL => $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
+                    FyndiqUtils::NAME_PRODUCT_FEED_URL =>
+                        $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
+                    FyndiqUtils::NAME_NOTIFICATION_URL =>
+                        $base . 'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    FyndiqUtils::NAME_PING_URL =>
+                        $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
                 );
                 self::updateFeedUrl($updateData);
                 sleep(1);
@@ -226,7 +229,7 @@ class FmBackofficeControllers
 
     private static function handleDisconnect($module)
     {
-        # delete stored connection values
+        // delete stored connection values
         if (FmConfig::delete('username') &&
             FmConfig::delete('api_token')) {
             $output = $module->displayConfirmation(FyndiqTranslation::get('account-disconnected'));

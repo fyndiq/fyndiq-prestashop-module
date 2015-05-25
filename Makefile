@@ -33,7 +33,7 @@ php-lint:
 	find $(SRC_DIR) -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
 
 phpmd:
-	$(BIN_DIR)/phpmd $(SRC_DIR) --exclude /shared/,/api/ text cleancode,codesize,controversial,design,naming,unusedcode
+	$(BIN_DIR)/phpmd $(SRC_DIR) --exclude /includes/ text cleancode,codesize,controversial,design,naming,unusedcode
 
 coverage: clear_coverage
 	$(BIN_DIR)/phpunit --coverage-html $(COVERAGE_DIR)
