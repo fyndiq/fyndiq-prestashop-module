@@ -5,7 +5,7 @@ require_once('./includes/shared/src/init.php');
 $timer_start = microtime(true);
 
 // NOTE: This root is wrong but config relies on these constants to be set to populate the proper context
-if (!defined('_PS_ADMIN_DIR_')){
+if (!defined('_PS_ADMIN_DIR_')) {
     define('_PS_ADMIN_DIR_', $storeRoot);
 }
 if (!defined('PS_ADMIN_DIR')) {
@@ -25,28 +25,20 @@ if (file_exists($configPath)) {
 
 $shop_id = '';
 Shop::setContext(Shop::CONTEXT_ALL);
-if ($context->cookie->shopContext)
-{
+if ($context->cookie->shopContext) {
     $split = explode('-', $context->cookie->shopContext);
-    if (count($split) == 2)
-    {
-        if ($split[0] == 'g')
-        {
-            if ($context->employee->hasAuthOnShopGroup($split[1]))
+    if (count($split) == 2) {
+        if ($split[0] == 'g') {
+            if ($context->employee->hasAuthOnShopGroup($split[1])) {
                 Shop::setContext(Shop::CONTEXT_GROUP, $split[1]);
-            else
-            {
+            } else {
                 $shop_id = $context->employee->getDefaultShopID();
                 Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
             }
-        }
-        elseif ($context->employee->hasAuthOnShop($split[1]))
-        {
+        } elseif ($context->employee->hasAuthOnShop($split[1])) {
             $shop_id = $split[1];
             Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
-        }
-        else
-        {
+        } else {
             $shop_id = $context->employee->getDefaultShopID();
             Shop::setContext(Shop::CONTEXT_SHOP, $shop_id);
         }
@@ -55,6 +47,6 @@ if ($context->cookie->shopContext)
 // Replace existing shop if necessary
 if (!$shop_id) {
     $context->shop = new Shop(Configuration::get('PS_SHOP_DEFAULT'));
-} else if ($context->shop->id != $shop_id) {
+} elseif ($context->shop->id != $shop_id) {
     $context->shop = new Shop($shop_id);
 }

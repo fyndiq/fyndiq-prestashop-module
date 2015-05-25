@@ -11,7 +11,8 @@ require_once('./models/product.php');
 require_once('./models/product_export.php');
 require_once('./models/product_info.php');
 
-class FmNotificationService {
+class FmNotificationService
+{
 
     /**
      * Handle request
@@ -19,7 +20,8 @@ class FmNotificationService {
      * @param array $params GET Params
      * @return mixed
      */
-    public function handleRequest($params) {
+    public function handleRequest($params)
+    {
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
             if ($eventName[0] != '_' && method_exists($this, $eventName)) {
@@ -36,7 +38,8 @@ class FmNotificationService {
      * @param array $params
      * @return bool
      */
-    private function order_created($params) {
+    private function order_created($params)
+    {
         $orderId = isset($params['order_id']) && is_numeric($params['order_id']) ? $params['order_id'] : 0;
         if ($orderId) {
             $url = 'orders/' . $orderId . '/';
@@ -61,7 +64,8 @@ class FmNotificationService {
      *
      * @param $params
      */
-    private function ping($params) {
+    private function ping($params)
+    {
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != FmConfig::get('ping_token')) {
             header('HTTP/1.0 400 Bad Request');
@@ -98,7 +102,8 @@ class FmNotificationService {
         }
     }
 
-    private function _update_product_info() {
+    private function _update_product_info()
+    {
         $pi = new FmProductInfo();
         $pi->getAll();
     }

@@ -3,7 +3,8 @@
 
 $configPath = dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))) . '/config/config.inc.php';
 
-function exitWithError($message) {
+function exitWithError($message)
+{
     header('HTTP/1.1 500 Internal Server Error');
     die($message);
 }

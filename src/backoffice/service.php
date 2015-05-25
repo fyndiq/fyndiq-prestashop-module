@@ -96,7 +96,7 @@ class FmAjaxService
         // get currency
         $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
-        $page = (isset($args['page']) AND $args['page'] > 0) ? intval($args['page']) : 1;
+        $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = FmProduct::getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $discountPercentage = FmConfig::get('price_percentage');
@@ -117,7 +117,8 @@ class FmAjaxService
                 $discountPercentage = $fynProduct['exported_price_percentage'];
                 $product['fyndiq_exported'] = true;
                 switch ($fynProduct['state']) {
-                    case 'FOR_SALE' : $product['fyndiq_status'] = 'on'; break;
+                    case 'FOR_SALE': $product['fyndiq_status'] = 'on';
+                        break;
                     default: $product['fyndiq_status'] = 'pending';
                 }
             }
@@ -137,15 +138,19 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmProduct::getAmount($args['category']);
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
-            FyndiqUtils::PAGINATION_PAGE_FRAME);
+        $object->pagination = FyndiqUtils::getPaginationHTML(
+            $total,
+            $page,
+            FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
+            FyndiqUtils::PAGINATION_PAGE_FRAME
+        );
         $this->response($object);
     }
 
 
     private function load_orders($args)
     {
-        $page = (isset($args['page']) AND $args['page'] > 0) ? $args['page']: 1;
+        $page = (isset($args['page']) and $args['page'] > 0) ? $args['page']: 1;
         $orders = FmOrder::getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $object = new stdClass();
@@ -154,16 +159,20 @@ class FmAjaxService
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = FmOrder::getAmount();
-        $object->pagination = FyndiqUtils::getPaginationHTML($total, $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
-            FyndiqUtils::PAGINATION_PAGE_FRAME);
+        $object->pagination = FyndiqUtils::getPaginationHTML(
+            $total,
+            $page,
+            FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
+            FyndiqUtils::PAGINATION_PAGE_FRAME
+        );
         $this->response($object);
     }
 
     private function update_order_status($args)
     {
-        if(isset($args['orders']) && is_array($args['orders'])) {
+        if (isset($args['orders']) && is_array($args['orders'])) {
             $doneState = '';
-            foreach($args['orders'] as $order) {
+            foreach ($args['orders'] as $order) {
                 if (is_numeric($order)) {
                     $doneState = FmOrder::markOrderAsDone($order);
                 }
@@ -179,7 +188,7 @@ class FmAjaxService
      * @param $args
      * @throws PrestaShopException
      */
-    private function import_orders(/*$args*/)
+    private function import_orders()
     {
         try {
             $orderFetch = new FmOrderFetch();
@@ -228,7 +237,7 @@ class FmAjaxService
     private function update_product($args)
     {
         $result = false;
-        if ( isset($args['product']) && is_numeric($args['product'])
+        if (isset($args['product']) && is_numeric($args['product'])
             && isset($args['percentage']) && is_numeric($args['percentage'])) {
             $result = FmProductExport::updateProduct($args['product'], $args['percentage']);
         }
@@ -244,7 +253,8 @@ class FmAjaxService
         echo 'Please, pick at least one order';
     }
 
-    private function update_product_status() {
+    private function update_product_status()
+    {
         try {
             $pi = new FmProductInfo();
             $result = $pi->getAll();

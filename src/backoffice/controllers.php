@@ -16,9 +16,7 @@ class FmBackofficeControllers
         if (Tools::isSubmit('submit_authenticate')) {
             $ret = self::handleAuthentication($module);
             return $ret['output'];
-        }
-
-        # if no api connection exists yet (first time using module, or user pressed Disconnect Account)
+        }         # if no api connection exists yet (first time using module, or user pressed Disconnect Account)
         elseif (!FmHelpers::apiConnectionExists($module)) {
             $page = 'authenticate';
 
@@ -39,7 +37,6 @@ class FmBackofficeControllers
 
             # if api is up
             if ($apiAvailable) {
-
                 # by default, show main page
                 $page = 'main';
 
@@ -162,7 +159,8 @@ class FmBackofficeControllers
         return $output;
     }
 
-    private static function orderStateCheck($state) {
+    private static function orderStateCheck($state)
+    {
         return OrderState::invoiceAvailable($state['id_order_state']);
     }
 
@@ -181,7 +179,6 @@ class FmBackofficeControllers
 
             # ready to perform authentication
         } else {
-
             # authenticate with Fyndiq API
             try {
                 # if no exceptions, authentication is successful
@@ -210,7 +207,7 @@ class FmBackofficeControllers
         return array('error' => $error, 'output' => $output);
     }
 
-    private static function handleSettings(/*$module*/)
+    private static function handleSettings()
     {
         $languageId = intval(Tools::getValue('language_id'));
         $pricePercentage = intval(Tools::getValue('price_percentage'));
@@ -257,12 +254,13 @@ class FmBackofficeControllers
             )
         );
         $smarty->assign($templateArgs);
-        $smarty->registerPlugin('function','fi18n', array('FmBackofficeControllers', 'fi18n'));
+        $smarty->registerPlugin('function', 'fi18n', array('FmBackofficeControllers', 'fi18n'));
 
         return $module->display($module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
     }
 
-    public static function fi18n($params) {
+    public static function fi18n($params)
+    {
         return FyndiqTranslation::get($params['s']);
     }
 }

@@ -10,7 +10,7 @@ class FmProduct
             $link = new Link();
             $image = $link->getImageLink($linkRewrite, $idImage, $imageType);
         }
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             $context = Context::getContext();
             $image = $context->link->getImageLink($linkRewrite, $idImage, $imageType);
         }
@@ -27,7 +27,8 @@ class FmProduct
         return Tools::ps_round($convertedPrice, 2);
     }
 
-    private static function getImageType() {
+    private static function getImageType()
+    {
         ### get the medium image type
         $imageTypeName = array(
             FMPSV16 => 'large_default',
@@ -43,7 +44,8 @@ class FmProduct
         return '';
     }
 
-    private static function getProductAttributes($product, $languageId) {
+    private static function getProductAttributes($product, $languageId)
+    {
         $getAttrCombinations = array(
             FMPSV14 => 'getAttributeCombinaisons',
             FMPSV15 => 'getAttributeCombinations',
@@ -60,7 +62,8 @@ class FmProduct
      * @param $product
      * @return mixed
      */
-    private static function getCategoryId($product) {
+    private static function getCategoryId($product)
+    {
         $categories = $product->getCategories();
         return array_pop($categories);
     }
@@ -131,17 +134,14 @@ class FmProduct
 
             // if this combination has no image yet
             if (empty($result['combinations'][$id]['image'])) {
-
                 // if this combination has any images
                 if ($combinationImages) {
                     foreach ($combinationImages as $combinationImage) {
-
                         // data array is stored in another array with only one key: 0. I have no idea why
                         $combinationImage = $combinationImage[0];
 
                         // if combination image belongs to the same product attribute mapping as the current combinationn
                         if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
-
                             $image = self::getImageLink(
                                 $product->link_rewrite,
                                 $combinationImage['id_image'],
@@ -196,7 +196,8 @@ class FmProduct
      * @param string $status
      * @return bool
      */
-    public static function updateProductStatus($dbConn, $tableName, $productId, $status) {
+    public static function updateProductStatus($dbConn, $tableName, $productId, $status)
+    {
         $where = 'id=' . $dbConn->escape($productId);
         return $dbConn->update($tableName, array('state' => $status), $where);
     }

@@ -21,7 +21,32 @@ clean:
 	rm -r $(BUILD_DIR)
 
 css:
-	cd $(SRC_DIR)/frontend/css; scss -C --sourcemap=none main.scss:main.css
+	cd $(SRC_DIR)/backoffice/frontend/css; scss -C --sourcemap=none main.scss:main.css
 
 test:
 	$(BIN_DIR)/phpunit
+
+scss-lint:
+	scss-lint $(SRC_DIR)/admin/fyndiq/frontend/css/*.scss
+
+php-lint:
+	find $(SRC_DIR) -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
+
+phpmd:
+	$(BIN_DIR)/phpmd $(SRC_DIR) --exclude /shared/,/api/ text cleancode,codesize,controversial,design,naming,unusedcode
+
+coverage: clear_coverage
+	$(BIN_DIR)/phpunit --coverage-html $(COVERAGE_DIR)
+
+clear_coverage:
+	rm -rf $(COVERAGE_DIR)
+
+sniff:
+	$(BIN_DIR)/phpcs --standard=PSR2 --extensions=php --ignore=shared,templates,api --colors $(SRC_DIR)
+
+sniff-fix:
+	$(BIN_DIR)/phpcbf --standard=PSR2 --extensions=php --ignore=shared,templates,api $(SRC_DIR)
+	$(BIN_DIR)/phpcbf --standard=PSR2 --extensions=php $(TESTS_DIR)
+
+compatinfo:
+	$(BIN_DIR)/phpcompatinfo analyser:run $(SRC_DIR)

@@ -157,12 +157,16 @@ class FmProductExport
                 // Copy the product data so we have clear slate for each combination
                 $exportProductCopy = $exportProduct;
 
-                if ($i === 0 ) {
-                    $exportProductCopy['article-sku'] = self::getSKU($storeProduct['reference'],
-                        array($storeProduct['id'], 0));
+                if ($i === 0) {
+                    $exportProductCopy['article-sku'] = self::getSKU(
+                        $storeProduct['reference'],
+                        array($storeProduct['id'], 0)
+                    );
                 } else {
-                    $exportProductCopy['article-sku'] = self::getSKU($combination['reference'],
-                        array($storeProduct['id'], $combination['id']));
+                    $exportProductCopy['article-sku'] = self::getSKU(
+                        $combination['reference'],
+                        array($storeProduct['id'], $combination['id'])
+                    );
                 }
                 $exportProductCopy['article-quantity'] = $combination['quantity'];
                 $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);

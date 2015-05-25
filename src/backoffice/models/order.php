@@ -53,7 +53,7 @@ class FmOrder
         $context = new stdClass();
 
         // if the Presta Shop 1.5 and 1.6 is used, use the context class.
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             $context = Context::getContext();
         } else {
             $context->shop = new stdClass();
@@ -194,7 +194,7 @@ class FmOrder
         }
 
 
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             // create a internal reference for the order.
             $reference = Order::generateReference();
         }
@@ -214,7 +214,7 @@ class FmOrder
         // Create an order
         $prestaOrder = new Order();
 
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             $prestaOrder->reference = $reference;
         }
 
@@ -269,7 +269,7 @@ class FmOrder
         $prestaOrder->total_discounts = 0.00;
         $prestaOrder->total_shipping = 0.00;
 
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             $prestaOrder->total_shipping_tax_excl = 0.00;
             $prestaOrder->total_shipping_tax_incl = 0.00;
         }
@@ -307,7 +307,7 @@ class FmOrder
         }
 
         // Insert new Order detail list using cart for the current order
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             $orderDetail = new OrderDetail();
             $orderDetail->createList(
                 $prestaOrder,
@@ -329,7 +329,7 @@ class FmOrder
             }
         }
 
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
             $prestaOrder->addOrderPayment($prestaOrder->total_products_wt, self::FYNDIQ_PAYMENT_METHOD);
         }

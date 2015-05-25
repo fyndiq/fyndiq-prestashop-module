@@ -74,13 +74,20 @@ class FmHelpers
         $module = Module::getInstanceByName('fyndiqmerchant');
         $userAgent = $module->user_agent;
 
-        return FyndiqAPICall::callApiRaw($userAgent, $username, $apiToken, $method, $path, $data,
-            array('FyndiqAPI', 'call'));
+        return FyndiqAPICall::callApiRaw(
+            $userAgent,
+            $username,
+            $apiToken,
+            $method,
+            $path,
+            $data,
+            array('FyndiqAPI', 'call')
+        );
     }
 
     public static function dbEscape($value)
     {
-        if (FMPSV == FMPSV15 OR FMPSV == FMPSV16) {
+        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
             return Db::getInstance()->_escape($value);
         }
         if (FMPSV == FMPSV14) {
