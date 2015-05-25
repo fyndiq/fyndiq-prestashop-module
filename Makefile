@@ -14,3 +14,9 @@ build: clean
 
 clean:
 	rm -r $(BUILD)
+
+css:
+	cd $(SRC_DIR)/frontend/css; scss -C --sourcemap=none main.scss:main.css
+
+test:
+	$(BIN_DIR)/phpunit
