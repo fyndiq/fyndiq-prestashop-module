@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true">
+    <testsuites>
+        <testsuite name="Fyndiq Gambio Module">
+            <directory>tests/src/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+            <exclude>
+                <file>src/admin/fyndiq.php</file>
+                <file>src/admin/fyndiq/helpers.php</file>
+                <directory suffix=".php">src/export/</directory>
+                <directory suffix=".php">src/admin/fyndiq/shared/</directory>
+                <directory suffix=".php">src/admin/fyndiq/api/</directory>
+                <directory suffix=".php">src/admin/fyndiq/templates/</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>
