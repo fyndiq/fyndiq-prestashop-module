@@ -1,7 +1,5 @@
 <?php
 
-require_once('config.php');
-
 class FmProduct
 {
     private static function getImageLink($linkRewrite, $idImage, $imageType)

@@ -4,10 +4,12 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once('backoffice/models/config.php');
+require_once('backoffice/FmConfig.php');
+require_once('backoffice/FmOutput.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/init.php';
-require_once('backoffice/helpers.php');
+require_once('backoffice/FmHelpers.php');
+require_once('backoffice/FmPrestashop.php');
 require_once('backoffice/FmController.php');
 require_once('backoffice/models/product_export.php');
 require_once('backoffice/models/order.php');
@@ -31,10 +33,6 @@ class FyndiqMerchant extends Module
         $this->displayName = 'Fyndiq';
         $this->description = FyndiqTranslation::get('module-description');
         $this->confirmUninstall = FyndiqTranslation::get('uninstall-confirm');
-
-        if (FmHelpers::apiConnectionExists($this)) {
-            $this->warning = $this->l(FyndiqTranslation::get('not-authenticated-warning'));
-        }
 
         // custom properties specific to this module
         // determines which PrestaShop language should be used when getting from database
@@ -123,7 +121,10 @@ class FyndiqMerchant extends Module
 
     public function getContent()
     {
-        $controller = new FmController($this);
+        $fmPrestashop = new FmPrestashop();
+        $fmOutput = new FmOutput($fmPrestashop, $this, $this->context->smarty);
+        $fmConfig = new FmConfig($fmPrestashop);
+        $controller = new FmController($fmPrestashop, $fmOutput, $fmConfig);
         return $controller->handleRequest();
     }
 

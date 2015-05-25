@@ -1,17 +1,30 @@
 <?php
 
 require_once('./service_init.php');
-require_once('./helpers.php');
+require_once('./FmHelpers.php');
+require_once('./models/FmModel.php');
+require_once('./FmPrestashop.php');
+require_once('./FmOutput.php');
 require_once('./models/product_export.php');
 require_once('./models/FmCategory.php');
 require_once('./models/product.php');
 require_once('./models/product_info.php');
-require_once('./models/config.php');
+require_once('./FmConfig.php');
 require_once('./models/order.php');
 require_once('./models/order_fetch.php');
 
 class FmAjaxService
 {
+
+    protected $fmPrestashop;
+    protected $fmOutput;
+    protected $fmConfig;
+
+    public function __construct($fmPrestashop, $fmOutput, $fmConfig) {
+        $this->fmPrestashop = $fmPrestashop;
+        $this->fmOutput = $fmOutput;
+        $this->fmConfig = $fmConfig;
+    }
 
     /**
      * Structure the response back to the client
@@ -80,8 +93,9 @@ class FmAjaxService
      */
     private function get_categories($args)
     {
-        $categories = FmCategory::getSubcategories(intval($args['category_id']));
-        $this->response($categories);
+        $fmCategory = new FmCategory($this->fmPrestashop, $this->fmConfig);
+        $categories = $fmCategory->getSubcategories(intval($args['category_id']));
+        return $this->response($categories);
     }
 
     /**
@@ -99,7 +113,7 @@ class FmAjaxService
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = FmProduct::getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
-        $discountPercentage = FmConfig::get('price_percentage');
+        $discountPercentage = $this->fmConfig->get('price_percentage');
 
         foreach ($rows as $row) {
             $product = FmProduct::get($row['id_product']);
@@ -270,7 +284,10 @@ class FmAjaxService
 
 $cookie = new Cookie('psAdmin');
 if ($cookie->id_employee) {
-    $ajaxService = new FmAjaxService();
+    $fmPrestashop = new FmPrestashop();
+    $fmOutput = new FmOutput($fmPrestashop, null, null);
+    $fmConfig = new FmConfig($fmPrestashop);
+    $ajaxService = new FmAjaxService($fmPrestashop, $fmOutput, $fmConfig);
     $ajaxService->handleRequest($_POST);
     exit();
 }

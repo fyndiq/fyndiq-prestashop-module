@@ -7,26 +7,119 @@ class FmController
     const DEFAULT_ORDER_IMPORT_STATE = 3;
     const DEFAULT_ORDER_DONE_STATE = 4;
 
-    private $module;
+    private $data = array();
+    private $fmOutput;
+    private $fmConfig;
+    private $fmPrestashop;
 
-    public function __construct($module)
+    public function __construct($fmPrestashop, $fmOutput, $fmConfig)
     {
-        $this->module = $module;
+        $this->fmOutput = $fmOutput;
+        $this->fmConfig = $fmConfig;
+        $this->fmPrestashop = $fmPrestashop;
+
+        $path = FmHelpers::getModuleUrl();
+        $this->data = array(
+            'json_messages' => json_encode(FyndiqTranslation::getAll()),
+            'messages' => FyndiqTranslation::getAll(),
+            'path' => $path
+        );
+    }
+
+    // TODO: FIXME
+    private function serviceIsOperational($action) {
+        return $action;
     }
 
     public function handleRequest()
     {
+        $action = $this->fmPrestashop->toolsGetValue('action');
+        $action = $action ? $action : 'main';
+
+        // Force authorize if not authorized
+        $action = $this->fmConfig->isAuthorized() ? $action : 'authorize';
+        // Force setup if not set up
+        $action = $this->fmConfig->isSetUp() ? $action : 'settings';
+        $action = $action != 'authorize' ? $this->serviceIsOperational($action) : $action;
+
+        switch($action) {
+            case 'api_unavailable':
+                return $this->apiUnavailable();
+            case 'authorize':
+                return $this->authorize();
+            case 'main':
+                return $this->main();
+            case 'settings':
+                return $this->settings();
+            case 'orders':
+                return $this->orders();
+            case 'disconnect':
+                return $this->disconnect();
+            case 'service':
+                return $this->service();
+            default:
+                return $this->fmOutput->showError(404, 'Not Found', '404 Not Found');
+        }
+    }
+
+
+    private function main() {
+        $this->data['language'] = new Language($this->fmConfig->get('language'));
+        $this->data['currency'] = new Currency($this->fmConfig->get('currency'));
+        $this->data['username'] = $this->fmConfig->get('username');
+
+        return $this->fmOutput->showTemplate('main', $this->data);
+    }
+
+    private function settings() {
+        $selectedLanguage = $this->fmConfig->get('language');
+        $pricePercentage = $this->fmConfig->get('price_percentage');
+        $orderImportState = $this->fmConfig->get('import_state');
+        $orderDoneState = $this->fmConfig->get('done_state');
+
+        $path = FmHelpers::getModuleUrl();
+        $context = $this->fmPrestashop->contextGetContext();
+
+        // if there is a configured language, show it as selected
+        $selectedLanguage =  $selectedLanguage ?
+            $selectedLanguage :
+            $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT');
+        $pricePercentage = $pricePercentage ? $pricePercentage : self::DEFAULT_DISCOUNT_PERCENTAGE;
+        $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
+        $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
+
+        $orderStates = $this->fmPrestashop->orderStateGetOrderStates($context->language->id);
+
+        $states = array();
+        foreach($orderStates as $orderState) {
+            if ($this->fmPrestashop->orderStateInvoiceAvailable($orderState['id_order_state'])){
+                $states[] = $orderState;
+            }
+        }
+
+        $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
+        $this->data['price_percentage'] = $pricePercentage;
+        $this->data['selected_language'] = $selectedLanguage;
+        $this->data['order_states'] = $states;
+        $this->data['order_import_state'] = $orderImportState;
+        $this->data['order_done_state'] = $orderDoneState;
+
+        return $this->fmOutput->showTemplate('settings', $this->data);
+    }
+
+/*
+
+
         $output = '';
         $page = '';
         $pageArgs = array();
 
-        if (Tools::isSubmit('submit_authenticate')) {
+        if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
             $ret = $this->handleAuthentication();
             return $ret['output'];
-        } // if no api connection exists yet (first time using module, or user pressed Disconnect Account)
-        elseif (!FmHelpers::apiConnectionExists($this->module)) {
+        } elseif (!$this->fmConfig->apiConnectionExists($this->module)) {
+            // if no api connection exists yet (first time using module, or user pressed Disconnect Account)
             $page = 'authenticate';
-
         } else {
             // check if api is up
             $apiAvailable = false;
@@ -48,19 +141,19 @@ class FmController
                 $page = 'main';
 
                 // if user pressed Disconnect Account on main pages
-                if (Tools::getValue('disconnect')) {
+                if ($this->fmPrestashop->toolsGetValue('disconnect')) {
                     $this->handleDisconnect();
-                    Tools::redirect(FmHelpers::getModuleUrl());
+                    return $this->fmPrestashop->redirect(FmHelpers::getModuleUrl());
                 }
 
                 // if user pressed Show Settings button on main page
-                if (Tools::getValue('submit_show_settings')) {
+                if ($this->fmPrestashop->toolsGetValue('submit_show_settings')) {
                     $page = 'settings';
                 }
 
                 // if user pressed Save Settings button on settings page
-                if (Tools::isSubmit('submit_save_settings')) {
-                    $ret = self::handleSettings($module);
+                if ($this->fmPrestashop->toolsIsSubmit('submit_save_settings')) {
+                    $ret = $this->handleSettings();
                     $output .= $ret['output'];
                     if ($ret['error']) {
                         $page = 'settings';
@@ -68,7 +161,7 @@ class FmController
                 }
 
                 // if user pressed Save Settings button on settings page
-                if (Tools::isSubmit('order')) {
+                if ($this->fmPrestashop->toolsIsSubmit('order')) {
                     $page = 'order';
                 }
 
@@ -82,7 +175,7 @@ class FmController
         // render decided page
 
         if ($page == 'authenticate') {
-            $output .= $this->showTemplate('authenticate');
+            return $this->showTemplate('authenticate');
         }
 
         if ($page == 'api_unavailable') {
@@ -160,19 +253,14 @@ class FmController
 
         return $output;
     }
-
-    private static function orderStateCheck($state)
-    {
-        return OrderState::invoiceAvailable($state['id_order_state']);
-    }
-
+*/
     private function handleAuthentication()
     {
         $error = false;
         $output = '';
 
-        $username = strval(Tools::getValue('username'));
-        $apiToken = strval(Tools::getValue('api_token'));
+        $username = strval($this->fmPrestashop->toolsGetValue('username'));
+        $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
 
         // validate parameters
         if (empty($username) || empty($apiToken)) {
@@ -187,7 +275,7 @@ class FmController
                 FmConfig::set('username', $username);
                 FmConfig::set('api_token', $apiToken);
                 $base = FmHelpers::getBaseModuleUrl();
-                $pingToken = Tools::encrypt(time());
+                $pingToken = $this->fmPrestashop->toolsEncrypt(time());
                 FmConfig::set('ping_token', $pingToken);
                 $updateData = array(
                     FyndiqUtils::NAME_PRODUCT_FEED_URL =>
@@ -197,9 +285,9 @@ class FmController
                     FyndiqUtils::NAME_PING_URL =>
                         $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
                 );
-                self::updateFeedUrl($updateData);
+                $this->updateFeedUrl($updateData);
                 sleep(1);
-                Tools::redirect(FmHelpers::getModuleUrl());
+                $this->fmPrestashop->toolsRedirect(FmHelpers::getModuleUrl());
             } catch (Exception $e) {
                 $error = true;
                 $output .= $this->module->displayError($e->getMessage());
@@ -214,10 +302,10 @@ class FmController
 
     private static function handleSettings()
     {
-        $languageId = intval(Tools::getValue('language_id'));
-        $pricePercentage = intval(Tools::getValue('price_percentage'));
-        $orderImportState = intval(Tools::getValue('order_import_state'));
-        $orderDoneState = intval(Tools::getValue('order_done_state'));
+        $languageId = intval($this->fmPrestashop->toolsGetValue('language_id'));
+        $pricePercentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
+        $orderImportState = intval($this->fmPrestashop->toolsGetValue('order_import_state'));
+        $orderDoneState = intval($this->fmPrestashop->toolsGetValue('order_done_state'));
 
         if (FmConfig::set('language', $languageId) &&
             FmConfig::set('price_percentage', $pricePercentage) &&
@@ -241,31 +329,8 @@ class FmController
     }
 
 
-    private static function updateFeedUrl($data)
+    private function updateFeedUrl($data)
     {
         FmHelpers::callApi('PATCH', 'settings/', $data);
-    }
-
-    private function showTemplate($name, $args = array())
-    {
-        global $smarty;
-        $templateArgs = array_merge(
-            $args,
-            array(
-                'server_path' => _PS_ROOT_DIR_ . '/modules/' . $this->module->name,
-                'module_path' => $this->module->get('_path'),
-                'shared_path' => $this->module->get('_path') . 'backoffice/includes/shared/',
-                'service_path' => $this->module->get('_path') . 'backoffice/service.php',
-            )
-        );
-        $smarty->assign($templateArgs);
-        $smarty->registerPlugin('function', 'fi18n', array('FmController', 'fi18n'));
-
-        return $this->module->display($this->module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
-    }
-
-    public static function fi18n($params)
-    {
-        return FyndiqTranslation::get($params['s']);
     }
 }

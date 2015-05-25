@@ -32,25 +32,6 @@ class FmHelpers
 {
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
 
-    public static function apiConnectionExists()
-    {
-        $ret = true;
-        $ret = $ret && FmConfig::get('username') !== false;
-        $ret = $ret && FmConfig::get('api_token') !== false;
-
-        return $ret;
-    }
-
-    public static function allSettingsExist()
-    {
-        $ret = true;
-        $ret = $ret && FmConfig::get('language') !== false;
-        $ret = $ret && FmConfig::get('import_state') !== false;
-        $ret = $ret && FmConfig::get('done_state') !== false;
-
-        return $ret;
-    }
-
     /**
      * Wrappers around FyndiqAPI -  uses stored connection credentials for authentication
      *

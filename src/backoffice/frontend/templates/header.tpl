@@ -25,8 +25,8 @@
         {if $buttons}
         <div class="navbar-right">
             <a href="{$path}" {if $current == "main"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon comp"></i> {fi18n s='Export Products'}</a>
-            <a href="{$path}&order=1" {if $current == "order"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon boxes"></i> {fi18n s='Imported Orders'}</a>
-            <a href="{$path}&submit_show_settings=1" {if $current == "settings"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon cog"></i> {fi18n s='Settings'}</a>
+            <a href="{$path}&action=orders" {if $current == "order"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon boxes"></i> {fi18n s='Imported Orders'}</a>
+            <a href="{$path}&action=settings" {if $current == "settings"}class="btn btn-nav active"{else}class="btn btn-nav"{/if}><i class="menu-icon cog"></i> {fi18n s='Settings'}</a>
         </div>
         {/if}
     </div>
