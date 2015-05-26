@@ -10,7 +10,8 @@ class FmPrestashop
 
     public $fmPsv = '';
 
-    public function __construct(){
+    public function __construct()
+    {
         $version = $this->globalGetVersion();
 
         if (stripos($version, '1.4.') === 0) {
@@ -78,7 +79,8 @@ class FmPrestashop
         return _PS_BASE_URL_ . __PS_BASE_URI__;
     }
 
-    private function globalGetVersion() {
+    private function globalGetVersion()
+    {
         return _PS_VERSION_;
     }
 
