@@ -303,4 +303,61 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->controller->handleRequest();
         $this->assertTrue($result);
     }
+
+    public function testHandleRequestServiceUnauthorized() {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
+
+
+        $fmApiModel = $this->getMockBuilder('FmApiModel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $fmApiModel->method('callApi')->will($this->throwException(new Exception('Unauthorized')));
+
+        $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig, $fmApiModel);
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('authenticate'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                ))
+            )
+            ->willReturn(true);
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestServiceNotOperational() {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
+
+
+        $fmApiModel = $this->getMockBuilder('FmApiModel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $fmApiModel->method('callApi')->will($this->throwException(new Exception('Test Exception')));
+
+        $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig, $fmApiModel);
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('api_unavailable'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                    'message' => 'Test Exception',
+                ))
+            )
+            ->willReturn(true);
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+
 }
