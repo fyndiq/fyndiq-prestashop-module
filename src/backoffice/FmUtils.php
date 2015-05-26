@@ -4,8 +4,11 @@ class FyndiqProductSKUNotFound extends Exception
 {
 }
 
-class FmHelpers
+class FmUtils
 {
+    const MODULE_NAME = 'fyndiqmerchant';
+    const VERSION = '1.0.0';
+
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
 
     /**

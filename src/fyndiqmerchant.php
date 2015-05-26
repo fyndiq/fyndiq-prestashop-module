@@ -4,11 +4,11 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once('backoffice/FmUtils.php');
 require_once('backoffice/FmConfig.php');
 require_once('backoffice/FmOutput.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/init.php';
-require_once('backoffice/FmHelpers.php');
 require_once('backoffice/FmPrestashop.php');
 require_once('backoffice/FmController.php');
 require_once('backoffice/models/product_export.php');
@@ -21,9 +21,9 @@ class FyndiqMerchant extends Module
     public function __construct()
     {
         $this->config_name = 'FYNDIQMERCHANT';
-        $this->name = 'fyndiqmerchant';
+        $this->name = FmUtils::MODULE_NAME;
         $this->tab = 'market_place';
-        $this->version = '1.0.0';
+        $this->version = FmUtils::VERSION;
         $this->author = 'Fyndiq AB';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6');

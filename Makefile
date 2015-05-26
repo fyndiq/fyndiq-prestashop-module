@@ -7,7 +7,7 @@ COVERAGE_DIR = $(BASE)/coverage
 BIN_DIR = $(BASE)/vendor/bin
 
 COMMIT = $(shell git rev-parse --short HEAD)
-MODULE_VERSION = $(shell grep -Po "version = '\K[^']*" src/fyndiqmerchant.php)
+MODULE_VERSION = $(shell grep -Po "VERSION = '\K[^']*" src/backoffice/FmUtils.php)
 
 build: clean
 	mkdir $(BUILD_DIR)
