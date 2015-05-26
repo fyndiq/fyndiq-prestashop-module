@@ -121,9 +121,9 @@ class FmController
                 $this->fmConfig->set('import_state', $orderImportState) &&
                 $this->fmConfig->set('done_state', $orderDoneState)
             ) {
-                return $this->fmOutput->showError(FyndiqTranslation::get('Error saving settings'));
+                return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
-            $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
+            return $this->fmOutput->showError(FyndiqTranslation::get('Error saving settings'));
         }
 
         $selectedLanguage = $this->fmConfig->get('language');
@@ -173,8 +173,8 @@ class FmController
     {
         if ($this->fmConfig->delete('username') &&
             $this->fmConfig->delete('api_token')) {
-            return $this->fmOutput->showError(FyndiqTranslation::get('Error disconnecting account'));
+            return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
         }
-        return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
+        return $this->fmOutput->showError(FyndiqTranslation::get('Error disconnecting account'));
     }
 }

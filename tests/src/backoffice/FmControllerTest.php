@@ -122,6 +122,35 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
+    public function testHandleRequestSettingsSaveSuccess()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('settings');
+        $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
+        $this->fmConfig->method('set')->willReturn(true);
+        $this->fmOutput->expects($this->once())
+            ->method('redirect')
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestSettingsSaveFail()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('settings');
+        $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
+        $this->fmConfig->method('set')->willReturn(false);
+        $this->fmOutput->expects($this->once())
+            ->method('showError')
+            ->with(
+                $this->equalTo('NT: Error saving settings')
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
     public function testHandleRequestOrders()
     {
         $this->fmPrestashop->method('toolsGetValue')->willReturn('orders');
@@ -149,9 +178,22 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
     public function testHandleRequestDisconnect()
     {
         $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
+        $this->fmConfig->method('delete')->willReturn(true);
 
         $this->fmOutput->expects($this->once())
             ->method('redirect')
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestDisconnectNotSuccessful()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
+
+        $this->fmOutput->expects($this->once())
+            ->method('showError')
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
