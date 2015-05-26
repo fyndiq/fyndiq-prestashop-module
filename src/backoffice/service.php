@@ -1,13 +1,13 @@
 <?php
 
 require_once('./service_init.php');
-require_once('./FmHelpers.php');
+require_once('./FmUtils.php');
 require_once('./models/FmModel.php');
 require_once('./FmPrestashop.php');
 require_once('./FmOutput.php');
 require_once('./models/product_export.php');
 require_once('./models/FmCategory.php');
-require_once('./models/product.php');
+require_once('./models/FmProduct.php');
 require_once('./models/product_info.php');
 require_once('./FmConfig.php');
 require_once('./models/order.php');
@@ -107,17 +107,17 @@ class FmAjaxService
     private function get_products($args)
     {
         $products = array();
-
+        $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
         // get currency
         $currentCurrency = Currency::getDefaultCurrency()->iso_code;
 
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
-        $rows = FmProduct::getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
+        $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $discountPercentage = $this->fmConfig->get('price_percentage');
 
         foreach ($rows as $row) {
-            $product = FmProduct::get($row['id_product']);
+            $product = $fmProduct->get($row['id_product']);
             // Don't show deactivated products
             if (empty($product)) {
                 continue;
@@ -152,7 +152,7 @@ class FmAjaxService
 
         // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
-        $total = FmProduct::getAmount($args['category']);
+        $total = $fmProduct->getAmount($args['category']);
         $object->pagination = FyndiqUtils::getPaginationHTML(
             $total,
             $page,

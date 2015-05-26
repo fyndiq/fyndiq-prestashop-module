@@ -1,8 +1,8 @@
 <?php
 
-class FmProduct
+class FmProduct extends FmModel
 {
-    private static function getImageLink($linkRewrite, $idImage, $imageType)
+    private function getImageLink($linkRewrite, $idImage, $imageType)
     {
         if (FMPSV == FMPSV14) {
             $link = new Link();
@@ -15,7 +15,7 @@ class FmProduct
         return $image;
     }
 
-    private static function getPrice($price)
+    private function getPrice($price)
     {
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
         $module = Module::getInstanceByName('fyndiqmerchant');
@@ -25,7 +25,7 @@ class FmProduct
         return Tools::ps_round($convertedPrice, 2);
     }
 
-    private static function getImageType()
+    private function getImageType()
     {
         ### get the medium image type
         $imageTypeName = array(
@@ -42,7 +42,7 @@ class FmProduct
         return '';
     }
 
-    private static function getProductAttributes($product, $languageId)
+    private function getProductAttributes($product, $languageId)
     {
         $getAttrCombinations = array(
             FMPSV14 => 'getAttributeCombinaisons',
@@ -60,7 +60,7 @@ class FmProduct
      * @param $product
      * @return mixed
      */
-    private static function getCategoryId($product)
+    private function getCategoryId($product)
     {
         $categories = $product->getCategories();
         return array_pop($categories);
@@ -72,7 +72,7 @@ class FmProduct
      * @param $productId
      * @return array|bool
      */
-    public static function get($productId)
+    public function get($productId)
     {
 
         $result = array(
@@ -157,18 +157,18 @@ class FmProduct
         return $result;
     }
 
-    public static function getAmount($categoryId)
+    public function getAmount($categoryId)
     {
         $sqlQuery = '
             SELECT count(p.id_product) AS amount
             FROM ' . _DB_PREFIX_ . 'product as p
             JOIN ' . _DB_PREFIX_ . 'category_product as cp
             WHERE p.id_product = cp.id_product
-            AND cp.id_category = ' . FmHelpers::dbEscape($categoryId) . ';';
+            AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . ';';
         return Db::getInstance()->getValue($sqlQuery);
     }
 
-    public static function getByCategory($categoryId, $page, $perPage)
+    public function getByCategory($categoryId, $page, $perPage)
     {
         # fetch products per category manually,
         # Product::getProducts doesnt work in backoffice,
@@ -176,10 +176,10 @@ class FmProduct
         $offset = $perPage * ($page - 1);
         $sqlQuery = '
             SELECT p.id_product
-            FROM ' . _DB_PREFIX_ . 'product as p
+            FROM ' . _DB_PREFIX_ . 'product getas p
             JOIN ' . _DB_PREFIX_ . 'category_product as cp
             WHERE p.id_product = cp.id_product
-            AND cp.id_category = ' . FmHelpers::dbEscape($categoryId) . '
+            AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . '
             LIMIT ' . $offset . ', ' . $perPage;
         $rows = Db::getInstance()->ExecuteS($sqlQuery);
         return $rows;
@@ -194,7 +194,7 @@ class FmProduct
      * @param string $status
      * @return bool
      */
-    public static function updateProductStatus($dbConn, $tableName, $productId, $status)
+    public function updateProductStatus($dbConn, $tableName, $productId, $status)
     {
         $where = 'id=' . $dbConn->escape($productId);
         return $dbConn->update($tableName, array('state' => $status), $where);

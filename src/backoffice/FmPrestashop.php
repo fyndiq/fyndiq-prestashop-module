@@ -50,7 +50,7 @@ class FmPrestashop
         return sleep($seconds);
     }
 
-    public static function dbEscape($value)
+    public function dbEscape($value)
     {
         if ($this->fmPsv == self::FMPSV14) {
             return pSQL($value);
