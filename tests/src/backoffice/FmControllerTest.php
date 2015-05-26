@@ -11,6 +11,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->fmApiModel->method('callApi')->willReturn(true);
+
         $this->fmPrestashop->method('getCurrency')->willReturn('ZWL');
         $this->fmPrestashop->method('getModuleUrl')->willReturn('http://localhost/module');
 

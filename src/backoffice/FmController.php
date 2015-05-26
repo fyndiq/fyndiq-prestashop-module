@@ -27,10 +27,19 @@ class FmController
         );
     }
 
-    // TODO: FIXME
     private function serviceIsOperational($action)
     {
-        return $action;
+        try {
+            $this->fmApiModel->callApi('GET', 'settings/');
+            return $action;
+        } catch (Exception $e) {
+            if ($e->getMessage() == 'Unauthorized') {
+                return 'authorize';
+            } else {
+                $this->data['message'] = $e->getMessage();
+                return 'api_unavailable';
+            }
+        }
     }
 
     public function handleRequest()
@@ -42,7 +51,7 @@ class FmController
         $action = $this->fmConfig->isAuthorized() ? $action : 'authorize';
         // Force setup if not set up
         $action = $this->fmConfig->isSetUp() ? $action : 'settings';
-        $action = $action != 'authorize' ? $this->serviceIsOperational($action) : $action;
+        $action = $action != 'authenticate' ? $this->serviceIsOperational($action) : $action;
 
         switch($action) {
             case 'api_unavailable':
