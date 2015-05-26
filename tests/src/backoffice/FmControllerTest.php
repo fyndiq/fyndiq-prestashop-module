@@ -6,6 +6,10 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
             ->getMock();
 
+        $this->fmApiModel = $this->getMockBuilder('FmApiModel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->fmPrestashop->method('getCurrency')->willReturn('ZWL');
         $this->fmPrestashop->method('getModuleUrl')->willReturn('http://localhost/module');
 
@@ -21,7 +25,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig);
+        $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig, $this->fmApiModel);
     }
 
     public function testHandleRequestMain()

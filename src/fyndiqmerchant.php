@@ -12,6 +12,7 @@ require_once('backoffice/FmHelpers.php');
 require_once('backoffice/FmPrestashop.php');
 require_once('backoffice/FmController.php');
 require_once('backoffice/models/product_export.php');
+require_once('backoffice/models/FmApiModel.php');
 require_once('backoffice/models/order.php');
 
 class FyndiqMerchant extends Module
@@ -124,7 +125,8 @@ class FyndiqMerchant extends Module
         $fmPrestashop = new FmPrestashop();
         $fmOutput = new FmOutput($fmPrestashop, $this, $this->context->smarty);
         $fmConfig = new FmConfig($fmPrestashop);
-        $controller = new FmController($fmPrestashop, $fmOutput, $fmConfig);
+        $fmApiModel = new FmApiModel($this->config->get('username'), $this->config->get('api_token'));
+        $controller = new FmController($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }
 

@@ -12,11 +12,12 @@ class FmController
     private $fmConfig;
     private $fmPrestashop;
 
-    public function __construct($fmPrestashop, $fmOutput, $fmConfig)
+    public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
     {
         $this->fmOutput = $fmOutput;
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
+        $this->fmApiModel = $fmApiModel;
 
         $path = $fmPrestashop->getModuleUrl();
         $this->data = array(
@@ -91,7 +92,7 @@ class FmController
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
             );
             try {
-                $this->updateFeedUrl($updateData);
+                $this->fmApiModel->setSetup($updateData);
                 sleep(1);
                 $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {
@@ -172,16 +173,10 @@ class FmController
 
     private function disconnect()
     {
-        // delete stored connection values
         if ($this->fmConfig->delete('username') &&
             $this->fmConfig->delete('api_token')) {
             return $this->fmOutput->displayError('Error disconnecting account');
         }
         return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
-    }
-
-    private function updateFeedUrl($data)
-    {
-        FmHelpers::callApi('PATCH', 'settings/', $data);
     }
 }
