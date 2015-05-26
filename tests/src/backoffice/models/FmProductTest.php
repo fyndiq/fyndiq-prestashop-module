@@ -37,4 +37,25 @@ class FmProductTest extends PHPUnit_Framework_TestCase
         $result = $this->fmProduct->getByCategory($categoryId, $page, $perPage);
         $this->assertEquals($data, $result);
     }
+
+    public function testGetAmount()
+    {
+        $categoryId = 1;
+        $data = 2;
+
+        $db = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getValue'))
+            ->getMock();
+
+        $db->expects($this->once())
+            ->method('getValue')
+            ->willReturn($data);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbGetInstance')
+            ->willReturn($db);
+
+        $result = $this->fmProduct->getAmount($categoryId);
+        $this->assertEquals($data, $result);
+    }
 }

@@ -161,8 +161,8 @@ class FmProduct extends FmModel
     {
         $sqlQuery = '
             SELECT count(p.id_product) AS amount
-            FROM ' . _DB_PREFIX_ . 'product as p
-            JOIN ' . _DB_PREFIX_ . 'category_product as cp
+            FROM ' . $this->fmPrestashop->globDbPrefix() . 'product as p
+            JOIN ' . $this->fmPrestashop->globDbPrefix() . 'category_product as cp
             WHERE p.id_product = cp.id_product
             AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . ';';
         return $this->fmPrestashop->dbGetInstance()->getValue($sqlQuery);
