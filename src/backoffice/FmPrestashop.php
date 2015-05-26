@@ -24,6 +24,11 @@ class FmPrestashop
         return new Currency($currencyId);
     }
 
+    public function sleep($seconds)
+    {
+        return sleep($seconds);
+    }
+
     // Global variables
     public function globalPsRootDir()
     {

@@ -2,7 +2,8 @@
 
 class FmControllerTest extends PHPUnit_Framework_TestCase
 {
-    protected function setUp(){
+    protected function setUp()
+    {
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
             ->getMock();
 
@@ -83,6 +84,92 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'path' => 'http://localhost/module',
                 ))
             )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestAuthenticateSaveEmptyFields()
+    {
+        $this->fmPrestashop->expects($this->at(0))
+            ->method('toolsGetValue')
+            ->willReturn('authenticate');
+        $this->fmPrestashop->expects($this->at(1))
+            ->method('toolsGetValue')
+            ->willReturn('');
+        $this->fmPrestashop->expects($this->at(2))
+            ->method('toolsGetValue')
+            ->willReturn('');
+
+        $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
+
+        $this->fmOutput->expects($this->once())
+            ->method('showError')
+            ->with(
+                $this->equalTo('NT: empty-username-token')
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestAuthenticateSaveException()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
+        $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
+        $this->fmApiModel->expects($this->once())
+            ->method('setSetup')
+            ->with(
+                $this->equalTo(
+                    array(
+                    FyndiqUtils::NAME_PRODUCT_FEED_URL =>
+                    'modules/fyndiqmerchant/backoffice/filePage.php',
+                    FyndiqUtils::NAME_NOTIFICATION_URL =>
+                    'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    FyndiqUtils::NAME_PING_URL =>
+                    'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token='
+                    )
+                )
+            )
+            ->will(
+                $this->throwException(new Exception('Test Exception'))
+            );
+
+        $this->fmOutput->expects($this->once())
+            ->method('showError')
+            ->with(
+                $this->equalTo('Test Exception')
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestAuthenticateSaveSuccess()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
+        $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
+        $this->fmApiModel->expects($this->once())
+            ->method('setSetup')
+            ->with(
+                $this->equalTo(
+                    array(
+                    FyndiqUtils::NAME_PRODUCT_FEED_URL =>
+                    'modules/fyndiqmerchant/backoffice/filePage.php',
+                    FyndiqUtils::NAME_NOTIFICATION_URL =>
+                    'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    FyndiqUtils::NAME_PING_URL =>
+                    'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token='
+                    )
+                )
+            )
+            ->willReturn(true);
+
+        $this->fmOutput->expects($this->once())
+            ->method('redirect')
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();

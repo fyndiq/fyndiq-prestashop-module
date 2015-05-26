@@ -91,8 +91,8 @@ class FmController
             );
             try {
                 $this->fmApiModel->setSetup($updateData);
-                sleep(1);
-                $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
+                $this->fmPrestashop->sleep(1);
+                return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {
                 $this->fmConfig->delete('username');
                 $this->fmConfig->delete('api_token');

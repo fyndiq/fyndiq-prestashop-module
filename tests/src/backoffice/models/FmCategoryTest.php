@@ -2,7 +2,8 @@
 
 class FmCategoryTest extends PHPUnit_Framework_TestCase
 {
-    function testFake(){
+    function testFake()
+    {
         $this->assertTrue(true);
     }
 }
