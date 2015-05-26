@@ -2,30 +2,66 @@
 
 class FmControllerTest extends PHPUnit_Framework_TestCase
 {
-    function testHandleRequest()
-    {
-        $module = $this->getMockBuilder('stdClass')
-            ->setMethods(array('get', 'display'))
+    protected function setUp(){
+        $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
             ->getMock();
 
-        $module->name = 'testmodule';
-        $module->context = new stdClass();
-        $module->context->smarty = $this->getMockBuilder('stdClass')
-            ->setMethods(array('assign', 'registerPlugin'))
-            ->getMock();
+        $this->fmPrestashop->method('getCurrency')->willReturn('ZWL');
+        $this->fmPrestashop->method('getModuleUrl')->willReturn('http://localhost/module');
 
-        $module->method('get')->willReturn('test');
-        $module->method('display')->willReturn(true);
-
-        $prestashop = $this->getMockBuilder('FmPrestashop')
-            ->getMock();
-
-        $config = $this->getMockBuilder('FmConfig')
+        $this->fmConfig = $this->getMockBuilder('FmConfig')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $controller = new FmController($module, $config, $prestashop);
-        $result = $controller->handleRequest();
+        $this->fmConfig->method('isAuthorized')->willReturn(true);
+        $this->fmConfig->method('isSetUp')->willReturn(true);
+
+
+        $this->fmOutput = $this->getMockBuilder('FmOutput')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig);
+    }
+
+    public function testHandleRequestMain()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('main');
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('main'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                    'currency' => 'ZWL',
+                ))
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestApiUnavailable()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('api_unavailable');
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('api_unavailable'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                ))
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
         $this->assertTrue($result);
     }
 }

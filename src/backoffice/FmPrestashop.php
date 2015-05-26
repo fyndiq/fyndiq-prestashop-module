@@ -3,16 +3,36 @@
 
 class FmPrestashop {
 
-    /*
-     *  Global variables
-     */
+    // Custom
+    public function getModuleUrl()
+    {
+        $url = $this->getBaseModuleUrl();
+        $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
+        $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
+        return $url;
+    }
+
+    public function getLanguageId()
+    {
+        return $this->contextGetContext()->language->id;
+    }
+
+    public function getCurrency($currencyId){
+        return new Currency($currencyId);
+    }
+
+    // Global variables
     public function globalPsRootDir() {
         return _PS_ROOT_DIR_;
     }
 
-    /*
-     *  Tool
-     */
+    public function getBaseModuleUrl()
+    {
+        return _PS_BASE_URL_ . __PS_BASE_URI__;
+    }
+
+    // Tool
     public function toolsIsSubmit($name) {
         return Tools::isSubmit($name);
     }
@@ -30,10 +50,7 @@ class FmPrestashop {
     }
 
 
-    /*
-     *  Configuration
-     */
-
+    // Configuration
     public function configurationDeleteByName($name) {
         return Configuration::deleteByName($name);
     }
@@ -48,23 +65,17 @@ class FmPrestashop {
         return $this->fmPrestashop->configurationUpdateValue($this->key($name), $value);
     }
 
-    /*
-     * Category
-     */
+    // Category
     public function categoryGetChildren($categoryId, $languageId) {
         return Category::getChildren($categoryId, $languageId);
     }
 
-    /*
-     * Currency
-     */
+    // Currency
     public function currencyGetDefaultCurrency() {
         return Currency::getDefaultCurrency();
     }
 
-    /*
-     * OrderState
-     */
+    // OrderState
     public function orderStateGetOrderStates($languageId)
     {
         return OrderState::getOrderStates($languageId);
@@ -75,19 +86,13 @@ class FmPrestashop {
         return OrderState::invoiceAvailable($orderStateId);
     }
 
-    /*
-     * Language
-     */
+    // Language
     public function languageGetLanguages(){
         return Language::getLanguages();
     }
 
-    /*
-     * Context
-     */
+    // Context
     public function contextGetContext(){
         return Context::getContext();
     }
-
-
 }

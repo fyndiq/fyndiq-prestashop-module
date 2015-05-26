@@ -76,19 +76,6 @@ class FmHelpers
         }
     }
 
-    public function getBaseModuleUrl()
-    {
-        return _PS_BASE_URL_ . __PS_BASE_URI__;
-    }
-
-    public static function getModuleUrl()
-    {
-        $url = self::getBaseModuleUrl();
-        $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
-        $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
-        $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
-        return $url;
-    }
 
     public static function getShopUrl()
     {

@@ -12,7 +12,7 @@ class FmOutput {
         $this->smarty = $smarty;
     }
 
-    public function showTemplate($name, $args = array())
+    public function render($name, $args = array())
     {
         $this->smarty->assign(array_merge(
             $args,

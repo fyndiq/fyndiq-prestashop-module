@@ -18,7 +18,7 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
 
-        $path = FmHelpers::getModuleUrl();
+        $path = $fmPrestashop->getModuleUrl();
         $this->data = array(
             'json_messages' => json_encode(FyndiqTranslation::getAll()),
             'messages' => FyndiqTranslation::getAll(),
@@ -45,8 +45,8 @@ class FmController
         switch($action) {
             case 'api_unavailable':
                 return $this->apiUnavailable();
-            case 'authorize':
-                return $this->authorize();
+            case 'authenticate':
+                return $this->authenticate();
             case 'main':
                 return $this->main();
             case 'settings':
@@ -62,13 +62,47 @@ class FmController
         }
     }
 
+    private function apiUnavailable() {
+        return $this->fmOutput->render('api_unavailable', $this->data);
+    }
 
     private function main() {
-        $this->data['language'] = new Language($this->fmConfig->get('language'));
-        $this->data['currency'] = new Currency($this->fmConfig->get('currency'));
-        $this->data['username'] = $this->fmConfig->get('username');
+        $this->data['currency'] = $this->fmPrestashop->getCurrency($this->fmConfig->get('currency'));
+        return $this->fmOutput->render('main', $this->data);
+    }
 
-        return $this->fmOutput->showTemplate('main', $this->data);
+    private function authenticate() {
+        if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
+            $username = strval($this->fmPrestashop->toolsGetValue('username'));
+            $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
+            // validate parameters
+            if (empty($username) || empty($apiToken)) {
+                return $this->fmOutput->displayError(FyndiqTranslation::get('empty-username-token'));
+            }
+            $this->fmConfig->set('username', $username);
+            $this->fmConfig->set('api_token', $apiToken);
+            $base = $this->fmPrestashop->getBaseModuleUrl();
+            $pingToken = $this->fmPrestashop->toolsEncrypt(time());
+            $this->fmConfig->set('ping_token', $pingToken);
+            $updateData = array(
+                FyndiqUtils::NAME_PRODUCT_FEED_URL =>
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
+                FyndiqUtils::NAME_NOTIFICATION_URL =>
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php',
+                FyndiqUtils::NAME_PING_URL =>
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
+            );
+            try {
+                $this->updateFeedUrl($updateData);
+                sleep(1);
+                $this->fmOutput->redirect(FmHelpers::getModuleUrl());
+            } catch (Exception $e) {
+                $this->fmConfig->delete('username');
+                $this->fmConfig->delete('api_token');
+                return $this->fmOutput->displayError($e->getMessage());
+            }
+        }
+        return $this->fmOutput->render('authenticate', $this->data);
     }
 
     private function settings() {
@@ -77,8 +111,7 @@ class FmController
         $orderImportState = $this->fmConfig->get('import_state');
         $orderDoneState = $this->fmConfig->get('done_state');
 
-        $path = FmHelpers::getModuleUrl();
-        $context = $this->fmPrestashop->contextGetContext();
+        $languageId = $this->fmPrestashop->getLanguageId();
 
         // if there is a configured language, show it as selected
         $selectedLanguage =  $selectedLanguage ?
@@ -88,7 +121,7 @@ class FmController
         $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
         $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
 
-        $orderStates = $this->fmPrestashop->orderStateGetOrderStates($context->language->id);
+        $orderStates = $this->fmPrestashop->orderStateGetOrderStates($languageId);
 
         $states = array();
         foreach($orderStates as $orderState) {
@@ -104,7 +137,7 @@ class FmController
         $this->data['order_import_state'] = $orderImportState;
         $this->data['order_done_state'] = $orderDoneState;
 
-        return $this->fmOutput->showTemplate('settings', $this->data);
+        return $this->fmOutput->render('settings', $this->data);
     }
 
 /*
@@ -254,51 +287,7 @@ class FmController
         return $output;
     }
 */
-    private function handleAuthentication()
-    {
-        $error = false;
-        $output = '';
 
-        $username = strval($this->fmPrestashop->toolsGetValue('username'));
-        $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
-
-        // validate parameters
-        if (empty($username) || empty($apiToken)) {
-            $error = true;
-            $output .= $this->module->displayError(FyndiqTranslation::get('empty-username-token'));
-
-            // ready to perform authentication
-        } else {
-            // authenticate with Fyndiq API
-            try {
-                // if no exceptions, authentication is successful
-                FmConfig::set('username', $username);
-                FmConfig::set('api_token', $apiToken);
-                $base = FmHelpers::getBaseModuleUrl();
-                $pingToken = $this->fmPrestashop->toolsEncrypt(time());
-                FmConfig::set('ping_token', $pingToken);
-                $updateData = array(
-                    FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                        $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
-                    FyndiqUtils::NAME_NOTIFICATION_URL =>
-                        $base . 'modules/fyndiqmerchant/backoffice/notification_service.php',
-                    FyndiqUtils::NAME_PING_URL =>
-                        $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
-                );
-                $this->updateFeedUrl($updateData);
-                sleep(1);
-                $this->fmPrestashop->toolsRedirect(FmHelpers::getModuleUrl());
-            } catch (Exception $e) {
-                $error = true;
-                $output .= $this->module->displayError($e->getMessage());
-
-                FmConfig::delete('username');
-                FmConfig::delete('api_token');
-            }
-        }
-
-        return array('error' => $error, 'output' => $output);
-    }
 
     private static function handleSettings()
     {
