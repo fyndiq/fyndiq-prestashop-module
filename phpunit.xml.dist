@@ -12,6 +12,7 @@
             <exclude>
                 <file>src/fyndiqmerchant.php</file>
                 <directory suffix=".php">src/backoffice/includes/</directory>
+                <directory suffix=".php">src/controllers/</directory>
             </exclude>
         </whitelist>
     </filter>

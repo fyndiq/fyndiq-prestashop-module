@@ -64,4 +64,82 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->controller->handleRequest();
         $this->assertTrue($result);
     }
+
+    public function testHandleRequestAuthenticate()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('authenticate'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                ))
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestSettings()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('settings');
+        $this->fmPrestashop->method('orderStateGetOrderStates')->willReturn(array(
+            array('id_order_state' => 1)
+        ));
+        $this->fmPrestashop->method('orderStateInvoiceAvailable')->willReturn(true);
+        $this->fmPrestashop->method('languageGetLanguages')->willReturn(array(1 => 'en'));
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('settings'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                    'languages' => array(1 => 'en'),
+                    'price_percentage' => 10,
+                    'selected_language' => null,
+                    'order_states' => array(
+                        array('id_order_state' => 1)
+                    ),
+                    'order_import_state' => 3,
+                    'order_done_state' => 4,
+                ))
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
+    public function testHandleRequestOrders()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('orders');
+        $this->fmConfig->method('get')->willReturn('2013-01-01 12:12:12');
+
+        $this->fmOutput->expects($this->once())
+            ->method('render')
+            ->with(
+                $this->equalTo('orders'),
+                $this->equalTo(array(
+                    'json_messages' => '[]',
+                    'messages' => array(),
+                    'path' => 'http://localhost/module',
+                    'import_date' => '2013-01-01 12:12:12',
+                    'isToday' => false,
+                    'import_time' => '12:12:12',
+                ))
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
 }
