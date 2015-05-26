@@ -172,4 +172,17 @@ class FmPrestashop
     {
         return Db::getInstance();
     }
+
+    // Manufacturer
+    public function manufacturerGetNameById($manufacturerId)
+    {
+        return Manufacturer::getNameById($manufacturerId);
+    }
+
+    // Product
+    public function productGetQuantity($productId)
+    {
+        return Product::getQuantity($productId);
+    }
+
 }

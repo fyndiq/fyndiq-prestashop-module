@@ -79,7 +79,7 @@ class FmProduct extends FmModel
             'combinations' => array()
         );
 
-        $languageId = FmConfig::get('language');
+        $languageId = $this->fmConfig->get('language');
 
         $product = new Product($productId, false, $languageId);
 
@@ -93,10 +93,11 @@ class FmProduct extends FmModel
 
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
-        $result['quantity'] = Product::getQuantity($product->id);
+        $result['quantity'] = $this->fmProduct->productGetQuantity($product->id);
         $result['price'] = self::getPrice($product->price);
         $result['description'] = $product->description;
-        $result['manufacturer_name'] = Manufacturer::getNameById((int)$product->id_manufacturer);
+        $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
+            (int)$product->id_manufacturer);
 
         ### get the medium image type
         $imageType = self::getImageType();
