@@ -1,12 +1,14 @@
 <?php
 
-class FmOutput {
+class FmOutput
+{
 
     protected $module;
     protected $smarty;
     protected $fmPrestashop;
 
-    public function __construct($fmPrestashop, $module, $smarty) {
+    public function __construct($fmPrestashop, $module, $smarty)
+    {
         $this->fmPrestashop = $fmPrestashop;
         $this->module = $module;
         $this->smarty = $smarty;
@@ -31,5 +33,10 @@ class FmOutput {
     public static function fi18n($params)
     {
         return FyndiqTranslation::get($params['s']);
+    }
+
+    public function redirect($url)
+    {
+        return $this->fmPrestashop->toolsRedirect($url);
     }
 }

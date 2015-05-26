@@ -1,7 +1,8 @@
 <?php
 
 
-class FmPrestashop {
+class FmPrestashop
+{
 
     // Custom
     public function getModuleUrl()
@@ -18,12 +19,14 @@ class FmPrestashop {
         return $this->contextGetContext()->language->id;
     }
 
-    public function getCurrency($currencyId){
+    public function getCurrency($currencyId)
+    {
         return new Currency($currencyId);
     }
 
     // Global variables
-    public function globalPsRootDir() {
+    public function globalPsRootDir()
+    {
         return _PS_ROOT_DIR_;
     }
 
@@ -33,25 +36,30 @@ class FmPrestashop {
     }
 
     // Tool
-    public function toolsIsSubmit($name) {
+    public function toolsIsSubmit($name)
+    {
         return Tools::isSubmit($name);
     }
 
-    public function toolsGetValue($name) {
+    public function toolsGetValue($name)
+    {
         return Tools::getValue($name);
     }
 
-    public function toolsRedirect($url) {
+    public function toolsRedirect($url)
+    {
         return Tools::redirect($url);
     }
 
-    public function toolsEncrypt($string) {
+    public function toolsEncrypt($string)
+    {
         return Tools::encrypt($string);
     }
 
 
     // Configuration
-    public function configurationDeleteByName($name) {
+    public function configurationDeleteByName($name)
+    {
         return Configuration::deleteByName($name);
     }
 
@@ -66,12 +74,14 @@ class FmPrestashop {
     }
 
     // Category
-    public function categoryGetChildren($categoryId, $languageId) {
+    public function categoryGetChildren($categoryId, $languageId)
+    {
         return Category::getChildren($categoryId, $languageId);
     }
 
     // Currency
-    public function currencyGetDefaultCurrency() {
+    public function currencyGetDefaultCurrency()
+    {
         return Currency::getDefaultCurrency();
     }
 
@@ -87,12 +97,14 @@ class FmPrestashop {
     }
 
     // Language
-    public function languageGetLanguages(){
+    public function languageGetLanguages()
+    {
         return Language::getLanguages();
     }
 
     // Context
-    public function contextGetContext(){
+    public function contextGetContext()
+    {
         return Context::getContext();
     }
 }

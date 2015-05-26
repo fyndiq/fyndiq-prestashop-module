@@ -50,5 +50,4 @@ class FmConfig
 
         return $ret;
     }
-
 }

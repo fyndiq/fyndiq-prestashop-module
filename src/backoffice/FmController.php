@@ -27,7 +27,8 @@ class FmController
     }
 
     // TODO: FIXME
-    private function serviceIsOperational($action) {
+    private function serviceIsOperational($action)
+    {
         return $action;
     }
 
@@ -62,11 +63,13 @@ class FmController
         }
     }
 
-    private function apiUnavailable() {
+    private function apiUnavailable()
+    {
         return $this->fmOutput->render('api_unavailable', $this->data);
     }
 
-    private function authenticate() {
+    private function authenticate()
+    {
         if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
             $username = strval($this->fmPrestashop->toolsGetValue('username'));
             $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
@@ -90,7 +93,7 @@ class FmController
             try {
                 $this->updateFeedUrl($updateData);
                 sleep(1);
-                $this->fmOutput->redirect(FmHelpers::getModuleUrl());
+                $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {
                 $this->fmConfig->delete('username');
                 $this->fmConfig->delete('api_token');
@@ -100,12 +103,14 @@ class FmController
         return $this->fmOutput->render('authenticate', $this->data);
     }
 
-    private function main() {
+    private function main()
+    {
         $this->data['currency'] = $this->fmPrestashop->getCurrency($this->fmConfig->get('currency'));
         return $this->fmOutput->render('main', $this->data);
     }
 
-    private function settings() {
+    private function settings()
+    {
         if ($this->fmPrestashop->toolsIsSubmit('submit_save_settings')) {
             $languageId = intval($this->fmPrestashop->toolsGetValue('language_id'));
             $pricePercentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
@@ -119,7 +124,7 @@ class FmController
             ) {
                 return $this->fmOutput->displayError('Error saving settings');
             }
-            $this->fmOutput->redirect(FmHelpers::getModuleUrl());
+            $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
         }
 
         $selectedLanguage = $this->fmConfig->get('language');
@@ -139,8 +144,8 @@ class FmController
         $orderStates = $this->fmPrestashop->orderStateGetOrderStates($languageId);
 
         $states = array();
-        foreach($orderStates as $orderState) {
-            if ($this->fmPrestashop->orderStateInvoiceAvailable($orderState['id_order_state'])){
+        foreach ($orderStates as $orderState) {
+            if ($this->fmPrestashop->orderStateInvoiceAvailable($orderState['id_order_state'])) {
                 $states[] = $orderState;
             }
         }
@@ -155,7 +160,8 @@ class FmController
         return $this->fmOutput->render('settings', $this->data);
     }
 
-    private function orders() {
+    private function orders()
+    {
         $importDate = $this->fmConfig->get('import_date');
         $isToday = date('Ymd') === date('Ymd', strtotime($importDate));
         $this->data['import_date'] = $importDate;
@@ -164,13 +170,14 @@ class FmController
         return $this->fmOutput->render('orders', $this->data);
     }
 
-    private function disconnect() {
+    private function disconnect()
+    {
         // delete stored connection values
         if ($this->fmConfig->delete('username') &&
             $this->fmConfig->delete('api_token')) {
             return $this->fmOutput->displayError('Error disconnecting account');
         }
-        return $this->fmOutput->redirect(FmHelpers::getModuleUrl());
+        return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
     }
 
     private function updateFeedUrl($data)

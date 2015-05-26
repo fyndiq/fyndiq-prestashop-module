@@ -142,4 +142,16 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
+    public function testHandleRequestDisconnect()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
+
+        $this->fmOutput->expects($this->once())
+            ->method('redirect')
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
+
 }

@@ -20,7 +20,8 @@ class FmAjaxService
     protected $fmOutput;
     protected $fmConfig;
 
-    public function __construct($fmPrestashop, $fmOutput, $fmConfig) {
+    public function __construct($fmPrestashop, $fmOutput, $fmConfig)
+    {
         $this->fmPrestashop = $fmPrestashop;
         $this->fmOutput = $fmOutput;
         $this->fmConfig = $fmConfig;
