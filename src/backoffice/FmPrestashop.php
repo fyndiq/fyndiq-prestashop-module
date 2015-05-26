@@ -1,8 +1,28 @@
 <?php
 
-
 class FmPrestashop
 {
+
+    // FyndiqMerchant PrestaShop Version 1.4|1.5|1.6
+    const FMPSV14 = 'FMPSV14';
+    const FMPSV15 = 'FMPSV15';
+    const FMPSV16 = 'FMPSV16';
+
+    public $fmPsv = '';
+
+    public function __construct(){
+        $version = $this->globalGetVersion();
+
+        if (stripos($version, '1.4.') === 0) {
+            $this->fmPsv = self::FMPSV14;
+        }
+        if (stripos($version, '1.5.') === 0) {
+            $this->fmPsv = self::FMPSV15;
+        }
+        if (stripos($version, '1.6.') === 0) {
+            $this->fmPsv = self::FMPSV16;
+        }
+    }
 
     // Custom
     public function getModuleUrl()
@@ -29,6 +49,24 @@ class FmPrestashop
         return sleep($seconds);
     }
 
+    public static function dbEscape($value)
+    {
+        if ($this->fmPsv == self::FMPSV14) {
+            return pSQL($value);
+        }
+        return Db::getInstance()->_escape($value);
+    }
+
+    public static function getShopUrl()
+    {
+        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+            $shop = new Shop($this->getCurrentShopId());
+            return $shop->getBaseURL();
+        }
+        // fallback to globals if context is not shop
+        return $this->getModuleUrl(false);
+    }
+
     // Global variables
     public function globalPsRootDir()
     {
@@ -38,6 +76,10 @@ class FmPrestashop
     public function getBaseModuleUrl()
     {
         return _PS_BASE_URL_ . __PS_BASE_URI__;
+    }
+
+    private function globalGetVersion() {
+        return _PS_VERSION_;
     }
 
     // Tool

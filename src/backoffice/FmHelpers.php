@@ -4,88 +4,9 @@ class FyndiqProductSKUNotFound extends Exception
 {
 }
 
-function startsWith($haystack, $needle)
-{
-    return $needle === '' || strpos($haystack, $needle) === 0;
-}
-
-function endsWith($haystack, $needle)
-{
-    return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
-}
-
-# FyndiqMerchant PrestaShop Version 1.4|1.5|1.6
-define('FMPSV14', 'FMPSV14');
-define('FMPSV15', 'FMPSV15');
-define('FMPSV16', 'FMPSV16');
-if (startswith(_PS_VERSION_, '1.4.')) {
-    define('FMPSV', FMPSV14);
-}
-if (startswith(_PS_VERSION_, '1.5.')) {
-    define('FMPSV', FMPSV15);
-}
-if (startswith(_PS_VERSION_, '1.6.')) {
-    define('FMPSV', FMPSV16);
-}
-
 class FmHelpers
 {
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
-
-    /**
-     * Wrappers around FyndiqAPI -  uses stored connection credentials for authentication
-     *
-     * @param $method
-     * @param $path
-     * @param array $data
-     * @return mixed
-     * @throws FyndiqAPIAuthorizationFailed
-     * @throws FyndiqAPIBadRequest
-     * @throws FyndiqAPIDataInvalid
-     * @throws FyndiqAPINoAPIClass
-     * @throws FyndiqAPIPageNotFound
-     * @throws FyndiqAPIServerError
-     * @throws FyndiqAPITooManyRequests
-     * @throws FyndiqAPIUnsupportedStatus
-     */
-    public static function callApi($method, $path, $data = array())
-    {
-        $username = FmConfig::get('username');
-        $apiToken = FmConfig::get('api_token');
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $userAgent = $module->user_agent;
-
-        return FyndiqAPICall::callApiRaw(
-            $userAgent,
-            $username,
-            $apiToken,
-            $method,
-            $path,
-            $data,
-            array('FyndiqAPI', 'call')
-        );
-    }
-
-    public static function dbEscape($value)
-    {
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
-            return Db::getInstance()->_escape($value);
-        }
-        if (FMPSV == FMPSV14) {
-            return pSQL($value);
-        }
-    }
-
-
-    public static function getShopUrl()
-    {
-        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
-            $shop = new Shop(self::getCurrentShopId());
-            return $shop->getBaseURL();
-        }
-        // fallback to globals if context is not shop
-        return self::getModuleUrl(false);
-    }
 
     /**
      * Returns export file name depending on the shop context
