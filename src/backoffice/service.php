@@ -94,8 +94,9 @@ class FmAjaxService
      */
     private function get_categories($args)
     {
+        $languageId = $this->fmConfig->get('language');
         $fmCategory = new FmCategory($this->fmPrestashop, $this->fmConfig);
-        $categories = $fmCategory->getSubcategories(intval($args['category_id']));
+        $categories = $fmCategory->getSubcategories($languageId, intval($args['category_id']));
         return $this->response($categories);
     }
 

@@ -17,10 +17,11 @@ class FmCategory extends FmModel
         return $result;
     }
 
-    public function getSubcategories($categoryId)
+    public function getSubcategories($languageId, $categoryId)
     {
-        $languageId = $this->fmConfig->get('language');
         $categoryId = $categoryId === 0 ? self::ROOT_CATEGORY_ID : $categoryId;
-        return $this->fmPrestashop->categoryGetChildren($categoryId, $languageId);
+        return $this->processCategories(
+            $this->fmPrestashop->categoryGetChildren($categoryId, $languageId)
+        );
     }
 }

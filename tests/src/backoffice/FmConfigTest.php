@@ -5,6 +5,7 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
+            ->disableOriginalConstructor()
             ->getMock();
         $this->config = new FmConfig($this->fmPrestashop);
     }

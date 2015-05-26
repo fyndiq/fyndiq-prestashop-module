@@ -1,6 +1,5 @@
 <?php
 
-DEFINE('_PS_VERSION_', '1.6.1');
 DEFINE('FYNDIQ_ROOT', './src/');
 
 require_once(FYNDIQ_ROOT . 'backoffice/FmPrestashop.php');
