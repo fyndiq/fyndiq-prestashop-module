@@ -39,4 +39,9 @@ class FmOutput
     {
         return $this->fmPrestashop->toolsRedirect($url);
     }
+
+    public function showError($message)
+    {
+        return $this->module->displayError($message);
+    }
 }

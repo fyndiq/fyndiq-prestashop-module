@@ -57,10 +57,8 @@ class FmController
                 return $this->orders();
             case 'disconnect':
                 return $this->disconnect();
-            case 'service':
-                return $this->service();
             default:
-                return $this->fmOutput->showError(404, 'Not Found', '404 Not Found');
+                return $this->fmOutput->showError(FyndiqTranslation::get('Page not found'));
         }
     }
 
@@ -76,7 +74,7 @@ class FmController
             $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
             // validate parameters
             if (empty($username) || empty($apiToken)) {
-                return $this->fmOutput->displayError(FyndiqTranslation::get('empty-username-token'));
+                return $this->fmOutput->showError(FyndiqTranslation::get('empty-username-token'));
             }
             $this->fmConfig->set('username', $username);
             $this->fmConfig->set('api_token', $apiToken);
@@ -98,7 +96,7 @@ class FmController
             } catch (Exception $e) {
                 $this->fmConfig->delete('username');
                 $this->fmConfig->delete('api_token');
-                return $this->fmOutput->displayError($e->getMessage());
+                return $this->fmOutput->showError($e->getMessage());
             }
         }
         return $this->fmOutput->render('authenticate', $this->data);
@@ -123,7 +121,7 @@ class FmController
                 $this->fmConfig->set('import_state', $orderImportState) &&
                 $this->fmConfig->set('done_state', $orderDoneState)
             ) {
-                return $this->fmOutput->displayError('Error saving settings');
+                return $this->fmOutput->showError(FyndiqTranslation::get('Error saving settings'));
             }
             $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
         }
@@ -175,7 +173,7 @@ class FmController
     {
         if ($this->fmConfig->delete('username') &&
             $this->fmConfig->delete('api_token')) {
-            return $this->fmOutput->displayError('Error disconnecting account');
+            return $this->fmOutput->showError(FyndiqTranslation::get('Error disconnecting account'));
         }
         return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
     }

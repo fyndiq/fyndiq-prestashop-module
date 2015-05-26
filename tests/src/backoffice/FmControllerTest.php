@@ -158,4 +158,18 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
+    public function testHandleRequestBadAction()
+    {
+        $this->fmPrestashop->method('toolsGetValue')->willReturn('test');
+
+        $this->fmOutput->expects($this->once())
+            ->method('showError')
+            ->with(
+                $this->equalTo('NT: Page not found')
+            )
+            ->willReturn(true);
+
+        $result = $this->controller->handleRequest();
+        $this->assertTrue($result);
+    }
 }
