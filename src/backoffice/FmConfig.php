@@ -38,7 +38,7 @@ class FmConfig
         $ret &= $this->get('username') !== false;
         $ret &= $this->get('api_token') !== false;
 
-        return $ret;
+        return (bool)$ret;
     }
 
     public function isSetUp()
@@ -48,6 +48,6 @@ class FmConfig
         $ret &= $this->get('import_state') !== false;
         $ret &= $this->get('done_state') !== false;
 
-        return $ret;
+        return (bool)$ret;
     }
 }
