@@ -58,7 +58,7 @@ class FmPrestashop
         return Db::getInstance()->_escape($value);
     }
 
-    public static function getShopUrl()
+    public function getShopUrl()
     {
         if (Shop::getContext() === Shop::CONTEXT_SHOP) {
             $shop = new Shop($this->getCurrentShopId());
@@ -66,6 +66,11 @@ class FmPrestashop
         }
         // fallback to globals if context is not shop
         return $this->getModuleUrl(false);
+    }
+
+    public function getDefaultCurrency()
+    {
+        return Currency::getDefaultCurrency()->iso_code;
     }
 
     // Global variables
@@ -82,6 +87,11 @@ class FmPrestashop
     private function globalGetVersion()
     {
         return _PS_VERSION_;
+    }
+
+    public function globDbPrefix()
+    {
+        return _DB_PREFIX_;
     }
 
     // Tool
@@ -155,5 +165,11 @@ class FmPrestashop
     public function contextGetContext()
     {
         return Context::getContext();
+    }
+
+    // DB
+    public function dbGetInstance()
+    {
+        return Db::getInstance();
     }
 }

@@ -12,7 +12,7 @@ class FmCategoryTest extends PHPUnit_Framework_TestCase
         $this->fmCategory = new FmCategory($this->fmPrestashop, null);
     }
 
-    function testFake()
+    function testGetSubcategories()
     {
         $expected = array(
             array(

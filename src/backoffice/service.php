@@ -109,8 +109,9 @@ class FmAjaxService
     {
         $products = array();
         $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         // get currency
-        $currentCurrency = Currency::getDefaultCurrency()->iso_code;
+        $currentCurrency = $this->fmPrestashop->getDefaultCurrency();
 
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
@@ -128,7 +129,7 @@ class FmAjaxService
             $product['fyndiq_quantity'] = $product['quantity'];
             $product['fyndiq_status'] = 'noton';
 
-            $fynProduct = FmProductExport::getProduct($row['id_product']);
+            $fynProduct = $fmProductExport->getProduct($row['id_product']);
             if ($fynProduct) {
                 $discountPercentage = $fynProduct['exported_price_percentage'];
                 $product['fyndiq_exported'] = true;
@@ -148,19 +149,19 @@ class FmAjaxService
             );
             $products[] = $product;
         }
-        $object = new stdClass();
-        $object->products = $products;
-
-        // Setup pagination
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = $fmProduct->getAmount($args['category']);
-        $object->pagination = FyndiqUtils::getPaginationHTML(
-            $total,
-            $page,
-            FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
-            FyndiqUtils::PAGINATION_PAGE_FRAME
+
+        $result = array(
+            'products' => $products,
+            'pagination' => FyndiqUtils::getPaginationHTML(
+                $total,
+                $page,
+                FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
+                FyndiqUtils::PAGINATION_PAGE_FRAME
+            )
         );
-        $this->response($object);
+        $this->response($result);
     }
 
 

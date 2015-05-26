@@ -165,23 +165,23 @@ class FmProduct extends FmModel
             JOIN ' . _DB_PREFIX_ . 'category_product as cp
             WHERE p.id_product = cp.id_product
             AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . ';';
-        return Db::getInstance()->getValue($sqlQuery);
+        return $this->fmPrestashop->dbGetInstance()->getValue($sqlQuery);
     }
 
     public function getByCategory($categoryId, $page, $perPage)
     {
-        # fetch products per category manually,
-        # Product::getProducts doesnt work in backoffice,
-        # it's hard coded to work only with front office controllers
+        // fetch products per category manually,
+        // Product::getProducts doesnt work in backoffice,
+        // it's hard coded to work only with front office controllers
         $offset = $perPage * ($page - 1);
         $sqlQuery = '
             SELECT p.id_product
-            FROM ' . _DB_PREFIX_ . 'product getas p
-            JOIN ' . _DB_PREFIX_ . 'category_product as cp
+            FROM ' . $this->fmPrestashop->globDbPrefix() . 'product p
+            JOIN ' . $this->fmPrestashop->globDbPrefix() . 'category_product as cp
             WHERE p.id_product = cp.id_product
             AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . '
             LIMIT ' . $offset . ', ' . $perPage;
-        $rows = Db::getInstance()->ExecuteS($sqlQuery);
+        $rows = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
         return $rows;
     }
 
