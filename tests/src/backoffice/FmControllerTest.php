@@ -305,7 +305,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testHandleRequestServiceUnauthorized() {
+    public function testHandleRequestServiceUnauthorized()
+    {
         $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
 
 
@@ -332,7 +333,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testHandleRequestServiceNotOperational() {
+    public function testHandleRequestServiceNotOperational()
+    {
         $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
 
 
@@ -359,6 +361,4 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->controller->handleRequest();
         $this->assertTrue($result);
     }
-
-
 }

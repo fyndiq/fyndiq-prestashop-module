@@ -10,7 +10,8 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
         $this->config = new FmConfig($this->fmPrestashop);
     }
 
-    public function testDelete() {
+    public function testDelete()
+    {
         $key = 'key';
         $this->fmPrestashop->expects($this->once())
             ->method('configurationDeleteByName')
@@ -23,7 +24,8 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testGet() {
+    public function testGet()
+    {
         $key = 'key';
         $this->fmPrestashop->expects($this->once())
             ->method('configurationGet')
@@ -36,7 +38,8 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testSet() {
+    public function testSet()
+    {
         $key = 'key';
         $value = 'value';
         $this->fmPrestashop->expects($this->once())
@@ -51,13 +54,15 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testIsAuthorized() {
+    public function testIsAuthorized()
+    {
         $this->fmPrestashop->method('configurationGet')->willReturn(true);
         $result = $this->config->isAuthorized();
         $this->assertTrue($result);
     }
 
-    public function testIsSetUp() {
+    public function testIsSetUp()
+    {
         $this->fmPrestashop->method('configurationGet')->willReturn(true);
         $result = $this->config->isSetUp();
         $this->assertTrue($result);
