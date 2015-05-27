@@ -123,8 +123,10 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $this->fmApiModel->expects($this->once())
-            ->method('setSetup')
+            ->method('callApi')
             ->with(
+                $this->equalTo('PATCH'),
+                $this->equalTo('settings/'),
                 $this->equalTo(
                     array(
                     FyndiqUtils::NAME_PRODUCT_FEED_URL =>
@@ -134,7 +136,9 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     FyndiqUtils::NAME_PING_URL =>
                     'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token='
                     )
-                )
+                ),
+                $this->equalTo('authenticate'),
+                $this->equalTo('authenticate')
             )
             ->will(
                 $this->throwException(new Exception('Test Exception'))
@@ -156,8 +160,10 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $this->fmApiModel->expects($this->once())
-            ->method('setSetup')
+            ->method('callApi')
             ->with(
+                $this->equalTo('PATCH'),
+                $this->equalTo('settings/'),
                 $this->equalTo(
                     array(
                     FyndiqUtils::NAME_PRODUCT_FEED_URL =>
@@ -167,7 +173,9 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     FyndiqUtils::NAME_PING_URL =>
                     'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token='
                     )
-                )
+                ),
+                $this->equalTo('authenticate'),
+                $this->equalTo('authenticate')
             )
             ->willReturn(true);
 

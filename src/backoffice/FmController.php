@@ -99,7 +99,7 @@ class FmController
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
             );
             try {
-                $this->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
+                $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
                 $this->fmPrestashop->sleep(1);
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {

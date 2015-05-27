@@ -234,7 +234,7 @@ class FmPrestashop
 
     // Product
 
-    public function productNew($id_product = null, $full = false, $id_lang = null, $id_shop = null, Context $context = null)
+    public function productNew($id_product = null, $full = false, $id_lang = null, $id_shop = null, $context = null)
     {
         return new Product($id_product, $full, $id_lang, $id_shop, $context);
     }
