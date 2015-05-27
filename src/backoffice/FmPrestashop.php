@@ -129,7 +129,7 @@ class FmPrestashop
 
     public function configurationUpdateValue($name, $value)
     {
-        return $this->fmPrestashop->configurationUpdateValue($this->key($name), $value);
+        return Configuration::updateValue($name, $value);
     }
 
     // Category
@@ -184,5 +184,4 @@ class FmPrestashop
     {
         return Product::getQuantity($productId);
     }
-
 }

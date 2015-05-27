@@ -13,22 +13,20 @@ class FmApiModel {
         $this->userAgent = FmUtils::MODULE_NAME . ' - ' .FmUtils::VERSION;
     }
 
-    public function callApi($method, $path, $data = array())
+    public function callApi($method, $path, $data = array(), $username = '', $apiToken = '')
     {
+        $username = $username ? $username : $this->username;
+        $apiToken = $apiToken ? $apiToken : $this->apiToken;
+
         return FyndiqAPICall::callApiRaw(
             $this->userAgent,
-            $this->username,
-            $this->apiToken,
+            $username,
+            $apiToken,
             $method,
             $path,
             $data,
             array('FyndiqAPI', 'call')
         );
-    }
-
-    public function setSetup($updateData)
-    {
-        $this->callApi('PATCH', 'settings/', $updateData);
     }
 
     public function getDeliveryNotes($request)

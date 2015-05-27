@@ -48,7 +48,7 @@ class FmController
         $action = $action ? $action : 'main';
 
         // Force authorize if not authorized
-        $action = $this->fmConfig->isAuthorized() ? $action : 'authorize';
+        $action = $this->fmConfig->isAuthorized() ? $action : 'authenticate';
         // Force setup if not set up
         $action = $this->fmConfig->isSetUp() ? $action : 'settings';
         $action = $action != 'authenticate' ? $this->serviceIsOperational($action) : $action;
@@ -99,7 +99,7 @@ class FmController
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
             );
             try {
-                $this->fmApiModel->setSetup($updateData);
+                $this->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
                 $this->fmPrestashop->sleep(1);
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {

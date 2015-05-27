@@ -93,11 +93,12 @@ class FmProduct extends FmModel
 
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
-        $result['quantity'] = $this->fmProduct->productGetQuantity($product->id);
+        $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
         $result['price'] = self::getPrice($product->price);
         $result['description'] = $product->description;
         $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
-            (int)$product->id_manufacturer);
+            (int)$product->id_manufacturer
+        );
 
         ### get the medium image type
         $imageType = self::getImageType();
