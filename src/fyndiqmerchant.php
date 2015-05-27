@@ -122,7 +122,7 @@ class FyndiqMerchant extends Module
 
     public function getContent()
     {
-        $fmPrestashop = new FmPrestashop();
+        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
         $fmOutput = new FmOutput($fmPrestashop, $this, $this->context->smarty);
         $fmConfig = new FmConfig($fmPrestashop);
         $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));

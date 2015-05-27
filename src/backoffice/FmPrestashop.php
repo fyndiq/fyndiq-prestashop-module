@@ -9,9 +9,11 @@ class FmPrestashop
     const FMPSV16 = 'FMPSV16';
 
     public $version = '';
+    public $moduleName = '';
 
-    public function __construct()
+    public function __construct($moduleName)
     {
+        $this->moduleName = $moduleName;
         $version = $this->globalGetVersion();
 
         if (stripos($version, '1.4.') === 0) {
@@ -55,7 +57,7 @@ class FmPrestashop
         if ($this->version == self::FMPSV14) {
             return pSQL($value);
         }
-        return Db::getInstance()->_escape($value);
+        return $this->dbGetInstance()->_escape($value);
     }
 
     public function getShopUrl()
@@ -119,7 +121,7 @@ class FmPrestashop
     public function getPrice($price)
     {
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
-        $module = Module::getInstanceByName('fyndiqmerchant');
+        $module = $this->moduleGetInstanceByName();
         $currency = new Currency(Configuration::get($module->config_name . '_currency'));
         $convertedPrice = $price * $currency->conversion_rate;
 
@@ -145,6 +147,13 @@ class FmPrestashop
     public function globDbPrefix()
     {
         return _DB_PREFIX_;
+    }
+
+    // Module
+    public function moduleGetInstanceByName($name = '')
+    {
+        $name = $name ? $name : $this->moduleName;
+        return  Module::getInstanceByName($name);
     }
 
     // Tool

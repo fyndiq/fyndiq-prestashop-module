@@ -6,13 +6,15 @@ class FmProduct extends FmModel
     /**
      * Returns the first category_id the product belongs to
      *
-     * @param $product
+     * @param $categories
      * @return mixed
      */
-    private function getCategoryId($product)
+    private function getCategoryId($categories)
     {
-        $categories = $product->getCategories();
-        return array_pop($categories);
+        if (is_array($categories)) {
+            return array_pop($categories);
+        }
+        return 0;
     }
 
     /**
@@ -35,7 +37,7 @@ class FmProduct extends FmModel
 
         $result['id'] = $product->id;
         $result['name'] = $product->name;
-        $result['category_id'] = self::getCategoryId($product);
+        $result['category_id'] = $this->getCategoryId($product->getCategories());
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
@@ -142,9 +144,9 @@ class FmProduct extends FmModel
      * @param string $status
      * @return bool
      */
-    public function updateProductStatus($dbConn, $tableName, $productId, $status)
+    public function updateProductStatus($tableName, $productId, $status)
     {
-        $where = 'id=' . $dbConn->escape($productId);
-        return $dbConn->update($tableName, array('state' => $status), $where);
+        $where = 'id=' . $this->fmPrestashop->dbEscape($productId);
+        return $this->fmPrestashop->dbGetInstance()->update($tableName, array('state' => $status), $where);
     }
 }

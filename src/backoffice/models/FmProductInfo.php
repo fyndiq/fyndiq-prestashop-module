@@ -3,11 +3,11 @@
 class FmProductInfo extends FyndiqPaginatedFetch
 {
 
-    function __construct()
+    function __construct($fmProduct, $fmApiModel, $tableName)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $this->tableName = $module->config_name . '_products';
-        $this->dbConn = DB::getInstance();
+        $this->fmProduct = $fmProduct;
+        $this->fmApiModel = $fmApiModel;
+        $this->tableName = $tableName;
     }
 
     function getInitialPath()
@@ -28,7 +28,7 @@ class FmProductInfo extends FyndiqPaginatedFetch
      */
     public function getPageData($path)
     {
-        $ret = FmHelpers::callApi('GET', $path);
+        $ret = $this->fmApiModel->callApi('GET', $path);
         return $ret['data'];
     }
 
@@ -42,8 +42,7 @@ class FmProductInfo extends FyndiqPaginatedFetch
     {
         $result = true;
         foreach ($data as $statusRow) {
-            $result &= FmProduct::updateProductStatus(
-                $this->dbConn,
+            $result &= $this->fmProduct->updateProductStatus(
                 $this->tableName,
                 $statusRow->product_id,
                 $statusRow->for_sale

@@ -8,7 +8,8 @@ require_once('./FmOutput.php');
 require_once('./models/product_export.php');
 require_once('./models/FmCategory.php');
 require_once('./models/FmProduct.php');
-require_once('./models/product_info.php');
+require_once('./models/FmProductInfo.php');
+require_once('./models/FmApiModel.php');
 require_once('./FmConfig.php');
 require_once('./models/order.php');
 require_once('./models/order_fetch.php');
@@ -20,11 +21,12 @@ class FmAjaxService
     protected $fmOutput;
     protected $fmConfig;
 
-    public function __construct($fmPrestashop, $fmOutput, $fmConfig)
+    public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
     {
         $this->fmPrestashop = $fmPrestashop;
         $this->fmOutput = $fmOutput;
         $this->fmConfig = $fmConfig;
+        $this->fmApiModel = $fmApiModel;
     }
 
     /**
@@ -116,10 +118,11 @@ class FmAjaxService
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
-        $discountPercentage = $this->fmConfig->get('price_percentage');
+        $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage');
         $languageId = $this->fmConfig->get('language');
 
         foreach ($rows as $row) {
+            $discountPercentage = $fyndiqDiscountPercentage;
             $product = $fmProduct->get($languageId, $row['id_product']);
             // Don't show deactivated products
             if (empty($product)) {
@@ -274,8 +277,11 @@ class FmAjaxService
     private function update_product_status()
     {
         try {
-            $pi = new FmProductInfo();
-            $result = $pi->getAll();
+            $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
+            $tableName = $module->config_name . '_products';
+            $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
+            $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
+            $result = $productInfo->getAll();
             $this->response($result);
         } catch (Exception $e) {
             $this->responseError(
@@ -288,10 +294,11 @@ class FmAjaxService
 
 $cookie = new Cookie('psAdmin');
 if ($cookie->id_employee) {
-    $fmPrestashop = new FmPrestashop();
+    $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
     $fmOutput = new FmOutput($fmPrestashop, null, null);
     $fmConfig = new FmConfig($fmPrestashop);
-    $ajaxService = new FmAjaxService($fmPrestashop, $fmOutput, $fmConfig);
+    $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));
+    $ajaxService = new FmAjaxService($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
     $ajaxService->handleRequest($_POST);
     exit();
 }

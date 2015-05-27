@@ -104,8 +104,10 @@ class FmNotificationService
 
     private function _update_product_info()
     {
-        $pi = new FmProductInfo();
-        $pi->getAll();
+        $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
+        $tableName = $module->config_name . '_products';
+        $productInfo = new FmProductInfo($fmProduct, $tableName);
+        return $productInfo->getAll();
     }
 }
 
