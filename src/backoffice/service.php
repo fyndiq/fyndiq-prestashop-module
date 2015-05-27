@@ -117,9 +117,10 @@ class FmAjaxService
         $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $discountPercentage = $this->fmConfig->get('price_percentage');
+        $languageId = $this->fmConfig->get('language');
 
         foreach ($rows as $row) {
-            $product = $fmProduct->get($row['id_product']);
+            $product = $fmProduct->get($languageId, $row['id_product']);
             // Don't show deactivated products
             if (empty($product)) {
                 continue;

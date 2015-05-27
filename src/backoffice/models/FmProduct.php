@@ -2,57 +2,6 @@
 
 class FmProduct extends FmModel
 {
-    private function getImageLink($linkRewrite, $idImage, $imageType)
-    {
-        if (FMPSV == FMPSV14) {
-            $link = new Link();
-            $image = $link->getImageLink($linkRewrite, $idImage, $imageType);
-        }
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
-            $context = Context::getContext();
-            $image = $context->link->getImageLink($linkRewrite, $idImage, $imageType);
-        }
-        return $image;
-    }
-
-    private function getPrice($price)
-    {
-        // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $currency = new Currency(Configuration::get($module->config_name . '_currency'));
-        $convertedPrice = $price * $currency->conversion_rate;
-
-        return Tools::ps_round($convertedPrice, 2);
-    }
-
-    private function getImageType()
-    {
-        ### get the medium image type
-        $imageTypeName = array(
-            FMPSV16 => 'large_default',
-            FMPSV15 => 'large_default',
-            FMPSV14 => 'large'
-        );
-        $imageTypes = ImageType::getImagesTypes();
-        foreach ($imageTypes as $type) {
-            if ($type['name'] == $imageTypeName[FMPSV]) {
-                return  $type;
-            }
-        }
-        return '';
-    }
-
-    private function getProductAttributes($product, $languageId)
-    {
-        $getAttrCombinations = array(
-            FMPSV14 => 'getAttributeCombinaisons',
-            FMPSV15 => 'getAttributeCombinations',
-            FMPSV16 => 'getAttributeCombinations'
-        );
-
-        # get this products attributes and combination images
-        return $product->$getAttrCombinations[FMPSV]($languageId);
-    }
 
     /**
      * Returns the first category_id the product belongs to
@@ -72,16 +21,13 @@ class FmProduct extends FmModel
      * @param $productId
      * @return array|bool
      */
-    public function get($productId)
+    public function get($languageId, $productId)
     {
-
         $result = array(
             'combinations' => array()
         );
 
-        $languageId = $this->fmConfig->get('language');
-
-        $product = new Product($productId, false, $languageId);
+        $product = $this->fmPrestashop->productNew($productId, false, $languageId);
 
         if (empty($product->id) || !$product->active) {
             return false;
@@ -90,42 +36,42 @@ class FmProduct extends FmModel
         $result['id'] = $product->id;
         $result['name'] = $product->name;
         $result['category_id'] = self::getCategoryId($product);
-
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $product->getTaxesRate();
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
-        $result['price'] = self::getPrice($product->price);
+        $result['price'] = $this->fmPrestashop->getPrice($product->price);
         $result['description'] = $product->description;
         $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
             (int)$product->id_manufacturer
         );
 
-        ### get the medium image type
-        $imageType = self::getImageType();
+        // get the medium image type
+        $imageType = $this->fmPrestashop->getImageType();
 
-        ### get images
+        // get images
         $images = $product->getImages($languageId);
 
-        # assign main product image
+        // assign main product image
         if (count($images) > 0) {
-            $result['image'] = self::getImageLink(
+            $result['image'] = $this->fmPrestashop->getImageLink(
                 $product->link_rewrite,
                 $images[0]['id_image'],
                 $imageType['name']
             );
         }
 
-        ### handle combinations
-        $productAttributes = self::getProductAttributes($product, $languageId);
+        // handle combinations
+        $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
         $combinationImages = $product->getCombinationImages($languageId);
 
         foreach ($productAttributes as $productAttribute) {
             $id = $productAttribute['id_product_attribute'];
-            $comboProduct = new Product($id, false, $languageId);
+            $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
 
             $result['combinations'][$id]['id'] = $id;
             $result['combinations'][$id]['reference'] = $comboProduct->reference;
-            $result['combinations'][$id]['price'] = self::getPrice($product->price + $productAttribute['price']);
+            $result['combinations'][$id]['price'] =
+                $this->fmPrestashop->getPrice($product->price + $productAttribute['price']);
             $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
                 'name' => $productAttribute['group_name'],
@@ -140,9 +86,9 @@ class FmProduct extends FmModel
                         // data array is stored in another array with only one key: 0. I have no idea why
                         $combinationImage = $combinationImage[0];
 
-                        // if combination image belongs to the same product attribute mapping as the current combinationn
+                        // if combination image belongs to the same product attribute mapping as the current combination
                         if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
-                            $image = self::getImageLink(
+                            $image = $this->fmPrestashop->getImageLink(
                                 $product->link_rewrite,
                                 $combinationImage['id_image'],
                                 $imageType['name']

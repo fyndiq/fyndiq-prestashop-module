@@ -8,20 +8,20 @@ class FmPrestashop
     const FMPSV15 = 'FMPSV15';
     const FMPSV16 = 'FMPSV16';
 
-    public $fmPsv = '';
+    public $version = '';
 
     public function __construct()
     {
         $version = $this->globalGetVersion();
 
         if (stripos($version, '1.4.') === 0) {
-            $this->fmPsv = self::FMPSV14;
+            $this->version = self::FMPSV14;
         }
         if (stripos($version, '1.5.') === 0) {
-            $this->fmPsv = self::FMPSV15;
+            $this->version = self::FMPSV15;
         }
         if (stripos($version, '1.6.') === 0) {
-            $this->fmPsv = self::FMPSV16;
+            $this->version = self::FMPSV16;
         }
     }
 
@@ -52,7 +52,7 @@ class FmPrestashop
 
     public function dbEscape($value)
     {
-        if ($this->fmPsv == self::FMPSV14) {
+        if ($this->version == self::FMPSV14) {
             return pSQL($value);
         }
         return Db::getInstance()->_escape($value);
@@ -71,6 +71,59 @@ class FmPrestashop
     public function getDefaultCurrency()
     {
         return Currency::getDefaultCurrency()->iso_code;
+    }
+
+    public function getImageType()
+    {
+        // get the medium image type
+        $imageTypeName = array(
+            self::FMPSV16 => 'large_default',
+            self::FMPSV15 => 'large_default',
+            self::FMPSV14 => 'large'
+        );
+        $versionName = $imageTypeName[$this->version];
+        $imageTypes = ImageType::getImagesTypes();
+        foreach ($imageTypes as $type) {
+            if ($type['name'] == $versionName) {
+                return $type;
+            }
+        }
+        return '';
+    }
+
+    public function getImageLink($linkRewrite, $idImage, $imageType)
+    {
+        if ($this->version == self::FMPSV14) {
+            $link = new Link();
+            return $link->getImageLink($linkRewrite, $idImage, $imageType);
+        }
+        if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
+            $context = $this->contextGetContext();
+            return $context->link->getImageLink($linkRewrite, $idImage, $imageType);
+        }
+        return '';
+    }
+
+    public function getProductAttributes($product, $languageId)
+    {
+        $getAttrCombinations = array(
+            self::FMPSV14 => 'getAttributeCombinaisons',
+            self::FMPSV15 => 'getAttributeCombinations',
+            self::FMPSV16 => 'getAttributeCombinations'
+        );
+
+        # get this products attributes and combination images
+        return $product->$getAttrCombinations[$this->version]($languageId);
+    }
+
+    public function getPrice($price)
+    {
+        // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
+        $module = Module::getInstanceByName('fyndiqmerchant');
+        $currency = new Currency(Configuration::get($module->config_name . '_currency'));
+        $convertedPrice = $price * $currency->conversion_rate;
+
+        return Tools::ps_round($convertedPrice, 2);
     }
 
     // Global variables
@@ -180,6 +233,12 @@ class FmPrestashop
     }
 
     // Product
+
+    public function productNew($id_product = null, $full = false, $id_lang = null, $id_shop = null, Context $context = null)
+    {
+        return new Product($id_product, $full, $id_lang, $id_shop, $context);
+    }
+
     public function productGetQuantity($productId)
     {
         return Product::getQuantity($productId);
