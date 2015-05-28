@@ -9,11 +9,17 @@ class FmProductExport extends FmModel
     private static $skuList = array();
     private static $categoryCache = array();
 
+    public function __construct($fmPrestashop, $fmConfig)
+    {
+        parent::__construct($fmPrestashop, $fmConfig);
+        $this->tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
+    }
+
 
     public function productExist($productId)
     {
         $sql = "SELECT product_id
-        FROM " . $this->fmPrestashop->getModuleName(FmUtils::MODULE_NAME) . "_products
+        FROM " . $this->tableName . "
         WHERE product_id='" . $productId . "' LIMIT 1";
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
@@ -26,7 +32,7 @@ class FmProductExport extends FmModel
             'exported_price_percentage' => $expPricePercentage
         );
         return $this->fmPrestashop->dbGetInstance()->insert(
-            $this->fmPrestashop->getModuleName(FmUtils::MODULE_NAME) . '_products',
+            $this->tableName,
             $data
         );
     }
@@ -38,25 +44,26 @@ class FmProductExport extends FmModel
         );
 
         return (bool)$this->fmPrestashop->dbGetInstance()->update(
-            $this->fmPrestashop->getModuleName(FmUtils::MODULE_NAME) . "_products",
+            $this->tableName,
             $data,
             'product_id = ' .$productId,
             1
         );
     }
 
-    public static function deleteProduct($productId)
+    public function deleteProduct($productId)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-
-        return (bool)Db::getInstance()->delete($module->config_name . "_products", "product_id = '{$productId}'", 1);
+        return (bool)$this->fmPrestashop->dbGetInstance()->delete(
+            $this->tableName,
+            'product_id = ' . $productId,
+            1
+        );
     }
 
-    public static function getProduct($productId)
+    public function getProduct($productId)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='{$productId}'";
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql);
+        $sql = 'SELECT * FROM ' . $this->tableName . ' WHERE product_id= ' . $productId . ';';
+        return $this->fmPrestashop->dbGetInstance()->getRow($sql);
     }
 
     /**

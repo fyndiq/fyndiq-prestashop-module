@@ -127,9 +127,13 @@ class FmPrestashop
         return Tools::ps_round($convertedPrice, 2);
     }
 
-    public function getModuleName($name = '') {
+    public function getModuleName($moduleName = '') {
         $module = moduleGetInstanceByName($name);
         return $module->config_name;
+    }
+
+    public function getTableName($moduleName, $tableSuffix){
+        return $this->globDbPrefix() . $this->getModuleName() . $tableSuffix;
     }
 
     // Global variables
