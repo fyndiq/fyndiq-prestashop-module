@@ -192,4 +192,37 @@ class FmProductTest extends PHPUnit_Framework_TestCase
         $result = $this->fmProduct->get($languageId, $productId);
         $this->assertFalse($result);
     }
+
+    public function testUpdateProductStatus()
+    {
+        $tableName = 'test_table';
+        $productId = 1;
+        $status = 3;
+
+        $db = $this->getMockBuilder('stdClass')
+            ->setMethods(array('update'))
+            ->getMock();
+
+        $db->expects($this->once())
+            ->method('update')
+            ->with(
+                $this->equalTo($tableName),
+                $this->equalTo(array(
+                    'state' => $status
+                )),
+                $this->equalTo('id=1')
+            )
+            ->willReturn(true);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbGetInstance')
+            ->willReturn($db);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbEscape')
+            ->will($this->returnArgument(0));
+
+        $result = $this->fmProduct->updateProductStatus($tableName, $productId, $status);
+        $this->assertTrue($result);
+    }
 }
