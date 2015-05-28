@@ -123,7 +123,7 @@ class FmAjaxService
 
         foreach ($rows as $row) {
             $discountPercentage = $fyndiqDiscountPercentage;
-            $product = $fmProduct->get($languageId, $row['id_product']);
+            $product = $fmProductExport->getStoreProduct($languageId, $row['id_product']);
             // Don't show deactivated products
             if (empty($product)) {
                 continue;

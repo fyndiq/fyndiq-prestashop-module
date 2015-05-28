@@ -93,7 +93,9 @@ class FmNotificationService
             $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
             try {
                 $file = fopen($filePath, 'w+');
-                FmProductExport::saveFile($file);
+                $feedWriter = FmUtils::getFileWriter($file);
+                $fmProductExport = new FmProductExport();
+                $fmProductExport->saveFile($file);
                 fclose($file);
                 $this->_update_product_info();
             } catch (Exception $e) {

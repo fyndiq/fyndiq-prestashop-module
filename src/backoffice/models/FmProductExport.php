@@ -6,9 +6,6 @@ class FmProductExport extends FmModel
     const SKU_PREFIX = '~';
     const SKU_SEPARATOR = '-';
 
-    private static $skuList = array();
-    private static $categoryCache = array();
-
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
@@ -107,12 +104,115 @@ class FmProductExport extends FmModel
         return $ret;
     }
 
-    private static function getFyndiqProducts()
+    public function getFyndiqProducts()
     {
-        // Database connection
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_products';
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+        $sql = 'SELECT * FROM ' . $this->tableName;
+        return $this->fmPrestashop->dbGetInstance()->executeS($sql);
+    }
+
+    /**
+     * Returns the first category_id the product belongs to
+     *
+     * @param $categories
+     * @return mixed
+     */
+    private function getCategoryId($categories)
+    {
+        if (is_array($categories)) {
+            return array_pop($categories);
+        }
+        return 0;
+    }
+
+
+    /**
+     * Returns single product with combinations or false if product is not active/found
+     *
+     * @param $productId
+     * @return array|bool
+     */
+    public function getStoreProduct($languageId, $productId)
+    {
+        $result = array(
+            'combinations' => array()
+        );
+
+        $product = $this->fmPrestashop->productNew($productId, false, $languageId);
+
+        if (empty($product->id) || !$product->active) {
+            return false;
+        }
+
+        $result['id'] = $product->id;
+        $result['name'] = $product->name;
+        $result['category_id'] = $this->getCategoryId($product->getCategories());
+        $result['reference'] = $product->reference;
+        $result['tax_rate'] = $product->getTaxesRate();
+        $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
+        $result['price'] = $this->fmPrestashop->getPrice($product->price);
+        $result['description'] = $product->description;
+        $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
+            (int)$product->id_manufacturer
+        );
+
+        // get the medium image type
+        $imageType = $this->fmPrestashop->getImageType();
+
+        // get images
+        $images = $product->getImages($languageId);
+
+        // assign main product image
+        if (count($images) > 0) {
+            $result['image'] = $this->fmPrestashop->getImageLink(
+                $product->link_rewrite,
+                $images[0]['id_image'],
+                $imageType['name']
+            );
+        }
+
+        // handle combinations
+        $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
+        $combinationImages = $product->getCombinationImages($languageId);
+
+        foreach ($productAttributes as $productAttribute) {
+            $id = $productAttribute['id_product_attribute'];
+            $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
+
+            $result['combinations'][$id]['id'] = $id;
+            $result['combinations'][$id]['reference'] = $comboProduct->reference;
+            $result['combinations'][$id]['price'] =
+                $this->fmPrestashop->getPrice($product->price + $productAttribute['price']);
+            $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
+            $result['combinations'][$id]['attributes'][] = array(
+                'name' => $productAttribute['group_name'],
+                'value' => $productAttribute['attribute_name']
+            );
+
+            // if this combination has no image yet
+            if (empty($result['combinations'][$id]['image'])) {
+                // if this combination has any images
+                if ($combinationImages) {
+                    foreach ($combinationImages as $combinationImage) {
+                        // data array is stored in another array with only one key: 0. I have no idea why
+                        $combinationImage = $combinationImage[0];
+
+                        // if combination image belongs to the same product attribute mapping as the current combination
+                        if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
+                            $image = $this->fmPrestashop->getImageLink(
+                                $product->link_rewrite,
+                                $combinationImage['id_image'],
+                                $imageType['name']
+                            );
+
+                            $result['combinations'][$id]['image'] = $image;
+                            // We are getting single image only, no need to loop further
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return $result;
     }
 
     /**
@@ -121,27 +221,19 @@ class FmProductExport extends FmModel
      * @param $file - Export file handler
      * @return bool
      */
-    public static function saveFile($file)
+    public function saveFile($languageId, $feedWriter)
     {
-        if (get_resource_type($file) !== 'stream') {
-            return false;
-        }
-        $feedWriter = new FyndiqCSVFeedWriter($file);
-
-        $fmProducts = self::getFyndiqProducts();
+        $fmProducts = $this->getFyndiqProducts();
         if (empty($fmProducts)) {
             // Exit if there are no products
             return false;
         }
 
-        // Clear the SKU dictionary
-        self::$skuList = array();
-
         // get current currency
-        $currentCurrency = Currency::getDefaultCurrency()->iso_code;
+        $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
 
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = FmProduct::get($fmProduct['product_id']);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
 
             // Don't export deactivated or products without SKU
             if (!$storeProduct || empty($storeProduct['reference'])) {
@@ -152,7 +244,6 @@ class FmProductExport extends FmModel
                 // Product without combinations
 
                 // Complete Product with article data
-                $exportProduct['article-sku'] = self::getSKU($storeProduct['reference'], array($storeProduct['id'], 0));
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = $storeProduct['name'];
                 $feedWriter->addProduct($exportProduct);
@@ -164,18 +255,10 @@ class FmProductExport extends FmModel
             foreach ($storeProduct['combinations'] as $combination) {
                 // Copy the product data so we have clear slate for each combination
                 $exportProductCopy = $exportProduct;
-
-                if ($i === 0) {
-                    $exportProductCopy['article-sku'] = self::getSKU(
-                        $storeProduct['reference'],
-                        array($storeProduct['id'], 0)
-                    );
-                } else {
-                    $exportProductCopy['article-sku'] = self::getSKU(
-                        $combination['reference'],
-                        array($storeProduct['id'], $combination['id'])
-                    );
+                if ($combination['reference'] == '') {
+                    continue;
                 }
+                $exportProductCopy['article-sku'] = $combination['reference'];
                 $exportProductCopy['article-quantity'] = $combination['quantity'];
                 $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
 
@@ -207,21 +290,6 @@ class FmProductExport extends FmModel
     }
 
     /**
-     * Get Category Name
-     *
-     * @param $categoryId
-     * @return string
-     */
-    private static function getCategoryName($categoryId)
-    {
-        if (!isset(self::$categoryCache[$categoryId])) {
-            $category = new Category($categoryId, Context::getContext()->language->id);
-            self::$categoryCache[$categoryId] = $category->name;
-        }
-        return self::$categoryCache[$categoryId];
-    }
-
-    /**
      * Collect export data for the product
      *
      * @param array $storeProduct - The product information from thr product
@@ -229,12 +297,13 @@ class FmProductExport extends FmModel
      * @param string $currentCurrency
      * @return array
      */
-    private static function getProductData($storeProduct, $fmProduct, $currentCurrency)
+    private function getProductData($storeProduct, $fmProduct, $currentCurrency)
     {
         $exportProduct = array();
         $exportProduct['product-id'] = $fmProduct['id'];
         $exportProduct['product-category-id'] = $storeProduct['category_id'];
-        $exportProduct['product-category-name'] = self::getCategoryName($storeProduct['category_id']);
+        $exportProduct['product-category-name'] =
+            $this->fmPrestashop->getCategoryName($storeProduct['category_id']);
         $exportProduct['product-currency'] = $currentCurrency;
         $exportProduct['article-quantity'] = 0;
         $exportProduct['product-description'] = $storeProduct['description'];
@@ -250,17 +319,8 @@ class FmProductExport extends FmModel
         }
         $exportProduct['product-title'] = $storeProduct['name'];
         $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
-        $exportProduct['product-market'] = Context::getContext()->country->iso_code;
-
+        $exportProduct['product-market'] = $this->fmPrestashop->getCountryCode();
+        $exportProduct['article-sku'] = $storeProduct['reference'];
         return $exportProduct;
-    }
-
-    private static function getSKU($sku, $backupFields = array())
-    {
-        if (empty($sku) || in_array($sku, self::$skuList)) {
-            $sku = implode(self::SKU_SEPARATOR, array_merge(array(self::SKU_PREFIX), $backupFields));
-        }
-        self::$skuList[] = $sku;
-        return $sku;
     }
 }

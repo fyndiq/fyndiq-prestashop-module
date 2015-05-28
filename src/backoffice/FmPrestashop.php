@@ -10,6 +10,7 @@ class FmPrestashop
 
     public $version = '';
     public $moduleName = '';
+    private $categoryCache = array();
 
     public function __construct($moduleName)
     {
@@ -35,6 +36,21 @@ class FmPrestashop
         $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
         $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
         return $url;
+    }
+
+    /**
+     * Get Category Name
+     *
+     * @param $categoryId
+     * @return string
+     */
+    public function getCategoryName($categoryId)
+    {
+        if (!isset($this->categoryCache[$categoryId])) {
+            $category = new Category($categoryId, $this->getLanguageId());
+            $this->categoryCache[$categoryId] = $category->name;
+        }
+        return $this->categoryCache[$categoryId];
     }
 
     public function getLanguageId()
@@ -127,13 +143,20 @@ class FmPrestashop
         return Tools::ps_round($convertedPrice, 2);
     }
 
-    public function getModuleName($moduleName = '') {
+    public function getModuleName($moduleName = '')
+    {
         $module = moduleGetInstanceByName($name);
         return $module->config_name;
     }
 
-    public function getTableName($moduleName, $tableSuffix){
+    public function getTableName($moduleName, $tableSuffix)
+    {
         return $this->globDbPrefix() . $this->getModuleName() . $tableSuffix;
+    }
+
+    public function getCountryCode()
+    {
+        return $this->contextGetContext()->country->iso_code;
     }
 
     // Global variables

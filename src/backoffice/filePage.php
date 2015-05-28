@@ -37,7 +37,9 @@ class FilePageController
             if (!$fileExistsAndFresh) {
                 // Write the file if it does not exist or is older than the interval
                 $file = fopen($filePath, 'w+');
-                FmProductExport::saveFile($file);
+                $feedWriter = FmUtils::getFileWriter($file);
+                $fmProductExport = new FmProductExport();
+                $fmProductExport->saveFile($feedWriter);
                 fclose($file);
             }
 

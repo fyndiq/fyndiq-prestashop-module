@@ -83,4 +83,9 @@ class FmUtils
             return $e->getMessage();
         }
     }
+
+    public static function getFileWriter($file)
+    {
+        return new FyndiqCSVFeedWriter($file);
+    }
 }
