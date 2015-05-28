@@ -169,11 +169,26 @@ class FmPrestashop
         return $this->contextGetContext()->country->iso_code;
     }
 
-    public function forceCreateDir($path, $rights) {
+    public function forceCreateDir($path, $rights)
+    {
         if (!is_writable($path)) {
             $ret &= createDir($path, $rights);
         }
         return true;
+    }
+
+    public function markOrderAsDone($orderId, $orderDoneState)
+    {
+        $objOrder = new Order($orderId);
+        $history = new OrderHistory();
+        $history->id_order = (int)$objOrder->id;
+        return $history->changeIdOrderState($orderDoneState, $objOrder);
+    }
+
+    public function getOrderStateName($doneState)
+    {
+        $currentState = new OrderState($orderDoneState);
+        return $currentState->name[1];
     }
 
     // Global variables

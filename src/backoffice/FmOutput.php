@@ -69,6 +69,4 @@ class FmOutput
         echo $output;
         return true;
     }
-
-
 }

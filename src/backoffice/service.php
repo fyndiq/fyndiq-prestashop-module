@@ -11,7 +11,7 @@ require_once('./models/FmProduct.php');
 require_once('./models/FmProductInfo.php');
 require_once('./models/FmApiModel.php');
 require_once('./FmConfig.php');
-require_once('./models/order.php');
+require_once('./models/FmOrder.php');
 require_once('./models/order_fetch.php');
 require_once('./FmServiceController.php');
 

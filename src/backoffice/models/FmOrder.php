@@ -1,17 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: confact
- * Date: 04/08/14
- * Time: 08:42
- */
-
-/**
  * Class FmOrder
  *
  * handles orders
  */
-class FmOrder
+class FmOrder extends FmModel
 {
 
     const FYNDIQ_ORDERS_EMAIL = 'info@fyndiq.se';
@@ -404,7 +397,7 @@ class FmOrder
         return $ret;
     }
 
-    public static function getImportedOrders($page, $perPage)
+    public function getImportedOrders($page, $perPage)
     {
         $module = Module::getInstanceByName('fyndiqmerchant');
 
@@ -413,7 +406,7 @@ class FmOrder
 
         $orders = Db::getInstance()->ExecuteS($sqlQuery);
         $return = array();
-        $orderDoneState = FmConfig::get('done_state');
+        $orderDoneState = $this->fmConfig->get('done_state');
 
         foreach ($orders as $order) {
             $orderArray = $order;
@@ -499,14 +492,8 @@ class FmOrder
         return false;
     }
 
-    public static function markOrderAsDone($orderId)
+    public function markOrderAsDone($orderId, $orderDoneState)
     {
-        $orderDoneState = FmConfig::get('done_state');
-        $objOrder = new Order($orderId);
-        $history = new OrderHistory();
-        $history->id_order = (int)$objOrder->id;
-        $history->changeIdOrderState($orderDoneState, $objOrder);
-        $currentState = new OrderState($orderDoneState);
-        return $currentState->name[1];
+        return $this->fmPrestashop->markOrderAsDone($orderId, $orderDoneState);
     }
 }

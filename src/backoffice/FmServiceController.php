@@ -15,7 +15,8 @@ class FmServiceController
         $this->fmApiModel = $fmApiModel;
     }
 
-    public function handleRequest($params) {
+    public function handleRequest($params)
+    {
         if (!isset($params['action'])) {
             return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
         }
@@ -32,7 +33,7 @@ class FmServiceController
                 case 'delete_exported_products':
                     return $this->fmOutput->renderJSON($this->serviceDeleteExportedProducts($args));
                 case 'update_order_status':
-                    return $this->fmOutput->renderJSON($this->serviceUpdateOrderStatus($args));
+                    return $this->fmOutput->renderJSON($this->updateOrderStatus($args));
                 case 'load_orders':
                     return $this->fmOutput->renderJSON($this->loadOrders($args));
                 case 'get_delivery_notes':
@@ -176,7 +177,8 @@ class FmServiceController
     private function loadOrders($args)
     {
         $page = (isset($args['page']) and $args['page'] > 0) ? $args['page']: 1;
-        $orders = FmOrder::getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
+        $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
+        $orders = $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $object = new stdClass();
         $object->orders = $orders;
@@ -193,16 +195,19 @@ class FmServiceController
         $this->response($object);
     }
 
-    private function update_order_status($args)
+    private function updateOrderStatus($args)
     {
         if (isset($args['orders']) && is_array($args['orders'])) {
             $doneState = '';
+            $doneState = $this->fmConfig->get('done_state');
+            $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
             foreach ($args['orders'] as $order) {
                 if (is_numeric($order)) {
-                    $doneState = FmOrder::markOrderAsDone($order);
+                    $doneState = $fmOrder->markOrderAsDone($order, $doneState);
                 }
             }
-            return $this->response($doneState);
+            $doneStateName = $this->fmPrestashop->getOrderStateName($doneState);
+            return $this->response($doneStateName);
         }
         $this->response(false);
     }
