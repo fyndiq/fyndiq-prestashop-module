@@ -12,22 +12,23 @@ class FmProductExport extends FmModel
 
     public function productExist($productId)
     {
-        $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
-        $sql = "SELECT product_id FROM " . $this->fmPrestashop->getModuleName() . "_products WHERE product_id='" . $productId . "' LIMIT 1";
+        $sql = "SELECT product_id
+        FROM " . $this->fmPrestashop->getModuleName(FmUtils::MODULE_NAME) . "_products
+        WHERE product_id='" . $productId . "' LIMIT 1";
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
     }
 
-    static function addProduct($productId, $expPricePercentage)
+    public function addProduct($productId, $expPricePercentage)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
         $data = array(
             'product_id' => (int)$productId,
             'exported_price_percentage' => $expPricePercentage
         );
-        $return = Db::getInstance()->insert($module->config_name . '_products', $data);
-
-        return $return;
+        return $this->fmPrestashop->dbGetInstance()->insert(
+            $this->fmPrestashop->getModuleName(FmUtils::MODULE_NAME) . '_products',
+            $data
+        );
     }
 
     public static function updateProduct($productId, $expPricePercentage)
