@@ -31,15 +31,16 @@ class FmProductExport extends FmModel
         );
     }
 
-    public static function updateProduct($productId, $expPricePercentage)
+    public function updateProduct($productId, $expPricePercentage)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $data = array('exported_price_percentage' => $expPricePercentage);
+        $data = array(
+            'exported_price_percentage' => $expPricePercentage
+        );
 
-        return (bool)Db::getInstance()->update(
-            $module->config_name . "_products",
+        return (bool)$this->fmPrestashop->dbGetInstance()->update(
+            $this->fmPrestashop->getModuleName(FmUtils::MODULE_NAME) . "_products",
             $data,
-            "product_id = '{$productId}'",
+            'product_id = ' .$productId,
             1
         );
     }

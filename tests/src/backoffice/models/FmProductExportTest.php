@@ -9,7 +9,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->db = $this->getMockBuilder('stdClass')
-            ->setMethods(array('ExecuteS', 'insert'))
+            ->setMethods(array('ExecuteS', 'insert', 'update'))
             ->getMock();
 
         $this->fmPrestashop->expects($this->once())
@@ -48,6 +48,25 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->fmProductExport->addProduct($productId, $expPricePercentage);
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateProduct() {
+        $productId = 1;
+        $expPricePercentage = 12;
+
+        $this->db->method('update')
+            ->with(
+                $this->equalTo('test_products'),
+                $this->equalTo(array(
+                    'exported_price_percentage' => 12
+                )),
+                $this->equalTo('product_id = 1'),
+                $this->equalTo(1)
+            )
+            ->willReturn(true);
+
+        $result = $this->fmProductExport->updateProduct($productId, $expPricePercentage);
         $this->assertTrue($result);
     }
 }
