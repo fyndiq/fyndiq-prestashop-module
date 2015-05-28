@@ -1,6 +1,6 @@
 <?php
 
-class FmProductExport
+class FmProductExport extends FmModel
 {
 
     const SKU_PREFIX = '~';
@@ -10,12 +10,11 @@ class FmProductExport
     private static $categoryCache = array();
 
 
-    static function productExist($productId)
+    public function productExist($productId)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $sql = "SELECT * FROM " . _DB_PREFIX_ . $module->config_name . "_products WHERE product_id='" . $productId . "' LIMIT 1";
-        $data = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($sql);
-
+        $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
+        $sql = "SELECT product_id FROM " . $this->fmPrestashop->getModuleName() . "_products WHERE product_id='" . $productId . "' LIMIT 1";
+        $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
     }
 

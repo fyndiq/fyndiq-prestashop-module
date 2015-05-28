@@ -11,7 +11,7 @@ require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/init.php';
 require_once('backoffice/FmPrestashop.php');
 require_once('backoffice/FmController.php');
-require_once('backoffice/models/product_export.php');
+require_once('backoffice/models/FmProductExport.php');
 require_once('backoffice/models/FmApiModel.php');
 require_once('backoffice/models/order.php');
 

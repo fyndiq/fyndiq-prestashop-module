@@ -121,11 +121,15 @@ class FmPrestashop
     public function getPrice($price)
     {
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
-        $module = $this->moduleGetInstanceByName();
-        $currency = new Currency(Configuration::get($module->config_name . '_currency'));
+        $currency = new Currency(Configuration::get($this->getModuleName() . '_currency'));
         $convertedPrice = $price * $currency->conversion_rate;
 
         return Tools::ps_round($convertedPrice, 2);
+    }
+
+    public function getModuleName($name = '') {
+        $module = moduleGetInstanceByName($name);
+        return $module->config_name;
     }
 
     // Global variables
