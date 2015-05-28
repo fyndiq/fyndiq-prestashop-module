@@ -26,16 +26,6 @@ class FmUtils
     }
 
     /**
-     * Returns the export filename path
-     *
-     * @return string
-     */
-    public static function getExportPath()
-    {
-        return _PS_CACHE_DIR_ . 'fyndiqmerchant/';
-    }
-
-    /**
      * Returns the current shop id
      *
      * @return int

@@ -44,4 +44,31 @@ class FmOutput
     {
         return $this->module->displayError($message);
     }
+
+    public function renderJSON($data)
+    {
+        if ($data != null) {
+            $this->header('Content-Type: application/json');
+            return $this->output(json_encode(
+                array(
+                    'fm-service-status' => 'success',
+                    'data' => $data
+                )
+            ));
+        }
+        return true;
+    }
+
+    public function header($content)
+    {
+        return header($content);
+    }
+
+    public function output($output)
+    {
+        echo $output;
+        return true;
+    }
+
+
 }

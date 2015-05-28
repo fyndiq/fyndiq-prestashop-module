@@ -11,6 +11,7 @@ require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once 'backoffice/includes/shared/src/init.php';
 require_once('backoffice/FmPrestashop.php');
 require_once('backoffice/FmController.php');
+require_once('backoffice/models/FmModel.php');
 require_once('backoffice/models/FmProductExport.php');
 require_once('backoffice/models/FmApiModel.php');
 require_once('backoffice/models/order.php');
@@ -52,7 +53,9 @@ class FyndiqMerchant extends Module
         $ret &= $this->installTab();
 
         // create product mapping database
-        $ret &= FmProductExport::install();
+        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+        $fmProductExport = new FmProductExport($fmPrestashop, nil);
+        $ret &= $fmProductExport->install();
 
         // create order mapping database
         $ret &= FmOrder::install();
@@ -75,7 +78,9 @@ class FyndiqMerchant extends Module
         $ret &= (bool)FmConfig::delete('done_state');
 
         // Drop product table
-        $ret &= FmProductExport::uninstall();
+        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+        $fmProductExport = new FmProductExport($fmPrestashop, nil);
+        $ret &= $fmProductExport->uninstall();
 
         // Remove the menu tab
         $ret &= $this->uninstallTab();

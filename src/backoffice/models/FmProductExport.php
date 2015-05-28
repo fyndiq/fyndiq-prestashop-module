@@ -68,25 +68,24 @@ class FmProductExport extends FmModel
      *
      * @return bool
      */
-    public static function install()
+    public function install()
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $ret = (bool)Db::getInstance()->Execute(
-            'create table if not exists ' . _DB_PREFIX_ . $module->config_name . '_products (
+        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute(
+            'CREATE TABLE IF NOT EXIST ' . $this->tableName .' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
             state varchar(64) default NULL);
+
             CREATE UNIQUE INDEX productIndex
-            ON ' . _DB_PREFIX_ . $module->config_name . '_products (product_id);
+            ON ' . $this->tableName . ' (product_id);
         '
         );
 
-        if (!is_writable(FmHelpers::getExportPath())) {
-            $ret &= createDir(FmHelpers::getExportPath(), 0777);
-        }
+        $exportPath = $this->fmPrestashop->getExportPath();
+        $ret &= $this->fmPrestashop->forceCreateDir($exportPath, 0775);
 
-        return $ret;
+        return (bool)$ret;
     }
 
     /**
@@ -94,14 +93,11 @@ class FmProductExport extends FmModel
      *
      * @return bool
      */
-    public static function uninstall()
+    public function uninstall()
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $ret = (bool)Db::getInstance()->Execute(
-            'drop table ' . _DB_PREFIX_ . $module->config_name . '_products'
+        return (bool)(bool)$this->fmPrestashop->dbGetInstance()->Execute(
+            'DROP TABLE ' . $this->tableName
         );
-
-        return $ret;
     }
 
     public function getFyndiqProducts()

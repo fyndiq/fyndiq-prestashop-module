@@ -39,6 +39,16 @@ class FmPrestashop
     }
 
     /**
+     * Returns the export filename path
+     *
+     * @return string
+     */
+    public function getExportPath()
+    {
+        return _PS_CACHE_DIR_ . $this->moduleName . '/';
+    }
+
+    /**
      * Get Category Name
      *
      * @param $categoryId
@@ -145,7 +155,7 @@ class FmPrestashop
 
     public function getModuleName($moduleName = '')
     {
-        $module = moduleGetInstanceByName($name);
+        $module = $this->moduleGetInstanceByName($moduleName);
         return $module->config_name;
     }
 
@@ -157,6 +167,13 @@ class FmPrestashop
     public function getCountryCode()
     {
         return $this->contextGetContext()->country->iso_code;
+    }
+
+    public function forceCreateDir($path, $rights) {
+        if (!is_writable($path)) {
+            $ret &= createDir($path, $rights);
+        }
+        return true;
     }
 
     // Global variables

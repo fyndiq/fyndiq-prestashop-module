@@ -10,7 +10,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->db = $this->getMockBuilder('stdClass')
-            ->setMethods(array('ExecuteS', 'insert', 'update', 'delete', 'getRow'))
+            ->setMethods(array('ExecuteS', 'insert', 'update', 'delete', 'getRow', 'Execute'))
             ->getMock();
 
         $this->fmPrestashop
@@ -301,6 +301,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'price' => 36.66,
                     'manufacturer_name' => 'manufacturer_name3',
                     'name' => 'name3',
+                    'image' => 'image333.jpg',
                     'tax_rate' => 312,
                     'combinations' => array(),
                 )
@@ -362,6 +363,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 'product-market' => 'BG',
                 'article-sku' => '33',
                 'article-name' => 'name3',
+                'product-image-1-url' => 'image333.jpg',
+                'product-image-1-identifier' => 2,
             ));
 
         $currency = new stdClass();
@@ -377,6 +380,48 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->willReturn('BG');
 
         $result = $this->fmProductExport->saveFile($languageId, $feedWriter);
+        $this->assertTrue($result);
+    }
+
+    public function testGetFyndiqProducts()
+    {
+
+        $this->db->method('ExecuteS')
+            ->willReturn(true);
+
+        $result = $this->fmProductExport->getFyndiqProducts();
+        $this->assertTrue($result);
+    }
+
+    public function testInstall()
+    {
+        $path = '/tmp/';
+        $this->db->method('Execute')
+            ->willReturn(true);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('getExportPath')
+            ->willReturn($path);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('forceCreateDir')
+            ->with(
+                $this->equalTo($path),
+                $this->equalTo(0775)
+            )
+            ->willReturn(true);
+
+        $result = $this->fmProductExport->install();
+        $this->assertTrue($result);
+    }
+
+    public function testUninstall()
+    {
+
+        $this->db->method('Execute')
+            ->willReturn(true);
+
+        $result = $this->fmProductExport->uninstall();
         $this->assertTrue($result);
     }
 }
