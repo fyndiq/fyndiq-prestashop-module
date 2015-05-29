@@ -10,10 +10,13 @@ require_once(FYNDIQ_ROOT . 'backoffice/FmController.php');
 require_once(FYNDIQ_ROOT . 'backoffice/FmServiceController.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmModel.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmApiModel.php');
+require_once(FYNDIQ_ROOT . 'backoffice/models/FmOrder.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmCategory.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmProduct.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmProductExport.php');
 require_once(FYNDIQ_ROOT . 'backoffice/includes/shared/src/init.php');
+require_once(FYNDIQ_ROOT . 'backoffice/FmOrderFetch.php');
+
 
 // require_once(FYNDIQ_ROOT . 'backoffice/models/config.php');
 // require_once(FYNDIQ_ROOT . 'backoffice/includes/fyndiqAPI/fyndiqAPI.php');

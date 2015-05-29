@@ -431,11 +431,10 @@ class FmOrder extends FmModel
         return $return;
     }
 
-    public static function getAmount()
+    public function getTotal()
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $sqlquery = 'SELECT count(id) as amount FROM ' . _DB_PREFIX_ . $module->config_name . '_orders';
-        return Db::getInstance()->getValue($sqlquery);
+        $sqlquery = 'SELECT count(id) as amount FROM ' . $fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        return $this->fmPrestashop->dbGetInstance()->getValue($sqlquery);
     }
 
     /**

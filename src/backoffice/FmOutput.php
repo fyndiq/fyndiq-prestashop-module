@@ -59,6 +59,24 @@ class FmOutput
         return true;
     }
 
+    /**
+     * create a error to be send back to client.
+     *
+     * @param $title
+     * @param $message
+     */
+    public function responseError($title, $message)
+    {
+        $response = array(
+            'fm-service-status' => 'error',
+            'title' => $title,
+            'message' => $message,
+        );
+        $json = json_encode($response);
+        $this->output($json);
+        return null;
+    }
+
     public function header($content)
     {
         return header($content);
@@ -69,4 +87,16 @@ class FmOutput
         echo $output;
         return true;
     }
+
+    public function streamFile($file, $fileName, $contentType)
+    {
+        $this->header('Content-Type: ' . $contentType);
+        $this->header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        $this->header('Content-Transfer-Encoding: binary');
+        $this->header('Content-Length: ' . filesize($file));
+        $this->header('Expires: 0');
+        rewind($file);
+        return fpassthru($file);
+    }
+
 }

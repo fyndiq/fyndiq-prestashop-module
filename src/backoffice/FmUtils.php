@@ -42,38 +42,6 @@ class FmUtils
         return intval($context->shop->id);
     }
 
-    public static function streamBackDeliveryNotes($orderIds)
-    {
-        $request = array(
-            'orders' => array()
-        );
-        foreach ($orderIds as $orderId) {
-            $request['orders'][] = array('order' => $orderId);
-        }
-        try {
-            $ret = self::callApi('POST', 'delivery_notes/', $request, true);
-            $fileName = 'delivery_notes-' . implode('-', $orderIds) . '.pdf';
-
-            if ($ret['status'] == 200) {
-                header('Content-Type: application/pdf');
-                header('Content-Disposition: attachment; filename="' . $fileName . '"');
-                header('Content-Transfer-Encoding: binary');
-                header('Content-Length: ' . strlen($ret['data']));
-                header('Expires: 0');
-                $fp = fopen('php://temp', 'wb+');
-                // Saving data to file
-                fputs($fp, $ret['data']);
-                rewind($fp);
-                fpassthru($fp);
-                fclose($fp);
-                die();
-            }
-            return FyndiqTranslation::get('unhandled-error-message');
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
     public static function getFileWriter($file)
     {
         return new FyndiqCSVFeedWriter($file);

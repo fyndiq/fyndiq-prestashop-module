@@ -22,78 +22,50 @@ class FmServiceController
         }
         $action = $params['action'];
         $args = isset($params['args']) && is_array($params['args']) ? $params['args'] : array();
-        try {
+        return $this->fmOutput->renderJSON($this->routeRequest($action, $args));
+    }
+
+    public function routeRequest($action, $args) {
+        //try {
             switch($action) {
                 case 'get_categories':
-                    return $this->fmOutput->renderJSON($this->getCategories($args));
+                    return $this->getCategories($args);
                 case 'get_products':
-                    return $this->fmOutput->renderJSON($this->getProducts($args));
+                    return $this->getProducts($args);
                 case 'export_products':
-                    return $this->fmOutput->renderJSON($this->serviceExportProducts($args));
+                    return $this->exportProducts($args);
                 case 'delete_exported_products':
-                    return $this->fmOutput->renderJSON($this->serviceDeleteExportedProducts($args));
+                    return $this->deleteExportedProducts($args);
                 case 'update_order_status':
-                    return $this->fmOutput->renderJSON($this->updateOrderStatus($args));
+                    return $this->updateOrderStatus($args);
                 case 'load_orders':
-                    return $this->fmOutput->renderJSON($this->loadOrders($args));
+                    return $this->loadOrders($args);
                 case 'get_delivery_notes':
-                    return $this->fmOutput->renderJSON($this->serviceGetDeliveryNotes($args));
+                    return $this->serviceGetDeliveryNotes($args);
                 case 'import_orders':
-                    return $this->fmOutput->renderJSON($this->serviceImportOrders($args));
+                    return $this->importOrders($args);
                 case 'update_product_status':
-                    return $this->fmOutput->renderJSON($this->serviceUpdateProductStatus($args));
+                    return $this->serviceUpdateProductStatus($args);
                 default:
-                    return $this->fmOutput->showError(404, 'Not Found', '404 Not Found');
+                    return $this->fmOutput->responseError(
+                        'Not Found',
+                        'Acion ' . $action . ' con not be found'
+                    );
             }
-        } catch (Exception $e) {
-            return $this->fmOutput->responseError(
-                FyndiqTranslation::get('unhandled-error-title'),
-                FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
-            );
+        // } catch (Exception $e) {
+        //     return $this->fmOutput->responseError(
+        //         FyndiqTranslation::get('unhandled-error-title'),
+        //         FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
+        //     );
+        // }
+    }
+
+    protected function loadModel($modelName) {
+        if (class_exists($modelName)) {
+            return new $modelName($this->fmPrestashop, $this->fmConfig);
         }
+        throw new Exception('Model ' . $modelName . ' is not defined');
     }
-
-    /**
-     * Structure the response back to the client
-     *
-     * @param string $data
-     */
-    private function response($data = '')
-    {
-        $response = array(
-            'fm-service-status' => 'success',
-            'data' => $data
-        );
-        $json = json_encode($response);
-        if (json_last_error() != JSON_ERROR_NONE) {
-            $this->responseError(
-                FyndiqTranslation::get('unhandled-error-title'),
-                FyndiqTranslation::get('unhandled-error-message')
-            );
-        } else {
-            echo $json;
-        }
-    }
-
-    # return an error response
-    /**
-     * create a error to be send back to client.
-     *
-     * @param $title
-     * @param $message
-     */
-    private function responseError($title, $message)
-    {
-        $response = array(
-            'fm-service-status' => 'error',
-            'title' => $title,
-            'message' => $message,
-        );
-        $json = json_encode($response);
-        echo $json;
-    }
-
-    ### views ###
 
     /**
      * Get the categories.
@@ -103,7 +75,7 @@ class FmServiceController
     private function getCategories($args)
     {
         $languageId = $this->fmConfig->get('language');
-        $fmCategory = new FmCategory($this->fmPrestashop, $this->fmConfig);
+        $fmCategory = $this->loadModel('FmCategory');
         return $fmCategory->getSubcategories($languageId, intval($args['category_id']));
     }
 
@@ -115,8 +87,8 @@ class FmServiceController
     private function getProducts($args)
     {
         $products = array();
-        $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
-        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $fmProduct = $this->loadModel('FmProduct');
+        $fmProductExport = $this->loadModel('FmProductExport');
         // get currency
         $currentCurrency = $this->fmPrestashop->getDefaultCurrency();
 
@@ -161,7 +133,7 @@ class FmServiceController
         $page = isset($args['page']) ? intval($args['page']) : 1;
         $total = $fmProduct->getAmount($args['category']);
 
-        $result = array(
+        return array(
             'products' => $products,
             'pagination' => FyndiqUtils::getPaginationHTML(
                 $total,
@@ -170,46 +142,44 @@ class FmServiceController
                 FyndiqUtils::PAGINATION_PAGE_FRAME
             )
         );
-        $this->response($result);
     }
 
 
     private function loadOrders($args)
     {
-        $page = (isset($args['page']) and $args['page'] > 0) ? $args['page']: 1;
-        $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-        $orders = $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
-
-        $object = new stdClass();
-        $object->orders = $orders;
-
-        // Setup pagination
-        $page = isset($args['page']) ? intval($args['page']) : 1;
-        $total = FmOrder::getAmount();
-        $object->pagination = FyndiqUtils::getPaginationHTML(
-            $total,
-            $page,
-            FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
-            FyndiqUtils::PAGINATION_PAGE_FRAME
+        $fmOrder = $this->loadModel('FmOrder');
+        $total = $fmOrder->getTotal();
+        $page = (isset($args['page']) && $args['page'] > 0) ? $args['page']: 1;
+        return array(
+            'orders' => $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE),
+            'pagination' => FyndiqUtils::getPaginationHTML(
+                $total,
+                $page,
+                FyndiqUtils::PAGINATION_ITEMS_PER_PAGE,
+                FyndiqUtils::PAGINATION_PAGE_FRAME
+            )
         );
-        $this->response($object);
     }
 
     private function updateOrderStatus($args)
     {
+        $doneStateName = '';
         if (isset($args['orders']) && is_array($args['orders'])) {
             $doneState = '';
             $doneState = $this->fmConfig->get('done_state');
-            $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
+            $fmOrder = $this->loadModel('FmOrder');
             foreach ($args['orders'] as $order) {
                 if (is_numeric($order)) {
                     $doneState = $fmOrder->markOrderAsDone($order, $doneState);
                 }
             }
             $doneStateName = $this->fmPrestashop->getOrderStateName($doneState);
-            return $this->response($doneStateName);
         }
-        $this->response(false);
+        return $doneStateName;
+    }
+
+    protected function getTime() {
+        return time();
     }
 
     /**
@@ -218,69 +188,82 @@ class FmServiceController
      * @param $args
      * @throws PrestaShopException
      */
-    private function import_orders()
+    private function importOrders()
     {
-        try {
-            $orderFetch = new FmOrderFetch();
-            $orderFetch->getAll();
-            $newDate = date('Y-m-d H:i:s');
-            FmConfig::set('import_date', $newDate);
-            $time = date('G:i:s', strtotime($newDate));
-            $this->response($time);
-        } catch (Exception $e) {
-            $this->responseError(
-                FyndiqTranslation::get('unhandled-error-title'),
-                FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
-            );
-        }
+        $fmOrder = $this->loadModel('FmOrder');
+        $orderFetch = new FmOrderFetch($this->fmConfig, $fmOrder, $this->fmApiModel);
+        $orderFetch->getAll();
+        $time = $this->getTime();
+        $newDate = date('Y-m-d H:i:s', $time);
+        $this->fmConfig->set('import_date', $newDate);
+        return date('G:i:s', $time);
     }
 
     /**
      * Exporting the products from PrestaShop
      *
-     * @param $args
+     * @param mixed $args
      */
-    private function export_products($args)
+    private function exportProducts($args)
     {
-        // Getting all data
-        foreach ($args['products'] as $row) {
-            $product = $row['product'];
-
-            if (FmProductExport::productExist($product['id'])) {
-                FmProductExport::updateProduct($product['id'], $product['fyndiq_percentage']);
-            } else {
-                FmProductExport::addProduct($product['id'], $product['fyndiq_percentage']);
+        $result = true;
+        if (isset($args['products']) && is_array($args['products'])) {
+            $fmProductExport = $this->loadModel('FmProductExport');
+            foreach ($args['products'] as $row) {
+                $product= $row['product'];
+                if ($fmProductExport->productExist($product['id'])) {
+                    $result &= $fmProductExport->updateProduct($product['id'], $product['fyndiq_percentage']);
+                    continue;
+                }
+                $result &= $fmProductExport->addProduct($product['id'], $product['fyndiq_percentage']);
             }
         }
-        $this->response(true);
+        return (bool)$result;
     }
 
-    private function delete_exported_products($args)
+    private function deleteExportedProducts($args)
     {
-        foreach ($args['products'] as $row) {
-            $product = $row['product'];
-            FmProductExport::deleteProduct($product['id']);
+        $result = true;
+        if (isset($args['products']) && is_array($args['products'])) {
+            $fmProductExport = $this->loadModel('FmProductExport');
+            foreach ($args['products'] as $row) {
+                $product = $row['product'];
+                $fmProductExport->deleteProduct($product['id']);
+            }
         }
-        $this->response(true);
-    }
-
-    private function update_product($args)
-    {
-        $result = false;
-        if (isset($args['product']) && is_numeric($args['product'])
-            && isset($args['percentage']) && is_numeric($args['percentage'])) {
-            $result = FmProductExport::updateProduct($args['product'], $args['percentage']);
-        }
-        $this->response($result);
+        return $result;
     }
 
     private function get_delivery_notes($args)
     {
         if (isset($args['orders']) && is_array($args['orders'])) {
-            echo FmHelpers::streamBackDeliveryNotes($args['orders']);
-            return;
+            $orderIds = $args['orders'];
+            $request = array(
+                'orders' => array()
+            );
+            foreach ($orderIds as $orderId) {
+                $request['orders'][] = array('order' => intval($orderId));
+            }
+            try {
+                $ret = $this->apiModel->callApi('POST', 'delivery_notes/', $request);
+                $fileName = 'delivery_notes-' . implode('-', $orderIds) . '.pdf';
+
+                if ($ret['status'] == 200) {
+                    $file = fopen('php://temp', 'wb+');
+                    // Saving data to file
+                    fputs($file, $ret['data']);
+                    $this->output->streamFile($file, $fileName, 'application/pdf');
+                    fclose($file);
+                    return null;
+                }
+                return FyndiqTranslation::get('unhandled-error-message');
+            } catch (Exception $e) {
+                $this->output->output($e->getMessage());
+                return null;
+            }
         }
-        echo 'Please, pick at least one order';
+        $this->output->output('Please, pick at least one order');
+        return null;
     }
 
     private function update_product_status()
