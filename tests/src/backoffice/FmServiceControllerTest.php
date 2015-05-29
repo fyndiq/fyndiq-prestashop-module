@@ -352,7 +352,39 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             'orders' => array(1, 2, 3)
         );
 
-        $result = $this->controller->handleRequest('get_delivery_notes', $data);
+        $result = $this->controller->routeRequest('get_delivery_notes', $data);
+        $this->assertNull($result);
+
+        $data = array();
+        $result = $this->controller->routeRequest('get_delivery_notes', $data);
         $this->assertNull($result);
     }
+
+
+    public function testUpdateProductStatus() {
+        $data = array();
+
+        $fmProduct = $this->getMockBuilder('FmProduct')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->controller->expects($this->at(0))
+            ->method('loadModel')
+            ->willReturn($fmProduct);
+
+        $result = $this->controller->routeRequest('update_product_status', $data);
+        $this->assertFalse($result);
+    }
+
+    public function testWrongHandler() {
+        $this->fmOutput->expects($this->once())
+            ->method('responseError')
+            ->with(
+                $this->equalTo('Not Found'),
+                $this->equalTo('Acion test could not be found')
+            );
+        $result = $this->controller->routeRequest('test', array());
+        $this->assertNull($result);
+    }
+
 }

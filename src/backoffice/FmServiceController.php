@@ -26,7 +26,7 @@ class FmServiceController
     }
 
     public function routeRequest($action, $args) {
-        //try {
+        try {
             switch($action) {
                 case 'get_categories':
                     return $this->getCategories($args);
@@ -49,15 +49,15 @@ class FmServiceController
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
-                        'Acion ' . $action . ' con not be found'
+                        'Acion ' . $action . ' could not be found'
                     );
             }
-        // } catch (Exception $e) {
-        //     return $this->fmOutput->responseError(
-        //         FyndiqTranslation::get('unhandled-error-title'),
-        //         FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
-        //     );
-        // }
+        } catch (Exception $e) {
+            return $this->fmOutput->responseError(
+                FyndiqTranslation::get('unhandled-error-title'),
+                FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
+            );
+        }
     }
 
     protected function loadModel($modelName) {
@@ -252,17 +252,17 @@ class FmServiceController
                     $file = fopen('php://temp', 'wb+');
                     // Saving data to file
                     fputs($file, $ret['data']);
-                    $this->output->streamFile($file, $fileName, 'application/pdf');
+                    $this->fmOutput->streamFile($file, $fileName, 'application/pdf');
                     fclose($file);
                     return null;
                 }
                 return FyndiqTranslation::get('unhandled-error-message');
             } catch (Exception $e) {
-                $this->output->output($e->getMessage());
+                $this->fmOutput->output($e->getMessage());
                 return null;
             }
         }
-        $this->output->output('Please, pick at least one order');
+        $this->fmOutput->output('Please, pick at least one order');
         return null;
     }
 
@@ -270,7 +270,6 @@ class FmServiceController
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
         $fmProduct = $this->loadModel('FmProduct');
         $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
-        $result = $productInfo->getAll();
-        $this->response($result);
+        return $productInfo->getAll();
     }
 }

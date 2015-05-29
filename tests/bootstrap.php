@@ -16,6 +16,7 @@ require_once(FYNDIQ_ROOT . 'backoffice/models/FmProduct.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmProductExport.php');
 require_once(FYNDIQ_ROOT . 'backoffice/includes/shared/src/init.php');
 require_once(FYNDIQ_ROOT . 'backoffice/FmOrderFetch.php');
+require_once(FYNDIQ_ROOT . 'backoffice/FmProductInfo.php');
 
 
 // require_once(FYNDIQ_ROOT . 'backoffice/models/config.php');
