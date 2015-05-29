@@ -3,9 +3,6 @@
 class FmProductExport extends FmModel
 {
 
-    const SKU_PREFIX = '~';
-    const SKU_SEPARATOR = '-';
-
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);

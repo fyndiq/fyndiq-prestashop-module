@@ -41,11 +41,11 @@ class FmServiceController
                 case 'load_orders':
                     return $this->loadOrders($args);
                 case 'get_delivery_notes':
-                    return $this->serviceGetDeliveryNotes($args);
+                    return $this->getDeliveryNotes($args);
                 case 'import_orders':
                     return $this->importOrders($args);
                 case 'update_product_status':
-                    return $this->serviceUpdateProductStatus($args);
+                    return $this->updateProductStatus($args);
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
@@ -234,7 +234,7 @@ class FmServiceController
         return $result;
     }
 
-    private function get_delivery_notes($args)
+    private function getDeliveryNotes($args)
     {
         if (isset($args['orders']) && is_array($args['orders'])) {
             $orderIds = $args['orders'];
@@ -266,20 +266,11 @@ class FmServiceController
         return null;
     }
 
-    private function update_product_status()
-    {
-        try {
-            $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
-            $tableName = $module->config_name . '_products';
-            $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
-            $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
-            $result = $productInfo->getAll();
-            $this->response($result);
-        } catch (Exception $e) {
-            $this->responseError(
-                FyndiqTranslation::get('unhandled-error-title'),
-                FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
-            );
-        }
+    private function updateProductStatus() {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
+        $fmProduct = $this->loadModel('FmProduct');
+        $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
+        $result = $productInfo->getAll();
+        $this->response($result);
     }
 }
