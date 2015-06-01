@@ -213,7 +213,8 @@ class FmPrestashop
         return $context;
     }
 
-    public function newPrestashopOrder() {
+    public function newPrestashopOrder()
+    {
         // Create an order
         $prestaOrder = new Order();
 
@@ -226,7 +227,8 @@ class FmPrestashop
     }
 
 
-    public function isPs1516 (){
+    public function isPs1516()
+    {
         return in_array($this->version, array(self::FMPSV15, self::FMPSV16));
     }
 
@@ -373,17 +375,20 @@ class FmPrestashop
     }
 
     // Address
-    public function newAddress() {
+    public function newAddress()
+    {
         return new Address();
     }
 
     // Cart
-    public function newCart() {
+    public function newCart()
+    {
         return new Cart();
     }
 
     // Customer
-    public function newCustomer() {
+    public function newCustomer()
+    {
         return new Customer();
     }
 }

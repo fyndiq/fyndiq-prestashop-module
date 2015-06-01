@@ -25,7 +25,8 @@ class FmServiceController
         return $this->fmOutput->renderJSON($this->routeRequest($action, $args));
     }
 
-    public function routeRequest($action, $args) {
+    public function routeRequest($action, $args)
+    {
         try {
             switch($action) {
                 case 'get_categories':
@@ -60,7 +61,8 @@ class FmServiceController
         }
     }
 
-    protected function loadModel($modelName) {
+    protected function loadModel($modelName)
+    {
         if (class_exists($modelName)) {
             return new $modelName($this->fmPrestashop, $this->fmConfig);
         }
@@ -178,7 +180,8 @@ class FmServiceController
         return $doneStateName;
     }
 
-    protected function getTime() {
+    protected function getTime()
+    {
         return time();
     }
 
@@ -266,7 +269,8 @@ class FmServiceController
         return null;
     }
 
-    private function updateProductStatus() {
+    private function updateProductStatus()
+    {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
         $fmProduct = $this->loadModel('FmProduct');
         $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);

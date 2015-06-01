@@ -98,5 +98,4 @@ class FmOutput
         rewind($file);
         return fpassthru($file);
     }
-
 }

@@ -3,7 +3,8 @@
 class FmOrderFetch extends FyndiqPaginatedFetch
 {
 
-    function __construct($fmConfig, $fmOrder, $fmApiModel){
+    function __construct($fmConfig, $fmOrder, $fmApiModel)
+    {
         $this->fmConfig = $fmConfig;
         $this->fmOrder = $fmOrder;
         $this->fmApiModel = $fmApiModel;
