@@ -352,6 +352,12 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             'orders' => array(1, 2, 3)
         );
 
+        $response = array(
+            'status' => 200
+        );
+        $this->fmApiModel->method('callApi')
+            ->willReturn($response);
+
         $result = $this->controller->routeRequest('get_delivery_notes', $data);
         $this->assertNull($result);
 

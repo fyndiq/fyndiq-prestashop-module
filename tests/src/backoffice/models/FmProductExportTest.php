@@ -64,7 +64,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(array(
                     'exported_price_percentage' => 12
                 )),
-                $this->equalTo('product_id = 1'),
+                $this->equalTo('product_id = "1"'),
                 $this->equalTo(1)
             )
             ->willReturn(true);
