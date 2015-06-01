@@ -25,23 +25,6 @@ class FmUtils
         return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
     }
 
-    /**
-     * Returns the current shop id
-     *
-     * @return int
-     */
-    public static function getCurrentShopId()
-    {
-        $context = Context::getContext();
-        if (Shop::isFeatureActive() && $context->cookie->shopContext) {
-            $split = explode('-', $context->cookie->shopContext);
-            if (count($split) === 2) {
-                return intval($split[1]);
-            }
-        }
-        return intval($context->shop->id);
-    }
-
     public static function getFileWriter($file)
     {
         return new FyndiqCSVFeedWriter($file);

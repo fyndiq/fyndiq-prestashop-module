@@ -170,7 +170,7 @@ class FmServiceController
             $fmOrder = $this->loadModel('FmOrder');
             foreach ($args['orders'] as $order) {
                 if (is_numeric($order)) {
-                    $doneState = $fmOrder->markOrderAsDone($order, $doneState);
+                    $fmOrder->markOrderAsDone($order, $doneState);
                 }
             }
             $doneStateName = $this->fmPrestashop->getOrderStateName($doneState);
@@ -245,7 +245,7 @@ class FmServiceController
                 $request['orders'][] = array('order' => intval($orderId));
             }
             try {
-                $ret = $this->apiModel->callApi('POST', 'delivery_notes/', $request);
+                $ret = $this->fmApiModel->callApi('POST', 'delivery_notes/', $request);
                 $fileName = 'delivery_notes-' . implode('-', $orderIds) . '.pdf';
 
                 if ($ret['status'] == 200) {

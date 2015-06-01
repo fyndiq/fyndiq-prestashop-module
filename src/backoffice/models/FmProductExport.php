@@ -13,7 +13,7 @@ class FmProductExport extends FmModel
     public function productExist($productId)
     {
         $sql = "SELECT product_id
-        FROM " . $this->tableName . "
+        FROM " . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . "
         WHERE product_id='" . $productId . "' LIMIT 1";
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
@@ -36,11 +36,10 @@ class FmProductExport extends FmModel
         $data = array(
             'exported_price_percentage' => $expPricePercentage
         );
-
         return (bool)$this->fmPrestashop->dbGetInstance()->update(
             $this->tableName,
             $data,
-            'product_id = ' .$productId,
+            'product_id = "' . $productId . '"',
             1
         );
     }
@@ -56,7 +55,8 @@ class FmProductExport extends FmModel
 
     public function getProduct($productId)
     {
-        $sql = 'SELECT * FROM ' . $this->tableName . ' WHERE product_id= ' . $productId . ';';
+        $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) .
+            ' WHERE product_id= ' . $productId . ';';
         return $this->fmPrestashop->dbGetInstance()->getRow($sql);
     }
 
@@ -67,15 +67,16 @@ class FmProductExport extends FmModel
      */
     public function install()
     {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute(
-            'CREATE TABLE IF NOT EXIST ' . $this->tableName .' (
+            'CREATE TABLE IF NOT EXIST ' . $tableName .' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
             state varchar(64) default NULL);
 
             CREATE UNIQUE INDEX productIndex
-            ON ' . $this->tableName . ' (product_id);
+            ON ' . $tableName . ' (product_id);
         '
         );
 
@@ -93,13 +94,13 @@ class FmProductExport extends FmModel
     public function uninstall()
     {
         return (bool)(bool)$this->fmPrestashop->dbGetInstance()->Execute(
-            'DROP TABLE ' . $this->tableName
+            'DROP TABLE ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true)
         );
     }
 
     public function getFyndiqProducts()
     {
-        $sql = 'SELECT * FROM ' . $this->tableName;
+        $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
         return $this->fmPrestashop->dbGetInstance()->executeS($sql);
     }
 

@@ -17,51 +17,28 @@ class FmOrder extends FmModel
     const FYNDIQ_ORDERS_MODULE = 'fyndiqmerchant';
     const FYNDIQ_PAYMENT_METHOD = 'Fyndiq';
 
-    const DEFAULT_LANGUAGE_ID = 1;
-
     /**
      * install the table in the database
      *
      * @return bool
      */
-    public static function install()
+    public function install()
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
         $ret = (bool)Db::getInstance()->Execute(
-            'CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . $module->config_name . '_orders(
+            'CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             fyndiq_orderid INT(10),
             order_id INT(10));
             CREATE UNIQUE INDEX orderIndex
-            ON ' . _DB_PREFIX_ . $module->config_name . '_orders (fyndiq_orderid);
+            ON ' . $tableName . ' (fyndiq_orderid);
         '
         );
 
         return $ret;
     }
 
-    private static function getContext()
-    {
-        // mock the context for PS 1.4
-        $context = new stdClass();
-
-        // if the Presta Shop 1.5 and 1.6 is used, use the context class.
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
-            $context = Context::getContext();
-        } else {
-            $context->shop = new stdClass();
-            $context->country = new stdClass();
-            $context->currency = Currency::getDefaultCurrency();
-            $context->country = (int)Country::getDefaultCountryId();
-
-        }
-        $context->currency = Currency::getDefaultCurrency();
-        $context->id_lang = self::DEFAULT_LANGUAGE_ID;
-
-        return $context;
-    }
-
-    private static function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)
+    private function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)
     {
         // Create address
         $address = new Address();
@@ -79,12 +56,12 @@ class FmOrder extends FmModel
         return $address;
     }
 
-    private static function getCart($fyndiqOrder, $context)
+    private function getCart($fyndiqOrder, $context)
     {
         // create a new cart to add the articles to
         $cart = new Cart();
         $cart->id_currency = $context->currency->id;
-        $cart->id_lang = self::DEFAULT_LANGUAGE_ID;
+        $cart->id_lang = fmPrestashop::DEFAULT_LANGUAGE_ID;
 
         $customer = new Customer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
@@ -153,7 +130,7 @@ class FmOrder extends FmModel
      * @throws FyndiqProductSKUNotFound
      * @throws PrestaShopException
      */
-    public static function create($fyndiqOrder)
+    public function create($fyndiqOrder)
     {
         foreach ($fyndiqOrder->order_rows as &$row) {
             list($productId, $combinationId) = self::getProductBySKU($row->sku);
@@ -170,7 +147,7 @@ class FmOrder extends FmModel
             $row->combinationId = $combinationId;
         }
 
-        $context = self::getContext();
+        $context = $this->fmPrestashop->getOrderContext();
 
         $cart = self::getCart($fyndiqOrder, $context);
         // Save the cart
@@ -186,13 +163,7 @@ class FmOrder extends FmModel
             $cart->updateQty($numArticle, $row->productId, $row->combinationId);
         }
 
-
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
-            // create a internal reference for the order.
-            $reference = Order::generateReference();
-        }
-
-        $idOrderState = FmConfig::get('import_state');
+        $idOrderState = $this->fmConfig->get('import_state');
         $idOrderState = $idOrderState ? $idOrderState : (int)Configuration::get('PS_OS_PREPARATION');
 
         // Check address
@@ -205,11 +176,7 @@ class FmOrder extends FmModel
         }
 
         // Create an order
-        $prestaOrder = new Order();
-
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
-            $prestaOrder->reference = $reference;
-        }
+        $prestaOrder = $this->fmPrestashop->newPrestashopOrder();
 
         // get the carrier for the cart
         $carrier = null;
@@ -262,7 +229,7 @@ class FmOrder extends FmModel
         $prestaOrder->total_discounts = 0.00;
         $prestaOrder->total_shipping = 0.00;
 
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
+        if ($this->fmPrestashop->isPs1516()) {
             $prestaOrder->total_shipping_tax_excl = 0.00;
             $prestaOrder->total_shipping_tax_incl = 0.00;
         }
@@ -300,7 +267,7 @@ class FmOrder extends FmModel
         }
 
         // Insert new Order detail list using cart for the current order
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
+        if ($this->fmPrestashop->isPs1516()) {
             $orderDetail = new OrderDetail();
             $orderDetail->createList(
                 $prestaOrder,
@@ -309,7 +276,7 @@ class FmOrder extends FmModel
                 $cart->getProducts()
             );
         } else {
-            if (FMPSV == FMPSV14) {
+            if ($this->fmPrestashop->version === FmPrestashop::FMPSV14) {
                 foreach ($cart->getProducts() as $product) {
                     $orderDetail = new OrderDetail();
                     $orderDetail->id_order = $prestaOrder->id;
@@ -322,7 +289,7 @@ class FmOrder extends FmModel
             }
         }
 
-        if (FMPSV == FMPSV15 or FMPSV == FMPSV16) {
+        if ($this->fmPrestashop->isPs1516()) {
             // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
             $prestaOrder->addOrderPayment($prestaOrder->total_products_wt, self::FYNDIQ_PAYMENT_METHOD);
         }
@@ -339,7 +306,7 @@ class FmOrder extends FmModel
         $orderMessage->id_order = $prestaOrder->id;
         $orderMessage->private = true;
         $module = Module::getInstanceByName('fyndiqmerchant');
-        $url = FmHelpers::getShopUrl() . $module->get('_path') . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrder->id;
+        $url = $this->fmPrestashop->getShopUrl() . $module->get('_path') . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrder->id;
         $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
         $orderMessage->add();
 
@@ -368,12 +335,12 @@ class FmOrder extends FmModel
      * @param $order_id
      * @return bool
      */
-    public static function orderExists($orderId)
+    public function orderExists($orderId)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
         $orders = Db::getInstance()->ExecuteS(
-            'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders
-        WHERE fyndiq_orderid=' . FmHelpers::dbEscape($orderId) . ' LIMIT 1;'
+            'SELECT * FROM ' . $tableName . '
+            WHERE fyndiq_orderid=' . $this->fmPrestashop->dbEscape($orderId) . ' LIMIT 1;'
         );
         return count($orders) > 0;
     }
@@ -385,29 +352,28 @@ class FmOrder extends FmModel
      * @param int $fyndiqOrderId
      * @return bool
      */
-    public static function addOrderLog($orderId, $fyndiqOrderId)
+    public function addOrderLog($orderId, $fyndiqOrderId)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $ret = (bool)Db::getInstance()->Execute(
-            'INSERT INTO ' . _DB_PREFIX_ . $module->config_name . '_orders (order_id,fyndiq_orderid) VALUES (' . FmHelpers::dbEscape(
-                $orderId
-            ) . ',' . FmHelpers::dbEscape($fyndiqOrderId) . ')'
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        $data = array(
+            'order_id' => $orderId,
+            'fyndiq_orderid' => $fyndiqOrderId,
         );
-
-        return $ret;
+        return (bool)Db::getInstance()->insert(
+            $tableName,
+            $data
+        );
     }
 
     public function getImportedOrders($page, $perPage)
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-
         $offset = $perPage * ($page - 1);
-        $sqlQuery = 'SELECT * FROM ' . _DB_PREFIX_ . $module->config_name . '_orders LIMIT ' . $offset . ', ' . $perPage;
-
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $sqlQuery = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $offset . ', ' . $perPage;
         $orders = Db::getInstance()->ExecuteS($sqlQuery);
-        $return = array();
         $orderDoneState = $this->fmConfig->get('done_state');
 
+        $result = array();
         foreach ($orders as $order) {
             $orderArray = $order;
             $newOrder = new Order((int)$order['order_id']);
@@ -426,15 +392,16 @@ class FmOrder extends FmModel
             $orderArray['total_products'] = $quantity;
             $orderArray['is_done'] = $newOrder->getCurrentState() == $orderDoneState;
             $orderArray['link'] = $url;
-            $return[] = $orderArray;
+            $result[] = $orderArray;
         }
-        return $return;
+        return $result;
     }
 
     public function getTotal()
     {
-        $sqlquery = 'SELECT count(id) as amount FROM ' . $fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
-        return $this->fmPrestashop->dbGetInstance()->getValue($sqlquery);
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $sql = 'SELECT count(id) as amount FROM ' . $tableName;
+        return $this->fmPrestashop->dbGetInstance()->getValue($sql);
     }
 
     /**
@@ -442,14 +409,10 @@ class FmOrder extends FmModel
      *
      * @return bool
      */
-    public static function uninstall()
+    public function uninstall()
     {
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $ret = (bool)Db::getInstance()->Execute(
-            'drop table ' . _DB_PREFIX_ . $module->config_name . '_orders'
-        );
-
-        return $ret;
+        $tableName = $fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        return (bool)Db::getInstance()->Execute('DROP TABLE ' . $tableName);
     }
 
     /**
@@ -458,23 +421,14 @@ class FmOrder extends FmModel
      * @param string $productSKU
      * @return bool|array
      */
-    private static function getProductBySKU($productSKU)
+    private function getProductBySKU($productSKU)
     {
-        if (strpos($productSKU, FmProductExport::SKU_PREFIX) === 0) {
-            // Auto-generated SKU format is PREFIX-priduct_id-combination_id
-            $segments = explode(FmProductExport::SKU_SEPARATOR, $productSKU);
-            // It must be three segment SKU
-            if (count($segments) === 3) {
-                return array((int)$segments[1], (int)$segments[2]);
-            }
-        }
-
         // Check products
         $query = new DbQuery();
         $query->select('p.id_product');
         $query->from('product', 'p');
-        $query->where('p.reference = \'' . FmHelpers::dbEscape($productSKU) . '\'');
-        $productId = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+        $query->where('p.reference = \'' . $this->fmPrestashop->dbEscape($productSKU) . '\'');
+        $productId = $this->fmPrestashop->dbGetInstance()->getValue($query);
         if ($productId) {
             return array($productId, 0);
         }
@@ -482,12 +436,11 @@ class FmOrder extends FmModel
         $query = new DbQuery();
         $query->select('id_product_attribute, id_product');
         $query->from('product_attribute');
-        $query->where('reference = \'' . FmHelpers::dbEscape($productSKU) . '\'');
-        $combinationRow = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
+        $query->where('reference = \'' . $this->fmPrestashop->dbEscape($productSKU) . '\'');
+        $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($query);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }
-
         return false;
     }
 

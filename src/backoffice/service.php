@@ -8,12 +8,13 @@ require_once('./FmOutput.php');
 require_once('./models/FmProductExport.php');
 require_once('./models/FmCategory.php');
 require_once('./models/FmProduct.php');
-require_once('./models/FmProductInfo.php');
+require_once('./FmProductInfo.php');
 require_once('./models/FmApiModel.php');
 require_once('./FmConfig.php');
 require_once('./models/FmOrder.php');
 require_once('./FmOrderFetch.php');
 require_once('./FmServiceController.php');
+require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
 $cookie = new Cookie('psAdmin');
 if (!$cookie->id_employee) {

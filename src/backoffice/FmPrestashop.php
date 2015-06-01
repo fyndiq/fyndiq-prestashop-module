@@ -8,6 +8,8 @@ class FmPrestashop
     const FMPSV15 = 'FMPSV15';
     const FMPSV16 = 'FMPSV16';
 
+    const DEFAULT_LANGUAGE_ID = 1;
+
     public $version = '';
     public $moduleName = '';
     private $categoryCache = array();
@@ -159,9 +161,9 @@ class FmPrestashop
         return $module->config_name;
     }
 
-    public function getTableName($moduleName, $tableSuffix)
+    public function getTableName($moduleName, $tableSuffix, $prefix = false)
     {
-        return $this->globDbPrefix() . $this->getModuleName() . $tableSuffix;
+        return ($prefix ? $this->globDbPrefix() : '') . $this->getModuleName() . $tableSuffix;
     }
 
     public function getCountryCode()
@@ -187,8 +189,62 @@ class FmPrestashop
 
     public function getOrderStateName($doneState)
     {
-        $currentState = new OrderState($orderDoneState);
+        $currentState = new OrderState($doneState);
         return $currentState->name[1];
+    }
+
+    public function getOrderContext()
+    {
+        // mock the context for PS 1.4
+        $context = new stdClass();
+
+        // if the Presta Shop 1.5 and 1.6 is used, use the context class.
+        if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
+            $context = Context::getContext();
+        } else {
+            $context->shop = new stdClass();
+            $context->country = new stdClass();
+            $context->currency = Currency::getDefaultCurrency();
+            $context->country = (int)Country::getDefaultCountryId();
+
+        }
+        $context->currency = Currency::getDefaultCurrency();
+        $context->id_lang = self::DEFAULT_LANGUAGE_ID;
+        return $context;
+    }
+
+    public function newPrestashopOrder() {
+        // Create an order
+        $prestaOrder = new Order();
+
+        if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
+            // create a internal reference for the order.
+            $reference = Order::generateReference();
+            $prestaOrder->reference = $reference;
+        }
+        return $prestaOrder;
+    }
+
+
+    public function isPs1516 (){
+        return in_array($this->version, array(self::FMPSV15, self::FMPSV16));
+    }
+
+    /**
+     * Returns the current shop id
+     *
+     * @return int
+     */
+    public function getCurrentShopId()
+    {
+        $context = Context::getContext();
+        if (Shop::isFeatureActive() && $context->cookie->shopContext) {
+            $split = explode('-', $context->cookie->shopContext);
+            if (count($split) === 2) {
+                return intval($split[1]);
+            }
+        }
+        return intval($context->shop->id);
     }
 
     // Global variables
