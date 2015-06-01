@@ -372,7 +372,18 @@ class FmPrestashop
         return Product::getQuantity($productId);
     }
 
+    // Address
     public function newAddress() {
         return new Address();
+    }
+
+    // Cart
+    public function newCart() {
+        return new Cart();
+    }
+
+    // Customer
+    public function newCustomer() {
+        return new Customer();
     }
 }

@@ -52,19 +52,19 @@ class FmOrder extends FmModel
         return $address;
     }
 
-    private function getCart($fyndiqOrder, $context)
+    public function getCart($fyndiqOrder, $currencyId, $countryId)
     {
         // create a new cart to add the articles to
-        $cart = new Cart();
-        $cart->id_currency = $context->currency->id;
+        $cart = $this->fmPrestashop->newCart();
+        $cart->id_currency = $currencyId;
         $cart->id_lang = fmPrestashop::DEFAULT_LANGUAGE_ID;
 
-        $customer = new Customer();
+        $customer = $this->fmPrestashop->newCustomer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
 
         if (is_null($customer->firstname)) {
             // Create a customer.
-            $customer = new Customer();
+            $customer = $this->fmPrestashop->newCustomer();
             $customer->firstname = self::FYNDIQ_ORDERS_NAME_FIRST;
             $customer->lastname = self::FYNDIQ_ORDERS_NAME_LAST;
             $customer->email = self::FYNDIQ_ORDERS_EMAIL;
@@ -73,25 +73,25 @@ class FmOrder extends FmModel
             // Add it to the database.
             $customer->add();
 
-            $deliveryAddress = self::fillAddress(
+            $deliveryAddress = $this->fillAddress(
                 $fyndiqOrder,
                 $customer->id,
-                $context->country->id,
+                $countryId,
                 self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
             );
             $deliveryAddress->add();
 
-            $invoiceAddress = self::fillAddress(
+            $invoiceAddress = $this->fillAddress(
                 $fyndiqOrder,
                 $customer->id,
-                $context->country->id,
+                $countryId,
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
             );
             $invoiceAddress->add();
 
         } else {
-            $invoiceAddress = new Address();
-            $deliveryAddress = new Address();
+            $invoiceAddress = $this->fmPrestashop->newAddress();
+            $deliveryAddress = $this->fmPrestashop->newAddress();
             $addresses = $customer->getAddresses($cart->id_lang);
             foreach ($addresses as $address) {
                 $currentAddress = null;
@@ -145,7 +145,7 @@ class FmOrder extends FmModel
 
         $context = $this->fmPrestashop->getOrderContext();
 
-        $cart = self::getCart($fyndiqOrder, $context);
+        $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
         // Save the cart
         $cart->add();
 
@@ -334,7 +334,7 @@ class FmOrder extends FmModel
     public function orderExists($orderId)
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        $orders = Db::getInstance()->ExecuteS(
+        $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS(
             'SELECT * FROM ' . $tableName . '
             WHERE fyndiq_orderid=' . $this->fmPrestashop->dbEscape($orderId) . ' LIMIT 1;'
         );
@@ -355,7 +355,7 @@ class FmOrder extends FmModel
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,
         );
-        return (bool)Db::getInstance()->insert(
+        return (bool)$this->fmPrestashop->dbGetInstance()->insert(
             $tableName,
             $data
         );
