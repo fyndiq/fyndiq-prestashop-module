@@ -88,12 +88,12 @@ class FmOutput
         return true;
     }
 
-    public function streamFile($file, $fileName, $contentType)
+    public function streamFile($file, $fileName, $contentType, $size)
     {
         $this->header('Content-Type: ' . $contentType);
         $this->header('Content-Disposition: attachment; filename="' . $fileName . '"');
         $this->header('Content-Transfer-Encoding: binary');
-        $this->header('Content-Length: ' . filesize($file));
+        $this->header('Content-Length: ' . $size);
         $this->header('Expires: 0');
         rewind($file);
         return fpassthru($file);

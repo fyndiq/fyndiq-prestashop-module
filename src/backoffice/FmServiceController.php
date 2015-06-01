@@ -252,7 +252,7 @@ class FmServiceController
                     $file = fopen('php://temp', 'wb+');
                     // Saving data to file
                     fputs($file, $ret['data']);
-                    $this->fmOutput->streamFile($file, $fileName, 'application/pdf');
+                    $this->fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
                     fclose($file);
                     return null;
                 }
