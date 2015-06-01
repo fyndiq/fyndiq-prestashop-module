@@ -371,4 +371,8 @@ class FmPrestashop
     {
         return Product::getQuantity($productId);
     }
+
+    public function newAddress() {
+        return new Address();
+    }
 }

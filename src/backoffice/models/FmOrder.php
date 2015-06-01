@@ -35,10 +35,10 @@ class FmOrder extends FmModel
         );
     }
 
-    private function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)
+    public function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)
     {
         // Create address
-        $address = new Address();
+        $address = $this->fmPrestashop->newAddress();
         $address->firstname = $fyndiqOrder->delivery_firstname;
         $address->lastname = $fyndiqOrder->delivery_lastname;
         $address->phone = $fyndiqOrder->delivery_phone;
@@ -49,7 +49,6 @@ class FmOrder extends FmModel
         $address->id_country = $countryId;
         $address->id_customer = $customerId;
         $address->alias = $alias;
-
         return $address;
     }
 
