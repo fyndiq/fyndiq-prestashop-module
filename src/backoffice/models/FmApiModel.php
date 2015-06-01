@@ -17,7 +17,6 @@ class FmApiModel {
     {
         $username = $username ? $username : $this->username;
         $apiToken = $apiToken ? $apiToken : $this->apiToken;
-error_log(json_encode(func_get_args()));
         return FyndiqAPICall::callApiRaw(
             $this->userAgent,
             $username,
