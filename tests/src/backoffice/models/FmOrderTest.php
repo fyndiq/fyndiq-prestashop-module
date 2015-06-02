@@ -595,4 +595,11 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $result = $this->fmOrder->addOrderLog(1, 2);
         $this->assertTrue($result);
     }
+
+    public function testGetImportedOrders()
+    {
+        $this->db->expects($this->once())->method('ExecuteS')->willReturn(true);
+        $result = $this->fmOrder->getImportedOrders(1, 10);
+        $this->assertTrue($result);
+    }
 }
