@@ -146,6 +146,33 @@ class FmServiceController
         );
     }
 
+    protected function prepareOrders($orders)
+    {
+        $orderDoneState = $this->fmConfig->get('done_state');
+
+        $result = array();
+        foreach ($orders as $order) {
+            $orderArray = $order;
+            $newOrder = $this->fmPrestashop->newOrder((int)$order['order_id']);
+            $products = $newOrder->getProducts();
+            $currentStateName = $this->fmPrestashop->getOrderStateName($newOrder->getCurrentState());
+            $quantity = 0;
+            foreach ($products as $product) {
+                $quantity += $product['product_quantity'];
+            }
+            $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
+            $url .= '&token=' . $this->fmPrestashop->getAdminTokenLite();
+            $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
+            $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
+            $orderArray['price'] = $newOrder->total_paid_real;
+            $orderArray['state'] = $currentStateName;
+            $orderArray['total_products'] = $quantity;
+            $orderArray['is_done'] = $newOrder->getCurrentState() == $orderDoneState;
+            $orderArray['link'] = $url;
+            $result[] = $orderArray;
+        }
+        return $result;
+    }
 
     private function loadOrders($args)
     {
@@ -153,7 +180,9 @@ class FmServiceController
         $total = $fmOrder->getTotal();
         $page = (isset($args['page']) && $args['page'] > 0) ? $args['page']: 1;
         return array(
-            'orders' => $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE),
+            'orders' => $this->prepareOrders(
+                $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE)
+            ),
             'pagination' => FyndiqUtils::getPaginationHTML(
                 $total,
                 $page,

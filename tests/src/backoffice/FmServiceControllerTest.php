@@ -199,7 +199,16 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
     {
         $expected = array(
             'orders' => array(
-                array(1 => 1)
+                array(
+                    'order_id' => 1,
+                    'created_at' => '2013-12-11',
+                    'created_at_time' => '10:09:08',
+                    'price' => 30,
+                    'state' => null,
+                    'total_products' => 1,
+                    'is_done' => false,
+                    'link' => 'index.php?controller=AdminOrders&id_order=1&vieworder&token=',
+                )
             ),
             'pagination' => '',
         );
@@ -211,8 +220,34 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $fmOrder->expects($this->once())
             ->method('getImportedOrders')
             ->willReturn(array(
-                array(1 => 1),
+                array(
+                    'order_id' => 1,
+                ),
             ));
+
+        $newOrder = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getProducts', 'getCurrentState'))
+            ->getMock();
+
+        $newOrder->date_add = '2013-12-11 10:09:08';
+        $newOrder->total_paid_real = 30;
+
+        $newOrder->expects($this->once())
+            ->method('getProducts')
+            ->willReturn(array(
+                array(
+                    'product_quantity' => 1
+                )
+            ));
+        $newOrder->expects($this->any(2))
+            ->method('getCurrentState')
+            ->willReturn(1);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('newOrder')
+            ->willReturn($newOrder);
+
+
 
         $this->controller->expects($this->once())
             ->method('loadModel')

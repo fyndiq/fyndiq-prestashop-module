@@ -45,6 +45,11 @@ class FmPrestashop
         return $url;
     }
 
+    public function getAdminTokenLite()
+    {
+        return Tools::getAdminTokenLite('AdminOrders');
+    }
+
     /**
      * Returns the export filename path
      *
@@ -199,9 +204,14 @@ class FmPrestashop
         return $history->changeIdOrderState($orderDoneState, $objOrder);
     }
 
-    public function getOrderStateName($doneState)
+    public function getOrderState($state)
     {
-        $currentState = new OrderState($doneState);
+        return new OrderState($state);
+    }
+
+    public function getOrderStateName($state)
+    {
+        $currentState = $this->getOrderState($state);
         return $currentState->name[1];
     }
 
@@ -452,5 +462,10 @@ class FmPrestashop
     public function newCountry($countryId, $languageId)
     {
         return new Country($countryId, $languageId);
+    }
+
+    public function newOrder($id = null, $id_lang = null)
+    {
+        return new Order($id, $id_lang);
     }
 }

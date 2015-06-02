@@ -377,31 +377,8 @@ class FmOrder extends FmModel
         $offset = $perPage * ($page - 1);
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
         $sqlQuery = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $offset . ', ' . $perPage;
-        $orders = Db::getInstance()->ExecuteS($sqlQuery);
-        $orderDoneState = $this->fmConfig->get('done_state');
-
-        $result = array();
-        foreach ($orders as $order) {
-            $orderArray = $order;
-            $newOrder = new Order((int)$order['order_id']);
-            $products = $newOrder->getProducts();
-            $quantity = 0;
-            $currentState = new OrderState($newOrder->getCurrentState());
-            foreach ($products as $product) {
-                $quantity += $product['product_quantity'];
-            }
-            $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
-            $url .= '&token='.Tools::getAdminTokenLite('AdminOrders');
-            $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
-            $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
-            $orderArray['price'] = $newOrder->total_paid_real;
-            $orderArray['state'] = $currentState->name[1];
-            $orderArray['total_products'] = $quantity;
-            $orderArray['is_done'] = $newOrder->getCurrentState() == $orderDoneState;
-            $orderArray['link'] = $url;
-            $result[] = $orderArray;
-        }
-        return $result;
+        $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
+        return $orders;
     }
 
     public function getTotal()
