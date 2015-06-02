@@ -161,6 +161,13 @@ class FmPrestashop
         return $module->config_name;
     }
 
+    public function getModulePath($moduleName = '')
+    {
+        $module = $this->moduleGetInstanceByName($moduleName);
+        return $module->get('_path');
+    }
+
+
     public function getTableName($moduleName, $tableSuffix, $prefix = false)
     {
         return ($prefix ? $this->globDbPrefix() : '') . $this->getModuleName() . $tableSuffix;
@@ -247,6 +254,16 @@ class FmPrestashop
             }
         }
         return intval($context->shop->id);
+    }
+
+    public function getTaxAddressType()
+    {
+        return Configuration::get('PS_TAX_ADDRESS_TYPE');
+    }
+
+    public function toolsPsRound($number, $round)
+    {
+        return (float)Tools::ps_round($number, $round);
     }
 
     // Global variables
@@ -386,9 +403,37 @@ class FmPrestashop
         return new Cart();
     }
 
+    public function cartOnlyProducts()
+    {
+        return Cart::ONLY_PRODUCTS;
+    }
+
+    public function cartBoth()
+    {
+        return Cart::BOTH;
+    }
+
     // Customer
     public function newCustomer()
     {
         return new Customer();
+    }
+
+    // DbQuery
+    public function newDbQuery()
+    {
+        return new DbQuery();
+    }
+
+    // OrderHistory
+    public function newOrderHistory()
+    {
+        return new OrderHistory();
+    }
+
+    // Message
+    public function newMessage()
+    {
+        return new Message();
     }
 }

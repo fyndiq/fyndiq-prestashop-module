@@ -19,10 +19,6 @@ require_once(FYNDIQ_ROOT . 'backoffice/FmOrderFetch.php');
 require_once(FYNDIQ_ROOT . 'backoffice/FmProductInfo.php');
 
 
-// require_once(FYNDIQ_ROOT . 'backoffice/models/config.php');
-// require_once(FYNDIQ_ROOT . 'backoffice/includes/fyndiqAPI/fyndiqAPI.php');
-
-// require_once(FYNDIQ_ROOT . 'backoffice/helpers.php');
-// require_once(FYNDIQ_ROOT . 'backoffice/controllers.php');
-// require_once(FYNDIQ_ROOT . 'backoffice/models/product_export.php');
-// require_once(FYNDIQ_ROOT . 'backoffice/models/order.php');
+class PrestaShopException extends Exception
+{
+}

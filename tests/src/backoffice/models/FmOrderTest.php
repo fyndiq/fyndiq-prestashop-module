@@ -18,8 +18,10 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->fmOrder = new FmOrder($this->fmPrestashop, null);
     }
 
-    private function getFyndiqOrder() {
+    private function getFyndiqOrder()
+    {
         $fyndiqOrder = new stdClass();
+        $fyndiqOrder->id = 666;
         $fyndiqOrder->delivery_firstname = 'delivery_firstname';
         $fyndiqOrder->delivery_lastname = 'delivery_lastname';
         $fyndiqOrder->delivery_phone = 'delivery_phone';
@@ -27,9 +29,63 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $fyndiqOrder->delivery_postalcode = 'delivery_postalcode';
         $fyndiqOrder->delivery_city = 'delivery_city';
         $fyndiqOrder->delivery_co = 'delivery_co';
+        $fyndiqOrder->created = '2014-01-02 03:04:05';
+
+        $fyndiqOrder->order_rows = array(
+            (object)array(
+                'sku' => 1,
+                'quantity' => 3,
+            ),
+            (object)array(
+                'sku' => 2,
+                'quantity' => 4,
+            )
+        );
         return $fyndiqOrder;
     }
 
+    private function getPrestaOrder()
+    {
+        $prestaOrder = $this->getMockBuilder('stdClass')
+            ->setMethods(array('add', 'update'))
+            ->getMock();
+        $prestaOrder->id = 1;
+        return $prestaOrder;
+    }
+
+    private function getMessage()
+    {
+        $message = $this->getMockBuilder('stdClass')
+            ->setMethods(array('add'))
+            ->getMock();
+        return $message;
+    }
+
+    private function getCart()
+    {
+        $cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts'))
+            ->getMock();
+        $cart->id_customer = 10;
+        $cart->id_address_invoice = 11;
+        $cart->id_address_delivery = 12;
+        $cart->id_currency = 13;
+        $cart->id_lang = 14;
+        $cart->id = 15;
+        $cart->recyclable = true;
+        $cart->gift = false;
+        $cart->gift_message = 'gift_message';
+        $cart->mobile_theme = false;
+        return $cart;
+    }
+
+    private function getOrderHistory()
+    {
+        $orderHistory = $this->getMockBuilder('OrderHistory')
+            ->setMethods(array('add'))
+            ->getMock();
+        return $orderHistory;
+    }
 
     public function testInstall()
     {
@@ -47,7 +103,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testFillAddress() {
+    public function testFillAddress()
+    {
         $customerId = 1;
         $countryId = 2;
         $alias = 'alias';
@@ -73,7 +130,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testGetCart() {
+    public function testGetCart()
+    {
         $currencyId = 1;
         $countryId = 2;
 
@@ -113,7 +171,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testGetCartNewCustomer() {
+    public function testGetCartNewCustomer()
+    {
         $currencyId = 1;
         $countryId = 2;
 
@@ -163,7 +222,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testOrderExists() {
+    public function testOrderExists()
+    {
         $this->fmPrestashop->expects($this->once())
             ->method('getTableName')
             ->willReturn('table');
@@ -172,6 +232,75 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('ExecuteS')
             ->willReturn(true);
         $result = $this->fmOrder->orderExists(3);
+        $this->assertTrue($result);
+    }
+
+    public function testCreate()
+    {
+        $this->fmOrder = $this->getMockBuilder('fmOrder')
+            ->setConstructorArgs(array($this->fmPrestashop, null))
+            ->setMethods(array('getProductBySKU', 'getCart', 'addOrderLog'))
+            ->getMock();
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('getOrderContext')
+            ->willReturn((object)array(
+                'country' => (object)array(
+                    'id' => 1
+                ),
+                'currency' => (object)array(
+                    'id' => 2,
+                    'conversion_rate' => 1.2
+                ),
+                'shop' => (object)array(
+                    'id' => 3,
+                    'id_shop_group' => 4,
+                )
+            ));
+
+        $customer = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getByEmail'))
+            ->getMock();
+
+
+        $fmPrestaOrder = $this->getPrestaOrder();
+
+        $message = $this->getMessage();
+
+        $fmPrestaOrder->method('add')
+            ->willReturn(true);
+
+        $this->fmPrestashop->method('newPrestashopOrder')
+            ->willReturn($fmPrestaOrder);
+
+        $this->fmPrestashop->method('newCustomer')
+            ->willReturn($customer);
+
+        $this->fmPrestashop->method('newMessage')
+            ->willReturn($message);
+
+        $orderHistory = $this->getOrderHistory();
+        $this->fmPrestashop->method('newOrderHistory')
+            ->willReturn($orderHistory);
+
+        $this->fmOrder->method('getProductBySKU')
+            ->willReturn(array(1,2));
+
+        $cart = $this->getCart();
+
+        $cart->method('getOrderTotal')
+            ->willReturn(6.66);
+
+        $cart->method('getProducts')
+            ->willReturn(array());
+
+        $this->fmOrder->method('getCart')
+            ->willReturn($cart);
+
+
+
+        $fyndiqOrder = $this->getFyndiqOrder();
+        $result = $this->fmOrder->create($fyndiqOrder, 16, 17);
         $this->assertTrue($result);
     }
 }

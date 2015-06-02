@@ -28,9 +28,11 @@ class FmOrderFetch extends FyndiqPaginatedFetch
 
     function processData($data)
     {
+        $idOrderState = $this->fmConfig->get('import_state');
+        $taxAddressType = $this->fmPrestashop->getTaxAddressType();
         foreach ($data as $order) {
             if (!$this->fmOrder->orderExists($order->id)) {
-                $this->fmOrder->create($order);
+                $this->fmOrder->create($order, $idOrderState);
             }
         }
         return true;

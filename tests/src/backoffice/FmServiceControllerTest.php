@@ -28,7 +28,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             ->getMock();
     }
 
-    public function testHandleRequestNoAction() {
+    public function testHandleRequestNoAction()
+    {
         $this->fmOutput->expects($this->once())
             ->method('showError')
             ->with(
@@ -41,7 +42,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testRouteRequestGetCategories() {
+    public function testRouteRequestGetCategories()
+    {
 
         $expected = array(
             'category_id' => 3
@@ -79,7 +81,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testRouteRequestGetProducts() {
+    public function testRouteRequestGetProducts()
+    {
         $categoryId = 2;
         $currency = 'ZAM';
         $fyndiqPercentage = 23;
@@ -192,7 +195,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testLoadOrders() {
+    public function testLoadOrders()
+    {
         $expected = array(
             'orders' => array(
                 array(1 => 1)
@@ -222,7 +226,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testUpdateOrderStatus() {
+    public function testUpdateOrderStatus()
+    {
         $doneState = 'test';
 
         $fmOrder = $this->getMockBuilder('FmOrder')
@@ -313,7 +318,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testDeleteExportedProducts() {
+    public function testDeleteExportedProducts()
+    {
 
         $fmProductExport = $this->getMockBuilder('FmProductExport')
             ->disableOriginalConstructor()
@@ -367,7 +373,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function testUpdateProductStatus() {
+    public function testUpdateProductStatus()
+    {
         $data = array();
 
         $fmProduct = $this->getMockBuilder('FmProduct')
@@ -382,7 +389,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($result);
     }
 
-    public function testWrongHandler() {
+    public function testWrongHandler()
+    {
         $this->fmOutput->expects($this->once())
             ->method('responseError')
             ->with(
@@ -392,5 +400,4 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->controller->routeRequest('test', array());
         $this->assertNull($result);
     }
-
 }

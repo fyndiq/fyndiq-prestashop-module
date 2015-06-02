@@ -126,10 +126,12 @@ class FmOrder extends FmModel
      * @throws FyndiqProductSKUNotFound
      * @throws PrestaShopException
      */
-    public function create($fyndiqOrder)
+    public function create($fyndiqOrder, $importState, $taxAddressType)
     {
+        $context = $this->fmPrestashop->getOrderContext();
+
         foreach ($fyndiqOrder->order_rows as &$row) {
-            list($productId, $combinationId) = self::getProductBySKU($row->sku);
+            list($productId, $combinationId) = $this->getProductBySKU($row->sku);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
                     FyndiqTranslation::get('error-import-product-not-found'),
@@ -143,15 +145,12 @@ class FmOrder extends FmModel
             $row->combinationId = $combinationId;
         }
 
-        $context = $this->fmPrestashop->getOrderContext();
-
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
         // Save the cart
         $cart->add();
 
-        $customer = new Customer();
+        $customer = $this->fmPrestashop->newCustomer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
-
         $context->customer = $customer;
 
         foreach ($fyndiqOrder->order_rows as $row) {
@@ -159,11 +158,8 @@ class FmOrder extends FmModel
             $cart->updateQty($numArticle, $row->productId, $row->combinationId);
         }
 
-        $idOrderState = $this->fmConfig->get('import_state');
-        $idOrderState = $idOrderState ? $idOrderState : (int)Configuration::get('PS_OS_PREPARATION');
-
         // Check address
-        if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
+        if ($taxAddressType == 'id_address_delivery') {
             $address = new Address($cart->id_address_delivery);
             $country = new Country($address->id_country, $cart->id_lang);
             if (!$country->active) {
@@ -200,7 +196,7 @@ class FmOrder extends FmModel
         $prestaOrder->payment = self::FYNDIQ_PAYMENT_METHOD;
         $prestaOrder->module = self::FYNDIQ_ORDERS_MODULE;
         $prestaOrder->recyclable = $cart->recyclable;
-        $prestaOrder->current_state = $idOrderState;
+        $prestaOrder->current_state = $importState;
         $prestaOrder->gift = (int)$cart->gift;
         $prestaOrder->gift_message = $cart->gift_message;
         $prestaOrder->mobile_theme = $cart->mobile_theme;
@@ -208,13 +204,13 @@ class FmOrder extends FmModel
 
         $prestaOrder->total_products = (float)$cart->getOrderTotal(
             false,
-            Cart::ONLY_PRODUCTS,
+            $this->fmPrestashop->cartOnlyProducts(),
             $cart->getProducts(),
             $idCarrier
         );
         $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
             true,
-            Cart::ONLY_PRODUCTS,
+            $this->fmPrestashop->cartOnlyProducts(),
             $cart->getProducts(),
             $idCarrier
         );
@@ -241,8 +237,13 @@ class FmOrder extends FmModel
 
         //Taxes
         $prestaOrder->total_paid_tax_excl = 0;
-        $prestaOrder->total_paid_tax_incl = (float)Tools::ps_round(
-            (float)$cart->getOrderTotal(true, Cart::BOTH, $cart->getProducts(), $idCarrier),
+        $prestaOrder->total_paid_tax_incl = $this->fmPrestashop->toolsPsRound(
+            (float)$cart->getOrderTotal(
+                true,
+                $this->fmPrestashop->cartBoth(),
+                $cart->getProducts(),
+                $idCarrier
+            ),
             2
         );
 
@@ -268,7 +269,7 @@ class FmOrder extends FmModel
             $orderDetail->createList(
                 $prestaOrder,
                 $cart,
-                $idOrderState,
+                $importState,
                 $cart->getProducts()
             );
         } else {
@@ -291,18 +292,18 @@ class FmOrder extends FmModel
         }
 
         // create state in history
-        $orderHistory = new OrderHistory();
+        $orderHistory = $this->fmPrestashop->newOrderHistory();
         $orderHistory->id_order = $prestaOrder->id;
-        $orderHistory->id_order_state = $idOrderState;
+        $orderHistory->id_order_state = $importState;
         $orderHistory->add();
 
 
         //add fyndiq delivery note as a message to the order
-        $orderMessage = new Message();
+        $orderMessage = $this->fmPrestashop->newMessage();
         $orderMessage->id_order = $prestaOrder->id;
         $orderMessage->private = true;
-        $module = Module::getInstanceByName('fyndiqmerchant');
-        $url = $this->fmPrestashop->getShopUrl() . $module->get('_path') . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrder->id;
+        $modulePath = $this->fmPrestashop->getModulePath(FmUtils::MODULE_NAME);
+        $url = $this->fmPrestashop->getShopUrl() . $modulePath . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrder->id;
         $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
         $orderMessage->add();
 
@@ -311,7 +312,7 @@ class FmOrder extends FmModel
         $prestaOrder->update();
 
         //Add order to log (prestashop database) so it doesn't get added again next time this is run
-        self::addOrderLog($prestaOrder->id, $fyndiqOrder->id);
+        $this->addOrderLog($prestaOrder->id, $fyndiqOrder->id);
 
         // Adding an entry in order_carrier table
         if (!is_null($carrier)) {
@@ -323,6 +324,7 @@ class FmOrder extends FmModel
             $orderCarrier->shipping_cost_tax_incl = (float)$prestaOrder->total_shipping_tax_incl;
             $orderCarrier->add();
         }
+        return true;
     }
 
     /**
@@ -417,10 +419,10 @@ class FmOrder extends FmModel
      * @param string $productSKU
      * @return bool|array
      */
-    private function getProductBySKU($productSKU)
+    protected function getProductBySKU($productSKU)
     {
         // Check products
-        $query = new DbQuery();
+        $query = $this->fmPrestashop->newDbQuery();
         $query->select('p.id_product');
         $query->from('product', 'p');
         $query->where('p.reference = \'' . $this->fmPrestashop->dbEscape($productSKU) . '\'');
@@ -429,7 +431,7 @@ class FmOrder extends FmModel
             return array($productId, 0);
         }
         // Check combinations
-        $query = new DbQuery();
+        $query = $this->fmPrestashop->newDbQuery();
         $query->select('id_product_attribute, id_product');
         $query->from('product_attribute');
         $query->where('reference = \'' . $this->fmPrestashop->dbEscape($productSKU) . '\'');
