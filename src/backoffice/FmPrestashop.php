@@ -31,6 +31,11 @@ class FmPrestashop
     }
 
     // Custom
+    public function time()
+    {
+        return time();
+    }
+
     public function getModuleUrl()
     {
         $url = $this->getBaseModuleUrl();
@@ -392,9 +397,9 @@ class FmPrestashop
     }
 
     // Address
-    public function newAddress()
+    public function newAddress($id_address = null, $id_lang = null)
     {
-        return new Address();
+        return new Address($id_address, $id_lang);
     }
 
     // Cart
@@ -435,5 +440,17 @@ class FmPrestashop
     public function newMessage()
     {
         return new Message();
+    }
+
+    // OrderDetail
+    public function newOrderDetail()
+    {
+        return new OrderDetail();
+    }
+
+    // Country
+    public function newCountry($countryId, $languageId)
+    {
+        return new Country($countryId, $languageId);
     }
 }

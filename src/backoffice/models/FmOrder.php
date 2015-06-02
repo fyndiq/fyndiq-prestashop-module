@@ -17,6 +17,8 @@ class FmOrder extends FmModel
     const FYNDIQ_ORDERS_MODULE = 'fyndiqmerchant';
     const FYNDIQ_PAYMENT_METHOD = 'Fyndiq';
 
+    const ID_CARRIER = 1;
+
     /**
      * install the table in the database
      *
@@ -118,6 +120,139 @@ class FmOrder extends FmModel
         return $cart;
     }
 
+    protected function getSecureKey()
+    {
+        return md5(uniqid(rand(), true));
+    }
+
+    public function createPrestaOrder($cart, $context, $createdDate, $importState)
+    {
+        // Create an order
+        $prestaOrder = $this->fmPrestashop->newPrestashopOrder();
+        $prestaOrder->id_carrier = self::ID_CARRIER;
+
+        // create the order
+        $prestaOrder->id_customer = (int)$cart->id_customer;
+        $prestaOrder->id_address_invoice = $cart->id_address_invoice;
+        $prestaOrder->id_address_delivery = $cart->id_address_delivery;
+        $prestaOrder->id_currency = $cart->id_currency;
+        $prestaOrder->id_lang = (int)$cart->id_lang;
+        $prestaOrder->id_cart = (int)$cart->id;
+
+        // Setup more settings for the order
+        $prestaOrder->id_shop = (int)$context->shop->id;
+        $prestaOrder->id_shop_group = (int)$context->shop->id_shop_group;
+
+        $prestaOrder->secure_key = $this->getSecureKey();
+        $prestaOrder->payment = self::FYNDIQ_PAYMENT_METHOD;
+        $prestaOrder->module = self::FYNDIQ_ORDERS_MODULE;
+        $prestaOrder->recyclable = $cart->recyclable;
+        $prestaOrder->current_state = $importState;
+        $prestaOrder->gift = (int)$cart->gift;
+        $prestaOrder->gift_message = $cart->gift_message;
+        $prestaOrder->mobile_theme = $cart->mobile_theme;
+        $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
+
+        $prestaOrder->total_products = (float)$cart->getOrderTotal(
+            false,
+            $this->fmPrestashop->cartOnlyProducts(),
+            $cart->getProducts(),
+            self::ID_CARRIER
+        );
+        $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
+            true,
+            $this->fmPrestashop->cartOnlyProducts(),
+            $cart->getProducts(),
+            self::ID_CARRIER
+        );
+
+        // Discounts and shipping tax settings
+        $prestaOrder->total_discounts_tax_excl = 0.00;
+        $prestaOrder->total_discounts_tax_incl = 0.00;
+        $prestaOrder->total_discounts = 0.00;
+        $prestaOrder->total_shipping = 0.00;
+
+        if ($this->fmPrestashop->isPs1516()) {
+            $prestaOrder->total_shipping_tax_excl = 0.00;
+            $prestaOrder->total_shipping_tax_incl = 0.00;
+        }
+
+        // Wrapping settings
+        $prestaOrder->total_wrapping_tax_excl = 0;
+        $prestaOrder->total_wrapping_tax_incl = 0;
+        $prestaOrder->total_wrapping = $prestaOrder->total_wrapping_tax_incl;
+
+        //Taxes
+        $prestaOrder->total_paid_tax_excl = 0;
+        $prestaOrder->total_paid_tax_incl = $this->fmPrestashop->toolsPsRound(
+            (float)$cart->getOrderTotal(
+                true,
+                $this->fmPrestashop->cartBoth(),
+                $cart->getProducts(),
+                self::ID_CARRIER
+            ),
+            2
+        );
+
+        // Set total paid
+        $prestaOrder->total_paid_real = $prestaOrder->total_products_wt;
+        $prestaOrder->total_paid = $prestaOrder->total_products_wt;
+
+        // Set invoice date (needed to make order to work in prestashop 1.4
+        $prestaOrder->invoice_date = date('Y-m-d H:i:s', $createdDate);
+        $prestaOrder->delivery_date = date('Y-m-d H:i:s', $this->fmPrestashop->time());
+        return $prestaOrder;
+    }
+
+    public function insertOrderDetail($prestaOrder, $cart, $importState)
+    {
+        // Insert new Order detail list using cart for the current order
+        if ($this->fmPrestashop->isPs1516()) {
+            $orderDetail = $this->fmPrestashop->newOrderDetail();
+            return $orderDetail->createList(
+                $prestaOrder,
+                $cart,
+                $importState,
+                $cart->getProducts()
+            );
+        }
+        if ($this->fmPrestashop->version === FmPrestashop::FMPSV14) {
+            $result = true;
+            foreach ($cart->getProducts() as $product) {
+                $orderDetail = $this->fmPrestashop->newOrderDetail();
+                $orderDetail->id_order = $prestaOrder->id;
+                $orderDetail->product_name = $product['name'];
+                $orderDetail->product_quantity = $product['quantity'];
+                $orderDetail->product_price = $product['price'];
+                $orderDetail->tax_rate = $product['rate'];
+                $result &= $orderDetail->add();
+            }
+            return (bool)$result;
+        }
+        return false;
+    }
+
+    public function addOrderToHistory($prestaOrderId, $importState)
+    {
+        // create state in history
+        $orderHistory = $this->fmPrestashop->newOrderHistory();
+        $orderHistory->id_order = $prestaOrderId;
+        $orderHistory->id_order_state = $importState;
+        return $orderHistory->add();
+    }
+
+    public function addOrderMessage($prestaOrderId, $fyndiqOrderId)
+    {
+        // add Fyndiq delivery note as a message to the order
+        $orderMessage = $this->fmPrestashop->newMessage();
+        $orderMessage->id_order = $prestaOrderId;
+        $orderMessage->private = true;
+        $modulePath = $this->fmPrestashop->getModulePath(FmUtils::MODULE_NAME);
+        $url = $this->fmPrestashop->getShopUrl() . $modulePath . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrderId;
+        $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy URL and paste in the browser to download the delivery note.';
+        return $orderMessage->add();
+    }
+
     /**
      * create orders from Fyndiq orders
      *
@@ -160,100 +295,19 @@ class FmOrder extends FmModel
 
         // Check address
         if ($taxAddressType == 'id_address_delivery') {
-            $address = new Address($cart->id_address_delivery);
-            $country = new Country($address->id_country, $cart->id_lang);
+            $address = $this->fmPrestashop->newAddress($cart->id_address_delivery);
+            $country = $this->fmPrestashop->newCountry($address->id_country, $cart->id_lang);
             if (!$country->active) {
                 throw new PrestaShopException(FyndiqTranslation::get('error-delivery-country-not-active'));
             }
         }
 
-        // Create an order
-        $prestaOrder = $this->fmPrestashop->newPrestashopOrder();
-
-        // get the carrier for the cart
-        $carrier = null;
-        $prestaOrder->id_carrier = 1;
-        $idCarrier = 1;
-        if (!$cart->isVirtualCart() && isset($package['id_carrier'])) {
-            $carrier = new Carrier($package['id_carrier'], $cart->id_lang);
-            $prestaOrder->id_carrier = (int)$carrier->id;
-            $idCarrier = (int)$carrier->id;
-        }
-        // create the order
-        $prestaOrder->id_customer = (int)$cart->id_customer;
-        $prestaOrder->id_address_invoice = $cart->id_address_invoice;
-        $prestaOrder->id_address_delivery = $cart->id_address_delivery;
-        $prestaOrder->id_currency = $cart->id_currency;
-        $prestaOrder->id_lang = (int)$cart->id_lang;
-        $prestaOrder->id_cart = (int)$cart->id;
-
-        // Setup more settings for the order
-        $prestaOrder->id_shop = (int)$context->shop->id;
-        $prestaOrder->id_shop_group = (int)$context->shop->id_shop_group;
-
-        $secureKey = md5(uniqid(rand(), true));
-        $prestaOrder->secure_key = $secureKey;
-        $prestaOrder->payment = self::FYNDIQ_PAYMENT_METHOD;
-        $prestaOrder->module = self::FYNDIQ_ORDERS_MODULE;
-        $prestaOrder->recyclable = $cart->recyclable;
-        $prestaOrder->current_state = $importState;
-        $prestaOrder->gift = (int)$cart->gift;
-        $prestaOrder->gift_message = $cart->gift_message;
-        $prestaOrder->mobile_theme = $cart->mobile_theme;
-        $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
-
-        $prestaOrder->total_products = (float)$cart->getOrderTotal(
-            false,
-            $this->fmPrestashop->cartOnlyProducts(),
-            $cart->getProducts(),
-            $idCarrier
+        $prestaOrder = $this->createPrestaOrder(
+            $cart,
+            $context,
+            strtotime($fyndiqOrder->created),
+            $importState
         );
-        $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
-            true,
-            $this->fmPrestashop->cartOnlyProducts(),
-            $cart->getProducts(),
-            $idCarrier
-        );
-
-        // Discounts and shipping tax settings
-        $prestaOrder->total_discounts_tax_excl = 0.00;
-        $prestaOrder->total_discounts_tax_incl = 0.00;
-        $prestaOrder->total_discounts = 0.00;
-        $prestaOrder->total_shipping = 0.00;
-
-        if ($this->fmPrestashop->isPs1516()) {
-            $prestaOrder->total_shipping_tax_excl = 0.00;
-            $prestaOrder->total_shipping_tax_incl = 0.00;
-        }
-
-        if (!is_null($carrier) && Validate::isLoadedObject($carrier)) {
-            $prestaOrder->carrier_tax_rate = 0.00;
-        }
-
-        // Wrapping settings
-        $prestaOrder->total_wrapping_tax_excl = 0;
-        $prestaOrder->total_wrapping_tax_incl = 0;
-        $prestaOrder->total_wrapping = $prestaOrder->total_wrapping_tax_incl;
-
-        //Taxes
-        $prestaOrder->total_paid_tax_excl = 0;
-        $prestaOrder->total_paid_tax_incl = $this->fmPrestashop->toolsPsRound(
-            (float)$cart->getOrderTotal(
-                true,
-                $this->fmPrestashop->cartBoth(),
-                $cart->getProducts(),
-                $idCarrier
-            ),
-            2
-        );
-
-        // Set total paid
-        $prestaOrder->total_paid_real = $prestaOrder->total_products_wt;
-        $prestaOrder->total_paid = $prestaOrder->total_products_wt;
-
-        // Set invoice date (needed to make order to work in prestashop 1.4
-        $prestaOrder->invoice_date = date('Y-m-d H:i:s', strtotime($fyndiqOrder->created));
-        $prestaOrder->delivery_date = date('Y-m-d H:i:s');
 
         // Creating order
         $result = $prestaOrder->add();
@@ -263,68 +317,22 @@ class FmOrder extends FmModel
             throw new PrestaShopException(FyndiqTranslation::get('error-save-order'));
         }
 
-        // Insert new Order detail list using cart for the current order
-        if ($this->fmPrestashop->isPs1516()) {
-            $orderDetail = new OrderDetail();
-            $orderDetail->createList(
-                $prestaOrder,
-                $cart,
-                $importState,
-                $cart->getProducts()
-            );
-        } else {
-            if ($this->fmPrestashop->version === FmPrestashop::FMPSV14) {
-                foreach ($cart->getProducts() as $product) {
-                    $orderDetail = new OrderDetail();
-                    $orderDetail->id_order = $prestaOrder->id;
-                    $orderDetail->product_name = $product['name'];
-                    $orderDetail->product_quantity = $product['quantity'];
-                    $orderDetail->product_price = $product['price'];
-                    $orderDetail->tax_rate = $product['rate'];
-                    $orderDetail->add();
-                }
-            }
-        }
+        $this->insertOrderDetail($prestaOrder, $cart, $importState);
 
         if ($this->fmPrestashop->isPs1516()) {
-            // create payment in order because fyndiq handles the payment - so it looks already paid in prestashop
+            // create payment in order because Fyndiq handles the payment - so it looks already paid in PrestaShop
             $prestaOrder->addOrderPayment($prestaOrder->total_products_wt, self::FYNDIQ_PAYMENT_METHOD);
         }
 
-        // create state in history
-        $orderHistory = $this->fmPrestashop->newOrderHistory();
-        $orderHistory->id_order = $prestaOrder->id;
-        $orderHistory->id_order_state = $importState;
-        $orderHistory->add();
-
-
-        //add fyndiq delivery note as a message to the order
-        $orderMessage = $this->fmPrestashop->newMessage();
-        $orderMessage->id_order = $prestaOrder->id;
-        $orderMessage->private = true;
-        $modulePath = $this->fmPrestashop->getModulePath(FmUtils::MODULE_NAME);
-        $url = $this->fmPrestashop->getShopUrl() . $modulePath . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrder->id;
-        $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy url and paste in the browser to download the delivery note.';
-        $orderMessage->add();
+        $this->addOrderToHistory($prestaOrder->id, $importState);
+        $this->addOrderMessage($prestaOrder->id, $fyndiqOrder->id);
 
         // set order as valid
         $prestaOrder->valid = true;
         $prestaOrder->update();
 
-        //Add order to log (prestashop database) so it doesn't get added again next time this is run
-        $this->addOrderLog($prestaOrder->id, $fyndiqOrder->id);
-
-        // Adding an entry in order_carrier table
-        if (!is_null($carrier)) {
-            $orderCarrier = new OrderCarrier();
-            $orderCarrier->id_order = (int)$prestaOrder->id;
-            $orderCarrier->id_carrier = (int)$idCarrier;
-            $orderCarrier->weight = (float)$prestaOrder->getTotalWeight();
-            $orderCarrier->shipping_cost_tax_excl = (float)$prestaOrder->total_shipping_tax_excl;
-            $orderCarrier->shipping_cost_tax_incl = (float)$prestaOrder->total_shipping_tax_incl;
-            $orderCarrier->add();
-        }
-        return true;
+        //Add order to log (PrestaShop database) so it doesn't get added again next time this is run
+        return $this->addOrderLog($prestaOrder->id, $fyndiqOrder->id);
     }
 
     /**
