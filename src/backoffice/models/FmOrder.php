@@ -281,6 +281,16 @@ class FmOrder extends FmModel
         }
 
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
+
+        // Check address
+        if ($taxAddressType == 'id_address_delivery') {
+            $address = $this->fmPrestashop->newAddress($cart->id_address_delivery);
+            $country = $this->fmPrestashop->newCountry($address->id_country, $cart->id_lang);
+            if (!$country->active) {
+                throw new PrestaShopException(FyndiqTranslation::get('error-delivery-country-not-active'));
+            }
+        }
+
         // Save the cart
         $cart->add();
 
@@ -291,15 +301,6 @@ class FmOrder extends FmModel
         foreach ($fyndiqOrder->order_rows as $row) {
             $numArticle = (int)$row->quantity;
             $cart->updateQty($numArticle, $row->productId, $row->combinationId);
-        }
-
-        // Check address
-        if ($taxAddressType == 'id_address_delivery') {
-            $address = $this->fmPrestashop->newAddress($cart->id_address_delivery);
-            $country = $this->fmPrestashop->newCountry($address->id_country, $cart->id_lang);
-            if (!$country->active) {
-                throw new PrestaShopException(FyndiqTranslation::get('error-delivery-country-not-active'));
-            }
         }
 
         $prestaOrder = $this->createPrestaOrder(

@@ -10,7 +10,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->db = $this->getMockBuilder('stdClass')
-            ->setMethods(array('Execute', 'ExecuteS'))
+            ->setMethods(array('Execute', 'ExecuteS', 'insert'))
             ->getMock();
 
         $this->fmPrestashop->method('dbGetInstance')->willReturn($this->db);
@@ -402,7 +402,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     }
 
 
-    function testCreatePrestaOrder()
+    public function testCreatePrestaOrder()
     {
         $countryId = 1;
         $currencyId = 2;
@@ -487,7 +487,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    function testInsertOrderDetail()
+    public function testInsertOrderDetail()
     {
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
@@ -522,7 +522,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    function testInsertOrderDetailPS14()
+    public function testInsertOrderDetailPS14()
     {
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
@@ -552,13 +552,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    function testInsertOrderDetailWrongVersion()
+    public function testInsertOrderDetailWrongVersion()
     {
         $result = $this->fmOrder->insertOrderDetail(null, null, null);
         $this->assertFalse($result);
     }
 
-    function testAddOrderToHistory()
+    public function testAddOrderToHistory()
     {
         $orderHistory = $this->getOrderHistory();
         $orderHistory->expects($this->once())
@@ -573,7 +573,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    function testAddOrderMessage()
+    public function testAddOrderMessage()
     {
         $message = $this->getMessage();
 
@@ -586,6 +586,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($message);
 
         $result = $this->fmOrder->addOrderMessage(1, 2);
+        $this->assertTrue($result);
+    }
+
+    public function testAddOrderLog()
+    {
+        $this->db->expects($this->once())->method('insert')->willReturn(true);
+        $result = $this->fmOrder->addOrderLog(1, 2);
         $this->assertTrue($result);
     }
 }
