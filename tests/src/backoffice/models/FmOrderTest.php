@@ -95,7 +95,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         return $orderDetail;
     }
 
-    private function getAddress() {
+    private function getAddress()
+    {
         $address = $this->getMockBuilder('stdClass')
             ->setMethods(array('add'))
             ->getMock();
@@ -103,7 +104,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         return $address;
     }
 
-    private function getCountry() {
+    private function getCountry()
+    {
         $country = $this->getMockBuilder('stdClass')
             ->getMock();
         $country->active = true;
@@ -310,8 +312,6 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $prestaOrder = $this->getPrestaOrder();
         $prestaOrder->total_products_wt = $totalWoTax;
-        $message = $this->getMessage();
-        $orderHistory = $this->getOrderHistory();
 
         $country = $this->getCountry();
 
@@ -352,15 +352,6 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->expects($this->once())
             ->method('newCustomer')
             ->willReturn($customer);
-
-        // $this->fmPrestashop->expects($this->once())
-        //     ->method('newMessage')
-        //     ->willReturn($message);
-
-        // $this->fmPrestashop->expects($this->once())
-        //     ->method('newOrderHistory')
-        //     ->willReturn($orderHistory);
-
 
         $address = $this->getAddress();
 
@@ -411,7 +402,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     }
 
 
-    function testCreatePrestaOrder() {
+    function testCreatePrestaOrder()
+    {
         $countryId = 1;
         $currencyId = 2;
         $importState = 3;
@@ -495,7 +487,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    function testInsertOrderDetail() {
+    function testInsertOrderDetail()
+    {
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
         $importState = 'import_state';
@@ -529,7 +522,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    function testInsertOrderDetailPS14() {
+    function testInsertOrderDetailPS14()
+    {
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
         $importState = 'import_state';
@@ -558,8 +552,40 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    function testInsertOrderDetailWrongVersion() {
+    function testInsertOrderDetailWrongVersion()
+    {
         $result = $this->fmOrder->insertOrderDetail(null, null, null);
         $this->assertFalse($result);
+    }
+
+    function testAddOrderToHistory()
+    {
+        $orderHistory = $this->getOrderHistory();
+        $orderHistory->expects($this->once())
+            ->method('add')
+            ->willReturn(true);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('newOrderHistory')
+            ->willReturn($orderHistory);
+
+        $result = $this->fmOrder->addOrderToHistory(1, 2);
+        $this->assertTrue($result);
+    }
+
+    function testAddOrderMessage()
+    {
+        $message = $this->getMessage();
+
+        $message->expects($this->once())
+            ->method('add')
+            ->willReturn(true);
+
+        $this->fmPrestashop->expects($this->once())
+            ->method('newMessage')
+            ->willReturn($message);
+
+        $result = $this->fmOrder->addOrderMessage(1, 2);
+        $this->assertTrue($result);
     }
 }
