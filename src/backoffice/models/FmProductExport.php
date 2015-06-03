@@ -76,8 +76,7 @@ class FmProductExport extends FmModel
             state varchar(64) default NULL);
 
             CREATE UNIQUE INDEX productIndex
-            ON ' . $tableName . ' (product_id);
-        '
+            ON ' . $tableName . ' (product_id);'
         );
 
         $exportPath = $this->fmPrestashop->getExportPath();

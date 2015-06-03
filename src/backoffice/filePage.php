@@ -15,22 +15,32 @@ if (file_exists($configPath)) {
     exitWithError('Error: Config file not found: ' . $configPath);
 }
 
-require_once('./helpers.php');
-require_once('./models/product_export.php');
-require_once('./models/config.php');
-require_once('./models/product.php');
+require_once('./FmConfig.php');
+require_once('./FmOutput.php');
+require_once('./FmPrestashop.php');
+require_once('./FmUtils.php');
+require_once('./models/FmModel.php');
+require_once('./models/FmProductExport.php');
+require_once('./models/FmProduct.php');
 require_once('./includes/shared/src/FyndiqFeedWriter.php');
 require_once('./includes/shared/src/FyndiqCSVFeedWriter.php');
 
 class FilePageController
 {
 
-    public static function getFile()
+    public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmProductExport) {
+        $this->fmPrestashop = $fmPrestashop;
+        $this->fmConfig = $fmConfig;
+        $this->fmOutput = $fmOutput;
+        $this->fmProductExport = $fmProductExport;
+    }
+
+    public function handleRequest()
     {
-        $username = FmConfig::get('username');
-        $apiToken = FmConfig::get('api_token');
+        $username = $this->fmConfig->get('username');
+        $apiToken = $this->fmConfig->get('api_token');
         if (!empty($username) && !empty($apiToken)) {
-            $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
+            $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
 
             // If ping does not function properly, generate the file if older than 1 hour on request
             $fileExistsAndFresh = file_exists($filePath) && filemtime($filePath) > strtotime('-1 hour');
@@ -38,24 +48,24 @@ class FilePageController
                 // Write the file if it does not exist or is older than the interval
                 $file = fopen($filePath, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
-                $fmProductExport = new FmProductExport();
-                $fmProductExport->saveFile($feedWriter);
+                $this->fmProductExport->saveFile($feedWriter);
                 fclose($file);
             }
-
             $lastModified = filemtime($filePath);
 
             $file = fopen($filePath, 'r');
-            header('Last-Modified: ' . date('r', $lastModified));
-            header('Content-Type: text/csv');
-            header('Content-Disposition: attachment; filename=feed.csv');
-            header('Pragma: no-cache');
-            header('Expires: 0');
-            fpassthru($file);
-            fclose($file);
+            $this->fmOutput->header('Last-Modified: ' . date('r', $lastModified));
+            $this->fmOutput->streamFile($file, 'feed.csv', 'text/csv', filesize($filePath));
+            return fclose($file);
         } else {
-            exitWithError('Module is not set up');
+            $this->fmOutput->showError(500, 'Internal Server Error', 'Module is not set up');
         }
     }
 }
-FilePageController::getFile();
+
+$fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+$fmConfig = new FmConfig($fmPrestashop);
+$fmOutput = new FmOutput($fmPrestashop, null, null);
+$fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
+$filePageControoler = new FilePageController($fmPrestashop, $fmConfig, $fmOutput, $fmProductExport);
+$filePageControoler->handleRequest();

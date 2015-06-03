@@ -395,8 +395,8 @@ class FmOrder extends FmModel
      */
     public function uninstall()
     {
-        $tableName = $fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        return (bool)Db::getInstance()->Execute('DROP TABLE ' . $tableName);
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        return $this->fmPrestashop->dbGetInstance()->Execute('DROP TABLE ' . $tableName);
     }
 
     /**
@@ -405,7 +405,7 @@ class FmOrder extends FmModel
      * @param string $productSKU
      * @return bool|array
      */
-    protected function getProductBySKU($productSKU)
+    public function getProductBySKU($productSKU)
     {
         // Check products
         $query = $this->fmPrestashop->newDbQuery();

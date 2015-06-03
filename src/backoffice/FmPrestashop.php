@@ -10,6 +10,8 @@ class FmPrestashop
 
     const DEFAULT_LANGUAGE_ID = 1;
 
+    const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
+
     public $version = '';
     public $moduleName = '';
     private $categoryCache = array();
@@ -253,6 +255,21 @@ class FmPrestashop
     {
         return in_array($this->version, array(self::FMPSV15, self::FMPSV16));
     }
+
+    /**
+     * Returns export file name depending on the shop context
+     *
+     * @return string export file name
+     */
+    public function getExportFileName()
+    {
+        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+            return sprintf(self::EXPORT_FILE_NAME_PATTERN, self::getCurrentShopId());
+        }
+        // fallback to 0 for non-multistore setups
+        return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
+    }
+
 
     /**
      * Returns the current shop id

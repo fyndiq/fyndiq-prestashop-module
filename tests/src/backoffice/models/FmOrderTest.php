@@ -10,10 +10,15 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->db = $this->getMockBuilder('stdClass')
-            ->setMethods(array('Execute', 'ExecuteS', 'insert'))
+            ->setMethods(array('Execute', 'ExecuteS', 'insert', 'getValue', 'getRow'))
+            ->getMock();
+
+        $this->dbQuery = $this->getMockBuilder('stdClass')
+            ->setMethods(array('select', 'from', 'where'))
             ->getMock();
 
         $this->fmPrestashop->method('dbGetInstance')->willReturn($this->db);
+        $this->fmPrestashop->method('newDbQuery')->willReturn($this->dbQuery);
 
         $this->fmOrder = new FmOrder($this->fmPrestashop, null);
     }
@@ -601,5 +606,92 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->db->expects($this->once())->method('ExecuteS')->willReturn(true);
         $result = $this->fmOrder->getImportedOrders(1, 10);
         $this->assertTrue($result);
+    }
+
+    public function testGetTotal()
+    {
+        $expected = 444;
+        $this->fmPrestashop->expects($this->once())
+            ->method('getTableName')
+            ->willReturn('table_name');
+        $this->db->expects($this->once())
+            ->method('getValue')
+            ->willReturn($expected);
+        $result = $this->fmOrder->getTotal();
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testUninstall()
+    {
+        $this->fmPrestashop->expects($this->once())
+            ->method('getTableName')
+            ->willReturn('table_name');
+        $this->db->expects($this->once())
+            ->method('Execute')
+            ->willReturn(true);
+
+        $result = $this->fmOrder->uninstall();
+        $this->assertTrue($result);
+    }
+
+    public function testMarkOrderAsDone()
+    {
+        $this->fmPrestashop->expects($this->once())
+            ->method('markOrderAsDone')
+            ->willReturn(true);
+        $result = $this->fmOrder->markOrderAsDone(1, 2);
+        $this->assertTrue($result);
+    }
+
+    public function testGetProductBySKUProduct()
+    {
+        $sku = 'SKU';
+        $productId = 66;
+        $expected = array($productId, 0);
+
+        $this->db->expects($this->once())
+            ->method('getValue')
+            ->willReturn($productId);
+
+        $result = $this->fmOrder->getProductBySKU($sku);
+        $this->assertEquals($expected, $result);
+    }
+
+
+    public function testGetProductBySKUCombination()
+    {
+        $sku = 'SKU';
+        $productId = 66;
+        $combinationId = 77;
+        $expected = array($productId, $combinationId);
+
+        $this->db->expects($this->once())
+            ->method('getValue')
+            ->willReturn(false);
+
+        $this->db->expects($this->once())
+            ->method('getRow')
+            ->willReturn(array(
+                'id_product' => $productId,
+                'id_product_attribute' => $combinationId
+            ));
+
+        $result = $this->fmOrder->getProductBySKU($sku);
+        $this->assertEquals($expected, $result);
+    }
+
+
+    public function testGetProductBySKUNone()
+    {
+        $sku = 'SKU';
+        $this->db->expects($this->once())
+            ->method('getValue')
+            ->willReturn(false);
+
+        $this->db->expects($this->once())
+            ->method('getRow')
+            ->willReturn(false);
+        $result = $this->fmOrder->getProductBySKU($sku);
+        $this->assertFalse($result);
     }
 }
