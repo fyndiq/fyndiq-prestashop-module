@@ -95,7 +95,8 @@ class FmNotificationService
                 $file = fopen($filePath, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
                 $fmProductExport = new FmProductExport();
-                $fmProductExport->saveFile($file);
+                $languageId = $this->fmConfig->get('language');
+                $fmProductExport->saveFile($languageId, $file);
                 fclose($file);
                 $this->_update_product_info();
             } catch (Exception $e) {

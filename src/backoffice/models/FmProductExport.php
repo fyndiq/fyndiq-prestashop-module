@@ -117,7 +117,6 @@ class FmProductExport extends FmModel
         return 0;
     }
 
-
     /**
      * Returns single product with combinations or false if product is not active/found
      *

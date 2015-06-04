@@ -76,7 +76,7 @@
                     <button class="btn btn-green" type="submit" name="submit_save_settings">{fi18n s='Save Settings'}</button>
                 </form>
                 <div class="text-right">
-                    <a href="{$path}&disconnect=1" class="btn btn-red">{fi18n s='Disconnect Account'}</a>
+                    <a href="{$path}&action=disconnect" class="btn btn-red">{fi18n s='Disconnect Account'}</a>
                 </div>
             </div>
         </div>

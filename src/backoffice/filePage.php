@@ -48,7 +48,8 @@ class FilePageController
                 // Write the file if it does not exist or is older than the interval
                 $file = fopen($filePath, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
-                $this->fmProductExport->saveFile($feedWriter);
+                $languageId = $this->fmConfig->get('language');
+                $this->fmProductExport->saveFile($languageId, $feedWriter);
                 fclose($file);
             }
             $lastModified = filemtime($filePath);
