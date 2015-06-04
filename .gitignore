@@ -7,3 +7,4 @@ vendor/
 coverage/
 *.sublime-project
 *.sublime-workspace
+build/*
