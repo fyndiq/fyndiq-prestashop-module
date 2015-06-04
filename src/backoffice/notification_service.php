@@ -4,15 +4,27 @@ This file handles incoming requests from the automated notification system at Fy
 */
 
 require_once('./service_init.php');
-require_once('./helpers.php');
-require_once('./models/config.php');
-require_once('./models/order.php');
-require_once('./models/product.php');
-require_once('./models/product_export.php');
-require_once('./models/product_info.php');
+require_once('./FmUtils.php');
+require_once('./FmConfig.php');
+require_once('./FmOutput.php');
+require_once('./FmPrestashop.php');
+require_once('./models/FmApiModel.php');
+require_once('./models/FmModel.php');
+require_once('./models/FmOrder.php');
+require_once('./models/FmProduct.php');
+require_once('./models/FmProductExport.php');
+require_once('./FmProductInfo.php');
+require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
 class FmNotificationService
 {
+
+    public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel) {
+        $this->fmPrestashop = $fmPrestashop;
+        $this->fmConfig = $fmConfig;
+        $this->fmOutput = $fmOutput;
+        $this->fmApiModel = $fmApiModel;
+    }
 
     /**
      * Handle request
@@ -28,8 +40,8 @@ class FmNotificationService
                 return $this->$eventName($params);
             }
         }
-        header('HTTP/1.0 400 Bad Request');
-        die('400 Bad Request');
+        $this->fmOutput->header('HTTP/1.0 400 Bad Request');
+        return $this->fmOutput->output('400 Bad Request');
     }
 
     /**
@@ -44,19 +56,22 @@ class FmNotificationService
         if ($orderId) {
             $url = 'orders/' . $orderId . '/';
             try {
-                $ret = FmHelpers::callApi('GET', $url);
+                $ret = $this->fmApiModel->callApi('GET', $url);
                 $order = $ret['data'];
-                if (!FmOrder::orderExists($order->id)) {
-                    FmOrder::create($order);
+                $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
+                $idOrderState = $this->fmConfig->get('import_state');
+                $taxAddressType = $this->fmPrestashop->getTaxAddressType();
+                if (!$fmOrder->orderExists($order->id)) {
+                    $fmOrder->create($order, $idOrderState, $taxAddressType);
                 }
             } catch (Exception $e) {
-                header('HTTP/1.0 500 Internal Server Error');
-                die('500 Internal Server Error');
+                $this->fmOutput->header('HTTP/1.0 500 Internal Server Error');
+                return $this->fmOutput->output('500 Internal Server Error');
             }
-            return true;
+            return $this->fmOutput->output('OK');
         }
-        header('HTTP/1.0 400 Bad Request');
-        die('400 Bad Request');
+        $this->fmOutput->header('HTTP/1.0 400 Bad Request');
+        return $this->fmOutput->output('400 Bad Request');
     }
 
     /**
@@ -67,40 +82,41 @@ class FmNotificationService
     private function ping($params)
     {
         $token = isset($params['token']) ? $params['token'] : null;
-        if (is_null($token) || $token != FmConfig::get('ping_token')) {
-            header('HTTP/1.0 400 Bad Request');
-            return die('400 Bad Request');
+        if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
+            $this->fmOutput->header('HTTP/1.0 400 Bad Request');
+            return $this->fmOutput->output('400 Bad Request');
         }
 
         // http://stackoverflow.com/questions/138374/close-a-connection-early
         ob_end_clean();
-        header('Connection: close');
+        $this->fmOutput->header('Connection: close');
         ignore_user_abort(true); // just to be safe
         ob_start();
         echo 'OK';
         $size = ob_get_length();
-        header('Content-Length: ' . $size);
+        $this->fmOutput->header('Content-Length: ' . $size);
         ob_end_flush(); // Strange behaviour, will not work
         flush(); // Unless both are called !
 
         $locked = false;
-        $lastPing = FmConfig::get('ping_time');
+        $lastPing = $this->fmConfig->get('ping_time');
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
         if (!$locked) {
-            FmConfig::set('ping_time', time());
-            $filePath = FmHelpers::getExportPath() . FmHelpers::getExportFileName();
+            $this->fmConfig->set('ping_time', time());
+            $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
             try {
                 $file = fopen($filePath, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
-                $fmProductExport = new FmProductExport();
+                $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
                 $languageId = $this->fmConfig->get('language');
-                $fmProductExport->saveFile($languageId, $file);
+                $fmProductExport->saveFile($languageId, $feedWriter);
                 fclose($file);
-                $this->_update_product_info();
+                return $this->_update_product_info();
             } catch (Exception $e) {
-                error_log($e->getMessage());
+                $this->fmOutput->header('HTTP/1.0 500 Internal Server Error');
+                $this->fmOutput->output($e->getMessage());
             }
         }
     }
@@ -109,10 +125,16 @@ class FmNotificationService
     {
         $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
         $tableName = $module->config_name . '_products';
-        $productInfo = new FmProductInfo($fmProduct, $tableName);
+        $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
+        $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
         return $productInfo->getAll();
     }
 }
 
-$notifications = new FmNotificationService();
+$fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+$fmConfig = new FmConfig($fmPrestashop);
+$fmOutput = new FmOutput($fmPrestashop, null, null);
+$fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));
+
+$notifications = new FmNotificationService($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel);
 $notifications->handleRequest($_GET);
