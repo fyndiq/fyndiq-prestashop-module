@@ -8,7 +8,7 @@ require_once('backoffice/FmUtils.php');
 require_once('backoffice/FmConfig.php');
 require_once('backoffice/FmOutput.php');
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
-require_once 'backoffice/includes/shared/src/init.php';
+require_once('backoffice/includes/shared/src/init.php');
 require_once('backoffice/FmPrestashop.php');
 require_once('backoffice/FmController.php');
 require_once('backoffice/models/FmModel.php');
