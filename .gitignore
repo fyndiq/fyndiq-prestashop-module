@@ -1,7 +1,6 @@
 .sass-cache
 .idea
 *.css.map
-build/
 docs/*
 composer.lock
 vendor/
