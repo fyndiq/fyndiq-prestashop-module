@@ -52,13 +52,16 @@ class FyndiqMerchant extends Module
         // Create tab
         $ret &= $this->installTab();
 
-        // create product mapping database
         $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $fmProductExport = new FmProductExport($fmPrestashop, nil);
+        $fmConfig = new FmConfig($fmPrestashop);
+        $fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
+        $fmOrder = new FmOrder($fmPrestashop, $fmConfig);
+
+        // create product mapping database
         $ret &= $fmProductExport->install();
 
         // create order mapping database
-        $ret &= FmOrder::install();
+        $ret &= $fmOrder->install();
 
         return (bool)$ret;
     }
@@ -69,24 +72,27 @@ class FyndiqMerchant extends Module
 
         $ret &= (bool)parent::uninstall();
 
+        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+        $fmConfig = new FmConfig($fmPrestashop);
+        $fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
+        $fmOrder = new FmOrder($fmPrestashop, $fmConfig);
+
         // Delete configuration
-        $ret &= (bool)FmConfig::delete('username');
-        $ret &= (bool)FmConfig::delete('api_token');
-        $ret &= (bool)FmConfig::delete('language');
-        $ret &= (bool)FmConfig::delete('price_percentage');
-        $ret &= (bool)FmConfig::delete('import_state');
-        $ret &= (bool)FmConfig::delete('done_state');
+        $ret &= (bool)$fmConfig->delete('username');
+        $ret &= (bool)$fmConfig->delete('api_token');
+        $ret &= (bool)$fmConfig->delete('language');
+        $ret &= (bool)$fmConfig->delete('price_percentage');
+        $ret &= (bool)$fmConfig->delete('import_state');
+        $ret &= (bool)$fmConfig->delete('done_state');
 
         // Drop product table
-        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $fmProductExport = new FmProductExport($fmPrestashop, nil);
         $ret &= $fmProductExport->uninstall();
 
         // Remove the menu tab
         $ret &= $this->uninstallTab();
 
         // drop order table
-        $ret &= FmOrder::uninstall();
+        $ret &= $fmOrder->uninstall();
 
         return (bool)$ret;
     }

@@ -68,20 +68,18 @@ class FmProductExport extends FmModel
     public function install()
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
-        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute(
-            'CREATE TABLE IF NOT EXIST ' . $tableName .' (
+        $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName .' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
             state varchar(64) default NULL);
 
             CREATE UNIQUE INDEX productIndex
-            ON ' . $tableName . ' (product_id);'
-        );
+            ON ' . $tableName . ' (product_id);';
+        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql);
 
         $exportPath = $this->fmPrestashop->getExportPath();
         $ret &= $this->fmPrestashop->forceCreateDir($exportPath, 0775);
-
         return (bool)$ret;
     }
 
@@ -92,7 +90,7 @@ class FmProductExport extends FmModel
      */
     public function uninstall()
     {
-        return (bool)(bool)$this->fmPrestashop->dbGetInstance()->Execute(
+        return (bool)$this->fmPrestashop->dbGetInstance()->Execute(
             'DROP TABLE ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true)
         );
     }
