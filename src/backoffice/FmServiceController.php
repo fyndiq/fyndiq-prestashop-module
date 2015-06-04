@@ -223,8 +223,12 @@ class FmServiceController
     private function importOrders()
     {
         $fmOrder = $this->loadModel('FmOrder');
-        $orderFetch = new FmOrderFetch($this->fmPrestashop, $this->fmConfig,
-            $fmOrder, $this->fmApiModel);
+        $orderFetch = new FmOrderFetch(
+            $this->fmPrestashop,
+            $this->fmConfig,
+            $fmOrder,
+            $this->fmApiModel
+        );
         $orderFetch->getAll();
         $time = $this->getTime();
         $newDate = date('Y-m-d H:i:s', $time);

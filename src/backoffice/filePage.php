@@ -28,7 +28,8 @@ require_once('./includes/shared/src/FyndiqCSVFeedWriter.php');
 class FilePageController
 {
 
-    public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmProductExport) {
+    public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmProductExport)
+    {
         $this->fmPrestashop = $fmPrestashop;
         $this->fmConfig = $fmConfig;
         $this->fmOutput = $fmOutput;

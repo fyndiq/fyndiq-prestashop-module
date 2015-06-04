@@ -19,7 +19,8 @@ require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 class FmNotificationService
 {
 
-    public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel) {
+    public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel)
+    {
         $this->fmPrestashop = $fmPrestashop;
         $this->fmConfig = $fmConfig;
         $this->fmOutput = $fmOutput;
