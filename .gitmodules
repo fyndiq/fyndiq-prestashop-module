@@ -1,4 +1,4 @@
-[ubmodule "src/backoffice/includes/fyndiqAPI"]
+[submodule "src/backoffice/includes/fyndiqAPI"]
 	path = src/backoffice/includes/fyndiqAPI
 	url = git@github.com:fyndiq/fyndiq-api-wrapper-php.git
 [submodule "src/backoffice/includes/shared"]
