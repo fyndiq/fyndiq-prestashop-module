@@ -3,8 +3,9 @@
 class FmOrderFetch extends FyndiqPaginatedFetch
 {
 
-    function __construct($fmConfig, $fmOrder, $fmApiModel)
+    function __construct($fmPrestashop, $fmConfig, $fmOrder, $fmApiModel)
     {
+        $this->fmPrestashop = $fmPrestashop;
         $this->fmConfig = $fmConfig;
         $this->fmOrder = $fmOrder;
         $this->fmApiModel = $fmApiModel;
@@ -32,7 +33,7 @@ class FmOrderFetch extends FyndiqPaginatedFetch
         $taxAddressType = $this->fmPrestashop->getTaxAddressType();
         foreach ($data as $order) {
             if (!$this->fmOrder->orderExists($order->id)) {
-                $this->fmOrder->create($order, $idOrderState);
+                $this->fmOrder->create($order, $idOrderState, $taxAddressType);
             }
         }
         return true;
