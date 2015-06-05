@@ -16,6 +16,7 @@ if (file_exists($configPath)) {
 }
 
 require_once('./FmConfig.php');
+require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
 require_once('./FmPrestashop.php');
 require_once('./FmUtils.php');
