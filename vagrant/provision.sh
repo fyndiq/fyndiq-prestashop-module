@@ -26,7 +26,7 @@ composer self-update
 ## Download and setup Prestashop
 if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     cd /tmp
-    wget http://www.prestashop.com/download/old/$PS_VERSION
+    wget --quiet http://www.prestashop.com/download/old/$PS_VERSION
     unzip -o $PS_VERSION
     sudo rm ./$PS_VERSION
     mv prestashop /var/www/html/
