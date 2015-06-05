@@ -223,6 +223,7 @@ class FmPrestashop
         if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
             $context = Context::getContext();
             $context->id_lang = self::DEFAULT_LANGUAGE_ID;
+            $context->currency = Currency::getDefaultCurrency();
             return $context;
         }
         // mock the context for PS 1.4
