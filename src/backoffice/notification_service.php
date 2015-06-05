@@ -41,8 +41,7 @@ class FmNotificationService
                 return $this->$eventName($params);
             }
         }
-        $this->fmOutput->header('HTTP/1.0 400 Bad Request');
-        return $this->fmOutput->output('400 Bad Request');
+        return $this->fmOutput->showError(400, 'Bad Request', 400 Bad Request)
     }
 
     /**
@@ -66,13 +65,11 @@ class FmNotificationService
                     $fmOrder->create($order, $idOrderState, $taxAddressType);
                 }
             } catch (Exception $e) {
-                $this->fmOutput->header('HTTP/1.0 500 Internal Server Error');
-                return $this->fmOutput->output('500 Internal Server Error');
+                return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
             }
             return $this->fmOutput->output('OK');
         }
-        $this->fmOutput->header('HTTP/1.0 400 Bad Request');
-        return $this->fmOutput->output('400 Bad Request');
+        return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
     }
 
     /**
@@ -84,20 +81,10 @@ class FmNotificationService
     {
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
-            $this->fmOutput->header('HTTP/1.0 400 Bad Request');
-            return $this->fmOutput->output('400 Bad Request');
+            return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
         }
 
-        // http://stackoverflow.com/questions/138374/close-a-connection-early
-        ob_end_clean();
-        $this->fmOutput->header('Connection: close');
-        ignore_user_abort(true); // just to be safe
-        ob_start();
-        echo 'OK';
-        $size = ob_get_length();
-        $this->fmOutput->header('Content-Length: ' . $size);
-        ob_end_flush(); // Strange behaviour, will not work
-        flush(); // Unless both are called !
+        $this->fmOutput->flushHeader('OK');
 
         $locked = false;
         $lastPing = $this->fmConfig->get('ping_time');
@@ -116,8 +103,7 @@ class FmNotificationService
                 fclose($file);
                 return $this->_update_product_info();
             } catch (Exception $e) {
-                $this->fmOutput->header('HTTP/1.0 500 Internal Server Error');
-                $this->fmOutput->output($e->getMessage());
+                return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
             }
         }
     }

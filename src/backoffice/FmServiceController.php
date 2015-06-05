@@ -18,7 +18,7 @@ class FmServiceController
     public function handleRequest($params)
     {
         if (!isset($params['action'])) {
-            return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
+            return $this->fmOutput->responseError('Bad Request', '400 Bad Request');
         }
         $action = $params['action'];
         $args = isset($params['args']) && is_array($params['args']) ? $params['args'] : array();

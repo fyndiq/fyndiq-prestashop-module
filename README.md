@@ -1,6 +1,6 @@
 # Fyndiq Prestashop Module
 
-Fyndiq official Prestashop module
+Fyndiq official Prestashop module. Supports versions `1.5.*` - `1.6.*`;
 
 ## Build
 
@@ -23,7 +23,14 @@ Specifically, it's required for the automated notification system to work.
 
 ## Development
 
-### SASS / CSS
+To develop the module, you can make s symbolic link to the `src/` directory into the modules directory in your Prestashop installation:
+
+```shell
+ln -s src/ /path/to/prestashop/modules/fyndiqmerchant
+```
+
+### Dependencies
+To install the PHP development dependencies, you'll need [Composer](https://getcomposer.org/). Once installed run `composer update` to get all dependencies;
 
 This project uses [SASS](http://sass-lang.com/) to compile SCSS files into CSS files.
 This means that you have to have a [SASS compiler](http://sass-lang.com/install) program installed on your computer.
@@ -34,8 +41,15 @@ Here is an example of how to install SASS on Debian 7:
 sudo gem install sass
 ```
 
-And this is how to run the SASS compiler during development:
+### Make commands:
 
-```shell
-make css
-```
+* `build` - builds the module package from source;
+* `compatinfo` - checks the code for the lowest compatible PHP version;
+* `coverage` - generates test coverage report in `coverage/`;
+* `css` - builds the CSS file from SCSS using SASS;
+* `php-lint` - checks the files with the PHP internal linter;
+* `phpmd` - checks the code with [PHP Mess Detector](http://phpmd.org/);
+* `scss-lint` - lint checks the SCSS files using `scss-lint`;
+* `sniff` - checks the code for styling issues;
+* `sniff-fix` - tries to fix the styling issues
+* `test` - runs the PHPUnit tests;

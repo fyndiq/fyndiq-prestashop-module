@@ -67,7 +67,7 @@ class FmController
             case 'disconnect':
                 return $this->disconnect();
             default:
-                return $this->fmOutput->showError(FyndiqTranslation::get('Page not found'));
+                return $this->fmOutput->showModuleError(FyndiqTranslation::get('Page not found'));
         }
     }
 
@@ -83,7 +83,7 @@ class FmController
             $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
             // validate parameters
             if (empty($username) || empty($apiToken)) {
-                return $this->fmOutput->showError(FyndiqTranslation::get('empty-username-token'));
+                return $this->fmOutput->showModuleError(FyndiqTranslation::get('empty-username-token'));
             }
             $this->fmConfig->set('username', $username);
             $this->fmConfig->set('api_token', $apiToken);
@@ -132,7 +132,7 @@ class FmController
             ) {
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
-            return $this->fmOutput->showError(FyndiqTranslation::get('Error saving settings'));
+            return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error saving settings'));
         }
 
         $selectedLanguage = $this->fmConfig->get('language');
@@ -184,6 +184,6 @@ class FmController
             $this->fmConfig->delete('api_token')) {
             return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
         }
-        return $this->fmOutput->showError(FyndiqTranslation::get('Error disconnecting account'));
+        return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error disconnecting account'));
     }
 }

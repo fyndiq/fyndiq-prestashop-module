@@ -40,9 +40,15 @@ class FmOutput
         return $this->fmPrestashop->toolsRedirect($url);
     }
 
-    public function showError($message)
+    public function showModuleError($message)
     {
         return $this->module->displayError($message);
+    }
+
+    public function showError($code, $name, $message)
+    {
+        $this->header(sprintf('HTTP/1.0 %d %s', $code, $name));
+        return $this->output($message);
     }
 
     public function renderJSON($data)
@@ -97,5 +103,20 @@ class FmOutput
         $this->header('Expires: 0');
         rewind($file);
         return fpassthru($file);
+    }
+
+
+    public function flushHeader($mesage)
+    {
+        // Adapted from: http://stackoverflow.com/questions/138374/close-a-connection-early
+        ob_end_clean();
+        $this->fmOutput->header('Connection: close');
+        ignore_user_abort(true);
+        ob_start();
+        $this->output($mesage);
+        $size = ob_get_length();
+        $this->fmOutput->header('Content-Length: ' . $size);
+        ob_end_flush();
+        flush();
     }
 }
