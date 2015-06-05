@@ -8,3 +8,5 @@ coverage/
 *.sublime-project
 *.sublime-workspace
 build/*
+.vagrant
+
