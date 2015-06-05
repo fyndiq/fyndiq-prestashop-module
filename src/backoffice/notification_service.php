@@ -41,7 +41,7 @@ class FmNotificationService
                 return $this->$eventName($params);
             }
         }
-        return $this->fmOutput->showError(400, 'Bad Request', 400 Bad Request)
+        return $this->fmOutput->showError(400, 'Bad Request', 400 Bad Request);
     }
 
     /**

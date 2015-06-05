@@ -193,7 +193,7 @@ class FmPrestashop
     public function forceCreateDir($path, $rights)
     {
         if (!is_writable($path)) {
-            $ret &= createDir($path, $rights);
+            return createDir($path, $rights);
         }
         return true;
     }
@@ -413,9 +413,9 @@ class FmPrestashop
 
     // Product
 
-    public function productNew($id_product = null, $full = false, $id_lang = null, $id_shop = null, $context = null)
+    public function productNew($idProduct = null, $full = false, $idLang = null, $idShop = null, $context = null)
     {
-        return new Product($id_product, $full, $id_lang, $id_shop, $context);
+        return new Product($idProduct, $full, $idLang, $idShop, $context);
     }
 
     public function productGetQuantity($productId)
@@ -424,9 +424,9 @@ class FmPrestashop
     }
 
     // Address
-    public function newAddress($id_address = null, $id_lang = null)
+    public function newAddress($idAddress = null, $idLang = null)
     {
-        return new Address($id_address, $id_lang);
+        return new Address($idAddress, $idLang);
     }
 
     // Cart

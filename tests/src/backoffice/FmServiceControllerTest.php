@@ -31,9 +31,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
     public function testHandleRequestNoAction()
     {
         $this->fmOutput->expects($this->once())
-            ->method('showError')
+            ->method('responseError')
             ->with(
-                $this->equalTo(400),
                 $this->equalTo('Bad Request'),
                 $this->equalTo('400 Bad Request')
             )

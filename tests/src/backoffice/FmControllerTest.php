@@ -108,7 +108,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
 
         $this->fmOutput->expects($this->once())
-            ->method('showError')
+            ->method('showModuleError')
             ->with(
                 $this->equalTo('NT: empty-username-token')
             )
@@ -145,7 +145,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             );
 
         $this->fmOutput->expects($this->once())
-            ->method('showError')
+            ->method('showModuleError')
             ->with(
                 $this->equalTo('Test Exception')
             )
@@ -239,7 +239,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $this->fmConfig->method('set')->willReturn(false);
         $this->fmOutput->expects($this->once())
-            ->method('showError')
+            ->method('showModuleError')
             ->with(
                 $this->equalTo('NT: Error saving settings')
             )
@@ -291,7 +291,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
 
         $this->fmOutput->expects($this->once())
-            ->method('showError')
+            ->method('showModuleError')
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
@@ -303,7 +303,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsGetValue')->willReturn('test');
 
         $this->fmOutput->expects($this->once())
-            ->method('showError')
+            ->method('showModuleError')
             ->with(
                 $this->equalTo('NT: Page not found')
             )

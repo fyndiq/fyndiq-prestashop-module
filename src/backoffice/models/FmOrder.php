@@ -66,7 +66,6 @@ class FmOrder extends FmModel
 
         if (is_null($customer->firstname)) {
             // Create a customer.
-            $customer = $this->fmPrestashop->newCustomer();
             $customer->firstname = self::FYNDIQ_ORDERS_NAME_FIRST;
             $customer->lastname = self::FYNDIQ_ORDERS_NAME_LAST;
             $customer->email = self::FYNDIQ_ORDERS_EMAIL;

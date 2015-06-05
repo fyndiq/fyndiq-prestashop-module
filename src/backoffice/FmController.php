@@ -104,7 +104,7 @@ class FmController
             } catch (Exception $e) {
                 $this->fmConfig->delete('username');
                 $this->fmConfig->delete('api_token');
-                return $this->fmOutput->showError($e->getMessage());
+                return $this->fmOutput->showModuleError($e->getMessage());
             }
         }
         return $this->fmOutput->render('authenticate', $this->data);
