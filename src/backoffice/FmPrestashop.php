@@ -219,20 +219,18 @@ class FmPrestashop
 
     public function getOrderContext()
     {
-        // mock the context for PS 1.4
-        $context = new stdClass();
-
-        // if the Presta Shop 1.5 and 1.6 is used, use the context class.
+        // if the PrestaShop 1.5 and 1.6 is used, use the context class.
         if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
             $context = Context::getContext();
-        } else {
-            $context->shop = new stdClass();
-            $context->country = new stdClass();
-            $context->currency = Currency::getDefaultCurrency();
-            $context->country = (int)Country::getDefaultCountryId();
-
+            $context->id_lang = self::DEFAULT_LANGUAGE_ID;
+            return $context;
         }
+        // mock the context for PS 1.4
+        $context = new stdClass();
+        $context->shop = new stdClass();
+        $context->country = new stdClass();
         $context->currency = Currency::getDefaultCurrency();
+        $context->country = (int)Country::getDefaultCountryId();
         $context->id_lang = self::DEFAULT_LANGUAGE_ID;
         return $context;
     }
@@ -481,8 +479,8 @@ class FmPrestashop
         return new Country($countryId, $languageId);
     }
 
-    public function newOrder($id = null, $id_lang = null)
+    public function newOrder($id = null, $idLang = null)
     {
-        return new Order($id, $id_lang);
+        return new Order($id, $idLang);
     }
 }
