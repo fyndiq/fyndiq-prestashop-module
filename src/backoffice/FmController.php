@@ -35,10 +35,9 @@ class FmController
         } catch (Exception $e) {
             if ($e->getMessage() == 'Unauthorized') {
                 return 'authenticate';
-            } else {
-                $this->data['message'] = $e->getMessage();
-                return 'api_unavailable';
             }
+            $this->data['message'] = $e->getMessage();
+            return 'api_unavailable';
         }
     }
 
