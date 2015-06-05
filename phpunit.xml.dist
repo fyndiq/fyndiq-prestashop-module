@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true" beStrictAboutOutputDuringTests="true">
+    <testsuites>
+        <testsuite name="Fyndiq Prestashop Module">
+            <directory>tests/src/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+            <exclude>
+                <file>src/fyndiqmerchant.php</file>
+                <directory suffix=".php">src/backoffice/includes/</directory>
+                <directory suffix=".php">src/controllers/</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>
