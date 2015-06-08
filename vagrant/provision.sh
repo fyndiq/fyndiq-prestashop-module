@@ -2,10 +2,20 @@
 
 PS_VERSION=prestashop_1.6.0.14.zip
 
+DOMAIN=prestashop.local
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASS=password123123
+COUNTRY=se
+
 apt-get update
 apt-get install -y build-essential vim-nox
 apt-get install -y unzip
 
+## Setup locales
+locale-gen en_GB.UTF-8
+dpkg-reconfigure locales
+
+## Install MySQL and PHP
 echo "mysql-server-5.5 mysql-server/root_password password 123" | sudo debconf-set-selections
 echo "mysql-server-5.5 mysql-server/root_password_again password 123" | sudo debconf-set-selections
 apt-get install -y mysql-server
@@ -27,7 +37,7 @@ composer self-update
 if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     cd /tmp
     wget --quiet http://www.prestashop.com/download/old/$PS_VERSION
-    unzip -o $PS_VERSION
+    unzip -o -p $PS_VERSION
     sudo rm ./$PS_VERSION
     mv prestashop /var/www/html/
 
@@ -39,7 +49,9 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     mysql -uroot -p123 -e 'create database prestashop'
 
     ## Run install
-    php /var/www/html/prestashop/install/index_cli.php --domain=prestashop.local --db_server=localhost --db_name=prestashop --db_user=root --db_password=123 --email=admin@example.com --password=password123123 --send_email=0 --country=se
+    php /var/www/html/prestashop/install/index_cli.php --domain=$DOMAIN \
+    --db_server=localhost --db_name=prestashop --db_user=root --db_password=123 \
+    --email=$ADMIN_EMAIL --password=$ADMIN_PASS --send_email=0 --country=$COUNTRY
 
     ## Move admin to admin1234
     mv /var/www/html/prestashop/admin /var/www/html/prestashop/admin1234
@@ -54,7 +66,7 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     chown -R vagrant:www-data /var/www/html/prestashop/
     chmod -R 775 /var/www/html/prestashop/
 
-    ## Add Fyndiq dev to hosts file
+    ## Add hosts to file
     echo "192.168.13.37  fyndiq.local" >> /etc/hosts
     echo "127.0.0.1  prestashop.local" >> /etc/hosts
 fi
