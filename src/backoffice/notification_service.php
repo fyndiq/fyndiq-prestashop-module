@@ -6,6 +6,7 @@ This file handles incoming requests from the automated notification system at Fy
 require_once('./service_init.php');
 require_once('./FmUtils.php');
 require_once('./FmConfig.php');
+require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
 require_once('./FmPrestashop.php');
 require_once('./models/FmApiModel.php');
@@ -41,7 +42,7 @@ class FmNotificationService
                 return $this->$eventName($params);
             }
         }
-        return $this->fmOutput->showError(400, 'Bad Request', 400 Bad Request);
+        return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
     }
 
     /**
