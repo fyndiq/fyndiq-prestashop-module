@@ -23,6 +23,17 @@ Specifically, it's required for the automated notification system to work.
 
 ## Development
 
+## Vagrant
+To use the vagrant box for development, go to `vagrant/` and run:
+
+```shell
+vagrant up
+```
+
+to bootstrap the machine.
+
+## Local development
+
 To develop the module, you can make s symbolic link to the `src/` directory into the modules directory in your Prestashop installation:
 
 ```shell
