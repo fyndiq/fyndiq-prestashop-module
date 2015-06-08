@@ -35,9 +35,12 @@ composer self-update
 
 ## Download and setup Prestashop
 if [ ! -f "/var/www/html/prestashop/index.php" ]; then
+    echo "=== Installing Prestashop from $PS_VERSION ==="
     cd /tmp
+    echo "Downloading $PS_VERSION ..."
     wget --quiet http://www.prestashop.com/download/old/$PS_VERSION
-    unzip -o -p $PS_VERSION
+    echo "Unzipping $PS_VERSION ..."
+    unzip -o -q $PS_VERSION
     sudo rm ./$PS_VERSION
     mv prestashop /var/www/html/
 
@@ -49,6 +52,7 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     mysql -uroot -p123 -e 'create database prestashop'
 
     ## Run install
+    echo "Installing $PS_VERSION ..."
     php /var/www/html/prestashop/install/index_cli.php --domain=$DOMAIN \
     --db_server=localhost --db_name=prestashop --db_user=root --db_password=123 \
     --email=$ADMIN_EMAIL --password=$ADMIN_PASS --send_email=0 --country=$COUNTRY
