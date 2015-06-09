@@ -117,6 +117,29 @@ class FmNotificationService
         $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
         return $productInfo->getAll();
     }
+
+    private function debug($params)
+    {
+        define('FYNDIQ_DEBUG', true);
+
+        $locked = false;
+        $lastPing = $this->fmConfig->get('ping_time');
+        if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
+            $locked = true;
+        }
+        FmUtils::debug('$lastPing', $lastPing);
+        FmUtils::debug('$locked', $locked);
+        $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
+        FmUtils::debug('$filePath', $filePath);
+        $file = fopen($filePath, 'w+');
+        FmUtils::debug('$file', $file);
+        $feedWriter = FmUtils::getFileWriter($file);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $languageId = $this->fmConfig->get('language');
+        FmUtils::debug('$languageId', $languageId);
+        $fmProductExport->saveFile($languageId, $feedWriter);
+        fclose($file);
+    }
 }
 
 $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
