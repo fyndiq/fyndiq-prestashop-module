@@ -20,7 +20,7 @@ class FmUtils
             $arguments = func_get_args();
             $name = array_shift($arguments);
             echo '<b>' . $name. '</b>' . ':<br/>';
-            foreach($arguments as $argument) {
+            foreach ($arguments as $argument) {
                 if (gettype($argument) == 'string') {
                     echo '<br/ ><pre>' . $argument . '</pre>';
                     continue;
