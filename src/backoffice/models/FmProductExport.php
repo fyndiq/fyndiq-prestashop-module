@@ -301,7 +301,7 @@ class FmProductExport extends FmModel
         $price = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
         $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
         $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
-        $exportProduct['product-brand'] = $storeProduct['manufacturer_name'];
+        $exportProduct['product-brand-name'] = $storeProduct['manufacturer_name'];
         $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
             $exportProduct['product-image-1-url'] = strval($storeProduct['image']);
