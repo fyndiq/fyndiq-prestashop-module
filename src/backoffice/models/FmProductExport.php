@@ -267,8 +267,8 @@ class FmProductExport extends FmModel
                 $id = 1;
                 foreach ($combination['attributes'] as $attribute) {
                     $productName[] = $attribute['name'] . ': ' . $attribute['value'];
-                    $exportProductCopy['article‑property‑name‑' . $id] = $attribute['name'];
-                    $exportProductCopy['article‑property‑value‑' . $id] = $attribute['value'];
+                    $exportProductCopy['article-property-' . $id . '-name'] = $attribute['name'];
+                    $exportProductCopy['article-property-' . $id . '-value'] = $attribute['value'];
                     $id++;
                 }
                 $exportProductCopy['article-name'] = implode(', ', $productName);
@@ -303,7 +303,7 @@ class FmProductExport extends FmModel
         $price = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
         $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
         $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
-        $exportProduct['product-brand'] = $storeProduct['manufacturer_name'];
+        $exportProduct['product-brand-name'] = $storeProduct['manufacturer_name'];
         $exportProduct['article-location'] = 'test';
         if (!empty($storeProduct['image'])) {
             $exportProduct['product-image-1-url'] = strval($storeProduct['image']);
