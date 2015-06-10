@@ -13,4 +13,21 @@ class FmUtils
     {
         return new FyndiqCSVFeedWriter($file);
     }
+
+    public static function debug()
+    {
+        if (defined('FYNDIQ_DEBUG') && FYNDIQ_DEBUG) {
+            $arguments = func_get_args();
+            $name = array_shift($arguments);
+            echo '<b>' . $name. '</b>' . ':<br/>';
+            foreach ($arguments as $argument) {
+                if (gettype($argument) == 'string') {
+                    echo '<br/ ><pre>' . $argument . '</pre>';
+                    continue;
+                }
+                var_dump($argument);
+            }
+            echo '<hr />';
+        }
+    }
 }
