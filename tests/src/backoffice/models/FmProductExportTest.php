@@ -331,7 +331,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'product-description' => 'description',
                     'product-price' => '1.53',
                     'product-oldprice' => '18.18',
-                    'product-brand' => 'manufacturer_name',
+                    'product-brand-name' => 'manufacturer_name',
                     'article-location' => 'test',
                     'product-title' => 'name',
                     'product-vat-percent' => 12,
@@ -339,8 +339,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'article-sku' => '15',
                     'product-image-1-url' => 'image.jpg',
                     'product-image-1-identifier' => '1-1',
-                    'article‑property‑name‑1' => 'name',
-                    'article‑property‑value‑1' => 'value',
+                    'article-property-1-name' => 'name',
+                    'article-property-1-value' => 'value',
                     'article-name' => 'name: value',
                 ))
             );
@@ -356,7 +356,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 'product-description' => 'description3',
                 'product-price' => '4.40',
                 'product-oldprice' => '36.66',
-                'product-brand' => 'manufacturer_name3',
+                'product-brand-name' => 'manufacturer_name3',
                 'article-location' => 'test',
                 'product-title' => 'name3',
                 'product-vat-percent' => 312,
