@@ -266,8 +266,8 @@ class FmProductExport extends FmModel
                 $id = 1;
                 foreach ($combination['attributes'] as $attribute) {
                     $productName[] = $attribute['name'] . ': ' . $attribute['value'];
-                    $exportProductCopy['article‑property‑name‑' . $id] = $attribute['name'];
-                    $exportProductCopy['article‑property‑value‑' . $id] = $attribute['value'];
+                    $exportProductCopy['article-property-' . $id . '-name'] = $attribute['name'];
+                    $exportProductCopy['article-property-' . $id . '-value'] = $attribute['value'];
                     $id++;
                 }
                 $exportProductCopy['article-name'] = implode(', ', $productName);
