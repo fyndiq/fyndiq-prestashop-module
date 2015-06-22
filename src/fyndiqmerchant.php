@@ -27,11 +27,15 @@ class FyndiqMerchant extends Module
         $this->version = FmUtils::VERSION;
         $this->author = 'Fyndiq AB';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6');
+        $this->ps_versions_compliancy = array('min' => '1.4.0', 'max' => '1.6');
 
         parent::__construct();
-        //Init translations
-        FyndiqTranslation::init(Language::getIsoById($this->context->language->id));
+
+        // Initialize translations
+        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+        $languageId = $fmPrestashop->getLanguageId();
+        FyndiqTranslation::init(Language::getIsoById($languageId));
+
         $this->displayName = 'Fyndiq';
         $this->description = FyndiqTranslation::get('module-description');
         $this->confirmUninstall = FyndiqTranslation::get('uninstall-confirm');
@@ -134,7 +138,7 @@ class FyndiqMerchant extends Module
     public function getContent()
     {
         $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $fmOutput = new FmOutput($fmPrestashop, $this, $this->context->smarty);
+        $fmOutput = new FmOutput($fmPrestashop, $this, $fmPrestashop->contextGetContext()->smarty);
         $fmConfig = new FmConfig($fmPrestashop);
         $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));
         $controller = new FmController($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);

@@ -24,14 +24,17 @@ apt-get install -y apache2 php5 php5-mysql php5-gd php5-mcrypt php5-curl
 # Install scss
 sudo gem install sass
 
-###########################################################
-# COMPOSER
-###########################################################
-
+## COMPOSER
 if [ ! -e '/usr/local/bin/composer' ]; then
     curl -sS https://getcomposer.org/installer | php
     mv composer.phar /usr/local/bin/composer
 fi
+
+## PHP error_log
+if [ ! -f '/etc/php5/apache2/conf.d/30-error_log.ini' ]; then
+    echo 'error_log=/tmp/php_error.log' > /etc/php5/apache2/conf.d/30-error_log.ini
+fi
+
 
 composer self-update
 
@@ -73,6 +76,6 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     chmod -R 775 /var/www/html/prestashop/
 
     ## Add hosts to file
-    echo "192.168.13.37  fyndiq.local" >> /etc/hosts
+    echo "192.168.44.44  fyndiq.local" >> /etc/hosts
     echo "127.0.0.1  prestashop.local" >> /etc/hosts
 fi

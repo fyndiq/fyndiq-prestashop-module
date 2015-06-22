@@ -15,6 +15,7 @@ class FmPrestashop
     public $version = '';
     public $moduleName = '';
     private $categoryCache = array();
+    private $context;
 
     public function __construct($moduleName)
     {
@@ -42,7 +43,11 @@ class FmPrestashop
     {
         $url = $this->getBaseModuleUrl();
         $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
-        $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        if ($this->isPs1516()) {
+            $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        } else {
+            $url .= "/index.php?tab=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        }
         $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
         return $url;
     }
@@ -338,7 +343,7 @@ class FmPrestashop
 
     public function toolsRedirect($url)
     {
-        return Tools::redirect($url);
+        return Tools::redirect($url, '');
     }
 
     public function toolsEncrypt($string)
@@ -395,7 +400,26 @@ class FmPrestashop
     // Context
     public function contextGetContext()
     {
-        return Context::getContext();
+        if ($this->context) {
+            return $this->context;
+        }
+
+        if ($this->isPs1516()) {
+            $this->context = Context::getContext();
+            return $this->context;
+        }
+        global $cookie, $smarty;
+
+        // mock the context for PS 1.4
+        $this->context = new stdClass();
+        $this->context->shop = new stdClass();
+        $this->context->id_lang = self::DEFAULT_LANGUAGE_ID;
+        $this->context->smarty = $smarty;
+
+        $this->context->currency = new Currency((int)$cookie->id_currency);
+        $this->context->language = new Language((int)$cookie->id_lang);
+        $this->context->country = new Country((int)$cookie->id_country);
+        return $this->context;
     }
 
     // DB
