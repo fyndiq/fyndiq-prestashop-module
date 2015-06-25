@@ -2,7 +2,7 @@
 <style type="text/css">
     {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
-<div class="fm-container">
+<div class="fm-container {$version}">
 
     {include file='./header.tpl' current='settings' buttons=true}
 
