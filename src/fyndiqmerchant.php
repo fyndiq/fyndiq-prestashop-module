@@ -32,8 +32,8 @@ class FyndiqMerchant extends Module
         parent::__construct();
 
         // Initialize translations
-        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $languageId = $fmPrestashop->getLanguageId();
+        $this->fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+        $languageId = $this->fmPrestashop->getLanguageId();
         FyndiqTranslation::init(Language::getIsoById($languageId));
 
         $this->displayName = 'Fyndiq';
@@ -56,10 +56,9 @@ class FyndiqMerchant extends Module
         // Create tab
         $ret &= $this->installTab();
 
-        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $fmConfig = new FmConfig($fmPrestashop);
-        $fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
-        $fmOrder = new FmOrder($fmPrestashop, $fmConfig);
+        $fmConfig = new FmConfig($this->fmPrestashop);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
+        $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
 
         // create product mapping database
         $ret &= $fmProductExport->install();
@@ -76,10 +75,9 @@ class FyndiqMerchant extends Module
 
         $ret &= (bool)parent::uninstall();
 
-        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $fmConfig = new FmConfig($fmPrestashop);
-        $fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
-        $fmOrder = new FmOrder($fmPrestashop, $fmConfig);
+        $fmConfig = new FmConfig($this->fmPrestashop);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
+        $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
 
         // Delete configuration
         $ret &= (bool)$fmConfig->delete('username');
@@ -135,13 +133,26 @@ class FyndiqMerchant extends Module
         return false;
     }
 
+    private function setAdminPathCookie()
+    {
+        global $cookie;
+        $fyCookie = new Cookie(FmUtils::MODULE_NAME);
+        $fyCookie->adminPath = $cookie->_path;
+        $fyCookie->id_currency = $cookie->id_currency;
+        $fyCookie->id_lang = $cookie->id_lang;
+        $fyCookie->id_country = $cookie->id_country;
+        $fyCookie->write();
+    }
+
     public function getContent()
     {
-        $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $fmOutput = new FmOutput($fmPrestashop, $this, $fmPrestashop->contextGetContext()->smarty);
-        $fmConfig = new FmConfig($fmPrestashop);
+        if (!$this->fmPrestashop->isPs1516()) {
+            $this->setAdminPathCookie();
+        }
+        $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
+        $fmConfig = new FmConfig($this->fmPrestashop);
         $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));
-        $controller = new FmController($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
+        $controller = new FmController($this->fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }
 

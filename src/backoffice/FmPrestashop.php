@@ -446,6 +446,13 @@ class FmPrestashop
         return Product::getQuantity($productId);
     }
 
+    public function productGetTaxRate($product) {
+        if ($this->isPs1516()) {
+            return $product->getTaxesRate();
+        }
+        return $product->tax_rate;
+    }
+
     // Address
     public function newAddress($idAddress = null, $idLang = null)
     {

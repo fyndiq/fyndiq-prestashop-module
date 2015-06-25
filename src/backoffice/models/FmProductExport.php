@@ -137,7 +137,7 @@ class FmProductExport extends FmModel
         $result['name'] = $product->name;
         $result['category_id'] = $this->getCategoryId($product->getCategories());
         $result['reference'] = $product->reference;
-        $result['tax_rate'] = $product->getTaxesRate();
+        $result['tax_rate'] = $this->fmPrestashop->productGetTaxRate($product);
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
         $result['price'] = $this->fmPrestashop->getPrice($product->price);
         $result['description'] = $product->description;
