@@ -309,7 +309,8 @@
 .info {
   margin: 1em; }
 
-.fm-product-list-controls, .fm-order-list-controls {
+.fm-product-list-controls,
+.fm-order-list-controls {
   overflow: auto; }
 
 .export {
@@ -377,4 +378,9 @@
   background-color: #e7eef4 !important; }
 
 #content.nobootstrap {
+  margin-left: 0;
   padding: 62px 0 0; }
+
+.fm-container {
+  padding-left: 210px;
+  width: auto; }
