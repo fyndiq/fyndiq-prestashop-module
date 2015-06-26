@@ -39,7 +39,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $productId = 1;
         $expPricePercentage = 12;
 
-        $this->db->method('insert')
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbInsert')
             ->with(
                 $this->equalTo('test_products'),
                 $this->equalTo(array(
@@ -58,7 +59,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $productId = 1;
         $expPricePercentage = 12;
 
-        $this->db->method('update')
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbUpdate')
             ->with(
                 $this->equalTo('test_products'),
                 $this->equalTo(array(
@@ -77,12 +79,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
     {
         $productId = 1;
 
-        $this->db->method('delete')
-            ->with(
-                $this->equalTo('test_products'),
-                $this->equalTo('product_id = 1'),
-                $this->equalTo(1)
-            )
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbDelete')
             ->willReturn(true);
 
         $result = $this->fmProductExport->deleteProduct($productId);
@@ -199,6 +197,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn($manufaturerName);
 
+        $this->fmPrestashop->method('productGetTaxRate')->willReturn(12);
+
         $this->fmPrestashop->expects($this->once())
             ->method('getProductAttributes')
             ->with(
@@ -210,6 +210,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'id_product_attribute' => 1,
                     'price' => 3,
                     'quantity' => 5,
+                    'reference' => 'reference5',
                     'group_name' => 'group_name_7',
                     'attribute_name' => 'attribute_name_9',
                 ),
@@ -217,6 +218,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'id_product_attribute' => 2,
                     'price' => 4,
                     'quantity' => 6,
+                    'reference' => 'reference5',
                     'group_name' => 'group_name_8',
                     'attribute_name' => 'attribute_name_10',
                 ),
