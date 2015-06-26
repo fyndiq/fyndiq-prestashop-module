@@ -165,13 +165,15 @@ class FmPrestashop
         return $product->$getAttrCombinations[$this->version]($languageId);
     }
 
-    public function getPrice($price)
+    public function getPrice($product, $attributePrice = 0)
     {
+        $price = $product->price + $attributePrice;
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
         $currency = new Currency(Configuration::get($this->getModuleName() . '_currency'));
-        $convertedPrice = $price * $currency->conversion_rate;
-
-        return Tools::ps_round($convertedPrice, 2);
+        if ($currency->conversion_rate) {
+            $price = $price * $currency->conversion_rate;
+        }
+        return Tools::ps_round($price, 2);
     }
 
     public function getModuleName($moduleName = '')
@@ -493,7 +495,7 @@ class FmPrestashop
         if ($this->isPs1516()) {
             return $product->getTaxesRate();
         }
-        return $product->tax_rate;
+        return Tax::getProductTaxRate($product->id, null);
     }
 
     // Address

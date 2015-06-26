@@ -137,7 +137,7 @@ class FmProductExport extends FmModel
         $result['reference'] = $product->reference;
         $result['tax_rate'] = $this->fmPrestashop->productGetTaxRate($product);
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
-        $result['price'] = $this->fmPrestashop->getPrice($product->price);
+        $result['price'] = $this->fmPrestashop->getPrice($product);
         $result['description'] = $product->description;
         $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
             (int)$product->id_manufacturer
@@ -165,11 +165,13 @@ class FmProductExport extends FmModel
         foreach ($productAttributes as $productAttribute) {
             $id = $productAttribute['id_product_attribute'];
             $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
-
             $result['combinations'][$id]['id'] = $id;
-            $result['combinations'][$id]['reference'] = $comboProduct->reference;
+            $result['combinations'][$id]['reference'] = $productAttribute['reference'];
+            if ($this->fmPrestashop->isPs1516()) {
+                $result['combinations'][$id]['reference'] = $comboProduct->reference;
+            }
             $result['combinations'][$id]['price'] =
-                $this->fmPrestashop->getPrice($product->price + $productAttribute['price']);
+                $this->fmPrestashop->getPrice($product, $productAttribute['price']);
             $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
                 'name' => $productAttribute['group_name'],
