@@ -73,11 +73,11 @@ class FmProductExport extends FmModel
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
             state varchar(64) default NULL);';
-        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql);
+        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $sql = 'CREATE UNIQUE INDEX productIndex
             ON ' . $tableName . ' (product_id);';
-        $ret &= (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql);
+        $ret &= (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $exportPath = $this->fmPrestashop->getExportPath();
         $ret &= $this->fmPrestashop->forceCreateDir($exportPath, 0775);

@@ -33,10 +33,10 @@ class FmOrder extends FmModel
             id int(20) unsigned primary key AUTO_INCREMENT,
             fyndiq_orderid INT(10),
             order_id INT(10));';
-        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, 0);
+        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $sql = 'CREATE UNIQUE INDEX orderIndex ON ' . $tableName . ' (fyndiq_orderid);';
-        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, 0);
+        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         return (bool)$res;
     }
