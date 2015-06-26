@@ -26,15 +26,19 @@ class FmOrder extends FmModel
      */
     public function install()
     {
+        $res = true;
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        return (bool)$this->fmPrestashop->dbGetInstance()->Execute(
-            'CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
+
+        $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             fyndiq_orderid INT(10),
-            order_id INT(10));
-            CREATE UNIQUE INDEX orderIndex
-            ON ' . $tableName . ' (fyndiq_orderid);'
-        );
+            order_id INT(10));';
+        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, 0);
+
+        $sql = 'CREATE UNIQUE INDEX orderIndex ON ' . $tableName . ' (fyndiq_orderid);';
+        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, 0);
+
+        return (bool)$res;
     }
 
     public function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)

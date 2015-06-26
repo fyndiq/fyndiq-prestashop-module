@@ -428,6 +428,17 @@ class FmPrestashop
         return Db::getInstance();
     }
 
+    public function dbUpdate($table, $data, $where = '', $limit = 0, $nullValues = false, $useCache = true, $addPrefix = true) {
+        if ($this->isPs1516()) {
+            return $this->dbGetInstance()->update(
+                $table, $data, $where, $limit, $nullValues, $useCache, $addPrefix
+            );
+        }
+        return $this->dbGetInstance()->autoExecute(
+            $table, $data, 'UPDATE', $where, $limit, $useCache
+        );
+    }
+
     // Manufacturer
     public function manufacturerGetNameById($manufacturerId)
     {

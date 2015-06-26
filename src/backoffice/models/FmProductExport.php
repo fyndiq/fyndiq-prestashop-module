@@ -36,7 +36,7 @@ class FmProductExport extends FmModel
         $data = array(
             'exported_price_percentage' => $expPricePercentage
         );
-        return (bool)$this->fmPrestashop->dbGetInstance()->update(
+        return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
             $data,
             'product_id = "' . $productId . '"',
@@ -72,11 +72,12 @@ class FmProductExport extends FmModel
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
-            state varchar(64) default NULL);
-
-            CREATE UNIQUE INDEX productIndex
-            ON ' . $tableName . ' (product_id);';
+            state varchar(64) default NULL);';
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql);
+
+        $sql = 'CREATE UNIQUE INDEX productIndex
+            ON ' . $tableName . ' (product_id);';
+        $ret &= (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql);
 
         $exportPath = $this->fmPrestashop->getExportPath();
         $ret &= $this->fmPrestashop->forceCreateDir($exportPath, 0775);
