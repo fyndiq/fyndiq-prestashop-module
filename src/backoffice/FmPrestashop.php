@@ -8,6 +8,8 @@ class FmPrestashop
     const FMPSV15 = 'FMPSV15';
     const FMPSV16 = 'FMPSV16';
 
+    const DB_INSERT = 1;
+
     const DEFAULT_LANGUAGE_ID = 1;
 
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
@@ -435,8 +437,32 @@ class FmPrestashop
             );
         }
         return $this->dbGetInstance()->autoExecute(
-            $table, $data, 'UPDATE', $where, $limit, $useCache
+            $this->globDbPrefix() . $table, $data, 'UPDATE', $where, $limit, $useCache
         );
+    }
+
+    public function dbInsert($table, $data, $nullValues = false, $useCache = true, $type = self::DB_INSERT, $addPrefix = true) {
+        if ($this->isPs1516()) {
+            return $this->dbGetInstance()->insert(
+                $table, $data, $nullValues, $useCache, $type, $addPrefix
+            );
+        }
+        return $this->dbGetInstance()->autoExecute(
+            $this->globDbPrefix() . $table, $data, 'INSERT', false, false, $useCache
+        );
+    }
+
+    public function dbDelete($table, $where = '', $limit = 0, $useCache = true, $addPrefix = true)
+    {
+        if ($this->isPs1516()) {
+            return $this->fmPrestashop->dbGetInstance()->delete(
+                $table, $where, $limit, $useCache, $addPrefix
+            );
+        }
+        return $this->dbGetInstance()->delete(
+            $this->globDbPrefix() . $table, $where, $limit, $useCache
+        );
+
     }
 
     // Manufacturer

@@ -369,7 +369,7 @@ class FmOrder extends FmModel
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,
         );
-        return (bool)$this->fmPrestashop->dbGetInstance()->insert(
+        return (bool)$this->fmPrestashop->dbInsert(
             $tableName,
             $data
         );

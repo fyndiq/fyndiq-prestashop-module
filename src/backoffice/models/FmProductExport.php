@@ -25,10 +25,7 @@ class FmProductExport extends FmModel
             'product_id' => (int)$productId,
             'exported_price_percentage' => $expPricePercentage
         );
-        return $this->fmPrestashop->dbGetInstance()->insert(
-            $this->tableName,
-            $data
-        );
+        return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
     public function updateProduct($productId, $expPricePercentage)
@@ -46,7 +43,7 @@ class FmProductExport extends FmModel
 
     public function deleteProduct($productId)
     {
-        return (bool)$this->fmPrestashop->dbGetInstance()->delete(
+        return (bool)$this->fmPrestashop->dbDelete(
             $this->tableName,
             'product_id = ' . $productId,
             1
@@ -56,7 +53,7 @@ class FmProductExport extends FmModel
     public function getProduct($productId)
     {
         $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) .
-            ' WHERE product_id= ' . $productId . ';';
+            ' WHERE product_id= ' . $productId;
         return $this->fmPrestashop->dbGetInstance()->getRow($sql);
     }
 
