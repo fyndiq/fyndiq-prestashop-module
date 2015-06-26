@@ -227,7 +227,7 @@ class FmPrestashop
     public function getOrderContext()
     {
         // if the PrestaShop 1.5 and 1.6 is used, use the context class.
-        if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
+        if ($this->isPs1516()) {
             $context = Context::getContext();
             $context->id_lang = self::DEFAULT_LANGUAGE_ID;
             $context->currency = Currency::getDefaultCurrency();
@@ -269,7 +269,7 @@ class FmPrestashop
      */
     public function getExportFileName()
     {
-        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+        if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
             return sprintf(self::EXPORT_FILE_NAME_PATTERN, self::getCurrentShopId());
         }
         // fallback to 0 for non-multistore setups
@@ -418,9 +418,15 @@ class FmPrestashop
         $this->context->id_lang = self::DEFAULT_LANGUAGE_ID;
         $this->context->smarty = $smarty;
 
-        $this->context->currency = new Currency((int)$cookie->id_currency);
-        $this->context->language = new Language((int)$cookie->id_lang);
-        $this->context->country = new Country((int)$cookie->id_country);
+        if (isset($cookie->id_currency)) {
+            $this->context->currency = new Currency((int)$cookie->id_currency);
+            $this->context->language = new Language((int)$cookie->id_lang);
+            $this->context->country = new Country((int)$cookie->id_country);
+            return $this->context;
+        }
+        $this->context->currency = Currency::getDefaultCurrency();
+        $this->context->country = new Country((int)Country::getDefaultCountryId());
+        $this->context->language = new Language((int)$this->context->id_lang);
         return $this->context;
     }
 
