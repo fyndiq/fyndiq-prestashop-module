@@ -167,9 +167,6 @@ class FmProductExport extends FmModel
             $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
             $result['combinations'][$id]['id'] = $id;
             $result['combinations'][$id]['reference'] = $productAttribute['reference'];
-            if ($this->fmPrestashop->isPs1516()) {
-                $result['combinations'][$id]['reference'] = $comboProduct->reference;
-            }
             $result['combinations'][$id]['price'] =
                 $this->fmPrestashop->getPrice($product, $productAttribute['price']);
             $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];

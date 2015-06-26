@@ -108,7 +108,7 @@ class FyndiqMerchant extends Module
     {
         $tab = new Tab();
         $tab->active = 1;
-        $tab->class_name = 'AdminPage';
+        $tab->class_name = 'FyndiqPage';
         $tab->name = array();
         foreach (Language::getLanguages(true) as $lang) {
             $tab->name[$lang['id_lang']] = 'Fyndiq';
@@ -125,7 +125,7 @@ class FyndiqMerchant extends Module
      */
     private function uninstallTab()
     {
-        $idTab = (int)Tab::getIdFromClassName('AdminPage');
+        $idTab = (int)Tab::getIdFromClassName('FyndiqPage');
         if ($idTab) {
             $tab = new Tab($idTab);
             return $tab->delete();

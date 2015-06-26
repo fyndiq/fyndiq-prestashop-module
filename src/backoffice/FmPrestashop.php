@@ -109,7 +109,7 @@ class FmPrestashop
 
     public function getShopUrl()
     {
-        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+        if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
             $shop = new Shop($this->getCurrentShopId());
             return $shop->getBaseURL();
         }
@@ -224,25 +224,6 @@ class FmPrestashop
     {
         $currentState = $this->getOrderState($state);
         return $currentState->name[1];
-    }
-
-    public function getOrderContext()
-    {
-        // if the PrestaShop 1.5 and 1.6 is used, use the context class.
-        if ($this->isPs1516()) {
-            $context = Context::getContext();
-            $context->id_lang = self::DEFAULT_LANGUAGE_ID;
-            $context->currency = Currency::getDefaultCurrency();
-            return $context;
-        }
-        // mock the context for PS 1.4
-        $context = new stdClass();
-        $context->shop = new stdClass();
-        $context->country = new stdClass();
-        $context->currency = Currency::getDefaultCurrency();
-        $context->country = (int)Country::getDefaultCountryId();
-        $context->id_lang = self::DEFAULT_LANGUAGE_ID;
-        return $context;
     }
 
     public function newPrestashopOrder()
@@ -417,10 +398,13 @@ class FmPrestashop
         // mock the context for PS 1.4
         $this->context = new stdClass();
         $this->context->shop = new stdClass();
+        $this->context->shop->id = Shop::getCurrentShop();
+        $this->context->shop->id_shop_group = 1;
+
         $this->context->id_lang = self::DEFAULT_LANGUAGE_ID;
         $this->context->smarty = $smarty;
 
-        if (isset($cookie->id_currency)) {
+        if (!empty($cookie->id_currency)) {
             $this->context->currency = new Currency((int)$cookie->id_currency);
             $this->context->language = new Language((int)$cookie->id_lang);
             $this->context->country = new Country((int)$cookie->id_country);

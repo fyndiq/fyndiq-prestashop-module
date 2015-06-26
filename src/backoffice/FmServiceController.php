@@ -22,7 +22,11 @@ class FmServiceController
         }
         $action = $params['action'];
         $args = isset($params['args']) && is_array($params['args']) ? $params['args'] : array();
-        return $this->fmOutput->renderJSON($this->routeRequest($action, $args));
+        $response = $this->routeRequest($action, $args);
+        if ($response) {
+            return $this->fmOutput->renderJSON($response);
+        }
+        return true;
     }
 
     public function routeRequest($action, $args)
@@ -54,10 +58,11 @@ class FmServiceController
                     );
             }
         } catch (Exception $e) {
-            return $this->fmOutput->responseError(
+            $this->fmOutput->responseError(
                 FyndiqTranslation::get('unhandled-error-title'),
                 FyndiqTranslation::get('unhandled-error-message') . ' (' . $e->getMessage() . ')'
             );
+            return null;
         }
     }
 
@@ -160,7 +165,10 @@ class FmServiceController
             foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
-            $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
+            $url = 'index.php?tab=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
+            if ($this->fmPrestashop->isPs1516()) {
+                $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
+            }
             $url .= '&token=' . $this->fmPrestashop->getAdminTokenLite();
             $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
             $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
