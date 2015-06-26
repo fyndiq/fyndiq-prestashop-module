@@ -422,25 +422,48 @@ class FmPrestashop
         return Db::getInstance();
     }
 
-    public function dbUpdate($table, $data, $where = '', $limit = 0, $nullValues = false, $useCache = true, $addPrefix = true) {
+    public function dbUpdate($table, $data, $where = '', $limit = 0, $nullValues = false, $useCache = true, $addPrefix = true)
+    {
         if ($this->isPs1516()) {
             return $this->dbGetInstance()->update(
-                $table, $data, $where, $limit, $nullValues, $useCache, $addPrefix
+                $table,
+                $data,
+                $where,
+                $limit,
+                $nullValues,
+                $useCache,
+                $addPrefix
             );
         }
         return $this->dbGetInstance()->autoExecute(
-            $this->globDbPrefix() . $table, $data, 'UPDATE', $where, $limit, $useCache
+            $this->globDbPrefix() . $table,
+            $data,
+            'UPDATE',
+            $where,
+            $limit,
+            $useCache
         );
     }
 
-    public function dbInsert($table, $data, $nullValues = false, $useCache = true, $type = self::DB_INSERT, $addPrefix = true) {
+    public function dbInsert($table, $data, $nullValues = false, $useCache = true, $type = self::DB_INSERT, $addPrefix = true)
+    {
         if ($this->isPs1516()) {
             return $this->dbGetInstance()->insert(
-                $table, $data, $nullValues, $useCache, $type, $addPrefix
+                $table,
+                $data,
+                $nullValues,
+                $useCache,
+                $type,
+                $addPrefix
             );
         }
         return $this->dbGetInstance()->autoExecute(
-            $this->globDbPrefix() . $table, $data, 'INSERT', false, false, $useCache
+            $this->globDbPrefix() . $table,
+            $data,
+            'INSERT',
+            false,
+            false,
+            $useCache
         );
     }
 
@@ -448,11 +471,18 @@ class FmPrestashop
     {
         if ($this->isPs1516()) {
             return $this->fmPrestashop->dbGetInstance()->delete(
-                $table, $where, $limit, $useCache, $addPrefix
+                $table,
+                $where,
+                $limit,
+                $useCache,
+                $addPrefix
             );
         }
         return $this->dbGetInstance()->delete(
-            $this->globDbPrefix() . $table, $where, $limit, $useCache
+            $this->globDbPrefix() . $table,
+            $where,
+            $limit,
+            $useCache
         );
 
     }
@@ -475,7 +505,8 @@ class FmPrestashop
         return Product::getQuantity($productId);
     }
 
-    public function productGetTaxRate($product) {
+    public function productGetTaxRate($product)
+    {
         if ($this->isPs1516()) {
             return $product->getTaxesRate();
         }

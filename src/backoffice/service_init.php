@@ -57,4 +57,3 @@ if ($fmPrestashop->isPs1516()) {
         $context->shop = new Shop($shop_id);
     }
 }
-

@@ -35,7 +35,6 @@ if [ ! -f '/etc/php5/apache2/conf.d/30-error_log.ini' ]; then
     echo 'error_log=/tmp/php_error.log' > /etc/php5/apache2/conf.d/30-error_log.ini
 fi
 
-
 composer self-update
 
 ## Download and setup Prestashop
