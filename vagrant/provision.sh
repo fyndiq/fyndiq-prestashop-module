@@ -73,6 +73,6 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     chmod -R 775 /var/www/html/prestashop/
 
     ## Add hosts to file
-    echo "192.168.13.37  fyndiq.local" >> /etc/hosts
+    echo "192.168.44.44  fyndiq.local" >> /etc/hosts
     echo "127.0.0.1  prestashop.local" >> /etc/hosts
 fi
