@@ -470,7 +470,7 @@ class FmPrestashop
     public function dbDelete($table, $where = '', $limit = 0, $useCache = true, $addPrefix = true)
     {
         if ($this->isPs1516()) {
-            return $this->fmPrestashop->dbGetInstance()->delete(
+            return $this->dbGetInstance()->delete(
                 $table,
                 $where,
                 $limit,
