@@ -8,6 +8,8 @@ class FmPrestashop
     const FMPSV15 = 'FMPSV15';
     const FMPSV16 = 'FMPSV16';
 
+    const DB_INSERT = 1;
+
     const DEFAULT_LANGUAGE_ID = 1;
 
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
@@ -15,6 +17,7 @@ class FmPrestashop
     public $version = '';
     public $moduleName = '';
     private $categoryCache = array();
+    private $context;
 
     public function __construct($moduleName)
     {
@@ -42,7 +45,11 @@ class FmPrestashop
     {
         $url = $this->getBaseModuleUrl();
         $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
-        $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        if ($this->isPs1516()) {
+            $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        } else {
+            $url .= "/index.php?tab=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
+        }
         $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
         return $url;
     }
@@ -102,7 +109,7 @@ class FmPrestashop
 
     public function getShopUrl()
     {
-        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+        if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
             $shop = new Shop($this->getCurrentShopId());
             return $shop->getBaseURL();
         }
@@ -158,13 +165,15 @@ class FmPrestashop
         return $product->$getAttrCombinations[$this->version]($languageId);
     }
 
-    public function getPrice($price)
+    public function getPrice($product, $attributePrice = 0)
     {
+        $price = $product->price + $attributePrice;
         // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
         $currency = new Currency(Configuration::get($this->getModuleName() . '_currency'));
-        $convertedPrice = $price * $currency->conversion_rate;
-
-        return Tools::ps_round($convertedPrice, 2);
+        if ($currency->conversion_rate) {
+            $price = $price * $currency->conversion_rate;
+        }
+        return Tools::ps_round($price, 2);
     }
 
     public function getModuleName($moduleName = '')
@@ -217,25 +226,6 @@ class FmPrestashop
         return $currentState->name[1];
     }
 
-    public function getOrderContext()
-    {
-        // if the PrestaShop 1.5 and 1.6 is used, use the context class.
-        if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
-            $context = Context::getContext();
-            $context->id_lang = self::DEFAULT_LANGUAGE_ID;
-            $context->currency = Currency::getDefaultCurrency();
-            return $context;
-        }
-        // mock the context for PS 1.4
-        $context = new stdClass();
-        $context->shop = new stdClass();
-        $context->country = new stdClass();
-        $context->currency = Currency::getDefaultCurrency();
-        $context->country = (int)Country::getDefaultCountryId();
-        $context->id_lang = self::DEFAULT_LANGUAGE_ID;
-        return $context;
-    }
-
     public function newPrestashopOrder()
     {
         // Create an order
@@ -262,7 +252,7 @@ class FmPrestashop
      */
     public function getExportFileName()
     {
-        if (Shop::getContext() === Shop::CONTEXT_SHOP) {
+        if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
             return sprintf(self::EXPORT_FILE_NAME_PATTERN, self::getCurrentShopId());
         }
         // fallback to 0 for non-multistore setups
@@ -338,7 +328,7 @@ class FmPrestashop
 
     public function toolsRedirect($url)
     {
-        return Tools::redirect($url);
+        return Tools::redirect($url, '');
     }
 
     public function toolsEncrypt($string)
@@ -395,13 +385,106 @@ class FmPrestashop
     // Context
     public function contextGetContext()
     {
-        return Context::getContext();
+        if ($this->context) {
+            return $this->context;
+        }
+
+        if ($this->isPs1516()) {
+            $this->context = Context::getContext();
+            return $this->context;
+        }
+        global $cookie, $smarty;
+
+        // mock the context for PS 1.4
+        $this->context = new stdClass();
+        $this->context->shop = new stdClass();
+        $this->context->shop->id = Shop::getCurrentShop();
+        $this->context->shop->id_shop_group = 1;
+
+        $this->context->id_lang = self::DEFAULT_LANGUAGE_ID;
+        $this->context->smarty = $smarty;
+
+        if (!empty($cookie->id_currency)) {
+            $this->context->currency = new Currency((int)$cookie->id_currency);
+            $this->context->language = new Language((int)$cookie->id_lang);
+            $this->context->country = new Country((int)$cookie->id_country);
+            return $this->context;
+        }
+        $this->context->currency = Currency::getDefaultCurrency();
+        $this->context->country = new Country((int)Country::getDefaultCountryId());
+        $this->context->language = new Language((int)$this->context->id_lang);
+        return $this->context;
     }
 
     // DB
     public function dbGetInstance()
     {
         return Db::getInstance();
+    }
+
+    public function dbUpdate($table, $data, $where = '', $limit = 0, $nullValues = false, $useCache = true, $addPrefix = true)
+    {
+        if ($this->isPs1516()) {
+            return $this->dbGetInstance()->update(
+                $table,
+                $data,
+                $where,
+                $limit,
+                $nullValues,
+                $useCache,
+                $addPrefix
+            );
+        }
+        return $this->dbGetInstance()->autoExecute(
+            $this->globDbPrefix() . $table,
+            $data,
+            'UPDATE',
+            $where,
+            $limit,
+            $useCache
+        );
+    }
+
+    public function dbInsert($table, $data, $nullValues = false, $useCache = true, $type = self::DB_INSERT, $addPrefix = true)
+    {
+        if ($this->isPs1516()) {
+            return $this->dbGetInstance()->insert(
+                $table,
+                $data,
+                $nullValues,
+                $useCache,
+                $type,
+                $addPrefix
+            );
+        }
+        return $this->dbGetInstance()->autoExecute(
+            $this->globDbPrefix() . $table,
+            $data,
+            'INSERT',
+            false,
+            false,
+            $useCache
+        );
+    }
+
+    public function dbDelete($table, $where = '', $limit = 0, $useCache = true, $addPrefix = true)
+    {
+        if ($this->isPs1516()) {
+            return $this->fmPrestashop->dbGetInstance()->delete(
+                $table,
+                $where,
+                $limit,
+                $useCache,
+                $addPrefix
+            );
+        }
+        return $this->dbGetInstance()->delete(
+            $this->globDbPrefix() . $table,
+            $where,
+            $limit,
+            $useCache
+        );
+
     }
 
     // Manufacturer
@@ -420,6 +503,14 @@ class FmPrestashop
     public function productGetQuantity($productId)
     {
         return Product::getQuantity($productId);
+    }
+
+    public function productGetTaxRate($product)
+    {
+        if ($this->isPs1516()) {
+            return $product->getTaxesRate();
+        }
+        return Tax::getProductTaxRate($product->id, null);
     }
 
     // Address

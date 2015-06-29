@@ -19,6 +19,7 @@ class FmOutput extends FyndiqOutput
         $this->smarty->assign(array_merge(
             $args,
             array(
+                'version' => strtolower($this->fmPrestashop->version),
                 'server_path' => $this->fmPrestashop->globalPsRootDir() . '/modules/' . $this->module->name,
                 'module_path' => $this->module->get('_path'),
                 'shared_path' => $this->module->get('_path') . 'backoffice/includes/shared/',

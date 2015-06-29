@@ -291,7 +291,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->fmPrestashop->expects($this->once())
-            ->method('getOrderContext')
+            ->method('contextGetContext')
             ->willReturn((object)array(
                 'country' => (object)array(
                     'id' => $countryId
@@ -596,7 +596,9 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
     public function testAddOrderLog()
     {
-        $this->db->expects($this->once())->method('insert')->willReturn(true);
+        $this->fmPrestashop->expects($this->once())
+            ->method('dbInsert')
+            ->willReturn(true);
         $result = $this->fmOrder->addOrderLog(1, 2);
         $this->assertTrue($result);
     }

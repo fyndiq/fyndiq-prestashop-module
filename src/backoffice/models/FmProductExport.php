@@ -25,10 +25,7 @@ class FmProductExport extends FmModel
             'product_id' => (int)$productId,
             'exported_price_percentage' => $expPricePercentage
         );
-        return $this->fmPrestashop->dbGetInstance()->insert(
-            $this->tableName,
-            $data
-        );
+        return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
     public function updateProduct($productId, $expPricePercentage)
@@ -36,7 +33,7 @@ class FmProductExport extends FmModel
         $data = array(
             'exported_price_percentage' => $expPricePercentage
         );
-        return (bool)$this->fmPrestashop->dbGetInstance()->update(
+        return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
             $data,
             'product_id = "' . $productId . '"',
@@ -46,7 +43,7 @@ class FmProductExport extends FmModel
 
     public function deleteProduct($productId)
     {
-        return (bool)$this->fmPrestashop->dbGetInstance()->delete(
+        return (bool)$this->fmPrestashop->dbDelete(
             $this->tableName,
             'product_id = ' . $productId,
             1
@@ -56,7 +53,7 @@ class FmProductExport extends FmModel
     public function getProduct($productId)
     {
         $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) .
-            ' WHERE product_id= ' . $productId . ';';
+            ' WHERE product_id= ' . $productId;
         return $this->fmPrestashop->dbGetInstance()->getRow($sql);
     }
 
@@ -72,11 +69,12 @@ class FmProductExport extends FmModel
             id int(20) unsigned primary key AUTO_INCREMENT,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
-            state varchar(64) default NULL);
+            state varchar(64) default NULL);';
+        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
-            CREATE UNIQUE INDEX productIndex
+        $sql = 'CREATE UNIQUE INDEX productIndex
             ON ' . $tableName . ' (product_id);';
-        $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql);
+        $ret &= (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $exportPath = $this->fmPrestashop->getExportPath();
         $ret &= $this->fmPrestashop->forceCreateDir($exportPath, 0775);
@@ -137,9 +135,9 @@ class FmProductExport extends FmModel
         $result['name'] = $product->name;
         $result['category_id'] = $this->getCategoryId($product->getCategories());
         $result['reference'] = $product->reference;
-        $result['tax_rate'] = $product->getTaxesRate();
+        $result['tax_rate'] = $this->fmPrestashop->productGetTaxRate($product);
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
-        $result['price'] = $this->fmPrestashop->getPrice($product->price);
+        $result['price'] = $this->fmPrestashop->getPrice($product);
         $result['description'] = $product->description;
         $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
             (int)$product->id_manufacturer
@@ -167,11 +165,10 @@ class FmProductExport extends FmModel
         foreach ($productAttributes as $productAttribute) {
             $id = $productAttribute['id_product_attribute'];
             $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
-
             $result['combinations'][$id]['id'] = $id;
-            $result['combinations'][$id]['reference'] = $comboProduct->reference;
+            $result['combinations'][$id]['reference'] = $productAttribute['reference'];
             $result['combinations'][$id]['price'] =
-                $this->fmPrestashop->getPrice($product->price + $productAttribute['price']);
+                $this->fmPrestashop->getPrice($product, $productAttribute['price']);
             $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
             $result['combinations'][$id]['attributes'][] = array(
                 'name' => $productAttribute['group_name'],
