@@ -23,7 +23,7 @@ class FmServiceController
         $action = $params['action'];
         $args = isset($params['args']) && is_array($params['args']) ? $params['args'] : array();
         $response = $this->routeRequest($action, $args);
-        if ($response) {
+        if (!is_null($response)) {
             return $this->fmOutput->renderJSON($response);
         }
         return true;
