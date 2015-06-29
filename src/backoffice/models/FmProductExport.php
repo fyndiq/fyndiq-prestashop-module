@@ -218,13 +218,13 @@ class FmProductExport extends FmModel
             // Exit if there are no products
             return false;
         }
-        FmUtils::debug('$fmProducts', $fmProducts);
+        FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency
         $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
-        FmUtils::debug('$currentCurrency', $currentCurrency);
+        FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
-            FmUtils::debug('$storeProduct', $storeProduct);
+            FyndiqUtils::debug('$storeProduct', $storeProduct);
             // Don't export deactivated or products without SKU
             if (!$storeProduct || empty($storeProduct['reference'])) {
                 continue;
@@ -236,7 +236,7 @@ class FmProductExport extends FmModel
                 // Complete Product with article data
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = $storeProduct['name'];
-                FmUtils::debug('$exportProduct', $exportProduct);
+                FyndiqUtils::debug('$exportProduct', $exportProduct);
                 $feedWriter->addProduct($exportProduct);
                 continue;
             }
@@ -272,12 +272,12 @@ class FmProductExport extends FmModel
                     $id++;
                 }
                 $exportProductCopy['article-name'] = implode(', ', $productName);
-                FmUtils::debug('$exportProductCopy', $exportProductCopy);
+                FyndiqUtils::debug('$exportProductCopy', $exportProductCopy);
                 $feedWriter->addProduct($exportProductCopy);
                 $i++;
             }
         }
-        FmUtils::debug('End');
+        FyndiqUtils::debug('End');
         return $feedWriter->write();
     }
 

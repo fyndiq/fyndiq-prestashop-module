@@ -127,20 +127,20 @@ class FmNotificationService
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
-        FmUtils::debug('$lastPing', $lastPing);
-        FmUtils::debug('$locked', $locked);
+        FyndiqUtils::debug('$lastPing', $lastPing);
+        FyndiqUtils::debug('$locked', $locked);
         $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
-        FmUtils::debug('$filePath', $filePath);
+        FyndiqUtils::debug('$filePath', $filePath);
         $file = fopen($filePath, 'w+');
-        FmUtils::debug('$file', $file);
+        FyndiqUtils::debug('$file', $file);
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $languageId = $this->fmConfig->get('language');
-        FmUtils::debug('$languageId', $languageId);
+        FyndiqUtils::debug('$languageId', $languageId);
         $fmProductExport->saveFile($languageId, $feedWriter);
         fclose($file);
         $result = file_get_contents($filePath);
-        FmUtils::debug('$result', $result, true);
+        FyndiqUtils::debug('$result', $result, true);
     }
 }
 
