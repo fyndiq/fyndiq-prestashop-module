@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PS_VERSION=prestashop_1.6.0.14.zip
+PS_VERSION=prestashop_1.4.11.0.zip
 
 DOMAIN=prestashop.local
 ADMIN_EMAIL=admin@example.com
@@ -24,13 +24,15 @@ apt-get install -y apache2 php5 php5-mysql php5-gd php5-mcrypt php5-curl
 # Install scss
 sudo gem install sass
 
-###########################################################
-# COMPOSER
-###########################################################
-
+## COMPOSER
 if [ ! -e '/usr/local/bin/composer' ]; then
     curl -sS https://getcomposer.org/installer | php
     mv composer.phar /usr/local/bin/composer
+fi
+
+## PHP error_log
+if [ ! -f '/etc/php5/apache2/conf.d/30-error_log.ini' ]; then
+    echo 'error_log=/tmp/php_error.log' > /etc/php5/apache2/conf.d/30-error_log.ini
 fi
 
 composer self-update
@@ -52,18 +54,6 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
 
     ## Create database
     mysql -uroot -p123 -e 'create database prestashop'
-
-    ## Run install
-    echo "Installing $PS_VERSION ..."
-    php /var/www/html/prestashop/install/index_cli.php --domain=$DOMAIN \
-    --db_server=localhost --db_name=prestashop --db_user=root --db_password=123 \
-    --email=$ADMIN_EMAIL --password=$ADMIN_PASS --send_email=0 --country=$COUNTRY
-
-    ## Move admin to admin1234
-    mv /var/www/html/prestashop/admin /var/www/html/prestashop/admin1234
-
-    ## Remove install
-    rm -rf /var/www/html/prestashop/install
 
     ## Link module
     ln -s /opt/fyndiq-prestashop-module/src /var/www/html/prestashop/modules/fyndiqmerchant

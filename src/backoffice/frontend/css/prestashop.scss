@@ -7,7 +7,19 @@
   padding: 62px 0 0;
 }
 
-.fm-container {
+#content.nobootstrap .fm-container {
   padding-left: 210px;
   width: auto;
+}
+
+.fmpsv14 {
+  .fm-content-wrapper,
+  .fm-header-wrapper {
+    width: 920px;
+  }
+
+  .fm-product-panel,
+  .fm-orderlist-panel {
+    width: 670px;
+  }
 }

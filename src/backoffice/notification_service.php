@@ -4,11 +4,9 @@ This file handles incoming requests from the automated notification system at Fy
 */
 
 require_once('./service_init.php');
-require_once('./FmUtils.php');
 require_once('./FmConfig.php');
 require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
-require_once('./FmPrestashop.php');
 require_once('./models/FmApiModel.php');
 require_once('./models/FmModel.php');
 require_once('./models/FmOrder.php');
@@ -144,7 +142,6 @@ class FmNotificationService
     }
 }
 
-$fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
 $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));

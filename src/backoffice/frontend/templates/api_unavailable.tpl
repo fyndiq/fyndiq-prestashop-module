@@ -3,7 +3,7 @@
     {fetch file="$server_path/backoffice/frontend/css/main.css"}
 </style>
 
-<div class="fm-container">
+<div class="fm-container {$version}">
     {include file='./header.tpl' buttons=false}
     <div class="fm-content-wrapper">
         <div class="fm-panel">

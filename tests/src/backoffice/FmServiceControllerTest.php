@@ -212,6 +212,10 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             'pagination' => '',
         );
 
+        $this->fmPrestashop
+            ->method('isPs1516')
+            ->willReturn(true);
+
         $fmOrder = $this->getMockBuilder('FmOrder')
             ->disableOriginalConstructor()
             ->getMock();

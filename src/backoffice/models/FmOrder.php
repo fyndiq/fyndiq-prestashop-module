@@ -26,15 +26,19 @@ class FmOrder extends FmModel
      */
     public function install()
     {
+        $res = true;
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        return (bool)$this->fmPrestashop->dbGetInstance()->Execute(
-            'CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
+
+        $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             fyndiq_orderid INT(10),
-            order_id INT(10));
-            CREATE UNIQUE INDEX orderIndex
-            ON ' . $tableName . ' (fyndiq_orderid);'
-        );
+            order_id INT(10));';
+        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
+
+        $sql = 'CREATE UNIQUE INDEX orderIndex ON ' . $tableName . ' (fyndiq_orderid);';
+        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
+
+        return (bool)$res;
     }
 
     public function fillAddress($fyndiqOrder, $customerId, $countryId, $alias)
@@ -149,7 +153,9 @@ class FmOrder extends FmModel
         $prestaOrder->current_state = $importState;
         $prestaOrder->gift = (int)$cart->gift;
         $prestaOrder->gift_message = $cart->gift_message;
-        $prestaOrder->mobile_theme = $cart->mobile_theme;
+        if ($this->fmPrestashop->isPs1516()) {
+            $prestaOrder->mobile_theme = $cart->mobile_theme;
+        }
         $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
 
         $prestaOrder->total_products = (float)$cart->getOrderTotal(
@@ -262,7 +268,7 @@ class FmOrder extends FmModel
      */
     public function create($fyndiqOrder, $importState, $taxAddressType)
     {
-        $context = $this->fmPrestashop->getOrderContext();
+        $context = $this->fmPrestashop->contextGetContext();
 
         foreach ($fyndiqOrder->order_rows as &$row) {
             list($productId, $combinationId) = $this->getProductBySKU($row->sku);
@@ -365,7 +371,7 @@ class FmOrder extends FmModel
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,
         );
-        return (bool)$this->fmPrestashop->dbGetInstance()->insert(
+        return (bool)$this->fmPrestashop->dbInsert(
             $tableName,
             $data
         );
@@ -407,20 +413,17 @@ class FmOrder extends FmModel
     public function getProductBySKU($productSKU)
     {
         // Check products
-        $query = $this->fmPrestashop->newDbQuery();
-        $query->select('p.id_product');
-        $query->from('product', 'p');
-        $query->where('p.reference = \'' . $this->fmPrestashop->dbEscape($productSKU) . '\'');
-        $productId = $this->fmPrestashop->dbGetInstance()->getValue($query);
+        $sql = 'SELECT id_product FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
+            WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
+        $productId = $this->fmPrestashop->dbGetInstance()->getValue($sql);
         if ($productId) {
             return array($productId, 0);
         }
         // Check combinations
-        $query = $this->fmPrestashop->newDbQuery();
-        $query->select('id_product_attribute, id_product');
-        $query->from('product_attribute');
-        $query->where('reference = \'' . $this->fmPrestashop->dbEscape($productSKU) . '\'');
-        $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($query);
+        $sql = 'SELECT id_product_attribute, id_product
+            FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
+            WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
+        $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($sql);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }

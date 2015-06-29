@@ -1,9 +1,7 @@
 <?php
 
 require_once('./service_init.php');
-require_once('./FmUtils.php');
 require_once('./models/FmModel.php');
-require_once('./FmPrestashop.php');
 require_once('./FmOutput.php');
 require_once('./models/FmProductExport.php');
 require_once('./models/FmCategory.php');
@@ -16,12 +14,23 @@ require_once('./FmOrderFetch.php');
 require_once('./FmServiceController.php');
 require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
+
+// TODO: Fix security for 1.4
+// Introduce new cookie for 1.4 which ca authenticate against the token
 $cookie = new Cookie('psAdmin');
-if (!$cookie->id_employee) {
-    header('HTTP/1.0 401 Unauthorized');
+
+if ($fmPrestashop->isPs1516()) {
+    if (!$cookie->id_employee) {
+        header('HTTP/1.0 401 Unauthorized');
+        die();
+    }
+} else {
+    $fyCookie = new Cookie(FmUtils::MODULE_NAME);
+    $cookie->id_currency = $fyCookie->id_currency;
+    $cookie->id_lang = $fyCookie->id_lang;
+    $cookie->id_country = $fyCookie->id_country;
 }
 
-$fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $fmConfig = new FmConfig($fmPrestashop);
 $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));

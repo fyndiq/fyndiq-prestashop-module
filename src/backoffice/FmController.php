@@ -93,7 +93,7 @@ class FmController
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
                 FyndiqUtils::NAME_NOTIFICATION_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created',
                 FyndiqUtils::NAME_PING_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
             );

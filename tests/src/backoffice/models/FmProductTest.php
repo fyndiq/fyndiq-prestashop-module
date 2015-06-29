@@ -65,24 +65,9 @@ class FmProductTest extends PHPUnit_Framework_TestCase
         $productId = 1;
         $status = 3;
 
-        $db = $this->getMockBuilder('stdClass')
-            ->setMethods(array('update'))
-            ->getMock();
-
-        $db->expects($this->once())
-            ->method('update')
-            ->with(
-                $this->equalTo($tableName),
-                $this->equalTo(array(
-                    'state' => $status
-                )),
-                $this->equalTo('id=1')
-            )
-            ->willReturn(true);
-
         $this->fmPrestashop->expects($this->once())
-            ->method('dbGetInstance')
-            ->willReturn($db);
+            ->method('dbUpdate')
+            ->willReturn(true);
 
         $this->fmPrestashop->expects($this->once())
             ->method('dbEscape')

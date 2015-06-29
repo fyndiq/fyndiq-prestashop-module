@@ -17,7 +17,7 @@
 <script type="text/javascript" src="{$shared_path}frontend/js/FmCtrl.js"></script>
 <script type="text/javascript" src="{$shared_path}frontend/js/order.js"></script>
 
-<div class="fm-container">
+<div class="fm-container {$version}">
     {include file='./header.tpl' current='order' buttons=true}
 
     <div class="fm-content-wrapper">
