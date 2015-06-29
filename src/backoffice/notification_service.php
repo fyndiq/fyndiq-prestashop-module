@@ -139,6 +139,8 @@ class FmNotificationService
         FmUtils::debug('$languageId', $languageId);
         $fmProductExport->saveFile($languageId, $feedWriter);
         fclose($file);
+        $result = file_get_contents($filePath);
+        FmUtils::debug('$result', $result, true);
     }
 }
 
