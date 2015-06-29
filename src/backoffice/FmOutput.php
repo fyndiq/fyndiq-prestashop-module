@@ -16,17 +16,17 @@ class FmOutput extends FyndiqOutput
 
     public function render($name, $args = array())
     {
+        $modulePath = $this->fmPrestashop->getModulePath();
         // Templates path, relative to admin
-        $templatesPath = '../' . $this->fmPrestashop->getModulePath() .
-            'backoffice/includes/shared/frontend/templates/js_templates_without_smarty.tpl';
+        $templatesPath = '../' . $modulePath . 'backoffice/includes/shared/frontend/templates/js_templates.tpl';
         $this->smarty->assign(array_merge(
             $args,
             array(
                 'version' => strtolower($this->fmPrestashop->version),
                 'server_path' => $this->fmPrestashop->globalPsRootDir() . '/modules/' . $this->module->name,
-                'module_path' => $this->module->get('_path'),
-                'shared_path' => $this->module->get('_path') . 'backoffice/includes/shared/',
-                'service_path' => $this->module->get('_path') . 'backoffice/service.php',
+                'module_path' => $modulePath,
+                'shared_path' => $modulePath . 'backoffice/includes/shared/',
+                'service_path' => $modulePath . 'backoffice/service.php',
                 'js_templates' => $templatesPath,
             )
         ));
