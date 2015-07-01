@@ -24,7 +24,14 @@
         <div class="fm-left-sidebar">
             <div class="fm-panel">
                 <div class="fm-panel-header">{fi18n s="Categories"}</div>
-                <div class="fm-panel-body fm-category-tree-container no-padding"></div>
+                <div class="fm-panel-body no-padding">
+                    <ul class="fm-category-tree">
+                        <li data-category_id="-1">
+                            <a href="#" title="{fi18n s="All products"}">{fi18n s="All products"}</a>
+                        </li>
+                    </ul>
+                    <div class="fm-category-tree-container"></div>
+                </div>
             </div>
         </div>
 
