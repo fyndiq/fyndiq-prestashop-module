@@ -50,4 +50,10 @@ class FmProductInfo extends FyndiqPaginatedFetch
         }
         return $result;
     }
+
+    public function getAll()
+    {
+        $this->fmProduct->updateAllProductStatus($this->tableName, FmProductExport::PENDING);
+        return parent::getAll();
+    }
 }
