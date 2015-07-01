@@ -212,8 +212,7 @@ class FmProductExport extends FmModel
     {
         $fmProducts = $this->getFyndiqProducts();
         if (empty($fmProducts)) {
-            // Exit if there are no products
-            return false;
+            return $feedWriter->write();;
         }
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency
