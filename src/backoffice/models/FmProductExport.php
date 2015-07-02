@@ -3,6 +3,9 @@
 class FmProductExport extends FmModel
 {
 
+    const PENDING = 'PENDING';
+    const FOR_SALE = 'FOR_SALE';
+
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
@@ -212,8 +215,7 @@ class FmProductExport extends FmModel
     {
         $fmProducts = $this->getFyndiqProducts();
         if (empty($fmProducts)) {
-            // Exit if there are no products
-            return false;
+            return $feedWriter->write();
         }
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency

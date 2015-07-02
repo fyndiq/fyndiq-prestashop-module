@@ -122,7 +122,7 @@ class FmServiceController
                 $discountPercentage = $fynProduct['exported_price_percentage'];
                 $product['fyndiq_exported'] = true;
                 switch ($fynProduct['state']) {
-                    case 'FOR_SALE': $product['fyndiq_status'] = 'on';
+                    case FmProductExport::FOR_SALE: $product['fyndiq_status'] = 'on';
                         break;
                     default: $product['fyndiq_status'] = 'pending';
                 }

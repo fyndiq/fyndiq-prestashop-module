@@ -55,4 +55,17 @@ class FmProduct extends FmModel
         $where = 'id=' . $this->fmPrestashop->dbEscape($productId);
         return $this->fmPrestashop->dbUpdate($tableName, array('state' => $status), $where);
     }
+
+    /**
+     * Set all products' statuses to $newStats
+     *
+     * @param  string $tableName
+     * @param  string $newStatus
+     * @return bool
+     */
+    public function updateAllProductStatus($tableName, $newStatus)
+    {
+        return $this->fmPrestashop->dbUpdate($tableName, array('state' => $newStatus));
+    }
+
 }

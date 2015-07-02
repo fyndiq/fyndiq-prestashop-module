@@ -391,6 +391,8 @@ class FmPrestashop
 
         if ($this->isPs1516()) {
             $this->context = Context::getContext();
+            $this->context->id_lang = self::DEFAULT_LANGUAGE_ID;
+            $this->context->currency = Currency::getDefaultCurrency();
             return $this->context;
         }
         global $cookie, $smarty;
