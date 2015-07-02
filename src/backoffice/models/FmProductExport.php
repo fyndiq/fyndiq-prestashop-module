@@ -3,6 +3,9 @@
 class FmProductExport extends FmModel
 {
 
+    const PENDING = 'PENDING';
+    const FOR_SALE = 'FOR_SALE';
+
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
