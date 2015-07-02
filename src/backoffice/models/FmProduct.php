@@ -3,6 +3,8 @@
 class FmProduct extends FmModel
 {
 
+    const ALL_PRODUCTS_CATEGORY_ID = -1;
+
     public function getAmount($categoryId)
     {
         $sqlQuery = '
@@ -27,6 +29,14 @@ class FmProduct extends FmModel
             WHERE p.id_product = cp.id_product
             AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . '
             LIMIT ' . $offset . ', ' . $perPage;
+        if ($categoryId == self::ALL_PRODUCTS_CATEGORY_ID) {
+            $sqlQuery = '
+                SELECT p.id_product
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product p
+                JOIN ' . $this->fmPrestashop->globDbPrefix() . 'category_product as cp
+                WHERE p.id_product = cp.id_product
+                LIMIT ' . $offset . ', ' . $perPage;
+        }
         $rows = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
         return $rows;
     }
