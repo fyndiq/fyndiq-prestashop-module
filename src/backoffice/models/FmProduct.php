@@ -67,5 +67,4 @@ class FmProduct extends FmModel
     {
         return $this->fmPrestashop->dbUpdate($tableName, array('state' => $newStatus));
     }
-
 }
