@@ -113,8 +113,8 @@ class FmServiceController
                 continue;
             }
 
-            if(FyndiqFeedWriter::isColumnTooLong("product-title", $product['name'])) {
-                $product['name_short'] = FyndiqFeedWriter::sanitizeColumn("product-title", $product['name']);
+            if (FyndiqFeedWriter::isColumnTooLong('product-title', $product['name'])) {
+                $product['name_short'] = FyndiqFeedWriter::sanitizeColumn('product-title', $product['name']);
             }
 
             $product['currency'] = $currentCurrency;
