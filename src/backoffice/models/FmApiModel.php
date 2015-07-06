@@ -10,7 +10,7 @@ class FmApiModel {
     {
         $this->username = $username;
         $this->apiToken = $apiToken;
-        $this->userAgent = FmUtils::MODULE_NAME . ' - ' .FmUtils::VERSION;
+        $this->userAgent = FmUtils::MODULE_NAME . ' - ' . FmUtils::VERSION . ' - ' . FmUtils::COMMIT;
     }
 
     public function callApi($method, $path, $data = array(), $username = '', $apiToken = '')
