@@ -81,6 +81,6 @@
             </div>
         </div>
         <br class="clear" />
-        <div class="fm-footer muted text-right">v. {$module_version}</div>
+        <div class="fm-footer muted text-right">{$module_version}</div>
     </div>
 </div>
