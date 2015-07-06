@@ -40,4 +40,9 @@ class FmApiModel {
     {
         return $this->callApi('POST', 'delivery_notes/', $request);
     }
+
+    public function getUserAgent()
+    {
+        return $this->userAgent;
+    }
 }
