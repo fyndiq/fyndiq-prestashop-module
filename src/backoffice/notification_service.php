@@ -118,16 +118,17 @@ class FmNotificationService
 
     private function debug($params)
     {
-        define('FYNDIQ_DEBUG', true);
+        $token = isset($params['token']) ? $params['token'] : null;
+        if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
+            return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
+        }
 
+        FyndiqUtils::debugStart();
         $locked = false;
         $lastPing = $this->fmConfig->get('ping_time');
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
-        FyndiqUtils::debug('USER AGENT', $this->fmApiModel->getUserAgent());
-        FyndiqUtils::debug('MEMORY LIMIT', ini_get('memory_limit'));
-        FyndiqUtils::debug('PHP VERSION', phpversion());
         FyndiqUtils::debug('$lastPing', $lastPing);
         FyndiqUtils::debug('$locked', $locked);
         $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
@@ -142,6 +143,7 @@ class FmNotificationService
         fclose($file);
         $result = file_get_contents($filePath);
         FyndiqUtils::debug('$result', $result, true);
+        FyndiqUtils::debugStop();
     }
 }
 
