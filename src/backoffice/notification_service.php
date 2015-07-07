@@ -125,7 +125,9 @@ class FmNotificationService
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
-        FyndiqUtils::debug('UserAgent', $this->fmApiModel->getUserAgent());
+        FyndiqUtils::debug('USER AGENT', $this->fmApiModel->getUserAgent());
+        FyndiqUtils::debug('MEMORY LIMIT', ini_get('memory_limit'));
+        FyndiqUtils::debug('PHP VERSION', phpversion());
         FyndiqUtils::debug('$lastPing', $lastPing);
         FyndiqUtils::debug('$locked', $locked);
         $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
