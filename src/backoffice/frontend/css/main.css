@@ -374,6 +374,9 @@
 .clear {
   clear: both; }
 
+.fm-footer {
+  margin: 1em 0 0; }
+
 #main {
   background-color: #e7eef4 !important; }
 

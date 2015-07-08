@@ -151,7 +151,7 @@ class FyndiqMerchant extends Module
         }
         $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
         $fmConfig = new FmConfig($this->fmPrestashop);
-        $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'));
+        $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'), $this->fmPrestashop->globalGetVersion());
         $controller = new FmController($this->fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }

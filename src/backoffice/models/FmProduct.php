@@ -33,8 +33,6 @@ class FmProduct extends FmModel
             $sqlQuery = '
                 SELECT p.id_product
                 FROM ' . $this->fmPrestashop->globDbPrefix() . 'product p
-                JOIN ' . $this->fmPrestashop->globDbPrefix() . 'category_product as cp
-                WHERE p.id_product = cp.id_product
                 LIMIT ' . $offset . ', ' . $perPage;
         }
         $rows = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
