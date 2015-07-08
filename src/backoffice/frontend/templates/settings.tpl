@@ -10,6 +10,9 @@
         <div class="fm-panel">
             <div class="fm-panel-header text-center">{fi18n s='Settings'}</div>
             <div class="fm-panel-body text-center">
+                {foreach $message as $msg}
+                    <p class="text-warning">{$msg}</p>
+                {/foreach}
                 <form action="" method="post" class="form-horizontal">
                     <p>
                         {fi18n s='In order to use this module, you have to select which language you will be using'}.<br>

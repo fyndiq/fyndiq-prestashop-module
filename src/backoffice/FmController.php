@@ -157,6 +157,27 @@ class FmController
             }
         }
 
+        $currency = $this->fmPrestashop->getDefaultCurrency();
+        $market =$this->fmPrestashop->getCountryCode();
+
+        $this->data['message'] = array();
+        if (!in_array($currency, FyndiqUtils::$allowedCurrencies)) {
+            $this->data['message'][] = sprintf(
+                FyndiqTranslation::get('Currency `%s` is not supported. Supported currencies are: %s. Please check your settings'),
+                $currency,
+                implode(', ', FyndiqUtils::$allowedCurrencies)
+            );
+        }
+
+        if (!in_array($market, FyndiqUtils::$allowedMarkets)) {
+            $this->data['message'][] = sprintf(
+                FyndiqTranslation::get('Market `%s` is not supported. Supported markets are: %s. Please check your settings'),
+                $market,
+                implode(', ', FyndiqUtils::$allowedMarkets)
+            );
+        }
+
+
         $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
         $this->data['price_percentage'] = $pricePercentage;
         $this->data['selected_language'] = $selectedLanguage;
