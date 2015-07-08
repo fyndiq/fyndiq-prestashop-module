@@ -13,6 +13,8 @@ build: clean
 	mkdir $(BUILD_DIR)
 	rsync -a --exclude='.*' $(SRC_DIR) $(BUILD_DIR)
 	mv $(BUILD_DIR)/src $(BUILD_DIR)/fyndiqmerchant
+	# replace COMMIT hash
+	sed -i'' 's/XXXXXX/$(COMMIT)/g' $(BUILD_DIR)/fyndiqmerchant/backoffice/FmUtils.php
 	cp $(DOCS_DIR)/* $(BUILD_DIR)/fyndiqmerchant
 	cd $(BUILD_DIR); zip -r -X fyndiq-prestashop-module-v$(MODULE_VERSION)-$(COMMIT).zip fyndiqmerchant/
 	rm -r $(BUILD_DIR)/fyndiqmerchant
