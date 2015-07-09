@@ -83,6 +83,7 @@
                 </div>
             </div>
         </div>
+        <br class="clear" />
+        <div class="fm-footer muted text-right">{$module_version}</div>
     </div>
-    <br class="clear" />
 </div>

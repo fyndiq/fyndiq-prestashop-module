@@ -298,7 +298,7 @@ class FmPrestashop
         return _PS_BASE_URL_ . __PS_BASE_URI__;
     }
 
-    private function globalGetVersion()
+    public function globalGetVersion()
     {
         return _PS_VERSION_;
     }

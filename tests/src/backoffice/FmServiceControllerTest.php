@@ -98,6 +98,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                     'expected_price' => '2.23',
                     'quantity' => 2,
                     'fyndiq_exported' => true,
+                    'name' => 'name1',
                 ),
                 array(
                     'price' => 3.33,
@@ -108,6 +109,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                     'expected_price' => '1.86',
                     'quantity' => 2,
                     'fyndiq_exported' => true,
+                    'name' => 'name2',
                 )
             )
         );
@@ -156,10 +158,12 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                 array(
                     'quantity' => 2,
                     'price' => 3.33,
+                    'name' => 'name1',
                 ),
                 array(
                     'quantity' => 2,
                     'price' => 3.33,
+                    'name' => 'name2',
                 ),
                 array()
             ));

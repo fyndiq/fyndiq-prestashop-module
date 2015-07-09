@@ -12,8 +12,6 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->fmApiModel->method('callApi')->willReturn(true);
-
         $this->fmPrestashop->method('getCurrency')->willReturn('ZWL');
         $this->fmPrestashop->method('getModuleUrl')->willReturn('http://localhost/module');
 
@@ -132,7 +130,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     FyndiqUtils::NAME_PRODUCT_FEED_URL =>
                     'modules/fyndiqmerchant/backoffice/filePage.php',
                     FyndiqUtils::NAME_NOTIFICATION_URL =>
-                    'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created',
                     FyndiqUtils::NAME_PING_URL =>
                     'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token='
                     )
@@ -159,6 +157,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
     {
         $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
+        $this->fmPrestashop->expects($this->once())->method('sleep')->willReturn(true);
+
         $this->fmApiModel->expects($this->once())
             ->method('callApi')
             ->with(
@@ -169,7 +169,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     FyndiqUtils::NAME_PRODUCT_FEED_URL =>
                     'modules/fyndiqmerchant/backoffice/filePage.php',
                     FyndiqUtils::NAME_NOTIFICATION_URL =>
-                    'modules/fyndiqmerchant/backoffice/notification_service.php',
+                    'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created',
                     FyndiqUtils::NAME_PING_URL =>
                     'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token='
                     )
@@ -181,6 +181,9 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
 
         $this->fmOutput->expects($this->once())
             ->method('redirect')
+            ->with(
+                $this->equalTo('http://localhost/module')
+            )
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
