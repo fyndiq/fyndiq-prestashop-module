@@ -13,6 +13,11 @@ class FmProduct extends FmModel
             JOIN ' . $this->fmPrestashop->globDbPrefix() . 'category_product as cp
             WHERE p.id_product = cp.id_product
             AND cp.id_category = ' . $this->fmPrestashop->dbEscape($categoryId) . ';';
+        if ($categoryId == self::ALL_PRODUCTS_CATEGORY_ID) {
+            $sqlQuery = '
+                SELECT count(p.id_product) AS amount
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product as p;';
+        }
         return $this->fmPrestashop->dbGetInstance()->getValue($sqlQuery);
     }
 
