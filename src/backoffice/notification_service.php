@@ -124,6 +124,7 @@ class FmNotificationService
         }
 
         FyndiqUtils::debugStart();
+        FyndiqUtils::debug('USER AGENT', $this->fmApiModel->getUserAgent());
         $locked = false;
         $lastPing = $this->fmConfig->get('ping_time');
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
