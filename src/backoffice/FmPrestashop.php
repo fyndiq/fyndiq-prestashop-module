@@ -302,6 +302,11 @@ class FmPrestashop
         return _DB_PREFIX_;
     }
 
+    public function globPricePrecision()
+    {
+        return _PS_PRICE_COMPUTE_PRECISION_;
+    }
+
     // Module
     public function moduleGetInstanceByName($name = '')
     {
