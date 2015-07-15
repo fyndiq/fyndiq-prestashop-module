@@ -165,15 +165,9 @@ class FmPrestashop
         return $product->$getAttrCombinations[$this->version]($languageId);
     }
 
-    public function getPrice($product, $attributePrice = 0)
+    public function getPrice($product, $attributeId = null)
     {
-        $price = $product->price + $attributePrice;
-        // $tax_rules_group = new TaxRulesGroup($product->id_tax_rules_group);
-        $currency = new Currency(Configuration::get($this->getModuleName() . '_currency'));
-        if ($currency->conversion_rate) {
-            $price = $price * $currency->conversion_rate;
-        }
-        return Tools::ps_round($price, 2);
+        return Product::getPriceStatic($product->id, true, $attributeId);
     }
 
     public function getModuleName($moduleName = '')
