@@ -128,7 +128,7 @@ class FmOrder extends FmModel
         return md5(uniqid(rand(), true));
     }
 
-    public function createPrestaOrder($cart, $context, $createdDate, $importState)
+    public function createPrestaOrder($cart, $context, $cartProducts, $createdDate, $importState)
     {
         // Create an order
         $prestaOrder = $this->fmPrestashop->newPrestashopOrder();
@@ -161,13 +161,13 @@ class FmOrder extends FmModel
         $prestaOrder->total_products = (float)$cart->getOrderTotal(
             false,
             $this->fmPrestashop->cartOnlyProducts(),
-            $cart->getProducts(),
+            $cartProducts, // tempered list
             self::ID_CARRIER
         );
         $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
             true,
             $this->fmPrestashop->cartOnlyProducts(),
-            $cart->getProducts(),
+            $cartProducts, // tempered list
             self::ID_CARRIER
         );
 
@@ -193,7 +193,7 @@ class FmOrder extends FmModel
             (float)$cart->getOrderTotal(
                 true,
                 $this->fmPrestashop->cartBoth(),
-                $cart->getProducts(),
+                $cartProducts, // tempered list
                 self::ID_CARRIER
             ),
             2
@@ -209,7 +209,7 @@ class FmOrder extends FmModel
         return $prestaOrder;
     }
 
-    public function insertOrderDetail($prestaOrder, $cart, $importState)
+    public function insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState)
     {
         // Insert new Order detail list using cart for the current order
         if ($this->fmPrestashop->isPs1516()) {
@@ -218,12 +218,12 @@ class FmOrder extends FmModel
                 $prestaOrder,
                 $cart,
                 $importState,
-                $cart->getProducts()
+                $cartProducts
             );
         }
         if ($this->fmPrestashop->version === FmPrestashop::FMPSV14) {
             $result = true;
-            foreach ($cart->getProducts() as $product) {
+            foreach ($cartProducts as $product) {
                 $orderDetail = $this->fmPrestashop->newOrderDetail();
                 $orderDetail->id_order = $prestaOrder->id;
                 $orderDetail->product_name = $product['name'];
@@ -256,6 +256,11 @@ class FmOrder extends FmModel
         $url = $this->fmPrestashop->getShopUrl() . $modulePath . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrderId;
         $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy URL and paste in the browser to download the delivery note.';
         return $orderMessage->add();
+    }
+
+    function updateProductsPrices($orderRows, $products)
+    {
+        return $products;
     }
 
     /**
@@ -308,9 +313,12 @@ class FmOrder extends FmModel
             $cart->updateQty($numArticle, $row->productId, $row->combinationId);
         }
 
+        $cartProducts = $this->updateProductsPrices($fyndiqOrder->order_rows, $cart->getProducts());
+
         $prestaOrder = $this->createPrestaOrder(
             $cart,
             $context,
+            $cartProducts,
             strtotime($fyndiqOrder->created),
             $importState
         );
@@ -323,7 +331,7 @@ class FmOrder extends FmModel
             throw new PrestaShopException(FyndiqTranslation::get('error-save-order'));
         }
 
-        $this->insertOrderDetail($prestaOrder, $cart, $importState);
+        $this->insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState);
 
         if ($this->fmPrestashop->isPs1516()) {
             // create payment in order because Fyndiq handles the payment - so it looks already paid in PrestaShop
@@ -381,7 +389,7 @@ class FmOrder extends FmModel
     {
         $offset = $perPage * ($page - 1);
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        $sqlQuery = 'SELECT * FROM ' . $tableName . ' LIMIT ' . $offset . ', ' . $perPage;
+        $sqlQuery = 'SELECT * FROM ' . $tableName . ' ORDER BY id DESC LIMIT ' . $offset . ', ' . $perPage;
         $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
         return $orders;
     }

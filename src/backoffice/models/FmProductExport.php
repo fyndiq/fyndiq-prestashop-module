@@ -246,6 +246,7 @@ class FmProductExport extends FmModel
                 // Copy the product data so we have clear slate for each combination
                 $exportProductCopy = $exportProduct;
                 if ($combination['reference'] == '') {
+                    FyndiqUtils::debug('MISSING SKU', $combination);
                     continue;
                 }
                 $exportProductCopy['article-sku'] = $combination['reference'];

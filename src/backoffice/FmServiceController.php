@@ -176,7 +176,10 @@ class FmServiceController
             $url .= '&token=' . $this->fmPrestashop->getAdminTokenLite();
             $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
             $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
-            $orderArray['price'] = $newOrder->total_paid_real;
+            $orderArray['price'] = $this->fmPrestashop->toolsPsRound(
+                $newOrder->total_paid_tax_incl,
+                $this->fmPrestashop->globPricePrecision()
+            );
             $orderArray['state'] = $currentStateName;
             $orderArray['total_products'] = $quantity;
             $orderArray['is_done'] = $newOrder->getCurrentState() == $orderDoneState;
