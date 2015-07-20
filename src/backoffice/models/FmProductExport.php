@@ -152,7 +152,7 @@ class FmProductExport extends FmModel
         // get images
         $images = $product->getImages($languageId);
         $result['images'] = array();
-        foreach($images as $image) {
+        foreach ($images as $image) {
             $result['images'][] = $this->fmPrestashop->getImageLink(
                 $product->link_rewrite,
                 $image['id_image'],
@@ -203,12 +203,13 @@ class FmProductExport extends FmModel
         return $result;
     }
 
-    protected function getImages($images) {
+    protected function getImages($images)
+    {
         $result = array();
         $imageId = 1;
         foreach ($images as $image) {
             $result['product-image-' . $imageId . '-url'] = $image;
-            $result['product-image-' . $imageId  . '-identifier'] = substr(md5($image), 0, 10);;
+            $result['product-image-' . $imageId  . '-identifier'] = substr(md5($image), 0, 10);
             $imageId++;
         }
         return $result;

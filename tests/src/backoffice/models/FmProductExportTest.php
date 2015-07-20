@@ -139,7 +139,9 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             'price' => 7.70,
             'description' => 'description7',
             'manufacturer_name' => 'manufaturerName',
-            'image' => 'image.jpg',
+            'images' => array(
+                'image.jpg',
+            ),
         );
         $languageId = 1;
         $productId = 2;
@@ -271,13 +273,15 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'manufacturer_name' => 'manufacturer_name',
                     'name' => 'name',
                     'tax_rate' => 12,
+                    'images' => array(
+                        'image.jpg'
+                    ),
                     'combinations' => array(
                         array(
                             'id' => 1,
                             'reference' => '15',
                             'quantity' => 16,
                             'price' => 18.18,
-                            'image' => 'image.jpg',
                             'attributes' => array(
                                 array(
                                     'name' => 'name',
@@ -303,7 +307,9 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'price' => 36.66,
                     'manufacturer_name' => 'manufacturer_name3',
                     'name' => 'name3',
-                    'image' => 'image333.jpg',
+                    'images' => array(
+                        'image333.jpg',
+                    ),
                     'tax_rate' => 312,
                     'combinations' => array(),
                 )
@@ -334,13 +340,12 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'product-price' => '1.53',
                     'product-oldprice' => '18.18',
                     'product-brand-name' => 'manufacturer_name',
-                    'article-location' => 'test',
                     'product-title' => 'name',
                     'product-vat-percent' => 12,
                     'product-market' => 'BG',
                     'article-sku' => '15',
                     'product-image-1-url' => 'image.jpg',
-                    'product-image-1-identifier' => '1-1',
+                    'product-image-1-identifier' => '0d5b1c4c7f',
                     'article-property-1-name' => 'name',
                     'article-property-1-value' => 'value',
                     'article-name' => 'name: value',
@@ -359,14 +364,13 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 'product-price' => '4.40',
                 'product-oldprice' => '36.66',
                 'product-brand-name' => 'manufacturer_name3',
-                'article-location' => 'test',
                 'product-title' => 'name3',
                 'product-vat-percent' => 312,
                 'product-market' => 'BG',
                 'article-sku' => '33',
                 'article-name' => 'name3',
                 'product-image-1-url' => 'image333.jpg',
-                'product-image-1-identifier' => 2,
+                'product-image-1-identifier' => '2c72f5e174',
             ));
 
         $currency = new stdClass();

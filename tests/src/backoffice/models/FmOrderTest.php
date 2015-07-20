@@ -467,6 +467,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         );
         $createdDate = strtotime('2000-01-02 03:04:05');
 
+        $cartProducts = array();
+
         $prestaOrder = new stdClass();
         $this->fmPrestashop->method('newPrestashopOrder')
             ->willReturn($prestaOrder);
@@ -488,7 +490,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('time')
             ->willReturn(strtotime('2001-02-03 04:05:06'));
 
-        $result = $this->fmOrder->createPrestaOrder($cart, $context, $createdDate, $importState);
+        $result = $this->fmOrder->createPrestaOrder($cart, $context, $cartProducts, $createdDate, $importState);
         $this->assertEquals($expected, $result);
     }
 
@@ -497,11 +499,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
         $importState = 'import_state';
-        $products = array(1, 2, 3);
-
-        $cart->expects($this->once())
-            ->method('getProducts')
-            ->willReturn($products);
+        $cartProducts = array(1, 2, 3);
 
         $orderDetail = $this->getOrderDetail();
 
@@ -511,7 +509,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo($prestaOrder),
                 $this->equalTo($cart),
                 $this->equalTo($importState),
-                $this->equalTo($products)
+                $this->equalTo($cartProducts)
             )
             ->willReturn(true);
 
@@ -523,7 +521,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('isPs1516')
             ->willReturn(true);
 
-        $result = $this->fmOrder->insertOrderDetail($prestaOrder, $cart, $importState);
+        $result = $this->fmOrder->insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState);
         $this->assertTrue($result);
     }
 
@@ -532,11 +530,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
         $importState = 'import_state';
-        $products = array(1);
-
-        $cart->expects($this->once())
-            ->method('getProducts')
-            ->willReturn($products);
+        $cartProducts = array(1);
 
         $orderDetail = $this->getOrderDetail();
 
@@ -553,13 +547,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn(false);
         $this->fmPrestashop->version = FmPrestashop::FMPSV14;
 
-        $result = $this->fmOrder->insertOrderDetail($prestaOrder, $cart, $importState);
+        $result = $this->fmOrder->insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState);
         $this->assertTrue($result);
     }
 
     public function testInsertOrderDetailWrongVersion()
     {
-        $result = $this->fmOrder->insertOrderDetail(null, null, null);
+        $result = $this->fmOrder->insertOrderDetail(null, null, null, null);
         $this->assertFalse($result);
     }
 
