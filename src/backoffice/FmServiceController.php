@@ -134,13 +134,14 @@ class FmServiceController
                     default: $product['fyndiq_status'] = 'pending';
                 }
             }
-
             $product['fyndiq_percentage'] = $discountPercentage;
-            $product['expected_price'] = number_format(
+            $product['expected_price'] = $this->fmPrestashop->toolsPsRound(
                 (float)FyndiqUtils::getFyndiqPrice($product['price'], $discountPercentage),
-                2,
-                '.',
-                ''
+                $this->fmPrestashop->globPricePrecision()
+            );
+            $product['price'] = $this->fmPrestashop->toolsPsRound(
+                $product['price']
+                $this->fmPrestashop->globPricePrecision()
             );
             $products[] = $product;
         }
