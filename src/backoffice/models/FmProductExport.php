@@ -151,12 +151,11 @@ class FmProductExport extends FmModel
 
         // get images
         $images = $product->getImages($languageId);
-
-        // assign main product image
-        if (count($images) > 0) {
-            $result['image'] = $this->fmPrestashop->getImageLink(
+        $result['images'] = array();
+        foreach($images as $image) {
+            $result['images'][] = $this->fmPrestashop->getImageLink(
                 $product->link_rewrite,
-                $images[0]['id_image'],
+                $image['id_image'],
                 $imageType['name']
             );
         }
@@ -185,7 +184,6 @@ class FmProductExport extends FmModel
                     foreach ($combinationImages as $combinationImage) {
                         // data array is stored in another array with only one key: 0. I have no idea why
                         $combinationImage = $combinationImage[0];
-
                         // if combination image belongs to the same product attribute mapping as the current combination
                         if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
                             $image = $this->fmPrestashop->getImageLink(
@@ -201,6 +199,17 @@ class FmProductExport extends FmModel
                     }
                 }
             }
+        }
+        return $result;
+    }
+
+    protected function getImages($images) {
+        $result = array();
+        $imageId = 1;
+        foreach ($images as $image) {
+            $result['product-image-' . $imageId . '-url'] = $image;
+            $result['product-image-' . $imageId  . '-identifier'] = substr(md5($image), 0, 10);;
+            $imageId++;
         }
         return $result;
     }
@@ -226,12 +235,12 @@ class FmProductExport extends FmModel
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             // Don't export deactivated or products without SKU
             if (!$storeProduct || empty($storeProduct['reference'])) {
+                FyndiqUtils::debug('MISSING PRODUCT SKU ', $storeProduct);
                 continue;
             }
-            $exportProduct = self::getProductData($storeProduct, $fmProduct, $currentCurrency);
+            $exportProduct = $this->getProductData($storeProduct, $fmProduct, $currentCurrency);
             if (count($storeProduct['combinations']) === 0) {
                 // Product without combinations
-
                 // Complete Product with article data
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = $storeProduct['name'];
@@ -250,17 +259,8 @@ class FmProductExport extends FmModel
                     continue;
                 }
                 $exportProductCopy['article-sku'] = $combination['reference'];
-                $exportProductCopy['article-quantity'] = $combination['quantity'];
+                $exportProductCopy['article-quantity'] = intval($combination['quantity']);
                 $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
-
-                // Set combination image if present
-                $imageId = 1;
-                if (!empty($combination['image'])) {
-                    $exportProductCopy['product-image-' . $imageId . '-url'] =
-                        strval($combination['image']);
-                    $exportProductCopy['product-image-' . $imageId . '-identifier'] =
-                        $fmProduct['product_id'] . '-' . strval($combination['id']);
-                }
 
                 // Create combination name
                 $productName = array();
@@ -304,11 +304,8 @@ class FmProductExport extends FmModel
         $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
         $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
         $exportProduct['product-brand-name'] = $storeProduct['manufacturer_name'];
-        $exportProduct['article-location'] = 'test';
-        if (!empty($storeProduct['image'])) {
-            $exportProduct['product-image-1-url'] = strval($storeProduct['image']);
-            $exportProduct['product-image-1-identifier'] = $fmProduct['product_id'];
-        }
+
+        $exportProduct = array_merge($exportProduct, $this->getImages($storeProduct['images']));
         $exportProduct['product-title'] = $storeProduct['name'];
         $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
         $exportProduct['product-market'] = $this->fmPrestashop->getCountryCode();

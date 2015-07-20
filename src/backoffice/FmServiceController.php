@@ -117,6 +117,9 @@ class FmServiceController
                 $product['name_short'] = FyndiqFeedWriter::sanitizeColumn('product-title', $product['name']);
             }
 
+            if ($product['images']) {
+                $product['image'] = array_shift($product['images']);
+            }
             $product['currency'] = $currentCurrency;
             $product['fyndiq_quantity'] = $product['quantity'];
             $product['fyndiq_status'] = 'noton';
