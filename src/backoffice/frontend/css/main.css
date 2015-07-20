@@ -380,14 +380,6 @@
 #main {
   background-color: #e7eef4 !important; }
 
-#content.nobootstrap {
-  margin-left: 0;
-  padding: 62px 0 0; }
-
-#content.nobootstrap .fm-container {
-  padding-left: 210px;
-  width: auto; }
-
 .fmpsv14 .fm-content-wrapper,
 .fmpsv14 .fm-header-wrapper {
   width: 920px; }
