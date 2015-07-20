@@ -140,7 +140,7 @@ class FmServiceController
                 $this->fmPrestashop->globPricePrecision()
             );
             $product['price'] = $this->fmPrestashop->toolsPsRound(
-                $product['price']
+                $product['price'],
                 $this->fmPrestashop->globPricePrecision()
             );
             $products[] = $product;
