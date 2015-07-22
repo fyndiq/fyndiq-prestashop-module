@@ -199,6 +199,10 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('orderStateInvoiceAvailable')->willReturn(true);
         $this->fmPrestashop->method('languageGetLanguages')->willReturn(array(1 => 'en'));
 
+
+        $this->fmPrestashop->expects($this->once())->method('getDefaultCurrency')->willReturn('SEK');
+        $this->fmPrestashop->expects($this->once())->method('getCountryCode')->willReturn('SE');
+
         $this->fmOutput->expects($this->once())
             ->method('render')
             ->with(
@@ -215,6 +219,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     ),
                     'order_import_state' => 3,
                     'order_done_state' => 4,
+                    'message' => array(),
                 ))
             )
             ->willReturn(true);

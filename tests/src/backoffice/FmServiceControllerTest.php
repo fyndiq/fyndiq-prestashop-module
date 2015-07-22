@@ -90,26 +90,28 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             'pagination' => '',
             'products' => array(
                 array(
-                    'price' => 3.33,
+                    'price' => 4.44,
                     'currency' => $currency,
                     'fyndiq_quantity' => 2,
                     'fyndiq_status' => 'on',
                     'fyndiq_percentage' => 33,
-                    'expected_price' => '2.23',
+                    'expected_price' => 4.44,
                     'quantity' => 2,
                     'fyndiq_exported' => true,
                     'name' => 'name1',
+                    'images' => array(),
                 ),
                 array(
-                    'price' => 3.33,
+                    'price' => 4.44,
                     'currency' => $currency,
                     'fyndiq_quantity' => 2,
                     'fyndiq_status' => 'pending',
                     'fyndiq_percentage' => 44,
-                    'expected_price' => '1.86',
+                    'expected_price' => 4.44,
                     'quantity' => 2,
                     'fyndiq_exported' => true,
                     'name' => 'name2',
+                    'images' => array(),
                 )
             )
         );
@@ -159,11 +161,13 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                     'quantity' => 2,
                     'price' => 3.33,
                     'name' => 'name1',
+                    'images' => array(),
                 ),
                 array(
                     'quantity' => 2,
                     'price' => 3.33,
                     'name' => 'name2',
+                    'images' => array(),
                 ),
                 array()
             ));
@@ -179,6 +183,8 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                     'state' => 'test',
                 )
             ));
+
+        $this->fmPrestashop->method('toolsPsRound')->willReturn(4.44);
 
         $this->controller->expects($this->at(0))
             ->method('loadModel')
@@ -206,7 +212,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                     'order_id' => 1,
                     'created_at' => '2013-12-11',
                     'created_at_time' => '10:09:08',
-                    'price' => 30,
+                    'price' => 4.55,
                     'state' => null,
                     'total_products' => 1,
                     'is_done' => false,
@@ -237,7 +243,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $newOrder->date_add = '2013-12-11 10:09:08';
-        $newOrder->total_paid_real = 30;
+        $newOrder->total_paid_tax_incl = 30;
 
         $newOrder->expects($this->once())
             ->method('getProducts')
@@ -254,7 +260,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             ->method('newOrder')
             ->willReturn($newOrder);
 
-
+        $this->fmPrestashop->method('toolsPsRound')->willReturn(4.55);
 
         $this->controller->expects($this->once())
             ->method('loadModel')

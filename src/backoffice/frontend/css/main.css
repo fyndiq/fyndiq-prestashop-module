@@ -350,6 +350,10 @@
     display: block;
     margin: 3px 0 -5px; }
 
+.fm-orders-list a {
+  color: #f08c48;
+  text-decoration: underline; }
+
 .fm-container {
   background-color: #e7eef4;
   font-family: "Montserrat", sans-serif;
@@ -379,14 +383,6 @@
 
 #main {
   background-color: #e7eef4 !important; }
-
-#content.nobootstrap {
-  margin-left: 0;
-  padding: 62px 0 0; }
-
-#content.nobootstrap .fm-container {
-  padding-left: 210px;
-  width: auto; }
 
 .fmpsv14 .fm-content-wrapper,
 .fmpsv14 .fm-header-wrapper {

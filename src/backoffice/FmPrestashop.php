@@ -304,7 +304,7 @@ class FmPrestashop
 
     public function globPricePrecision()
     {
-        return _PS_PRICE_COMPUTE_PRECISION_;
+        return defined('_PS_PRICE_DISPLAY_PRECISION_') ? _PS_PRICE_DISPLAY_PRECISION_ : 2;
     }
 
     // Module
