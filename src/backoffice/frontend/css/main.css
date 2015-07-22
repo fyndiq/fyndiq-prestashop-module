@@ -350,6 +350,10 @@
     display: block;
     margin: 3px 0 -5px; }
 
+.fm-orders-list a {
+  color: #f08c48;
+  text-decoration: underline; }
+
 .fm-container {
   background-color: #e7eef4;
   font-family: "Montserrat", sans-serif;
