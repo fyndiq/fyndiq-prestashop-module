@@ -6,7 +6,6 @@
  */
 class FmOrder extends FmModel
 {
-
     const FYNDIQ_ORDERS_EMAIL = 'info@fyndiq.se';
     const FYNDIQ_ORDERS_NAME_FIRST = 'Fyndiq';
     const FYNDIQ_ORDERS_NAME_LAST = 'Orders';
@@ -93,7 +92,6 @@ class FmOrder extends FmModel
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
             );
             $invoiceAddress->add();
-
         } else {
             $invoiceAddress = $this->fmPrestashop->newAddress();
             $deliveryAddress = $this->fmPrestashop->newAddress();
@@ -258,8 +256,19 @@ class FmOrder extends FmModel
         return $orderMessage->add();
     }
 
-    function updateProductsPrices($orderRows, $products)
+    public function updateProductsPrices($orderRows, $products)
     {
+        foreach ($orderRows as $row) {
+            foreach ($products as $key => $product) {
+                if ($product['reference'] == $row->sku) {
+                    $product['price'] = floatval($row->unit_price_amount);
+                    $product['price_wt'] = floatval($row->unit_price_amount);
+                    $product['total_wt'] = floatval(($row->unit_price_amount*$row->quantity));
+                    $product['rate'] = floatval($row->vat_percent);
+                    $products[$key] = $product;
+                }
+            }
+        }
         return $products;
     }
 
