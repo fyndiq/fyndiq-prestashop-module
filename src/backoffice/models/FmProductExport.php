@@ -176,7 +176,6 @@ class FmProductExport extends FmModel
                     'name' => $productAttribute['group_name'],
                     'value' => $productAttribute['attribute_name']
                 );
-
                 if ($combinationImages) {
                     foreach ($combinationImages as $combinationImage) {
                         // data array is stored in another array with only one key: 0. I have no idea why
@@ -188,7 +187,6 @@ class FmProductExport extends FmModel
                                 $combinationImage['id_image'],
                                 $imageType['name']
                             );
-
                             $result['combinations'][$id]['images'][] = $image;
                         }
                     }
@@ -245,6 +243,10 @@ class FmProductExport extends FmModel
                 continue;
             }
 
+            $articles = array();
+            $prices = array();
+            $pricePercentage = $fmProduct['exported_price_percentage'];
+
             $i = 0;
             // Deal with combinations
             foreach ($storeProduct['combinations'] as $combination) {
@@ -256,6 +258,12 @@ class FmProductExport extends FmModel
                 }
                 $exportProductCopy['article-sku'] = $combination['reference'];
                 $exportProductCopy['article-quantity'] = intval($combination['quantity']);
+
+                $price = FyndiqUtils::getFyndiqPrice($combination['price'], $pricePercentage);
+                $fyndiqPrice = FyndiqUtils::formatPrice($price);
+                $prices[] = $fyndiqPrice;
+
+                $exportProductCopy['product-price'] = $fyndiqPrice;
                 $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
 
                 // Create combination name
@@ -268,9 +276,23 @@ class FmProductExport extends FmModel
                     $id++;
                 }
                 $exportProductCopy['article-name'] = implode(', ', $productName);
-                FyndiqUtils::debug('$exportProductCopy', $exportProductCopy);
-                $feedWriter->addProduct($exportProductCopy);
+
+                $articles[$combination['id']] = $exportProductCopy;
                 $i++;
+            }
+
+            $samePrices = count(array_unique($prices)) === 1;
+            FyndiqUtils::debug('$samePrices', $samePrices);
+            foreach($articles as $articleId => $article) {
+                FyndiqUtils::debug('$exportProductCopy', $articleId, $productCopy);
+                if ($samePrices) {
+                    // All prices are the same, create articles
+                    $result &= $feedWriter->addProduct($article);
+                    continue;
+                }
+                // Prices differ, create products
+                $article['product-id'] = $article['product-id'] . '-' . $articleId;
+                $result &= $feedWriter->addProduct($article);
             }
         }
         FyndiqUtils::debug('End');
