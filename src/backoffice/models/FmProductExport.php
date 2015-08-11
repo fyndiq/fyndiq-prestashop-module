@@ -162,39 +162,32 @@ class FmProductExport extends FmModel
 
         // handle combinations
         $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
-        $combinationImages = $product->getCombinationImages($languageId);
-
-        foreach ($productAttributes as $productAttribute) {
-            $id = $productAttribute['id_product_attribute'];
-            $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
-            $result['combinations'][$id]['id'] = $id;
-            $result['combinations'][$id]['reference'] = $productAttribute['reference'];
-            $result['combinations'][$id]['price'] =
-                $this->fmPrestashop->getPrice($product, $productAttribute['price']);
-            $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
-            $result['combinations'][$id]['attributes'][] = array(
-                'name' => $productAttribute['group_name'],
-                'value' => $productAttribute['attribute_name']
-            );
-
-            // if this combination has no image yet
-            if (empty($result['combinations'][$id]['image'])) {
-                // if this combination has any images
+        if ($productAttributes) {
+            $combinationImages = $product->getCombinationImages($languageId);
+            foreach ($productAttributes as $productAttribute) {
+                $id = $productAttribute['id_product_attribute'];
+                //$comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
+                $result['combinations'][$id]['id'] = $id;
+                $result['combinations'][$id]['reference'] = $productAttribute['reference'];
+                $result['combinations'][$id]['price'] =
+                    $this->fmPrestashop->getPrice($product, $id);
+                $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
+                $result['combinations'][$id]['attributes'][] = array(
+                    'name' => $productAttribute['group_name'],
+                    'value' => $productAttribute['attribute_name']
+                );
                 if ($combinationImages) {
                     foreach ($combinationImages as $combinationImage) {
                         // data array is stored in another array with only one key: 0. I have no idea why
                         $combinationImage = $combinationImage[0];
                         // if combination image belongs to the same product attribute mapping as the current combination
-                        if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
+                        if ($combinationImage['id_product_attribute'] == $id) {
                             $image = $this->fmPrestashop->getImageLink(
                                 $product->link_rewrite,
                                 $combinationImage['id_image'],
                                 $imageType['name']
                             );
-
-                            $result['combinations'][$id]['image'] = $image;
-                            // We are getting single image only, no need to loop further
-                            break;
+                            $result['combinations'][$id]['images'][] = $image;
                         }
                     }
                 }
@@ -250,6 +243,10 @@ class FmProductExport extends FmModel
                 continue;
             }
 
+            $articles = array();
+            $prices = array();
+            $pricePercentage = $fmProduct['exported_price_percentage'];
+
             $i = 0;
             // Deal with combinations
             foreach ($storeProduct['combinations'] as $combination) {
@@ -261,6 +258,12 @@ class FmProductExport extends FmModel
                 }
                 $exportProductCopy['article-sku'] = $combination['reference'];
                 $exportProductCopy['article-quantity'] = intval($combination['quantity']);
+
+                $price = FyndiqUtils::getFyndiqPrice($combination['price'], $pricePercentage);
+                $fyndiqPrice = FyndiqUtils::formatPrice($price);
+                $prices[] = $fyndiqPrice;
+
+                $exportProductCopy['product-price'] = $fyndiqPrice;
                 $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
 
                 // Create combination name
@@ -273,9 +276,23 @@ class FmProductExport extends FmModel
                     $id++;
                 }
                 $exportProductCopy['article-name'] = implode(', ', $productName);
-                FyndiqUtils::debug('$exportProductCopy', $exportProductCopy);
-                $feedWriter->addProduct($exportProductCopy);
+
+                $articles[$combination['id']] = $exportProductCopy;
                 $i++;
+            }
+
+            $samePrices = count(array_unique($prices)) === 1;
+            FyndiqUtils::debug('$samePrices', $samePrices);
+            foreach($articles as $articleId => $article) {
+                FyndiqUtils::debug('$exportProductCopy', $articleId, $productCopy);
+                if ($samePrices) {
+                    // All prices are the same, create articles
+                    $result &= $feedWriter->addProduct($article);
+                    continue;
+                }
+                // Prices differ, create products
+                $article['product-id'] = $article['product-id'] . '-' . $articleId;
+                $result &= $feedWriter->addProduct($article);
             }
         }
         FyndiqUtils::debug('End');
