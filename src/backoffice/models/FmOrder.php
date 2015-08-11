@@ -248,7 +248,7 @@ class FmOrder extends FmModel
     {
         foreach ($orderRows as $row) {
             foreach ($products as $key => $product) {
-                if ($product['reference'] == $row->sku) {
+                if ($product['id_product'] == $row->productId) {
                     $product['quantity'] = $row->quantity;
                     $product['price'] = $this->fmPrestashop->toolsPsRound(
                         (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
@@ -277,7 +277,9 @@ class FmOrder extends FmModel
     {
         $context = $this->fmPrestashop->contextGetContext();
 
-        foreach ($fyndiqOrder->order_rows as &$row) {
+        $fyndiqorderRows = $fyndiqOrder->order_rows;
+
+        foreach ($fyndiqorderRows as $key => $row) {
             list($productId, $combinationId) = $this->getProductBySKU($row->sku);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
@@ -290,6 +292,7 @@ class FmOrder extends FmModel
             }
             $row->productId = $productId;
             $row->combinationId = $combinationId;
+            $fyndiqorderRows[$key] = $row;
         }
 
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
@@ -310,12 +313,12 @@ class FmOrder extends FmModel
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
         $context->customer = $customer;
 
-        foreach ($fyndiqOrder->order_rows as $newrow) {
+        foreach ($fyndiqorderRows as $newrow) {
             $numArticle = (int)$newrow->quantity;
             $cart->updateQty($numArticle, $newrow->productId, $newrow->combinationId);
         }
 
-        $cartProducts = $this->updateProductsPrices($fyndiqOrder->order_rows, $cart->getProducts());
+        $cartProducts = $this->updateProductsPrices($fyndiqorderRows, $cart->getProducts());
 
         $prestaOrder = $this->createPrestaOrder(
             $cart,
