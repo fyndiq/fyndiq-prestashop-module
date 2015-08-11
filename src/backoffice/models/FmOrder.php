@@ -249,6 +249,7 @@ class FmOrder extends FmModel
         foreach ($orderRows as $row) {
             foreach ($products as $key => $product) {
                 if ($product['reference'] == $row->sku) {
+                    $product['quantity'] = $row->quantity;
                     $product['price'] = $this->fmPrestashop->toolsPsRound(
                         (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
                         2
@@ -258,7 +259,6 @@ class FmOrder extends FmModel
                     $product['total'] = $this->fmPrestashop->toolsPsRound(floatval((($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100))*$row->quantity)), 2);
                     $product['rate'] = floatval($row->vat_percent);
                     $products[$key] = $product;
-                    break;
                 }
             }
         }
@@ -310,9 +310,9 @@ class FmOrder extends FmModel
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
         $context->customer = $customer;
 
-        foreach ($fyndiqOrder->order_rows as $row) {
-            $numArticle = (int)$row->quantity;
-            $cart->updateQty($numArticle, $row->productId, $row->combinationId);
+        foreach ($fyndiqOrder->order_rows as $newrow) {
+            $numArticle = (int)$newrow->quantity;
+            $cart->updateQty($numArticle, $newrow->productId, $newrow->combinationId);
         }
 
         $cartProducts = $this->updateProductsPrices($fyndiqOrder->order_rows, $cart->getProducts());
@@ -444,11 +444,7 @@ class FmOrder extends FmModel
     {
         $total = 0;
         foreach ($products as $product) {
-            if ($tax) {
-                $total += $product['total_wt'];
-            } else {
-                $total += $product['total'];
-            }
+            $total += $tax ? $product['total_wt'] : $product['total'];
         }
         return $total;
     }
