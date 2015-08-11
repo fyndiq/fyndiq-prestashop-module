@@ -2,7 +2,6 @@
 
 class FmOutput extends FyndiqOutput
 {
-
     protected $module;
     protected $smarty;
     protected $fmPrestashop;
@@ -18,7 +17,7 @@ class FmOutput extends FyndiqOutput
     {
         $modulePath = $this->fmPrestashop->getModulePath();
         // Templates path, relative to admin
-        $templatesPath = '../' . $modulePath . 'backoffice/includes/shared/frontend/templates/js_templates.tpl';
+        $templatesPath = dirname(__FILE__) . '/includes/shared/frontend/templates/js_templates.tpl';
         $this->smarty->assign(array_merge(
             $args,
             array(
