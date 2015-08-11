@@ -35,6 +35,9 @@ class FilePageController
         $this->fmConfig = $fmConfig;
         $this->fmOutput = $fmOutput;
         $this->fmProductExport = $fmProductExport;
+        $context = $fmPrestashop->contextGetContext();
+        // Weirdly this is required
+        $context->employee = 1;
     }
 
     public function handleRequest()
