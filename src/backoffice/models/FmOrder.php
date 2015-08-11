@@ -155,19 +155,9 @@ class FmOrder extends FmModel
             $prestaOrder->mobile_theme = $cart->mobile_theme;
         }
         $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
-
-        $prestaOrder->total_products = (float)$cart->getOrderTotal(
-            false,
-            $this->fmPrestashop->cartOnlyProducts(),
-            $cartProducts, // tempered list
-            self::ID_CARRIER
-        );
-        $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
-            true,
-            $this->fmPrestashop->cartOnlyProducts(),
-            $cartProducts, // tempered list
-            self::ID_CARRIER
-        );
+        //var_dump($cartProducts);
+        $prestaOrder->total_products = (float)$this->getOrderTotal($cartProducts, false);
+        $prestaOrder->total_products_wt = (float)$this->getOrderTotal($cartProducts);
 
         // Discounts and shipping tax settings
         $prestaOrder->total_discounts_tax_excl = 0.00;
@@ -186,14 +176,12 @@ class FmOrder extends FmModel
         $prestaOrder->total_wrapping = $prestaOrder->total_wrapping_tax_incl;
 
         //Taxes
-        $prestaOrder->total_paid_tax_excl = 0;
+        $prestaOrder->total_paid_tax_excl = $this->fmPrestashop->toolsPsRound(
+            (float)$this->getOrderTotal($cartProducts, false),
+            2
+        );
         $prestaOrder->total_paid_tax_incl = $this->fmPrestashop->toolsPsRound(
-            (float)$cart->getOrderTotal(
-                true,
-                $this->fmPrestashop->cartBoth(),
-                $cartProducts, // tempered list
-                self::ID_CARRIER
-            ),
+            (float)$this->getOrderTotal($cartProducts),
             2
         );
 
@@ -261,11 +249,16 @@ class FmOrder extends FmModel
         foreach ($orderRows as $row) {
             foreach ($products as $key => $product) {
                 if ($product['reference'] == $row->sku) {
-                    $product['price'] = floatval($row->unit_price_amount);
+                    $product['price'] = $this->fmPrestashop->toolsPsRound(
+                        (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
+                        2
+                    );
                     $product['price_wt'] = floatval($row->unit_price_amount);
                     $product['total_wt'] = floatval(($row->unit_price_amount*$row->quantity));
+                    $product['total'] = $this->fmPrestashop->toolsPsRound(floatval((($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100))*$row->quantity)), 2);
                     $product['rate'] = floatval($row->vat_percent);
                     $products[$key] = $product;
+                    break;
                 }
             }
         }
@@ -445,6 +438,19 @@ class FmOrder extends FmModel
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }
         return false;
+    }
+
+    public function getOrderTotal($products, $tax = true)
+    {
+        $total = 0;
+        foreach ($products as $product) {
+            if ($tax) {
+                $total += $product['total_wt'];
+            } else {
+                $total += $product['total'];
+            }
+        }
+        return $total;
     }
 
     public function markOrderAsDone($orderId, $orderDoneState)
