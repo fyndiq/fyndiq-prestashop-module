@@ -43,10 +43,7 @@ class FilePageController
         $apiToken = $this->fmConfig->get('api_token');
         if (!empty($username) && !empty($apiToken)) {
             $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
-
-            // If ping does not function properly, generate the file if older than 1 hour on request
-            $fileExistsAndFresh = file_exists($filePath) && filemtime($filePath) > strtotime('-1 hour');
-            if (!$fileExistsAndFresh) {
+            if (FyndiqUtils::mustRegenerateFile($filePath)) {
                 // Write the file if it does not exist or is older than the interval
                 $file = fopen($filePath, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
