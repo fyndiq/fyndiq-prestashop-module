@@ -162,39 +162,34 @@ class FmProductExport extends FmModel
 
         // handle combinations
         $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
-        $combinationImages = $product->getCombinationImages($languageId);
+        if ($productAttributes) {
+            $combinationImages = $product->getCombinationImages($languageId);
+            foreach ($productAttributes as $productAttribute) {
+                $id = $productAttribute['id_product_attribute'];
+                //$comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
+                $result['combinations'][$id]['id'] = $id;
+                $result['combinations'][$id]['reference'] = $productAttribute['reference'];
+                $result['combinations'][$id]['price'] =
+                    $this->fmPrestashop->getPrice($product, $id);
+                $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
+                $result['combinations'][$id]['attributes'][] = array(
+                    'name' => $productAttribute['group_name'],
+                    'value' => $productAttribute['attribute_name']
+                );
 
-        foreach ($productAttributes as $productAttribute) {
-            $id = $productAttribute['id_product_attribute'];
-            $comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
-            $result['combinations'][$id]['id'] = $id;
-            $result['combinations'][$id]['reference'] = $productAttribute['reference'];
-            $result['combinations'][$id]['price'] =
-                $this->fmPrestashop->getPrice($product, $productAttribute['price']);
-            $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
-            $result['combinations'][$id]['attributes'][] = array(
-                'name' => $productAttribute['group_name'],
-                'value' => $productAttribute['attribute_name']
-            );
-
-            // if this combination has no image yet
-            if (empty($result['combinations'][$id]['image'])) {
-                // if this combination has any images
                 if ($combinationImages) {
                     foreach ($combinationImages as $combinationImage) {
                         // data array is stored in another array with only one key: 0. I have no idea why
                         $combinationImage = $combinationImage[0];
                         // if combination image belongs to the same product attribute mapping as the current combination
-                        if ($combinationImage['id_product_attribute'] == $productAttribute['id_product_attribute']) {
+                        if ($combinationImage['id_product_attribute'] == $id) {
                             $image = $this->fmPrestashop->getImageLink(
                                 $product->link_rewrite,
                                 $combinationImage['id_image'],
                                 $imageType['name']
                             );
 
-                            $result['combinations'][$id]['image'] = $image;
-                            // We are getting single image only, no need to loop further
-                            break;
+                            $result['combinations'][$id]['images'][] = $image;
                         }
                     }
                 }
