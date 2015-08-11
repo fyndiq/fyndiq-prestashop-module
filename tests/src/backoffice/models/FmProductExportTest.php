@@ -115,7 +115,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                             'value' => 'attribute_name_9',
                         )
                     ),
-                    'image' => 'image.jpg',
+                    'images' => array('image.jpg'),
                 ),
                 2 => array(
                     'id' => 2,
@@ -127,7 +127,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                             'name' => 'group_name_8',
                             'value' => 'attribute_name_10',
                         )
-                    )
+                    ),
+                    'images' => array(),
                 ),
             ),
             'id' => 3,
@@ -288,12 +289,14 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                                     'value' => 'value'
                                 )
                             ),
+                            'images' => array(),
                         ),
                         array(
                             'reference' => '',
                             'quantity' => 17,
                             'price' => 19.19,
                             'attributes' => array(),
+                            'images' => array(),
                         )
                     ),
                     'quantity' => 14
@@ -337,7 +340,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'product-currency' => 'ZAM',
                     'article-quantity' => 16,
                     'product-description' => 'description',
-                    'product-price' => '1.53',
+                    'product-price' => '4.18',
                     'product-oldprice' => '18.18',
                     'product-brand-name' => 'manufacturer_name',
                     'product-title' => 'name',

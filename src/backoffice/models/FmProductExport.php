@@ -176,6 +176,8 @@ class FmProductExport extends FmModel
                     'name' => $productAttribute['group_name'],
                     'value' => $productAttribute['attribute_name']
                 );
+                $result['combinations'][$id]['images'] = array();
+
                 if ($combinationImages) {
                     foreach ($combinationImages as $combinationImage) {
                         // data array is stored in another array with only one key: 0. I have no idea why
@@ -196,10 +198,9 @@ class FmProductExport extends FmModel
         return $result;
     }
 
-    protected function getImages($images)
+    protected function getImages($images, $imageId = 1)
     {
         $result = array();
-        $imageId = 1;
         foreach ($images as $image) {
             $result['product-image-' . $imageId . '-url'] = $image;
             $result['product-image-' . $imageId  . '-identifier'] = substr(md5($image), 0, 10);
@@ -216,6 +217,7 @@ class FmProductExport extends FmModel
      */
     public function saveFile($languageId, $feedWriter)
     {
+        $result = true;
         $fmProducts = $this->getFyndiqProducts();
         if (empty($fmProducts)) {
             return $feedWriter->write();
@@ -233,8 +235,13 @@ class FmProductExport extends FmModel
                 continue;
             }
             $exportProduct = $this->getProductData($storeProduct, $fmProduct, $currentCurrency);
+
             if (count($storeProduct['combinations']) === 0) {
                 // Product without combinations
+
+                // Add Product images
+                $exportProduct = array_merge($exportProduct, $this->getImages($storeProduct['images']));
+
                 // Complete Product with article data
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
                 $exportProduct['article-name'] = $storeProduct['name'];
@@ -276,22 +283,38 @@ class FmProductExport extends FmModel
                     $id++;
                 }
                 $exportProductCopy['article-name'] = implode(', ', $productName);
-
+                $exportProductCopy['images'] = $combination['images'];
                 $articles[$combination['id']] = $exportProductCopy;
                 $i++;
             }
 
             $samePrices = count(array_unique($prices)) === 1;
             FyndiqUtils::debug('$samePrices', $samePrices);
-            foreach($articles as $articleId => $article) {
-                FyndiqUtils::debug('$exportProductCopy', $articleId, $productCopy);
+
+            foreach ($articles as $articleId => $article) {
                 if ($samePrices) {
                     // All prices are the same, create articles
+                    // Remove images
+                    unset($article['images']);
+                    // Add product images
+                    $article = array_merge($article, $this->getImages($storeProduct['images']));
+                    FyndiqUtils::debug('Combined $article', $articleId, $article);
                     $result &= $feedWriter->addProduct($article);
                     continue;
                 }
                 // Prices differ, create products
+
+                // Add Images
+                // Combine article and product images and get unique array
+                $images = array_unique(array_merge($article['images'], $storeProduct['images']));
+                // Remove images holder
+                unset($article['images']);
+                // Add images to article
+                $article = array_merge($article, $this->getImages($images));
+                // Update the product id
                 $article['product-id'] = $article['product-id'] . '-' . $articleId;
+
+                FyndiqUtils::debug('Split $article', $articleId, $article);
                 $result &= $feedWriter->addProduct($article);
             }
         }
@@ -322,8 +345,6 @@ class FmProductExport extends FmModel
         $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
         $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
         $exportProduct['product-brand-name'] = $storeProduct['manufacturer_name'];
-
-        $exportProduct = array_merge($exportProduct, $this->getImages($storeProduct['images']));
         $exportProduct['product-title'] = $storeProduct['name'];
         $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
         $exportProduct['product-market'] = $this->fmPrestashop->getCountryCode();
