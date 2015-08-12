@@ -2,7 +2,6 @@
 
 class FmOrderTest extends PHPUnit_Framework_TestCase
 {
-
     protected function setUp()
     {
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
@@ -185,7 +184,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($address);
 
         $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getByEmail', 'add',))
+            ->setMethods(array('getByEmail', 'add', ))
             ->getMock();
 
         $customer->firstname = null;
@@ -287,6 +286,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 'addOrderToHistory',
                 'addOrderMessage',
                 'addOrderLog',
+                'updateProductsPrices'
             ))
             ->getMock();
 
@@ -401,6 +401,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(666)
             )
             ->willReturn(true);
+
+        $this->fmOrder->expects($this->once())
+            ->method('updateProductsPrices')
+            ->with(
+                $this->equalTo($fyndiqOrder->order_rows),
+                $this->equalTo($cart->getProducts())
+            );
 
         $result = $this->fmOrder->create($fyndiqOrder, 16, 'id_address_delivery');
         $this->assertTrue($result);
