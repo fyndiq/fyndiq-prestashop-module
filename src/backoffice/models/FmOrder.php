@@ -156,8 +156,8 @@ class FmOrder extends FmModel
         }
         $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
         //var_dump($cartProducts);
-        $prestaOrder->total_products = (float)$this->getOrderTotal($cartProducts, false);
-        $prestaOrder->total_products_wt = (float)$this->getOrderTotal($cartProducts);
+        $prestaOrder->total_products = $this->getOrderTotal($cartProducts, false);
+        $prestaOrder->total_products_wt = $this->getOrderTotal($cartProducts);
 
         // Discounts and shipping tax settings
         $prestaOrder->total_discounts_tax_excl = 0.00;
@@ -177,11 +177,11 @@ class FmOrder extends FmModel
 
         //Taxes
         $prestaOrder->total_paid_tax_excl = $this->fmPrestashop->toolsPsRound(
-            (float)$this->getOrderTotal($cartProducts, false),
+            $this->getOrderTotal($cartProducts, false),
             2
         );
         $prestaOrder->total_paid_tax_incl = $this->fmPrestashop->toolsPsRound(
-            (float)$this->getOrderTotal($cartProducts),
+            $this->getOrderTotal($cartProducts),
             2
         );
 
@@ -452,7 +452,7 @@ class FmOrder extends FmModel
         foreach ($products as $product) {
             $total += $tax ? $product['total_wt'] : $product['total'];
         }
-        return $total;
+        return (float)$total;
     }
 
     public function markOrderAsDone($orderId, $orderDoneState)
