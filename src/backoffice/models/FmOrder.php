@@ -248,7 +248,7 @@ class FmOrder extends FmModel
     {
         foreach ($orderRows as $row) {
             foreach ($products as $key => $product) {
-                if ($product['id_product'] == $row->productId) {
+                if ($product['id_product'] == $row->productId && $product['id_product_attribute'] == $row->combinationId) {
                     $product['quantity'] = $row->quantity;
                     $product['price'] = $this->fmPrestashop->toolsPsRound(
                         (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
@@ -425,6 +425,9 @@ class FmOrder extends FmModel
      */
     public function getProductBySKU($productSKU)
     {
+        if (!isset($productSKU)) {
+            return false;
+        }
         // Check products
         $sql = 'SELECT id_product FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
             WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
