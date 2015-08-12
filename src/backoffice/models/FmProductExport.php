@@ -178,19 +178,14 @@ class FmProductExport extends FmModel
                 );
                 $result['combinations'][$id]['images'] = array();
 
-                if ($combinationImages) {
-                    foreach ($combinationImages as $combinationImage) {
-                        // data array is stored in another array with only one key: 0. I have no idea why
-                        $combinationImage = $combinationImage[0];
-                        // if combination image belongs to the same product attribute mapping as the current combination
-                        if ($combinationImage['id_product_attribute'] == $id) {
-                            $image = $this->fmPrestashop->getImageLink(
-                                $product->link_rewrite,
-                                $combinationImage['id_image'],
-                                $imageType['name']
-                            );
-                            $result['combinations'][$id]['images'][] = $image;
-                        }
+                if ($combinationImages && isset($combinationImages[$id])) {
+                    foreach ($combinationImages[$id] as $combinationImage) {
+                        $image = $this->fmPrestashop->getImageLink(
+                            $product->link_rewrite,
+                            $combinationImage['id_image'],
+                            $imageType['name']
+                        );
+                        $result['combinations'][$id]['images'][] = $image;
                     }
                 }
             }
