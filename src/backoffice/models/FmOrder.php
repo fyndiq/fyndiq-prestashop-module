@@ -6,7 +6,6 @@
  */
 class FmOrder extends FmModel
 {
-
     const FYNDIQ_ORDERS_EMAIL = 'info@fyndiq.se';
     const FYNDIQ_ORDERS_NAME_FIRST = 'Fyndiq';
     const FYNDIQ_ORDERS_NAME_LAST = 'Orders';
@@ -93,7 +92,6 @@ class FmOrder extends FmModel
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
             );
             $invoiceAddress->add();
-
         } else {
             $invoiceAddress = $this->fmPrestashop->newAddress();
             $deliveryAddress = $this->fmPrestashop->newAddress();
@@ -157,19 +155,9 @@ class FmOrder extends FmModel
             $prestaOrder->mobile_theme = $cart->mobile_theme;
         }
         $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
-
-        $prestaOrder->total_products = (float)$cart->getOrderTotal(
-            false,
-            $this->fmPrestashop->cartOnlyProducts(),
-            $cartProducts, // tempered list
-            self::ID_CARRIER
-        );
-        $prestaOrder->total_products_wt = (float)$cart->getOrderTotal(
-            true,
-            $this->fmPrestashop->cartOnlyProducts(),
-            $cartProducts, // tempered list
-            self::ID_CARRIER
-        );
+        //var_dump($cartProducts);
+        $prestaOrder->total_products = $this->getOrderTotal($cartProducts, false);
+        $prestaOrder->total_products_wt = $this->getOrderTotal($cartProducts);
 
         // Discounts and shipping tax settings
         $prestaOrder->total_discounts_tax_excl = 0.00;
@@ -188,14 +176,12 @@ class FmOrder extends FmModel
         $prestaOrder->total_wrapping = $prestaOrder->total_wrapping_tax_incl;
 
         //Taxes
-        $prestaOrder->total_paid_tax_excl = 0;
+        $prestaOrder->total_paid_tax_excl = $this->fmPrestashop->toolsPsRound(
+            $this->getOrderTotal($cartProducts, false),
+            2
+        );
         $prestaOrder->total_paid_tax_incl = $this->fmPrestashop->toolsPsRound(
-            (float)$cart->getOrderTotal(
-                true,
-                $this->fmPrestashop->cartBoth(),
-                $cartProducts, // tempered list
-                self::ID_CARRIER
-            ),
+            $this->getOrderTotal($cartProducts),
             2
         );
 
@@ -258,8 +244,24 @@ class FmOrder extends FmModel
         return $orderMessage->add();
     }
 
-    function updateProductsPrices($orderRows, $products)
+    public function updateProductsPrices($orderRows, $products)
     {
+        foreach ($orderRows as $row) {
+            foreach ($products as $key => $product) {
+                if ($product['id_product'] == $row->productId && $product['id_product_attribute'] == $row->combinationId) {
+                    $product['quantity'] = $row->quantity;
+                    $product['price'] = $this->fmPrestashop->toolsPsRound(
+                        (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
+                        2
+                    );
+                    $product['price_wt'] = floatval($row->unit_price_amount);
+                    $product['total_wt'] = floatval(($row->unit_price_amount*$row->quantity));
+                    $product['total'] = $this->fmPrestashop->toolsPsRound(floatval((($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100))*$row->quantity)), 2);
+                    $product['rate'] = floatval($row->vat_percent);
+                    $products[$key] = $product;
+                }
+            }
+        }
         return $products;
     }
 
@@ -275,7 +277,9 @@ class FmOrder extends FmModel
     {
         $context = $this->fmPrestashop->contextGetContext();
 
-        foreach ($fyndiqOrder->order_rows as &$row) {
+        $fyndiqorderRows = $fyndiqOrder->order_rows;
+
+        foreach ($fyndiqorderRows as $key => $row) {
             list($productId, $combinationId) = $this->getProductBySKU($row->sku);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
@@ -288,6 +292,7 @@ class FmOrder extends FmModel
             }
             $row->productId = $productId;
             $row->combinationId = $combinationId;
+            $fyndiqorderRows[$key] = $row;
         }
 
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
@@ -308,12 +313,12 @@ class FmOrder extends FmModel
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
         $context->customer = $customer;
 
-        foreach ($fyndiqOrder->order_rows as $row) {
-            $numArticle = (int)$row->quantity;
-            $cart->updateQty($numArticle, $row->productId, $row->combinationId);
+        foreach ($fyndiqorderRows as $newrow) {
+            $numArticle = (int)$newrow->quantity;
+            $cart->updateQty($numArticle, $newrow->productId, $newrow->combinationId);
         }
 
-        $cartProducts = $this->updateProductsPrices($fyndiqOrder->order_rows, $cart->getProducts());
+        $cartProducts = $this->updateProductsPrices($fyndiqorderRows, $cart->getProducts());
 
         $prestaOrder = $this->createPrestaOrder(
             $cart,
@@ -420,6 +425,9 @@ class FmOrder extends FmModel
      */
     public function getProductBySKU($productSKU)
     {
+        if (!isset($productSKU)) {
+            return false;
+        }
         // Check products
         $sql = 'SELECT id_product FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
             WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
@@ -436,6 +444,15 @@ class FmOrder extends FmModel
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }
         return false;
+    }
+
+    public function getOrderTotal($products, $tax = true)
+    {
+        $total = 0;
+        foreach ($products as $product) {
+            $total += $tax ? $product['total_wt'] : $product['total'];
+        }
+        return (float)$total;
     }
 
     public function markOrderAsDone($orderId, $orderDoneState)

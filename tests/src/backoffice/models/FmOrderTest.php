@@ -2,7 +2,6 @@
 
 class FmOrderTest extends PHPUnit_Framework_TestCase
 {
-
     protected function setUp()
     {
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
@@ -185,7 +184,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($address);
 
         $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getByEmail', 'add',))
+            ->setMethods(array('getByEmail', 'add', ))
             ->getMock();
 
         $customer->firstname = null;
@@ -287,6 +286,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 'addOrderToHistory',
                 'addOrderMessage',
                 'addOrderLog',
+                'updateProductsPrices'
             ))
             ->getMock();
 
@@ -322,7 +322,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $cart = $this->getCart();
 
-        $cart->expects($this->at(1))
+        $cart->expects($this->at(2))
             ->method('updateQty')
             ->with(
                 $this->equalTo($fyndiqOrder->order_rows[0]->quantity),
@@ -330,13 +330,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo($product1Comb)
             );
 
-        $cart->expects($this->at(2))
+        $cart->expects($this->at(3))
             ->method('updateQty')
             ->willReturn(true);
 
-        // $cart->expects($this->once())
-        //     ->method('getProducts')
-        //     ->willReturn(array());
+        $cart->expects($this->any())
+            ->method('getProducts')
+            ->willReturn(array());
 
         $this->fmOrder->expects($this->once())
             ->method('getCart')
@@ -401,6 +401,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(666)
             )
             ->willReturn(true);
+
+        $this->fmOrder->expects($this->once())
+            ->method('updateProductsPrices')
+            ->with(
+                $this->equalTo($fyndiqOrder->order_rows),
+                $this->equalTo($cart->getProducts())
+            );
 
         $result = $this->fmOrder->create($fyndiqOrder, 16, 'id_address_delivery');
         $this->assertTrue($result);
