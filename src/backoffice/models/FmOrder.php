@@ -76,43 +76,23 @@ class FmOrder extends FmModel
 
             // Add it to the database.
             $customer->add();
-
-            $deliveryAddress = $this->fillAddress(
-                $fyndiqOrder,
-                $customer->id,
-                $countryId,
-                self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
-            );
-            $deliveryAddress->add();
-
-            $invoiceAddress = $this->fillAddress(
-                $fyndiqOrder,
-                $customer->id,
-                $countryId,
-                self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
-            );
-            $invoiceAddress->add();
-        } else {
-            $invoiceAddress = $this->fmPrestashop->newAddress();
-            $deliveryAddress = $this->fmPrestashop->newAddress();
-            $addresses = $customer->getAddresses($cart->id_lang);
-            foreach ($addresses as $address) {
-                $currentAddress = null;
-                if ($address['alias'] === self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS) {
-                    $currentAddress = $invoiceAddress;
-                }
-                if ($address['alias'] === self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS) {
-                    $currentAddress = $deliveryAddress;
-                }
-                foreach ($address as $key => $value) {
-                    if ($key === 'id_address') {
-                        $currentAddress->id = $value;
-                    } else {
-                        $currentAddress->$key = $value;
-                    }
-                }
-            }
         }
+
+        $deliveryAddress = $this->fillAddress(
+            $fyndiqOrder,
+            $customer->id,
+            $countryId,
+            self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
+        );
+        $deliveryAddress->add();
+
+        $invoiceAddress = $this->fillAddress(
+            $fyndiqOrder,
+            $customer->id,
+            $countryId,
+            self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
+        );
+        $invoiceAddress->add();
 
         $cart->id_customer = $customer->id;
         $cart->id_address_invoice = (int)$invoiceAddress->id;
