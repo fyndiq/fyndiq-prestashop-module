@@ -165,6 +165,8 @@
     border-spacing: 0;
     border-top: 1px solid #e3e8ec;
     font-size: 9pt;
+    max-width: 280px;
+    overflow: hidden;
     padding: .4em; }
   .fm-panel table tr:nth-child(even) {
     background-color: #f5f8fb; }
