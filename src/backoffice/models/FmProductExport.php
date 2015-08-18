@@ -153,9 +153,13 @@ class FmProductExport extends FmModel
         $images = $product->getImages($languageId);
         $result['images'] = array();
         foreach ($images as $image) {
+            $imageId = $image['id_image'];
+            if ($this->fmPrestashop->version === FmPrestashop::FMPSV14) {
+                $imageId = $product->id . '-' . $image['id_image'];
+            }
             $result['images'][] = $this->fmPrestashop->getImageLink(
                 $product->link_rewrite,
-                $image['id_image'],
+                $imageId,
                 $imageType['name']
             );
         }
