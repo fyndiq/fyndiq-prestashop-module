@@ -2,7 +2,6 @@
 
 class FmServiceController
 {
-
     protected $fmPrestashop;
     protected $fmOutput;
     protected $fmConfig;
@@ -32,7 +31,7 @@ class FmServiceController
     public function routeRequest($action, $args)
     {
         try {
-            switch($action) {
+            switch ($action) {
                 case 'get_categories':
                     return $this->getCategories($args);
                 case 'get_products':
@@ -173,11 +172,15 @@ class FmServiceController
             foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
-            $url = 'index.php?tab=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
-            if ($this->fmPrestashop->isPs1516()) {
-                $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
-            }
-            $url .= '&token=' . $this->fmPrestashop->getAdminTokenLite();
+            $tabcontroller = $this->fmPrestashop->isPs1516() ? 'controller' : 'tab';
+            $urlarray = array(
+              $tabcontroller => 'AdminOrders',
+              'id_order' => $order['order_id'],
+              'vieworder',
+              'token' => $this->fmPrestashop->getAdminTokenLite()
+            );
+            $url = 'index.php?' . http_build_query($urlarray);
+
             $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
             $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
             $orderArray['price'] = $this->fmPrestashop->toolsPsRound(
