@@ -580,7 +580,7 @@ class FmPrestashop
     public function initHeadlessScript() {
         $context = $this->contextGetContext();
         $context->employee = 1;
-        if ($this->version === FMPSV14) {
+        if ($this->version === self::FMPSV14) {
             global $cart;
             $cart = new stdClass();
         }
