@@ -56,7 +56,11 @@ class FmPrestashop
 
     public function getAdminTokenLite()
     {
-        return Tools::getAdminTokenLite('AdminOrders');
+        $this->isPs1516() {
+          return Tools::getAdminTokenLite('AdminOrders');
+        } else {
+          return Tools::getAdminToken('AdminOrders'.(int)(Tab::getIdFromClassName('AdminOrders')).(int)($cookie->id_employee));
+        }
     }
 
     /**
