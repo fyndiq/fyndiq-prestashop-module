@@ -208,8 +208,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $expected->id_currency = 1;
         $expected->id_lang = 1;
         $expected->id_customer = 3;
-        $expected->id_address_invoice = 6;
-        $expected->id_address_delivery = 6;
+        $expected->id_address_invoice = 4;
+        $expected->id_address_delivery = 4;
 
         $address = $this->getMockBuilder('stdClass')
             ->setMethods(array('add'))

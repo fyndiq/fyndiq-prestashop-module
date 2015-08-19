@@ -24,6 +24,7 @@ class FmNotificationService
         $this->fmConfig = $fmConfig;
         $this->fmOutput = $fmOutput;
         $this->fmApiModel = $fmApiModel;
+        $this->fmPrestashop->initHeadlessScript();
     }
 
     /**

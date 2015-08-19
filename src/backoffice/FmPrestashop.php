@@ -576,4 +576,13 @@ class FmPrestashop
     {
         return new Order($id, $idLang);
     }
+
+    public function initHeadlessScript() {
+        $context = $this->contextGetContext();
+        $context->employee = 1;
+        if ($this->version === FMPSV14) {
+            global $cart;
+            $cart = new stdClass();
+        }
+    }
 }

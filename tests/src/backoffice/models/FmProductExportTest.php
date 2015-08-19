@@ -115,7 +115,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                             'value' => 'attribute_name_9',
                         )
                     ),
-                    'images' => array('image.jpg'),
+                    'images' => array(),
                 ),
                 2 => array(
                     'id' => 2,
