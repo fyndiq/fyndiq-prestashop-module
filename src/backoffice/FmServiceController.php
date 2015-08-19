@@ -173,8 +173,7 @@ class FmServiceController
                 $quantity += $product['product_quantity'];
             }
             $tabcontroller = $this->fmPrestashop->isPs1516() ? 'controller' : 'tab';
-            $urlarray = array($tabcontroller => 'AdminOrders', 'id_order' => $order['order_id'], 'vieworder');
-            $urlarray['token'] = $this->fmPrestashop->getAdminTokenLite();
+            $urlarray = array($tabcontroller => 'AdminOrders', 'id_order' => $order['order_id'], 'vieworder', 'token' => $this->fmPrestashop->getAdminTokenLite());
             $url = 'index.php?' . http_build_query($urlarray);
 
             $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
