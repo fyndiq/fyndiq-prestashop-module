@@ -172,10 +172,8 @@ class FmServiceController
             foreach ($products as $product) {
                 $quantity += $product['product_quantity'];
             }
-            $urlarray = array('tab' => 'AdminOrders', 'id_order' => $order['order_id'], 'vieworder');
-            if ($this->fmPrestashop->isPs1516()) {
-                $urlarray = array('controller' => 'AdminOrders', 'id_order' => $order['order_id'], 'vieworder');
-            }
+            $tabcontroller = $this->fmPrestashop->isPs1516() ? 'controller' : 'tab';
+            $urlarray = array($tabcontroller => 'AdminOrders', 'id_order' => $order['order_id'], 'vieworder');
             $urlarray['token'] = $this->fmPrestashop->getAdminTokenLite();
             $url = 'index.php?' . http_build_query($urlarray);
 
