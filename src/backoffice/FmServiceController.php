@@ -173,10 +173,11 @@ class FmServiceController
                 $quantity += $product['product_quantity'];
             }
             $url = 'index.php?tab=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
-            $url .= '&token=' . Tools::getAdminToken('AdminOrders'.(int)(Tab::getIdFromClassName('AdminOrders')).(int)($cookie->id_employee));
             if ($this->fmPrestashop->isPs1516()) {
                 $url = 'index.php?controller=AdminOrders&id_order=' . $order['order_id'] . '&vieworder';
                 $url .= '&token=' . $this->fmPrestashop->getAdminTokenLite();
+            } else {
+                $url .= '&token=' . Tools::getAdminToken('AdminOrders'.(int)(Tab::getIdFromClassName('AdminOrders')).(int)($cookie->id_employee));
             }
             $orderArray['created_at'] = date('Y-m-d', strtotime($newOrder->date_add));
             $orderArray['created_at_time'] = date('G:i:s', strtotime($newOrder->date_add));
