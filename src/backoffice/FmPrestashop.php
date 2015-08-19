@@ -2,7 +2,6 @@
 
 class FmPrestashop
 {
-
     // FyndiqMerchant PrestaShop Version 1.4|1.5|1.6
     const FMPSV14 = 'FMPSV14';
     const FMPSV15 = 'FMPSV15';
@@ -56,10 +55,10 @@ class FmPrestashop
 
     public function getAdminTokenLite()
     {
-        $this->isPs1516() {
-          return Tools::getAdminTokenLite('AdminOrders');
+        if ($this->isPs1516()) {
+            return Tools::getAdminTokenLite('AdminOrders');
         } else {
-          return Tools::getAdminToken('AdminOrders'.(int)(Tab::getIdFromClassName('AdminOrders')).(int)($cookie->id_employee));
+            return Tools::getAdminToken('AdminOrders'.(int)(Tab::getIdFromClassName('AdminOrders')).(int)($cookie->id_employee));
         }
     }
 
@@ -489,7 +488,6 @@ class FmPrestashop
             $limit,
             $useCache
         );
-
     }
 
     // Manufacturer
@@ -581,7 +579,8 @@ class FmPrestashop
         return new Order($id, $idLang);
     }
 
-    public function initHeadlessScript() {
+    public function initHeadlessScript()
+    {
         $context = $this->contextGetContext();
         $context->employee = 1;
         if ($this->version === FMPSV14) {
