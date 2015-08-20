@@ -230,17 +230,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $customer->firstname = 'firstname';
         $customer->id = 3;
-        $customer->expects($this->once())
-            ->method('getAddresses')
-            ->willReturn(array(
-                array(
-                    'id_address' => 6,
-                    'alias' => FmOrder::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
-                ),
-                array(
-                    'alias' => FmOrder::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
-                ),
-            ));
+
         $customer->expects($this->once())->method('getByEmail')->willReturn(false);
         $this->fmPrestashop->method('newCustomer')
             ->willReturn($customer);

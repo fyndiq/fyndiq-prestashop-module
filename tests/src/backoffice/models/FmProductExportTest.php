@@ -116,6 +116,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                         )
                     ),
                     'images' => array(),
+                    'minimal_quantity' => 1,
                 ),
                 2 => array(
                     'id' => 2,
@@ -129,6 +130,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                         )
                     ),
                     'images' => array(),
+                    'minimal_quantity' => 1,
                 ),
             ),
             'id' => 3,
@@ -143,6 +145,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             'images' => array(
                 'image.jpg',
             ),
+            'minimal_quantity' => 1,
         );
         $languageId = 1;
         $productId = 2;
@@ -165,6 +168,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $product->description = 'description7';
         $product->id_manufacturer = $manufacturerId;
         $product->link_rewrite = true;
+        $product->minimal_quantity = 1;
 
         $product->method('getCategories')->willReturn(array(9, 10, 11));
         $product->method('getTaxesRate')->willReturn(12);
@@ -216,6 +220,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'reference' => 'reference5',
                     'group_name' => 'group_name_7',
                     'attribute_name' => 'attribute_name_9',
+                    'minimal_quantity' => 1,
                 ),
                 array(
                     'id_product_attribute' => 2,
@@ -224,6 +229,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'reference' => 'reference5',
                     'group_name' => 'group_name_8',
                     'attribute_name' => 'attribute_name_10',
+                    'minimal_quantity' => 1,
                 ),
             ));
 
@@ -277,6 +283,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'images' => array(
                         'image.jpg'
                     ),
+                    'minimal_quantity' => 1,
                     'combinations' => array(
                         array(
                             'id' => 1,
@@ -290,6 +297,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                                 )
                             ),
                             'images' => array(),
+                            'minimal_quantity' => 1,
                         ),
                         array(
                             'reference' => '',
@@ -297,6 +305,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                             'price' => 19.19,
                             'attributes' => array(),
                             'images' => array(),
+                            'minimal_quantity' => 1,
                         )
                     ),
                     'quantity' => 14
@@ -314,6 +323,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                         'image333.jpg',
                     ),
                     'tax_rate' => 312,
+                    'minimal_quantity' => 1,
                     'combinations' => array(),
                 )
             ));

@@ -176,7 +176,7 @@ class FmServiceController
             $urlarray = array(
               $tabcontroller => 'AdminOrders',
               'id_order' => $order['order_id'],
-              'vieworder',
+              'vieworder' => 1,
               'token' => $this->fmPrestashop->getAdminTokenLite()
             );
             $url = 'index.php?' . http_build_query($urlarray);
