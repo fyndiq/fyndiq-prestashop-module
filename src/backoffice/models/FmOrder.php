@@ -192,6 +192,8 @@ class FmOrder extends FmModel
             foreach ($cartProducts as $product) {
                 $orderDetail = $this->fmPrestashop->newOrderDetail();
                 $orderDetail->id_order = $prestaOrder->id;
+                $orderDetail->product_id = $product['id_product'];
+                $orderDetail->product_attribute_id = $product['id_product_attribute'];
                 $orderDetail->product_name = $product['name'];
                 $orderDetail->product_quantity = $product['quantity'];
                 $orderDetail->product_price = $product['price'];
