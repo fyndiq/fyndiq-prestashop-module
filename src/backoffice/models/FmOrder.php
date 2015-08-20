@@ -196,9 +196,11 @@ class FmOrder extends FmModel
                 $orderDetail->product_attribute_id = $product['id_product_attribute'];
                 $orderDetail->product_name = $product['name'];
                 $orderDetail->product_quantity = $product['quantity'];
+                $product['cart_quantity'] = $product['quantity'];
                 $orderDetail->product_price = $product['price'];
                 $orderDetail->tax_rate = $product['rate'];
                 $result &= $orderDetail->add();
+                Product::updateQuantity($product);
             }
             return (bool)$result;
         }
