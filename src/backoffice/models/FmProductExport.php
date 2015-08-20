@@ -142,6 +142,7 @@ class FmProductExport extends FmModel
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
         $result['price'] = $this->fmPrestashop->getPrice($product);
         $result['description'] = $product->description;
+        $result['minimal_quantity'] = intval($product->minimal_quantity);
         $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
             (int)$product->id_manufacturer
         );
@@ -176,6 +177,7 @@ class FmProductExport extends FmModel
                 $result['combinations'][$id]['price'] =
                     $this->fmPrestashop->getPrice($product, $id);
                 $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
+                $result['combinations'][$id]['minimal_quantity'] = intval($productAttribute['minimal_quantity']);
                 $result['combinations'][$id]['attributes'][] = array(
                     'name' => $productAttribute['group_name'],
                     'value' => $productAttribute['attribute_name']
@@ -237,7 +239,10 @@ class FmProductExport extends FmModel
 
             if (count($storeProduct['combinations']) === 0) {
                 // Product without combinations
-
+                if ($storeProduct['minimal_quantity'] > 1) {
+                    FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
+                    continue;
+                }
                 // Add Product images
                 $exportProduct = array_merge($exportProduct, $this->getImages($storeProduct['images']));
 
@@ -260,6 +265,10 @@ class FmProductExport extends FmModel
                 $exportProductCopy = $exportProduct;
                 if ($combination['reference'] == '') {
                     FyndiqUtils::debug('MISSING SKU', $combination);
+                    continue;
+                }
+                if ($combination['minimal_quantity'] > 1) {
+                    FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;
                 }
                 $exportProductCopy['article-sku'] = $combination['reference'];
