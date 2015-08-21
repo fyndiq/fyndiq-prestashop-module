@@ -135,7 +135,6 @@ class FmOrder extends FmModel
             $prestaOrder->mobile_theme = $cart->mobile_theme;
         }
         $prestaOrder->conversion_rate = (float)$context->currency->conversion_rate;
-        //var_dump($cartProducts);
         $prestaOrder->total_products = $this->getOrderTotal($cartProducts, false);
         $prestaOrder->total_products_wt = $this->getOrderTotal($cartProducts);
 
@@ -216,15 +215,19 @@ class FmOrder extends FmModel
         return $orderHistory->add();
     }
 
-    public function addOrderMessage($prestaOrderId, $fyndiqOrderId)
+    public function addOrderMessage($prestaOrderId, $fyndiqOrderId, $fyndiqDeliveryNote)
     {
         // add Fyndiq delivery note as a message to the order
         $orderMessage = $this->fmPrestashop->newMessage();
         $orderMessage->id_order = $prestaOrderId;
         $orderMessage->private = true;
-        $modulePath = $this->fmPrestashop->getModulePath(FmUtils::MODULE_NAME);
-        $url = $this->fmPrestashop->getShopUrl() . $modulePath . 'backoffice/delivery_note.php?order_id=' . $fyndiqOrderId;
-        $orderMessage->message = 'Fyndiq delivery note: ' . $url . PHP_EOL . 'just copy URL and paste in the browser to download the delivery note.';
+        $message = sprintf(FyndiqTranslation::get('Fyndiq order id: %s'), $fyndiqOrderId);
+        $message .= "\n";
+        $message .= sprintf(
+            FyndiqTranslation::get('Fyndiq delivery note: %s \n just copy url and paste in the browser to download the delivery note.'),
+            'http://fyndiq.se' . $fyndiqDeliveryNote
+        );
+        $orderMessage->message = $message;
         return $orderMessage->add();
     }
 
@@ -328,7 +331,7 @@ class FmOrder extends FmModel
         }
 
         $this->addOrderToHistory($prestaOrder->id, $importState);
-        $this->addOrderMessage($prestaOrder->id, $fyndiqOrder->id);
+        $this->addOrderMessage($prestaOrder->id, $fyndiqOrder->id, $fyndiqOrder->delivery_note);
 
         // set order as valid
         $prestaOrder->valid = true;
