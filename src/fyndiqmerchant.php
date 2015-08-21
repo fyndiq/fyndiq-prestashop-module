@@ -141,6 +141,7 @@ class FyndiqMerchant extends Module
         $fyCookie->id_currency = $cookie->id_currency;
         $fyCookie->id_lang = $cookie->id_lang;
         $fyCookie->id_country = $cookie->id_country;
+        $fyCookie->id_employee = $cookie->id_employee;
         $fyCookie->write();
     }
 
