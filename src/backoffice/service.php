@@ -29,6 +29,7 @@ if ($fmPrestashop->isPs1516()) {
     $cookie->id_currency = $fyCookie->id_currency;
     $cookie->id_lang = $fyCookie->id_lang;
     $cookie->id_country = $fyCookie->id_country;
+    $cookie->id_employee = $fyCookie->id_employee;
 }
 
 $fmOutput = new FmOutput($fmPrestashop, null, null);
