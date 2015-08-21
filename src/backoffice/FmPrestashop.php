@@ -44,13 +44,14 @@ class FmPrestashop
     {
         $url = $this->getBaseModuleUrl();
         $url .= substr(strrchr(_PS_ADMIN_DIR_, '/'), 1);
-        if ($this->isPs1516()) {
-            $url .= "/index.php?controller=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
-        } else {
-            $url .= "/index.php?tab=AdminModules&configure=fyndiqmerchant&module_name=fyndiqmerchant";
-        }
-        $url .= '&token=' . Tools::getAdminTokenLite('AdminModules');
-        return $url;
+        $controller = ($this->version === self::FMPSV14) ? 'tab' : 'controller';
+        $args = array(
+            $controller => 'AdminModules',
+            'configure' => $this->moduleName,
+            'module_name' => $this->moduleName,
+            'token' => Tools::getAdminTokenLite('AdminModules'),
+        );
+        return $url . '/index.php?' . http_build_query($args);
     }
 
     public function getAdminTokenLite()
