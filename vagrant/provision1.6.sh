@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PS_VERSION=prestashop_1.6.1.0.zip
+PS_VERSION=prestashop_1.6.1.1.zip
 
 DOMAIN=prestashop.local
 ADMIN_EMAIL=admin@example.com
