@@ -216,7 +216,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
                     'state' => null,
                     'total_products' => 1,
                     'is_done' => false,
-                    'link' => 'index.php?controller=AdminOrders&id_order=1&vieworder&token=',
+                    'link' => 'index.php?controller=AdminOrders&id_order=1&vieworder=1',
                 )
             ),
             'pagination' => '',
