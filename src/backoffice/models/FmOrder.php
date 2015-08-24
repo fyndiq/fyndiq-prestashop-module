@@ -222,13 +222,13 @@ class FmOrder extends FmModel
         $orderMessage->id_order = $prestaOrderId;
         $orderMessage->private = true;
         $message = sprintf(FyndiqTranslation::get('Fyndiq order id: %s'), $fyndiqOrderId);
-        $message .= "\n";
-        $message .= sprintf(
-            FyndiqTranslation::get(
-                'Fyndiq delivery note: %s \n just copy url and paste in the browser to download the delivery note.
-            '),
-            $fyndiqDeliveryNote
+        $message .= PHP_EOL;
+        $message .= sprintf(FyndiqTranslation::get('Fyndiq delivery note: %s'), $order->delivery_note);
+        $message .= PHP_EOL;
+        $message .= FyndiqTranslation::get(
+            'Copy the URL and paste it in the browser to download the delivery note.'
         );
+
         $orderMessage->message = $message;
         return $orderMessage->add();
     }
