@@ -224,8 +224,10 @@ class FmOrder extends FmModel
         $message = sprintf(FyndiqTranslation::get('Fyndiq order id: %s'), $fyndiqOrderId);
         $message .= "\n";
         $message .= sprintf(
-            FyndiqTranslation::get('Fyndiq delivery note: %s \n just copy url and paste in the browser to download the delivery note.'),
-            'http://fyndiq.se' . $fyndiqDeliveryNote
+            FyndiqTranslation::get(
+                'Fyndiq delivery note: %s \n just copy url and paste in the browser to download the delivery note.
+            '),
+            $fyndiqDeliveryNote
         );
         $orderMessage->message = $message;
         return $orderMessage->add();
