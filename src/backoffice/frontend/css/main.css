@@ -218,6 +218,15 @@
     top: 15px;
     width: 30px; }
 
+.fm-update-message {
+  background: #ea524f;
+  color: #fff;
+  margin-top: 30px;
+  padding: 1em; }
+  .fm-update-message a {
+    color: #fff;
+    text-decoration: underline; }
+
 .pages {
   float: left;
   margin: 10px 0;
