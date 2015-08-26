@@ -9,6 +9,9 @@
         service: '{$service_path}'
     };
     var messages = {$json_messages};
+    var fmRepositoryPath = '{$repository_path}';
+    var fmModuleVersion = '{$module_verion}';
+    var fmDisableUpdateCheck = {$disable_update_check};
 </script>
 {include './js_templates.tpl'}
 <script type="text/javascript" src="{$shared_path}frontend/js/handlebars-v1.1.2.js"></script>
