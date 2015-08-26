@@ -1,19 +1,4 @@
-<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-<style type="text/css">
-    {fetch file="$server_path/backoffice/frontend/css/main.css"}
-</style>
-<script type="text/javascript">
-    var FmPaths = {
-        module: '{$module_path}',
-        shared: '{$shared_path}',
-        service: '{$service_path}'
-    };
-    var messages = {$json_messages};
-</script>
-{include './js_templates.tpl'}
-<script type="text/javascript" src="{$shared_path}frontend/js/handlebars-v1.1.2.js"></script>
-<script type="text/javascript" src="{$shared_path}frontend/js/FmGui.js"></script>
-<script type="text/javascript" src="{$shared_path}frontend/js/FmCtrl.js"></script>
+{include './common.tpl'}
 <script type="text/javascript" src="{$shared_path}frontend/js/main.js"></script>
 
 <div class="fm-container {$version}">
@@ -21,6 +6,7 @@
     {include file='./header.tpl' current='main' buttons=true}
 
     <div class="fm-content-wrapper">
+        <div class="fm-update-message-container"></div>
         <div class="fm-left-sidebar">
             <div class="fm-panel">
                 <div class="fm-panel-header">{fi18n s="Categories"}</div>
@@ -50,7 +36,10 @@
             </div>
         </div>
         <br class="clear" />
-        <div class="fm-footer muted text-right">{$module_version}</div>
+        <div class="fm-content-wrapper fm-footer muted text-right">
+            <img class="fm-update-check" style="display:none" src="{$shared_path}frontend/images/update-loader.gif" />
+            {$module_version}
+        </div>
     </div>
     <br class="clear" />
 </div>
