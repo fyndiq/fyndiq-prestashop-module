@@ -1,12 +1,10 @@
-<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-<style type="text/css">
-    {fetch file="$server_path/backoffice/frontend/css/main.css"}
-</style>
+{include './common.tpl'}
 <div class="fm-container {$version}">
 
     {include file='./header.tpl' current='settings' buttons=true}
 
     <div class="fm-content-wrapper">
+        <div class="fm-update-message-container"></div>
         <div class="fm-panel">
             <div class="fm-panel-header text-center">{fi18n s='Settings'}</div>
             <div class="fm-panel-body text-center">
@@ -84,6 +82,9 @@
             </div>
         </div>
         <br class="clear" />
-        <div class="fm-footer muted text-right">{$module_version}</div>
+        <div class="fm-content-wrapper fm-footer muted text-right">
+            <img class="fm-update-check" style="display:none" src="{$shared_path}frontend/images/update-loader.gif" />
+            {$module_version}
+        </div>
     </div>
 </div>

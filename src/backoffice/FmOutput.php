@@ -28,6 +28,9 @@ class FmOutput extends FyndiqOutput
                 'shared_path' => $modulePath . 'backoffice/includes/shared/',
                 'service_path' => $modulePath . 'backoffice/service.php',
                 'js_templates' => $templatesPath,
+                'repository_path' => FmUtils::REPOSITORY_PATH,
+                'module_verion' => FmUtils::VERSION,
+                'disable_update_check' =>FmUtils::DISABLE_UPDATE_CHECK,
             )
         ));
         $this->smarty->registerPlugin('function', 'fi18n', array('FmOutput', 'fi18n'));
