@@ -199,12 +199,15 @@ class FmProductExport extends FmModel
         return $result;
     }
 
-    protected function getImages($images, $imageId = 1)
+    protected function getImages($images, $limit, $imageId = 1)
     {
         $result = array();
         foreach ($images as $image) {
+            if ($imageId > $limit) {
+                return $result;
+            }
             $result['product-image-' . $imageId . '-url'] = $image;
-            $result['product-image-' . $imageId  . '-identifier'] = substr(md5($image), 0, 10);
+            $result['product-image-' . $imageId . '-identifier'] = substr(md5($image), 0, 10);
             $imageId++;
         }
         return $result;
@@ -244,7 +247,10 @@ class FmProductExport extends FmModel
                     continue;
                 }
                 // Add Product images
-                $exportProduct = array_merge($exportProduct, $this->getImages($storeProduct['images']));
+                $exportProduct = array_merge($exportProduct, $this->getImages(
+                    $storeProduct['images'],
+                    FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
+                ));
 
                 // Complete Product with article data
                 $exportProduct['article-quantity'] = $storeProduct['quantity'];
@@ -305,7 +311,10 @@ class FmProductExport extends FmModel
                     // Remove images
                     unset($article['images']);
                     // Add product images
-                    $article = array_merge($article, $this->getImages($storeProduct['images']));
+                    $article = array_merge($article, $this->getImages(
+                        $storeProduct['images'],
+                        FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
+                    ));
                     FyndiqUtils::debug('Combined $article', $articleId, $article);
                     $result &= $feedWriter->addProduct($article);
                     continue;
@@ -318,7 +327,10 @@ class FmProductExport extends FmModel
                 // Remove images holder
                 unset($article['images']);
                 // Add images to article
-                $article = array_merge($article, $this->getImages($images));
+                $article = array_merge($article, $this->getImages(
+                    $images,
+                    FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
+                ));
                 // Update the product id
                 $article['product-id'] = $article['product-id'] . '-' . $articleId;
 

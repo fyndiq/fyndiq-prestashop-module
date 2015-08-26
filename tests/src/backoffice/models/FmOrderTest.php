@@ -34,6 +34,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $fyndiqOrder->delivery_city = 'delivery_city';
         $fyndiqOrder->delivery_co = 'delivery_co';
         $fyndiqOrder->created = '2014-01-02 03:04:05';
+        $fyndiqOrder->delivery_note = 'http://example.com/delivery_note.pdf';
 
         $fyndiqOrder->order_rows = array(
             (object)array(
@@ -527,7 +528,14 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $prestaOrder = $this->getPrestaOrder();
         $cart = $this->getCart();
         $importState = 'import_state';
-        $cartProducts = array(1);
+        $cartProducts = array(array(
+            'id_product' => 1,
+            'id_product_attribute' => 2,
+            'name' => 'name3',
+            'quantity' => 3,
+            'price' => 4.44,
+            'rate' => 1,
+        ));
 
         $orderDetail = $this->getOrderDetail();
 
@@ -581,7 +589,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('newMessage')
             ->willReturn($message);
 
-        $result = $this->fmOrder->addOrderMessage(1, 2);
+        $result = $this->fmOrder->addOrderMessage(1, 2, 3);
         $this->assertTrue($result);
     }
 

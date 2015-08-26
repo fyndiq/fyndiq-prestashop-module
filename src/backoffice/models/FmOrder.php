@@ -199,7 +199,7 @@ class FmOrder extends FmModel
                 $orderDetail->product_price = $product['price'];
                 $orderDetail->tax_rate = $product['rate'];
                 $result &= $orderDetail->add();
-                Product::updateQuantity($product);
+                $this->fmPrestashop->productUpdateQuantity($product);
             }
             return (bool)$result;
         }
@@ -223,7 +223,7 @@ class FmOrder extends FmModel
         $orderMessage->private = true;
         $message = sprintf(FyndiqTranslation::get('Fyndiq order id: %s'), $fyndiqOrderId);
         $message .= PHP_EOL;
-        $message .= sprintf(FyndiqTranslation::get('Fyndiq delivery note: %s'), $order->delivery_note);
+        $message .= sprintf(FyndiqTranslation::get('Fyndiq delivery note: %s'), $fyndiqDeliveryNote);
         $message .= PHP_EOL;
         $message .= FyndiqTranslation::get(
             'Copy the URL and paste it in the browser to download the delivery note.'
