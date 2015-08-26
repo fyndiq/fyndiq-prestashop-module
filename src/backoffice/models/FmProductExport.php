@@ -327,8 +327,10 @@ class FmProductExport extends FmModel
                 // Remove images holder
                 unset($article['images']);
                 // Add images to article
-                $article = array_merge($article, $this->getImages($images,
-                    FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES));
+                $article = array_merge($article, $this->getImages(
+                    $images,
+                    FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
+                ));
                 // Update the product id
                 $article['product-id'] = $article['product-id'] . '-' . $articleId;
 

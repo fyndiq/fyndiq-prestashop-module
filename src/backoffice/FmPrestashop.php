@@ -513,6 +513,11 @@ class FmPrestashop
         return Tax::getProductTaxRate($product->id, null);
     }
 
+    public function productUpdateQuantity($product)
+    {
+        Product::updateQuantity($product);
+    }
+
     // Address
     public function newAddress($idAddress = null, $idLang = null)
     {
