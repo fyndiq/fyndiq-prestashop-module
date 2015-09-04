@@ -199,20 +199,6 @@ class FmProductExport extends FmModel
         return $result;
     }
 
-    protected function getImages($images, $limit, $imageId = 1)
-    {
-        $result = array();
-        foreach ($images as $image) {
-            if ($imageId > $limit) {
-                return $result;
-            }
-            $result['product-image-' . $imageId . '-url'] = $image;
-            $result['product-image-' . $imageId . '-identifier'] = substr(md5($image), 0, 10);
-            $imageId++;
-        }
-        return $result;
-    }
-
     /**
      *  Save the export feed
      *

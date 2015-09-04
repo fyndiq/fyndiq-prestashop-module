@@ -341,50 +341,43 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $feedWriter->expects($this->at(0))
-            ->method('addProduct')
+            ->method('addCompleteProduct')
             ->with(
                 $this->equalTo(array(
-                    'product-id' => 3,
+                    'id' => 13,
                     'product-category-id' => 5,
                     'product-category-name' => 'category',
                     'product-currency' => 'ZAM',
-                    'article-quantity' => 16,
+                    'quantity' => 14,
                     'product-description' => 'description',
-                    'product-price' => '4.18',
-                    'product-oldprice' => '18.18',
                     'product-brand-name' => 'manufacturer_name',
                     'product-title' => 'name',
                     'product-vat-percent' => 12,
                     'product-market' => 'BG',
-                    'article-sku' => '15',
-                    'product-image-1-url' => 'image.jpg',
-                    'product-image-1-identifier' => '0d5b1c4c7f',
-                    'article-property-1-name' => 'name',
-                    'article-property-1-value' => 'value',
-                    'article-name' => 'name: value',
+                    'price' => 1.5317999999999996,
+                    'oldprice' => 6.6600000000000001,
+                    'sku' => '3',
+                    'images' => array(
+                        'image.jpg'
+                    ),
+                )),
+                $this->equalTo(array(
+                    array(
+                        'id' => 1,
+                        'sku' => '15',
+                        'quantity' => 16,
+                        'price' => 4.1814,
+                        'oldprice' => 18.18,
+                        'images' => array(),
+                        'properties' => array(
+                            array(
+                                'name' => 'name',
+                                'value' => 'value',
+                            )
+                        ),
+                    ),
                 ))
             );
-
-        $feedWriter->expects($this->at(1))
-            ->method('addProduct')
-            ->with(array(
-                'product-id' => 4,
-                'product-category-id' => 35,
-                'product-category-name' => 'category',
-                'product-currency' => 'ZAM',
-                'article-quantity' => 36,
-                'product-description' => 'description3',
-                'product-price' => '4.40',
-                'product-oldprice' => '36.66',
-                'product-brand-name' => 'manufacturer_name3',
-                'product-title' => 'name3',
-                'product-vat-percent' => 312,
-                'product-market' => 'BG',
-                'article-sku' => '33',
-                'article-name' => 'name3',
-                'product-image-1-url' => 'image333.jpg',
-                'product-image-1-identifier' => '2c72f5e174',
-            ));
 
         $currency = new stdClass();
         $currency->iso_code = 'ZAM';
