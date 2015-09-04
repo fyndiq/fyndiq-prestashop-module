@@ -233,6 +233,11 @@ class FmProductExport extends FmModel
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
 
+            if (count($storeProduct['combinations']) === 0 && $storeProduct['minimal_quantity'] > 1) {
+                FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
+                continue;
+            }
+
             $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
 
             $exportProduct = array(
@@ -253,11 +258,6 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::IMAGES => $storeProduct['images'],
                 FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
             );
-
-            if (count($storeProduct['combinations']) === 0 && $storeProduct['minimal_quantity'] > 1) {
-                FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
-                continue;
-            }
 
             $articles = array();
             foreach ($storeProduct['combinations'] as $combination) {
@@ -289,38 +289,9 @@ class FmProductExport extends FmModel
                 }
                 $articles[] = $article;
             }
+            $feedWriter->addCompleteProduct($exportProduct, $articles);
         }
         FyndiqUtils::debug('End');
         return $feedWriter->write();
-    }
-
-    /**
-     * Collect export data for the product
-     *
-     * @param array $storeProduct - The product information from thr product
-     * @param array $fmProduct - Reference table product
-     * @param string $currentCurrency
-     * @return array
-     */
-    private function getProductData($storeProduct, $fmProduct, $currentCurrency)
-    {
-        $exportProduct = array();
-        $exportProduct['product-id'] = $fmProduct['id'];
-        $exportProduct['product-category-id'] = $storeProduct['category_id'];
-        $exportProduct['product-category-name'] =
-            $this->fmPrestashop->getCategoryName($storeProduct['category_id']);
-        $exportProduct['product-currency'] = $currentCurrency;
-        $exportProduct['article-quantity'] = 0;
-        $exportProduct['product-description'] = $storeProduct['description'];
-
-        $price = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
-        $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
-        $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
-        $exportProduct['product-brand-name'] = $storeProduct['manufacturer_name'];
-        $exportProduct['product-title'] = $storeProduct['name'];
-        $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
-        $exportProduct['product-market'] = $this->fmPrestashop->getCountryCode();
-        $exportProduct['article-sku'] = $storeProduct['reference'];
-        return $exportProduct;
     }
 }
