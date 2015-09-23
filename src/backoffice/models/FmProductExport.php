@@ -199,20 +199,6 @@ class FmProductExport extends FmModel
         return $result;
     }
 
-    protected function getImages($images, $limit, $imageId = 1)
-    {
-        $result = array();
-        foreach ($images as $image) {
-            if ($imageId > $limit) {
-                return $result;
-            }
-            $result['product-image-' . $imageId . '-url'] = $image;
-            $result['product-image-' . $imageId . '-identifier'] = substr(md5($image), 0, 10);
-            $imageId++;
-        }
-        return $result;
-    }
-
     /**
      *  Save the export feed
      *
@@ -223,52 +209,44 @@ class FmProductExport extends FmModel
     {
         $result = true;
         $fmProducts = $this->getFyndiqProducts();
-        if (empty($fmProducts)) {
-            return $feedWriter->write();
-        }
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency
         $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
+        $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
+
             FyndiqUtils::debug('$storeProduct', $storeProduct);
-            // Don't export deactivated or products without SKU
-            if (!$storeProduct || empty($storeProduct['reference'])) {
-                FyndiqUtils::debug('MISSING PRODUCT SKU ', $storeProduct);
+
+            if (count($storeProduct['combinations']) === 0 && $storeProduct['minimal_quantity'] > 1) {
+                FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
                 continue;
             }
-            $exportProduct = $this->getProductData($storeProduct, $fmProduct, $currentCurrency);
 
-            if (count($storeProduct['combinations']) === 0) {
-                // Product without combinations
-                if ($storeProduct['minimal_quantity'] > 1) {
-                    FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
-                    continue;
-                }
-                // Add Product images
-                $exportProduct = array_merge($exportProduct, $this->getImages(
-                    $storeProduct['images'],
-                    FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
-                ));
+            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
 
-                // Complete Product with article data
-                $exportProduct['article-quantity'] = $storeProduct['quantity'];
-                $exportProduct['article-name'] = $storeProduct['name'];
-                FyndiqUtils::debug('$exportProduct', $exportProduct);
-                $feedWriter->addProduct($exportProduct);
-                continue;
-            }
+            $exportProduct = array(
+                FyndiqFeedWriter::ID => $storeProduct['id'],
+                FyndiqFeedWriter::PRODUCT_CATEGORY_ID => $storeProduct['category_id'],
+                FyndiqFeedWriter::PRODUCT_CATEGORY_NAME =>
+                    $this->fmPrestashop->getCategoryName($storeProduct['category_id']),
+                FyndiqFeedWriter::PRODUCT_CURRENCY => $currentCurrency,
+                FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
+                FyndiqFeedWriter::PRODUCT_DESCRIPTION => $storeProduct['description'],
+                FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                FyndiqFeedWriter::OLDPRICE => $storeProduct['price'],
+                FyndiqFeedWriter::PRODUCT_BRAND_NAME => $storeProduct['manufacturer_name'],
+                FyndiqFeedWriter::PRODUCT_TITLE => $storeProduct['name'],
+                FyndiqFeedWriter::PRODUCT_VAT_PERCENT => $storeProduct['tax_rate'],
+                FyndiqFeedWriter::PRODUCT_MARKET => $market,
+                FyndiqFeedWriter::SKU => $storeProduct['reference'],
+                FyndiqFeedWriter::IMAGES => $storeProduct['images'],
+                FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
+            );
 
             $articles = array();
-            $prices = array();
-            $pricePercentage = $fmProduct['exported_price_percentage'];
-
-            $i = 0;
-            // Deal with combinations
             foreach ($storeProduct['combinations'] as $combination) {
-                // Copy the product data so we have clear slate for each combination
-                $exportProductCopy = $exportProduct;
                 if ($combination['reference'] == '') {
                     FyndiqUtils::debug('MISSING SKU', $combination);
                     continue;
@@ -277,98 +255,29 @@ class FmProductExport extends FmModel
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;
                 }
-                $exportProductCopy['article-sku'] = $combination['reference'];
-                $exportProductCopy['article-quantity'] = intval($combination['quantity']);
+                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($combination['price'], $fmProduct['exported_price_percentage']);
 
-                $price = FyndiqUtils::getFyndiqPrice($combination['price'], $pricePercentage);
-                $fyndiqPrice = FyndiqUtils::formatPrice($price);
-                $prices[] = $fyndiqPrice;
+                $article = array(
+                    FyndiqFeedWriter::ID => $combination['id'],
+                    FyndiqFeedWriter::SKU => $combination['reference'],
+                    FyndiqFeedWriter::QUANTITY => intval($combination['quantity']),
+                    FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                    FyndiqFeedWriter::OLDPRICE => $combination['price'],
+                    FyndiqFeedWriter::IMAGES => $combination['images'],
+                );
+                $article[FyndiqFeedWriter::PROPERTIES] = array();
 
-                $exportProductCopy['product-price'] = $fyndiqPrice;
-                $exportProductCopy['product-oldprice'] = FyndiqUtils::formatPrice($combination['price']);
-
-                // Create combination name
-                $productName = array();
-                $id = 1;
                 foreach ($combination['attributes'] as $attribute) {
-                    $productName[] = $attribute['name'] . ': ' . $attribute['value'];
-                    $exportProductCopy['article-property-' . $id . '-name'] = $attribute['name'];
-                    $exportProductCopy['article-property-' . $id . '-value'] = $attribute['value'];
-                    $id++;
+                    $article[FyndiqFeedWriter::PROPERTIES][] = array(
+                        FyndiqFeedWriter::PROPERTY_NAME => $attribute['name'],
+                        FyndiqFeedWriter::PROPERTY_VALUE => $attribute['value'],
+                    );
                 }
-                $exportProductCopy['article-name'] = implode(', ', $productName);
-                $exportProductCopy['images'] = $combination['images'];
-                $articles[$combination['id']] = $exportProductCopy;
-                $i++;
+                $articles[] = $article;
             }
-
-            $samePrices = count(array_unique($prices)) === 1;
-            FyndiqUtils::debug('$samePrices', $samePrices);
-
-            foreach ($articles as $articleId => $article) {
-                if ($samePrices) {
-                    // All prices are the same, create articles
-                    // Remove images
-                    unset($article['images']);
-                    // Add product images
-                    $article = array_merge($article, $this->getImages(
-                        $storeProduct['images'],
-                        FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
-                    ));
-                    FyndiqUtils::debug('Combined $article', $articleId, $article);
-                    $result &= $feedWriter->addProduct($article);
-                    continue;
-                }
-                // Prices differ, create products
-
-                // Add Images
-                // Combine article and product images and get unique array
-                $images = array_unique(array_merge($article['images'], $storeProduct['images']));
-                // Remove images holder
-                unset($article['images']);
-                // Add images to article
-                $article = array_merge($article, $this->getImages(
-                    $images,
-                    FyndiqUtils::NUMBER_OF_ALLOWED_IMAGES
-                ));
-                // Update the product id
-                $article['product-id'] = $article['product-id'] . '-' . $articleId;
-
-                FyndiqUtils::debug('Split $article', $articleId, $article);
-                $result &= $feedWriter->addProduct($article);
-            }
+            $feedWriter->addCompleteProduct($exportProduct, $articles);
         }
         FyndiqUtils::debug('End');
         return $feedWriter->write();
-    }
-
-    /**
-     * Collect export data for the product
-     *
-     * @param array $storeProduct - The product information from thr product
-     * @param array $fmProduct - Reference table product
-     * @param string $currentCurrency
-     * @return array
-     */
-    private function getProductData($storeProduct, $fmProduct, $currentCurrency)
-    {
-        $exportProduct = array();
-        $exportProduct['product-id'] = $fmProduct['id'];
-        $exportProduct['product-category-id'] = $storeProduct['category_id'];
-        $exportProduct['product-category-name'] =
-            $this->fmPrestashop->getCategoryName($storeProduct['category_id']);
-        $exportProduct['product-currency'] = $currentCurrency;
-        $exportProduct['article-quantity'] = 0;
-        $exportProduct['product-description'] = $storeProduct['description'];
-
-        $price = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
-        $exportProduct['product-price'] = FyndiqUtils::formatPrice($price);
-        $exportProduct['product-oldprice'] = FyndiqUtils::formatPrice($storeProduct['price']);
-        $exportProduct['product-brand-name'] = $storeProduct['manufacturer_name'];
-        $exportProduct['product-title'] = $storeProduct['name'];
-        $exportProduct['product-vat-percent'] = $storeProduct['tax_rate'];
-        $exportProduct['product-market'] = $this->fmPrestashop->getCountryCode();
-        $exportProduct['article-sku'] = $storeProduct['reference'];
-        return $exportProduct;
     }
 }
