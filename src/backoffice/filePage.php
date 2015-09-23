@@ -55,7 +55,7 @@ class FilePageController
             $lastModified = filemtime($filePath);
 
             $file = fopen($filePath, 'r');
-            $this->fmOutput->header('Last-Modified: ' . date('r', $lastModified));
+            $this->fmOutput->header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $lastModified));
             $this->fmOutput->streamFile($file, 'feed.csv', 'text/csv', filesize($filePath));
             return fclose($file);
         } else {
