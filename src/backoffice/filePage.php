@@ -40,26 +40,38 @@ class FilePageController
 
     public function handleRequest()
     {
-        $username = $this->fmConfig->get('username');
-        $apiToken = $this->fmConfig->get('api_token');
-        if (!empty($username) && !empty($apiToken)) {
-            $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
-            if (FyndiqUtils::mustRegenerateFile($filePath)) {
-                // Write the file if it does not exist or is older than the interval
-                $file = fopen($filePath, 'w+');
-                $feedWriter = FmUtils::getFileWriter($file);
-                $languageId = $this->fmConfig->get('language');
-                $this->fmProductExport->saveFile($languageId, $feedWriter);
-                fclose($file);
-            }
-            $lastModified = filemtime($filePath);
+        try {
+            $username = $this->fmConfig->get('username');
+            $apiToken = $this->fmConfig->get('api_token');
+            if (!empty($username) && !empty($apiToken)) {
+                $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
+                $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
 
-            $file = fopen($filePath, 'r');
-            $this->fmOutput->header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $lastModified));
-            $this->fmOutput->streamFile($file, 'feed.csv', 'text/csv', filesize($filePath));
-            return fclose($file);
-        } else {
-            $this->fmOutput->showError(500, 'Internal Server Error', 'Module is not set up');
+
+                if (FyndiqUtils::mustRegenerateFile($fileName)) {
+                    // Write the file if it does not exist or is older than the interval
+                    $file = fopen($tempFileName, 'w+');
+                    $feedWriter = FmUtils::getFileWriter($file);
+                    $languageId = $this->fmConfig->get('language');
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter);
+                    fclose($file);
+                    if ($result) {
+                        FyndiqUtils::moveFile($tempFileName, $fileName);
+                    }
+                    FyndiqUtils::deleteFile($tempFileName);
+                }
+                $lastModified = filemtime($fileName);
+
+                $file = fopen($fileName, 'r');
+                $this->fmOutput->header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $lastModified));
+                $this->fmOutput->streamFile($file, 'feed.csv', 'text/csv', filesize($fileName));
+                return fclose($file);
+            } else {
+                $this->fmOutput->showError(500, 'Internal Server Error', 'Module is not set up');
+            }
+        } catch (Exception $e) {
+            $file = false;
+            FyndiqUtils::debug('UNHANDLED ERROR ' . $e->getMessage());
         }
     }
 }
