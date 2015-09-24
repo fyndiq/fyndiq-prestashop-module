@@ -57,8 +57,9 @@ class FilePageController
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);
+                    } else {
+                        FyndiqUtils::deleteFile($tempFileName);
                     }
-                    FyndiqUtils::deleteFile($tempFileName);
                 }
                 $lastModified = filemtime($fileName);
 
