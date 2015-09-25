@@ -381,6 +381,10 @@ class FmPrestashop
         return Language::getLanguages();
     }
 
+    public function languageGetIsoById(){
+        return Language::getIsoById($languageId);
+    }
+
     // Context
     public function contextGetContext()
     {

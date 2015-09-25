@@ -12,6 +12,9 @@ class FmServiceController
         $this->fmOutput = $fmOutput;
         $this->fmConfig = $fmConfig;
         $this->fmApiModel = $fmApiModel;
+        // Init Translations
+        $languageId = $this->fmPrestashop->getLanguageId();
+        FyndiqTranslation::init($this->fmPrestashop->languageGetIsoById($languageId));
     }
 
     public function handleRequest($params)

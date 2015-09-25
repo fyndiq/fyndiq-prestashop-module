@@ -34,7 +34,7 @@ class FyndiqMerchant extends Module
         // Initialize translations
         $this->fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
         $languageId = $this->fmPrestashop->getLanguageId();
-        FyndiqTranslation::init(Language::getIsoById($languageId));
+        FyndiqTranslation::init($this->fmPrestashop->languageGetIsoById($languageId));
 
         $this->displayName = 'Fyndiq';
         $this->description = FyndiqTranslation::get('module-description');
