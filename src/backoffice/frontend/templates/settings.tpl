@@ -79,6 +79,10 @@
                 <div class="text-right">
                     <a href="{$path}&action=disconnect" class="btn btn-red">{fi18n s='Disconnect Account'}</a>
                 </div>
+                <div class="text-left">
+                    <a href="#" class="fm-check-module">{fi18n s='Check module'}</a>
+                    <ul class="fm-module-check"></ul>
+                </div>
             </div>
         </div>
         <br class="clear" />
@@ -88,3 +92,69 @@
         </div>
     </div>
 </div>
+
+<script>
+(function($, window, serviceURL, formKey){
+
+    var probes = {$probes};
+
+    function setupProbe($container, probe) {
+        var $probeLine = $([
+                '<li class="fm-probe fm-probe-' + probe.action +'">',
+                '<h3>',
+                '<img class="trobber" src="{$shared_path}frontend/images/update-loader.gif" /> ',
+                probe.label,
+                '</h3>',
+                '<div class="fm-probe-result"></div>',
+                '</li>'
+            ].join(''));
+        $element = $container.append($probeLine);
+        $.ajax({
+            url: serviceURL,
+            method: 'POST',
+            data: {
+                action : probe.action
+            }
+        })
+            .done(function(data) {
+                var errorMessage = data;
+                if (data.hasOwnProperty('fm-service-status')) {
+                    if (data['fm-service-status'] === 'success') {
+                        $probeLine.addClass('fm-probe-success');
+                        $probeLine.find('.fm-probe-result').html(data.data);
+                        return;
+                    }
+                    errorMessage = data.message;
+                }
+                // Failure show the result
+                $probeLine.addClass('fm-probe-error');
+                $probeLine.find('.fm-probe-result').html(errorMessage);
+            })
+            .fail(function(jqXHR, textStatus) {
+                $probeLine.addClass('fm-probe-error');
+                $probeLine.find('.fm-probe-result').html(textStatus);
+            })
+            .always(function() {
+                $probeLine.find('img').remove();
+            });
+    }
+
+    $('document').ready(function() {
+
+        var $moduleCheckList = $('.fm-module-check');
+        var fresh = true;
+
+        $('.fm-check-module').click(function(event){
+            event.preventDefault();
+            if (fresh) {
+                fresh = false;
+                probes.forEach(function(probe, i){
+                    setTimeout(function() {
+                        setupProbe($moduleCheckList, probe);
+                    }, i * 500);
+                });
+            }
+        });
+    });
+})(window.jQuery, window, window.FmPaths.service);
+</script>

@@ -50,6 +50,14 @@ class FmServiceController
                     return $this->importOrders($args);
                 case 'update_product_status':
                     return $this->updateProductStatus($args);
+                case 'probe_file_permissions':
+                    return $this->probeFilePermissions($args);
+                case 'probe_database';
+                    return $this->probeDatabase($args);
+                case 'probe_module_integrity';
+                    return $this->probeModuleIntegrity($args);
+                case 'probe_connection';
+                    return $this->probeConnection($args);
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
@@ -331,5 +339,133 @@ class FmServiceController
         $fmProduct = $this->loadModel('FmProduct');
         $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
         return $productInfo->getAll();
+    }
+
+    private function probeFilePermissions($args)
+    {
+        $messages = array();
+        $testMessage = time();
+        try {
+            $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
+            $exists =  file_exists($fileName) ?
+                FyndiqTranslation::get('exists') :
+                FyndiqTranslation::get('does not exist');
+            $messages[] = sprintf(FyndiqTranslation::get('Feed file name: `%s` (%s)'), $fileName, $exists);
+            $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
+            if (dirname($tempFileName) !== dirname($fileName)) {
+                throw new Exception(sprintf(
+                    FyndiqTranslation::get('Cannot create file. Please make sure that the server can create new files in `%s`'),
+                    dirname($fileName)
+                ));
+            }
+            $messages[] = sprintf(FyndiqTranslation::get('Trying to create temporary file: `%s`'), $tempFileName);
+            $file = fopen($tempFileName, 'w+');
+            if (!$file) {
+                throw new Exception(sprintf(FyndiqTranslation::get('Cannot create file: `%s`'), $tempFileName));
+            }
+            fwrite($file, $testMessage);
+            fclose($file);
+            $content = file_get_contents($tempFileName);
+            if ($testMessage == file_get_contents($tempFileName)) {
+                $messages[] = sprintf(FyndiqTranslation::get('File `%s` successfully read.'), $tempFileName);
+            }
+            FyndiqUtils::deleteFile($tempFileName);
+            $messages[] = sprintf(FyndiqTranslation::get('Successfully deleted temp file `%s`'), $tempFileName);
+            return implode('<br />', $messages);
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
+    }
+
+    private function probeDatabase($args)
+    {
+        $messages = array();
+        try {
+            $tables = array(
+                $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true),
+                $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true),
+            );
+            $missing = array();
+
+            $fmModel = $this->loadModel('FmModel');
+            $allTables = $fmModel->getAllTables();
+            foreach ($tables as $tableName) {
+                $exists = in_array($tableName, $allTables);
+                if (!$exists) {
+                    $missing[] = $tableName;
+                    continue;
+                }
+                $messages[] = sprintf(FyndiqTranslation::get('Table `%s` is present.'), $tableName);
+            }
+
+            if ($missing) {
+                throw new Exception(sprintf(
+                    FyndiqTranslation::get('Required tables `%s` are missing.'),
+                    implode(', ', $missing)
+                ));
+            }
+            return implode('<br />', $messages);
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
+    }
+
+    private function probeModuleIntegrity($args)
+    {
+        $messages = array();
+        $missing = array();
+        $checkClasses = array(
+            'FyndiqAPI',
+            'FyndiqAPICall',
+            'FyndiqCSVFeedWriter',
+            'FyndiqFeedWriter',
+            'FyndiqOutput',
+            'FyndiqPaginatedFetch',
+            'FyndiqTranslation',
+            'FyndiqUtils',
+        );
+        try {
+            foreach ($checkClasses as $className) {
+                if (class_exists($className)) {
+                    $messages[] = sprintf(FyndiqTranslation::get('Class `%s` is found.'), $className);
+                    continue;
+                }
+                $messages[] = sprintf(FyndiqTranslation::get('Class `%s` is NOT found.'), $className);
+            }
+            if ($missing) {
+                throw new Exception(sprintf(
+                    FyndiqTranslation::get('Required classes `%s` are missing.', implode(',', $missing))
+                ));
+            }
+            return implode('<br />', $messages);
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
+    }
+
+    private function probeConnection($args)
+    {
+        $messages = array();
+        try {
+            try {
+                $this->fmApiModel->callApi('GET', 'settings/');
+            } catch (Exception $e) {
+                if ($e instanceof FyndiqAPIAuthorizationFailed) {
+                    throw new Exception(FyndiqTranslation::get('Module is not authorized.'));
+                }
+            }
+            $messages[] = FyndiqTranslation::get('Connection to Fyndiq successfully tested');
+            return implode('<br />', $messages);
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
     }
 }
