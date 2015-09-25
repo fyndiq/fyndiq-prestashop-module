@@ -184,8 +184,32 @@ class FmController
         $this->data['order_states'] = $states;
         $this->data['order_import_state'] = $orderImportState;
         $this->data['order_done_state'] = $orderDoneState;
+        $this->data['probes'] = $this->getProbes();
 
         return $this->fmOutput->render('settings', $this->data);
+    }
+
+    protected function getProbes() {
+        $probes = array(
+            array(
+                'label' => FyndiqTranslation::get('Checking file permissions'),
+                'action' => 'probe_file_permissions',
+            ),
+            array(
+                'label' => FyndiqTranslation::get('Checking database'),
+                'action' => 'probe_database',
+            ),
+            array(
+                'label' => FyndiqTranslation::get('Module integrity'),
+                'action' => 'probe_module_integrity',
+            ),
+            array(
+                'label' => FyndiqTranslation::get('Connection to Fyndiq'),
+                'action' => 'probe_connection',
+            ),
+        );
+        return json_encode($probes);
+
     }
 
     private function orders()
