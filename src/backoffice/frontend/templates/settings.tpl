@@ -45,6 +45,14 @@
                                 {/if}
                                 >
                     </div>
+                    <div class="form-group">
+                        <label for="fm-stock-min">{fi18n s='Lowest quantity to send to Fyndiq'}</label>
+                        <input type="number" name="stock_min" id="fm-stock-min"
+                                {if $stock_min}
+                                    value="{$stock_min}"
+                                {/if}
+                                >
+                    </div>
 
                     <h2>{fi18n s='Orders'}</h2>
 
