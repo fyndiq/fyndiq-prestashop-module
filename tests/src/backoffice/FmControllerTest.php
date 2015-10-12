@@ -108,7 +108,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmOutput->expects($this->once())
             ->method('showModuleError')
             ->with(
-                $this->equalTo('NT: empty-username-token')
+                $this->equalTo('empty-username-token')
             )
             ->willReturn(true);
 
@@ -219,7 +219,9 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     ),
                     'order_import_state' => 3,
                     'order_done_state' => 4,
+                    'stock_min' => null,
                     'message' => array(),
+                    'probes' => '[{"label":"Checking file permissions","action":"probe_file_permissions"},{"label":"Checking database","action":"probe_database"},{"label":"Module integrity","action":"probe_module_integrity"},{"label":"Connection to Fyndiq","action":"probe_connection"}]',
                 ))
             )
             ->willReturn(true);
@@ -249,7 +251,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmOutput->expects($this->once())
             ->method('showModuleError')
             ->with(
-                $this->equalTo('NT: Error saving settings')
+                $this->equalTo('Error saving settings')
             )
             ->willReturn(true);
 
@@ -313,7 +315,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmOutput->expects($this->once())
             ->method('showModuleError')
             ->with(
-                $this->equalTo('NT: Page not found')
+                $this->equalTo('Page not found')
             )
             ->willReturn(true);
 

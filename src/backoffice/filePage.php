@@ -53,7 +53,8 @@ class FilePageController
                     $file = fopen($tempFileName, 'w+');
                     $feedWriter = FmUtils::getFileWriter($file);
                     $languageId = $this->fmConfig->get('language');
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter);
+                    $stockMin = $this->fmConfig->get('stock_min');
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);

@@ -391,7 +391,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('getCountryCode')
             ->willReturn('BG');
 
-        $result = $this->fmProductExport->saveFile($languageId, $feedWriter);
+        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0);
         $this->assertTrue($result);
     }
 

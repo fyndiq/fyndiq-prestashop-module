@@ -211,7 +211,7 @@ class FmProductExport extends FmModel
      * @param $file - Export file handler
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter)
+    public function saveFile($languageId, $feedWriter, $stockMin)
     {
         $result = true;
         $fmProducts = $this->getFyndiqProducts();
@@ -220,7 +220,6 @@ class FmProductExport extends FmModel
         $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
-        $stockMin = $this->fmConfig->get('stock_min');
         FyndiqUtils::debug('$stockMin', $stockMin);
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
