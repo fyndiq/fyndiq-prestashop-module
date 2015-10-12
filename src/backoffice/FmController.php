@@ -123,11 +123,14 @@ class FmController
             $pricePercentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
             $orderImportState = intval($this->fmPrestashop->toolsGetValue('order_import_state'));
             $orderDoneState = intval($this->fmPrestashop->toolsGetValue('order_done_state'));
+            $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
+            $stockMin = $stockMin < 0 ? 0 : $stockMin;
 
             if ($this->fmConfig->set('language', $languageId) &&
                 $this->fmConfig->set('price_percentage', $pricePercentage) &&
                 $this->fmConfig->set('import_state', $orderImportState) &&
-                $this->fmConfig->set('done_state', $orderDoneState)
+                $this->fmConfig->set('done_state', $orderDoneState) &&
+                $this->fmConfig->set('stock_min', $stockMin)
             ) {
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
@@ -138,6 +141,7 @@ class FmController
         $pricePercentage = $this->fmConfig->get('price_percentage');
         $orderImportState = $this->fmConfig->get('import_state');
         $orderDoneState = $this->fmConfig->get('done_state');
+        $stockMin = $this->fmConfig->get('stock_min');
 
         // if there is a configured language, show it as selected
         $selectedLanguage =  $selectedLanguage ?
@@ -177,13 +181,13 @@ class FmController
             );
         }
 
-
         $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
         $this->data['price_percentage'] = $pricePercentage;
         $this->data['selected_language'] = $selectedLanguage;
         $this->data['order_states'] = $states;
         $this->data['order_import_state'] = $orderImportState;
         $this->data['order_done_state'] = $orderDoneState;
+        $this->data['stock_min'] = $stockMin;
         $this->data['probes'] = $this->getProbes();
 
         return $this->fmOutput->render('settings', $this->data);

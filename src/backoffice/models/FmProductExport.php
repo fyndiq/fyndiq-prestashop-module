@@ -199,6 +199,12 @@ class FmProductExport extends FmModel
         return $result;
     }
 
+    protected function getExportQty($qty, $stockMin)
+    {
+        $qty = $qty - $stockMin;
+        return $qty < 0 ? 0 : $qty;
+    }
+
     /**
      *  Save the export feed
      *
@@ -214,6 +220,8 @@ class FmProductExport extends FmModel
         $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
+        $stockMin = $this->fmConfig->get('stock_min');
+        FyndiqUtils::debug('$stockMin', $stockMin);
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
 
@@ -242,7 +250,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::PRODUCT_MARKET => $market,
                 FyndiqFeedWriter::SKU => $storeProduct['reference'],
                 FyndiqFeedWriter::IMAGES => $storeProduct['images'],
-                FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
+                FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($storeProduct['quantity']), $stockMin),
             );
 
             $articles = array();
@@ -260,7 +268,7 @@ class FmProductExport extends FmModel
                 $article = array(
                     FyndiqFeedWriter::ID => $combination['id'],
                     FyndiqFeedWriter::SKU => $combination['reference'],
-                    FyndiqFeedWriter::QUANTITY => intval($combination['quantity']),
+                    FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($combination['quantity']), $stockMin),
                     FyndiqFeedWriter::PRICE => $fyndiqPrice,
                     FyndiqFeedWriter::OLDPRICE => $combination['price'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
@@ -275,6 +283,7 @@ class FmProductExport extends FmModel
                 }
                 $articles[] = $article;
             }
+            FyndiqUtils::debug('$exportProduct, $articles', $exportProduct, $articles);
             $feedWriter->addCompleteProduct($exportProduct, $articles);
         }
         FyndiqUtils::debug('End');
