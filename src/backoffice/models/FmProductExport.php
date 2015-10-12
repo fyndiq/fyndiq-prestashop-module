@@ -199,6 +199,13 @@ class FmProductExport extends FmModel
         return $result;
     }
 
+    /**
+     * getExportQty returns the actual export qty for article
+     *
+     * @param  int $qty actual article qty
+     * @param  int $stockMin minimum qty defined by the merchant
+     * @return int
+     */
     protected function getExportQty($qty, $stockMin)
     {
         $qty = $qty - $stockMin;
@@ -206,9 +213,10 @@ class FmProductExport extends FmModel
     }
 
     /**
-     *  Save the export feed
-     *
-     * @param $file - Export file handler
+     * saveFile saves the export feed to the provided feedWriter
+     * @param  int $languageId
+     * @param  object $feedWriter
+     * @param  int $stockMin
      * @return bool
      */
     public function saveFile($languageId, $feedWriter, $stockMin)
