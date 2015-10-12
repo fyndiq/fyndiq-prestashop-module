@@ -283,6 +283,10 @@ class FmProductExport extends FmModel
                 $articles[] = $article;
             }
             FyndiqUtils::debug('$exportProduct, $articles', $exportProduct, $articles);
+            if ($storeProduct['combinations'] && !$articles) {
+                FyndiqUtils::debug('NO VALID ARTCLES FOR PRODUCT', $exportProduct, $articles);
+                continue;
+            }
             $feedWriter->addCompleteProduct($exportProduct, $articles);
         }
         FyndiqUtils::debug('End');
