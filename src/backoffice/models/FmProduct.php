@@ -24,7 +24,7 @@ class FmProduct extends FmModel
     public function getByCategory($categoryId, $page, $perPage)
     {
         // fetch products per category manually,
-        // Product::getProducts doesnt work in backoffice,
+        // Product::getProducts doesn't work in backoffice,
         // it's hard coded to work only with front office controllers
         $offset = $perPage * ($page - 1);
         $sqlQuery = '

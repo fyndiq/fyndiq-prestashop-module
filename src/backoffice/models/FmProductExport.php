@@ -200,12 +200,26 @@ class FmProductExport extends FmModel
     }
 
     /**
-     *  Save the export feed
+     * getExportQty returns the actual export qty for article
      *
-     * @param $file - Export file handler
+     * @param  int $qty actual article qty
+     * @param  int $stockMin minimum qty defined by the merchant
+     * @return int
+     */
+    protected function getExportQty($qty, $stockMin)
+    {
+        $qty = $qty - $stockMin;
+        return $qty < 0 ? 0 : $qty;
+    }
+
+    /**
+     * saveFile saves the export feed to the provided feedWriter
+     * @param  int $languageId
+     * @param  object $feedWriter
+     * @param  int $stockMin
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter)
+    public function saveFile($languageId, $feedWriter, $stockMin)
     {
         $result = true;
         $fmProducts = $this->getFyndiqProducts();
@@ -214,6 +228,7 @@ class FmProductExport extends FmModel
         $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
+        FyndiqUtils::debug('$stockMin', $stockMin);
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
 
@@ -242,7 +257,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::PRODUCT_MARKET => $market,
                 FyndiqFeedWriter::SKU => $storeProduct['reference'],
                 FyndiqFeedWriter::IMAGES => $storeProduct['images'],
-                FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
+                FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($storeProduct['quantity']), $stockMin),
             );
 
             $articles = array();
@@ -260,7 +275,7 @@ class FmProductExport extends FmModel
                 $article = array(
                     FyndiqFeedWriter::ID => $combination['id'],
                     FyndiqFeedWriter::SKU => $combination['reference'],
-                    FyndiqFeedWriter::QUANTITY => intval($combination['quantity']),
+                    FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($combination['quantity']), $stockMin),
                     FyndiqFeedWriter::PRICE => $fyndiqPrice,
                     FyndiqFeedWriter::OLDPRICE => $combination['price'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
@@ -274,6 +289,11 @@ class FmProductExport extends FmModel
                     );
                 }
                 $articles[] = $article;
+            }
+            FyndiqUtils::debug('$exportProduct, $articles', $exportProduct, $articles);
+            if ($storeProduct['combinations'] && !$articles) {
+                FyndiqUtils::debug('NO VALID ARTCLES FOR PRODUCT', $exportProduct, $articles);
+                continue;
             }
             $feedWriter->addCompleteProduct($exportProduct, $articles);
         }
