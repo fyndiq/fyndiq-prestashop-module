@@ -170,6 +170,19 @@ class FmPrestashop
         return Product::getPriceStatic($product->id, true, $attributeId);
     }
 
+    public function getBasePrice($product, $attributeId = null)
+    {
+        return Product::getPriceStatic(
+            $product->id,
+            true,
+            $attributeId,
+            6,
+            null,
+            false,
+            false
+        );
+    }
+
     public function getModuleName($moduleName = '')
     {
         $module = $this->moduleGetInstanceByName($moduleName);
