@@ -141,6 +141,7 @@ class FmProductExport extends FmModel
         $result['tax_rate'] = $this->fmPrestashop->productGetTaxRate($product);
         $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
         $result['price'] = $this->fmPrestashop->getPrice($product);
+        $result['oldprice'] = $this->fmPrestashop->getBasePrice($product);
         $result['description'] = $product->description;
         $result['minimal_quantity'] = intval($product->minimal_quantity);
         $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
@@ -176,6 +177,8 @@ class FmProductExport extends FmModel
                 $result['combinations'][$id]['reference'] = $productAttribute['reference'];
                 $result['combinations'][$id]['price'] =
                     $this->fmPrestashop->getPrice($product, $id);
+                $result['combinations'][$id]['oldprice'] =
+                    $this->fmPrestashop->getBasePrice($product, $id);
                 $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
                 $result['combinations'][$id]['minimal_quantity'] = intval($productAttribute['minimal_quantity']);
                 $result['combinations'][$id]['attributes'][] = array(
@@ -250,7 +253,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
                 FyndiqFeedWriter::PRODUCT_DESCRIPTION => $storeProduct['description'],
                 FyndiqFeedWriter::PRICE => $fyndiqPrice,
-                FyndiqFeedWriter::OLDPRICE => $storeProduct['price'],
+                FyndiqFeedWriter::OLDPRICE => $storeProduct['oldprice'],
                 FyndiqFeedWriter::PRODUCT_BRAND_NAME => $storeProduct['manufacturer_name'],
                 FyndiqFeedWriter::PRODUCT_TITLE => $storeProduct['name'],
                 FyndiqFeedWriter::PRODUCT_VAT_PERCENT => $storeProduct['tax_rate'],
