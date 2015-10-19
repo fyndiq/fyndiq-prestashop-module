@@ -114,10 +114,11 @@ class FmServiceController
 
         $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage');
         $languageId = $this->fmConfig->get('language');
+        $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
 
         foreach ($rows as $row) {
             $discountPercentage = $fyndiqDiscountPercentage;
-            $product = $fmProductExport->getStoreProduct($languageId, $row['id_product']);
+            $product = $fmProductExport->getStoreProduct($languageId, $row['id_product'], $descriptionType);
             // Don't show deactivated products
             if (empty($product)) {
                 continue;

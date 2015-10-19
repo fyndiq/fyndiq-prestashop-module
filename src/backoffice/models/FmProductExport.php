@@ -116,36 +116,46 @@ class FmProductExport extends FmModel
         return 0;
     }
 
+    protected function getProductDescription($descriptionType, $product) {
+        switch($descriptionType) {
+            case FmUtils::SHORT_DESCRIPTION: return $product->description_short;
+            case FmUtils::SHORT_AND_LONG_DESCRIPTION:
+                return $product->description_short . "\n\n" . $product->description;
+            default: return $product->description;
+        }
+    }
+
     /**
      * Returns single product with combinations or false if product is not active/found
      *
+     * @param $languageId
      * @param $productId
+     * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId)
+    public function getStoreProduct($languageId, $productId, $descriptionType)
     {
-        $result = array(
-            'combinations' => array()
-        );
 
         $product = $this->fmPrestashop->productNew($productId, false, $languageId);
-
         if (empty($product->id) || !$product->active) {
             return false;
         }
 
-        $result['id'] = $product->id;
-        $result['name'] = $product->name;
-        $result['category_id'] = $this->getCategoryId($product->getCategories());
-        $result['reference'] = $product->reference;
-        $result['tax_rate'] = $this->fmPrestashop->productGetTaxRate($product);
-        $result['quantity'] = $this->fmPrestashop->productGetQuantity($product->id);
-        $result['price'] = $this->fmPrestashop->getPrice($product);
-        $result['oldprice'] = $this->fmPrestashop->getBasePrice($product);
-        $result['description'] = $product->description;
-        $result['minimal_quantity'] = intval($product->minimal_quantity);
-        $result['manufacturer_name'] = $this->fmPrestashop->manufacturerGetNameById(
-            (int)$product->id_manufacturer
+        $result = array(
+            'id' => $product->id,
+            'name' => $product->name,
+            'category_id' => $this->getCategoryId($product->getCategories()),
+            'reference' => $product->reference,
+            'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
+            'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
+            'price' => $this->fmPrestashop->getPrice($product),
+            'oldprice' => $this->fmPrestashop->getBasePrice($product),
+            'description' => $this->getProductDescription($descriptionType, $product),
+            'minimal_quantity' => intval($product->minimal_quantity),
+            'manufacturer_name' => $this->fmPrestashop->manufacturerGetNameById(
+                (int)$product->id_manufacturer
+            ),
+            'combinations' => array(),
         );
 
         // get the medium image type
@@ -172,21 +182,21 @@ class FmProductExport extends FmModel
             $combinationImages = $product->getCombinationImages($languageId);
             foreach ($productAttributes as $productAttribute) {
                 $id = $productAttribute['id_product_attribute'];
-                //$comboProduct = $this->fmPrestashop->productNew($id, false, $languageId);
-                $result['combinations'][$id]['id'] = $id;
-                $result['combinations'][$id]['reference'] = $productAttribute['reference'];
-                $result['combinations'][$id]['price'] =
-                    $this->fmPrestashop->getPrice($product, $id);
-                $result['combinations'][$id]['oldprice'] =
-                    $this->fmPrestashop->getBasePrice($product, $id);
-                $result['combinations'][$id]['quantity'] = $productAttribute['quantity'];
-                $result['combinations'][$id]['minimal_quantity'] = intval($productAttribute['minimal_quantity']);
-                $result['combinations'][$id]['attributes'][] = array(
-                    'name' => $productAttribute['group_name'],
-                    'value' => $productAttribute['attribute_name']
+                $result['combinations'][$id] = array(
+                    'id' => $id,
+                    'reference' => $productAttribute['reference'],
+                    'price' => $this->fmPrestashop->getPrice($product, $id),
+                    'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
+                    'quantity' => $productAttribute['quantity'],
+                    'minimal_quantity' => intval($productAttribute['minimal_quantity']),
+                    'attributes' => array(
+                        array(
+                            'name' => $productAttribute['group_name'],
+                            'value' => $productAttribute['attribute_name'],
+                        )
+                    ),
+                    'images' => array(),
                 );
-                $result['combinations'][$id]['images'] = array();
-
                 if ($combinationImages && isset($combinationImages[$id])) {
                     foreach ($combinationImages[$id] as $combinationImage) {
                         $image = $this->fmPrestashop->getImageLink(
@@ -220,9 +230,10 @@ class FmProductExport extends FmModel
      * @param  int $languageId
      * @param  object $feedWriter
      * @param  int $stockMin
+     * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin)
+    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType)
     {
         $result = true;
         $fmProducts = $this->getFyndiqProducts();
@@ -232,8 +243,9 @@ class FmProductExport extends FmModel
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
+
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id']);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType);
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
 

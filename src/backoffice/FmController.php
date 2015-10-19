@@ -125,12 +125,14 @@ class FmController
             $orderDoneState = intval($this->fmPrestashop->toolsGetValue('order_done_state'));
             $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
             $stockMin = $stockMin < 0 ? 0 : $stockMin;
+            $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
 
             if ($this->fmConfig->set('language', $languageId) &&
                 $this->fmConfig->set('price_percentage', $pricePercentage) &&
                 $this->fmConfig->set('import_state', $orderImportState) &&
                 $this->fmConfig->set('done_state', $orderDoneState) &&
-                $this->fmConfig->set('stock_min', $stockMin)
+                $this->fmConfig->set('stock_min', $stockMin) &&
+                $this->fmConfig->set('description_type', $descriptionType)
             ) {
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
@@ -142,6 +144,7 @@ class FmController
         $orderImportState = $this->fmConfig->get('import_state');
         $orderDoneState = $this->fmConfig->get('done_state');
         $stockMin = $this->fmConfig->get('stock_min');
+        $descriptionType = intval($this->fmConfig->get('description_type'));
 
         // if there is a configured language, show it as selected
         $selectedLanguage =  $selectedLanguage ?
@@ -150,6 +153,7 @@ class FmController
         $pricePercentage = $pricePercentage ? $pricePercentage : self::DEFAULT_DISCOUNT_PERCENTAGE;
         $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
         $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
+        $descriptionType = $descriptionType ? $descriptionType : FmUtils::LONG_DESCRIPTION;
 
         $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->fmPrestashop->orderStateGetOrderStates($languageId);
@@ -181,6 +185,21 @@ class FmController
             );
         }
 
+        $descriptionTypes = array(
+            array(
+                'id' => FmUtils::LONG_DESCRIPTION,
+                'name' => FyndiqTranslation::get('Description'),
+            ),
+            array(
+                'id' => FmUtils::SHORT_DESCRIPTION,
+                'name' => FyndiqTranslation::get('Short description'),
+            ),
+            array(
+                'id' => FmUtils::SHORT_AND_LONG_DESCRIPTION,
+                'name' => FyndiqTranslation::get('Short and long description'),
+            ),
+        );
+
         $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
         $this->data['price_percentage'] = $pricePercentage;
         $this->data['selected_language'] = $selectedLanguage;
@@ -189,6 +208,8 @@ class FmController
         $this->data['order_done_state'] = $orderDoneState;
         $this->data['stock_min'] = $stockMin;
         $this->data['probes'] = $this->getProbes();
+        $this->data['description_type_id'] = $descriptionType;
+        $this->data['description_types'] = $descriptionTypes;
 
         return $this->fmOutput->render('settings', $this->data);
     }
