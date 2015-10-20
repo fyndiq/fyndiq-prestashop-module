@@ -260,7 +260,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::ID => $storeProduct['id'],
                 FyndiqFeedWriter::PRODUCT_CATEGORY_ID => $storeProduct['category_id'],
                 FyndiqFeedWriter::PRODUCT_CATEGORY_NAME =>
-                    $this->fmPrestashop->getCategoryName($storeProduct['category_id']),
+                    $this->fmPrestashop->getCategoryPath($storeProduct['category_id']),
                 FyndiqFeedWriter::PRODUCT_CURRENCY => $currentCurrency,
                 FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
                 FyndiqFeedWriter::PRODUCT_DESCRIPTION => $storeProduct['description'],

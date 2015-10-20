@@ -70,16 +70,15 @@ class FmPrestashop
     }
 
     /**
-     * Get Category Name
+     * Get Category Path
      *
      * @param $categoryId
      * @return string
      */
-    public function getCategoryName($categoryId)
+    public function getCategoryPath($categoryId)
     {
         if (!isset($this->categoryCache[$categoryId])) {
-            $category = new Category($categoryId, $this->getLanguageId());
-            $this->categoryCache[$categoryId] = $category->name;
+            $this->categoryCache[$categoryId] = strip_tags(Tools::getFullPath($categoryId, ''));
         }
         return $this->categoryCache[$categoryId];
     }
