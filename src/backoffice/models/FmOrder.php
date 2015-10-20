@@ -6,7 +6,7 @@
  */
 class FmOrder extends FmModel
 {
-    const FYNDIQ_ORDERS_EMAIL = 'info@fyndiq.se';
+    const FYNDIQ_ORDERS_EMAIL = 'orders_no_reply@fyndiq.com';
     const FYNDIQ_ORDERS_NAME_FIRST = 'Fyndiq';
     const FYNDIQ_ORDERS_NAME_LAST = 'Orders';
 
