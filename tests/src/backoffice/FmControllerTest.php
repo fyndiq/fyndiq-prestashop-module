@@ -222,6 +222,21 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'stock_min' => null,
                     'message' => array(),
                     'probes' => '[{"label":"Checking file permissions","action":"probe_file_permissions"},{"label":"Checking database","action":"probe_database"},{"label":"Module integrity","action":"probe_module_integrity"},{"label":"Connection to Fyndiq","action":"probe_connection"}]',
+                    'description_type_id' => 1,
+                    'description_types' => array(
+                        array(
+                            'id' => FmUtils::LONG_DESCRIPTION,
+                            'name' => FyndiqTranslation::get('Description'),
+                        ),
+                        array(
+                            'id' => FmUtils::SHORT_DESCRIPTION,
+                            'name' => FyndiqTranslation::get('Short description'),
+                        ),
+                        array(
+                            'id' => FmUtils::SHORT_AND_LONG_DESCRIPTION,
+                            'name' => FyndiqTranslation::get('Short and long description'),
+                        ),
+                    ),
                 ))
             )
             ->willReturn(true);

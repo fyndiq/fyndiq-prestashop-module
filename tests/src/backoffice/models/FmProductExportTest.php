@@ -117,6 +117,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     ),
                     'images' => array(),
                     'minimal_quantity' => 1,
+                    'oldprice' => null,
                 ),
                 2 => array(
                     'id' => 2,
@@ -131,6 +132,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     ),
                     'images' => array(),
                     'minimal_quantity' => 1,
+                    'oldprice' => null,
                 ),
             ),
             'id' => 3,
@@ -146,10 +148,12 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 'image.jpg',
             ),
             'minimal_quantity' => 1,
+            'oldprice' => null,
         );
         $languageId = 1;
         $productId = 2;
         $manufacturerId = 8;
+        $descriptionType = FmUtils::LONG_DESCRIPTION;
         $manufaturerName = 'manufaturerName';
 
         $product = $this->getMockBuilder('stdClass')
@@ -233,7 +237,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 ),
             ));
 
-        $result = $this->fmProductExport->getStoreProduct($languageId, $productId);
+        $result = $this->fmProductExport->getStoreProduct($languageId, $productId, $descriptionType);
         $this->assertEquals($expected, $result);
     }
 
@@ -242,14 +246,16 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
     {
         $languageId = 1;
         $productId = 2;
+        $descriptionType = FmUtils::LONG_DESCRIPTION;
 
-        $result = $this->fmProductExport->getStoreProduct($languageId, $productId);
+        $result = $this->fmProductExport->getStoreProduct($languageId, $productId, $descriptionType);
         $this->assertFalse($result);
     }
 
     public function testSaveFile()
     {
         $languageId = 1;
+        $descriptionType = FmUtils::LONG_DESCRIPTION;
         $products = array(
             array(
                 'id' => 3,
@@ -277,6 +283,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'category_id' => 5,
                     'description' => 'description',
                     'price' => 6.66,
+                    'oldprice' => 10.66,
                     'manufacturer_name' => 'manufacturer_name',
                     'name' => 'name',
                     'tax_rate' => 12,
@@ -317,6 +324,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'quantity' => 36,
                     'description' => 'description3',
                     'price' => 36.66,
+                    'oldprice' => 56.66,
                     'manufacturer_name' => 'manufacturer_name3',
                     'name' => 'name3',
                     'images' => array(
@@ -355,7 +363,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                     'product-vat-percent' => 12,
                     'product-market' => 'BG',
                     'price' => 1.5317999999999996,
-                    'oldprice' => 6.6600000000000001,
+                    'oldprice' => 10.66,
                     'sku' => '3',
                     'images' => array(
                         'image.jpg'
@@ -391,7 +399,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('getCountryCode')
             ->willReturn('BG');
 
-        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0);
+        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $descriptionType);
         $this->assertTrue($result);
     }
 
