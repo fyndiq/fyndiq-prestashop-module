@@ -12,7 +12,7 @@ class FmPrestashop
     const DEFAULT_LANGUAGE_ID = 1;
 
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
-    const CATEGORY_DELIMITER = '/';
+    const CATEGORY_DELIMITER = ' / ';
 
     public $version = '';
     public $moduleName = '';
