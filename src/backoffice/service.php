@@ -26,10 +26,18 @@ if ($fmPrestashop->isPs1516()) {
     }
 } else {
     $fyCookie = new Cookie(FmUtils::MODULE_NAME);
-    $cookie->id_currency = $fyCookie->id_currency;
-    $cookie->id_lang = $fyCookie->id_lang;
-    $cookie->id_country = $fyCookie->id_country;
-    $cookie->id_employee = $fyCookie->id_employee;
+    if ($fyCookie->id_currency) {
+        $cookie->id_currency = $fyCookie->id_currency;
+    }
+    if ($fyCookie->id_lang) {
+        $cookie->id_lang = $fyCookie->id_lang;
+    }
+    if ($fyCookie->id_country) {
+        $cookie->id_country = $fyCookie->id_country;
+    }
+    if ($fyCookie->id_employee) {
+        $cookie->id_employee = $fyCookie->id_employee;
+    }
 }
 
 $fmOutput = new FmOutput($fmPrestashop, null, null);
