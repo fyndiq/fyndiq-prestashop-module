@@ -12,6 +12,7 @@ class FmPrestashop
     const DEFAULT_LANGUAGE_ID = 1;
 
     const EXPORT_FILE_NAME_PATTERN = 'feed-%d.csv';
+    const CATEGORY_DELIMITER = ' / ';
 
     public $version = '';
     public $moduleName = '';
@@ -78,7 +79,15 @@ class FmPrestashop
     public function getCategoryPath($categoryId)
     {
         if (!isset($this->categoryCache[$categoryId])) {
-            $this->categoryCache[$categoryId] = strip_tags(Tools::getFullPath($categoryId, ''));
+            $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
+            if ($path){
+                $pathSegments = explode('>', $path);
+                array_pop($pathSegments);
+                $this->categoryCache[$categoryId] = implode(self::CATEGORY_DELIMITER, $pathSegments);
+            } else {
+                $category = new Category($categoryId, $this->getLanguageId());
+                $this->categoryCache[$categoryId] = $category->name;
+            }
         }
         return $this->categoryCache[$categoryId];
     }
