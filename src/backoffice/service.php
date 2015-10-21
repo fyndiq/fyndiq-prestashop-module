@@ -32,6 +32,7 @@ if ($fmPrestashop->isPs1516()) {
     if ($fyCookie->id_lang) {
         $cookie->id_lang = $fyCookie->id_lang;
     }
+    unset($cookie->id_country);
     if ($fyCookie->id_country) {
         $cookie->id_country = $fyCookie->id_country;
     }
