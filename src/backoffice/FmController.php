@@ -223,7 +223,8 @@ class FmController
         return $this->fmOutput->render('settings', $this->data);
     }
 
-    protected function getProbes() {
+    protected function getProbes()
+    {
         $probes = array(
             array(
                 'label' => FyndiqTranslation::get('Checking file permissions'),

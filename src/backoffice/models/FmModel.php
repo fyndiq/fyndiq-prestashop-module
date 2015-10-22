@@ -17,7 +17,7 @@ class FmModel
         $result = array();
         $sql = 'SHOW TABLES';
         $tables = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $result[] = current($table);
         }
         return $result;

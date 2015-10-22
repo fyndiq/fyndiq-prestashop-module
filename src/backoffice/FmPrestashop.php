@@ -80,7 +80,7 @@ class FmPrestashop
     {
         if (!isset($this->categoryCache[$categoryId])) {
             $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
-            if ($path){
+            if ($path) {
                 $pathSegments = explode('>', $path);
                 array_pop($pathSegments);
                 $this->categoryCache[$categoryId] = implode(self::CATEGORY_DELIMITER, $pathSegments);
@@ -402,7 +402,8 @@ class FmPrestashop
         return Language::getLanguages();
     }
 
-    public function languageGetIsoById($languageId){
+    public function languageGetIsoById($languageId)
+    {
         return Language::getIsoById($languageId);
     }
 
