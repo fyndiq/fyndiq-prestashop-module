@@ -116,12 +116,15 @@ class FmProductExport extends FmModel
         return 0;
     }
 
-    protected function getProductDescription($descriptionType, $product) {
-        switch($descriptionType) {
-            case FmUtils::SHORT_DESCRIPTION: return $product->description_short;
+    protected function getProductDescription($descriptionType, $product)
+    {
+        switch ($descriptionType) {
+            case FmUtils::SHORT_DESCRIPTION:
+                return $product->description_short;
             case FmUtils::SHORT_AND_LONG_DESCRIPTION:
                 return $product->description_short . "\n\n" . $product->description;
-            default: return $product->description;
+            default:
+                return $product->description;
         }
     }
 
@@ -178,23 +181,43 @@ class FmProductExport extends FmModel
 
         // handle combinations
         $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
+        $productAttributesFixed = array();
         if ($productAttributes) {
             $combinationImages = $product->getCombinationImages($languageId);
-            foreach ($productAttributes as $productAttribute) {
-                $id = $productAttribute['id_product_attribute'];
+            foreach ($productAttributes as $fixingAttribute) {
+                $reference = $fixingAttribute['reference'];
+                if ($reference == '') {
+                    continue;
+                }
+                if (!isset($productAttributesFixed[$reference])) {
+                    $productAttributesFixed[$reference] = array();
+                }
+                $productAttributesFixed[$reference][] = $fixingAttribute;
+            }
+            foreach ($productAttributesFixed as $reference => $productAttribute) {
+                FyndiqUtils::debug('$productAttribute', $productAttribute);
+                $quantity = 0;
+                $minQuantity = 0;
+                $attributes = array();
+                $id = $productAttribute[0]['id_product_attribute'];
+
+                foreach ($productAttribute as $simpleAttr) {
+                    $quantity = intval($simpleAttr['quantity']);
+                    $minQuantity = intval($simpleAttr['minimal_quantity']);
+                    $attributes[] = array(
+                        'name' => $simpleAttr['group_name'],
+                        'value' => $simpleAttr['attribute_name'],
+                    );
+                }
+
                 $result['combinations'][$id] = array(
                     'id' => $id,
-                    'reference' => $productAttribute['reference'],
+                    'reference' => $reference,
                     'price' => $this->fmPrestashop->getPrice($product, $id),
                     'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
-                    'quantity' => $productAttribute['quantity'],
-                    'minimal_quantity' => intval($productAttribute['minimal_quantity']),
-                    'attributes' => array(
-                        array(
-                            'name' => $productAttribute['group_name'],
-                            'value' => $productAttribute['attribute_name'],
-                        )
-                    ),
+                    'quantity' => $quantity,
+                    'minimal_quantity' => $minQuantity,
+                    'attributes' => $attributes,
                     'images' => array(),
                 );
                 if ($combinationImages && isset($combinationImages[$id])) {
