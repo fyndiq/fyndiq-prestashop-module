@@ -294,6 +294,7 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::PRICE => $fyndiqPrice,
                     FyndiqFeedWriter::OLDPRICE => $combination['price'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
+                    FyndiqFeedWriter::PRODUCT_TITLE => $storeProduct['name'],
                 );
                 $article[FyndiqFeedWriter::PROPERTIES] = array();
 
