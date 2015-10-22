@@ -13,7 +13,7 @@ class FmOutput extends FyndiqOutput
         $this->smarty = $smarty;
     }
 
-    public function render($name, $args = array())
+    public function render($name, $args = array(), $error = false)
     {
         $modulePath = $this->fmPrestashop->getModulePath();
         // Templates path, relative to admin
@@ -34,7 +34,9 @@ class FmOutput extends FyndiqOutput
             )
         ));
         $this->smarty->registerPlugin('function', 'fi18n', array('FmOutput', 'fi18n'));
-
+        if($error != false) {
+            return $this->module->displayError($error) . $this->module->display($this->module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
+        }
         return $this->module->display($this->module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
     }
 
