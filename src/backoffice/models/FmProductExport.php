@@ -202,7 +202,7 @@ class FmProductExport extends FmModel
                 $id = $productAttribute[0]['id_product_attribute'];
 
                 foreach ($productAttribute as $simpleAttr) {
-                    $quantity += intval($simpleAttr['quantity']);
+                    $quantity = intval($simpleAttr['quantity']);
                     $minQuantity = intval($simpleAttr['minimal_quantity']);
                     $attributes[] = array(
                         'name' => $simpleAttr['group_name'],
