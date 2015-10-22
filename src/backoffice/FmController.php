@@ -52,7 +52,7 @@ class FmController
         $action = $this->fmConfig->isSetUp() ? $action : 'settings';
         $action = $action != 'authenticate' ? $this->serviceIsOperational($action) : $action;
 
-        switch($action) {
+        switch ($action) {
             case 'api_unavailable':
                 return $this->apiUnavailable();
             case 'authenticate':
@@ -104,7 +104,7 @@ class FmController
             } catch (Exception $e) {
                 $this->fmConfig->delete('username');
                 $this->fmConfig->delete('api_token');
-                return $this->fmOutput->showModuleError($e->getMessage());
+                return $this->fmOutput->render('authenticate', $this->data, $e->getMessage());
             }
         }
         return $this->fmOutput->render('authenticate', $this->data);
@@ -214,7 +214,8 @@ class FmController
         return $this->fmOutput->render('settings', $this->data);
     }
 
-    protected function getProbes() {
+    protected function getProbes()
+    {
         $probes = array(
             array(
                 'label' => FyndiqTranslation::get('Checking file permissions'),
