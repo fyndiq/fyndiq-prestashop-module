@@ -187,7 +187,7 @@ class FmProductExport extends FmModel
             foreach ($productAttributes as $fixingAttribute) {
                 $reference = $fixingAttribute['reference'];
                 if ($reference == '') {
-                continue;
+                    continue;
                 }
                 if (!isset($productAttributesFixed[$reference])) {
                     $productAttributesFixed[$reference] = array();
