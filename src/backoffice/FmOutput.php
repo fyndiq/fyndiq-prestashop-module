@@ -34,7 +34,7 @@ class FmOutput extends FyndiqOutput
             )
         ));
         $this->smarty->registerPlugin('function', 'fi18n', array('FmOutput', 'fi18n'));
-        if($error != false) {
+        if ($error != false) {
             return $this->module->displayError($error) . $this->module->display($this->module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
         }
         return $this->module->display($this->module->name, 'backoffice/frontend/templates/' . $name . '.tpl');
