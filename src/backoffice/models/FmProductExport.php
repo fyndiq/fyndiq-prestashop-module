@@ -194,7 +194,7 @@ class FmProductExport extends FmModel
                 }
                 $productAttributesFixed[$reference][] = $fixingAttribute;
             }
-            foreach ($productAttributesFixed as $ref => $productAttribute) {
+            foreach ($productAttributesFixed as $reference => $productAttribute) {
                 FyndiqUtils::debug('$productAttribute', $productAttribute);
                 $quantity = 0;
                 $minQuantity = 0;
@@ -212,7 +212,7 @@ class FmProductExport extends FmModel
 
                 $result['combinations'][$id] = array(
                     'id' => $id,
-                    'reference' => $ref,
+                    'reference' => $reference,
                     'price' => $this->fmPrestashop->getPrice($product, $id),
                     'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
                     'quantity' => $quantity,
