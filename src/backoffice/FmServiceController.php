@@ -256,6 +256,10 @@ class FmServiceController
      */
     private function importOrders()
     {
+        $importOrdersStatus = $this->fmConfig->get('import_orders_status');
+        if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
+            return false;
+        }
         $fmOrder = $this->loadModel('FmOrder');
         $orderFetch = new FmOrderFetch(
             $this->fmPrestashop,
