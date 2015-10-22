@@ -16,6 +16,9 @@ class FmUtils
     const SHORT_DESCRIPTION = 2;
     const SHORT_AND_LONG_DESCRIPTION = 3;
 
+    const ORDERS_ENABLED = 0;
+    const ORDERS_DISABLED = 1;
+
     public static function getFileWriter($file)
     {
         return new FyndiqCSVFeedWriter($file);

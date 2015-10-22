@@ -18,12 +18,14 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
+        $importOrdersStatus = $this->fmConfig->get('import_orders_status');
 
         $path = $fmPrestashop->getModuleUrl();
         $this->data = array(
             'json_messages' => json_encode(FyndiqTranslation::getAll()),
             'messages' => FyndiqTranslation::getAll(),
-            'path' => $path
+            'path' => $path,
+            'orders_enabled' => $importOrdersStatus == FmUtils::ORDERS_ENABLED,
         );
     }
 
@@ -80,23 +82,30 @@ class FmController
         if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
             $username = strval($this->fmPrestashop->toolsGetValue('username'));
             $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
+            $importOrdersStatus = strval($this->fmPrestashop->toolsGetValue('import_orders_disabled'))
+                ? FmUtils::ORDERS_DISABLED
+                : FmUtils::ORDERS_ENABLED;
+
             // validate parameters
             if (empty($username) || empty($apiToken)) {
                 return $this->fmOutput->showModuleError(FyndiqTranslation::get('empty-username-token'));
             }
             $this->fmConfig->set('username', $username);
             $this->fmConfig->set('api_token', $apiToken);
+            $this->fmConfig->set('import_orders_status', $importOrdersStatus);
             $base = $this->fmPrestashop->getBaseModuleUrl();
             $pingToken = $this->fmPrestashop->toolsEncrypt(time());
             $this->fmConfig->set('ping_token', $pingToken);
             $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
-                FyndiqUtils::NAME_NOTIFICATION_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created',
                 FyndiqUtils::NAME_PING_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
             );
+            if ($importOrdersStatus == FmUtils::ORDERS_ENABLED) {
+                $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created';
+            }
             try {
                 $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
                 $this->fmPrestashop->sleep(1);
