@@ -18,11 +18,16 @@
                             <label for="fm-auth-api-token">{fi18n s='API Token'}</label>
                             <input type="text" name="api_token" id="fm-auth-api-token">
                         </div>
+
+                        <div class="form-group">
+                            <label for="fm-import-orders-disabled">{fi18n s='Disable order import from Fyndiq'}</label>
+                            <input type="checkbox" name="import_orders_disabled" value="1" id="fm-import-orders-disabled">
+                        </div>
+
                         <p>
                             {fi18n s='By authenticating you will create a permanent connection to your Fyndiq merchant account.'}<br>
                             {fi18n s='You will not have to authenticate again when coming here next time.'}<br>
                         </p>
-
                         <button class="fm-button fyndiq green" type="submit" name="submit_authenticate">{fi18n s='Authenticate'}</button>
                     </fieldset>
                 </form>

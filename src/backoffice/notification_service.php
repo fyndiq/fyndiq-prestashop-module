@@ -52,6 +52,10 @@ class FmNotificationService
      */
     private function order_created($params)
     {
+        $importOrdersStatus = $this->fmConfig->get('import_orders_status');
+        if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
+            return $this->getFyndiqOutput()->showError(403, 'Forbidden', 'Forbidden');
+        }
         $orderId = isset($params['order_id']) && is_numeric($params['order_id']) ? $params['order_id'] : 0;
         if ($orderId) {
             $url = 'orders/' . $orderId . '/';

@@ -53,7 +53,21 @@
                                 {/if}
                                 >
                     </div>
+                    <div class="form-group">
+                        <label for="fm-order-done-state">{fi18n s='Description to use'}</label>
+                        <select name="description_type" id="fm-description-type">
+                            {foreach $description_types as $description_type}
+                                <option value="{$description_type.id}"
+                                        {if $description_type.id == $description_type_id}
+                                            selected="selected"
+                                        {/if}
+                                        >{$description_type.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
 
+
+                    {if $orders_enabled}
                     <h2>{fi18n s='Orders'}</h2>
 
                     <div class="form-group">
@@ -81,19 +95,7 @@
                             {/foreach}
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label for="fm-order-done-state">{fi18n s='Description to use'}</label>
-                        <select name="description_type" id="fm-description-type">
-                            {foreach $description_types as $description_type}
-                                <option value="{$description_type.id}"
-                                        {if $description_type.id == $description_type_id}
-                                            selected="selected"
-                                        {/if}
-                                        >{$description_type.name}</option>
-                            {/foreach}
-                        </select>
-                    </div>
+                    {/if}
 
                     <button class="btn btn-green" type="submit" name="submit_save_settings">{fi18n s='Save Settings'}</button>
                 </form>
