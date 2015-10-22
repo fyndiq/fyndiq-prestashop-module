@@ -181,11 +181,11 @@ class FmProductExport extends FmModel
         $productAttributesFixed = array();
         if ($productAttributes) {
             $combinationImages = $product->getCombinationImages($languageId);
-            foreach($productAttributes as $fixingattribute) {
-                if(!isset($productAttributesFixed[$fixingattribute['reference']])) {
-                    $productAttributesFixed[$fixingattribute['reference']] = array();
+            foreach($productAttributes as $fixingAttribute) {
+                if(!isset($productAttributesFixed[$fixingAttribute['reference']])) {
+                    $productAttributesFixed[$fixingAttribute['reference']] = array();
                 }
-                $productAttributesFixed[$fixingattribute['reference']][] = $fixingattribute;
+                $productAttributesFixed[$fixingAttribute['reference']][] = $fixingAttribute;
             }
             foreach ($productAttributesFixed as $ref => $productAttribute) {
                 FyndiqUtils::debug('$productAttribute', $productAttribute);
