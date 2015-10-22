@@ -116,12 +116,15 @@ class FmProductExport extends FmModel
         return 0;
     }
 
-    protected function getProductDescription($descriptionType, $product) {
-        switch($descriptionType) {
-            case FmUtils::SHORT_DESCRIPTION: return $product->description_short;
+    protected function getProductDescription($descriptionType, $product)
+    {
+        switch ($descriptionType) {
+            case FmUtils::SHORT_DESCRIPTION:
+                return $product->description_short;
             case FmUtils::SHORT_AND_LONG_DESCRIPTION:
                 return $product->description_short . "\n\n" . $product->description;
-            default: return $product->description;
+            default:
+                return $product->description;
         }
     }
 
@@ -181,8 +184,8 @@ class FmProductExport extends FmModel
         $productAttributesFixed = array();
         if ($productAttributes) {
             $combinationImages = $product->getCombinationImages($languageId);
-            foreach($productAttributes as $fixingAttribute) {
-                if(!isset($productAttributesFixed[$fixingAttribute['reference']])) {
+            foreach ($productAttributes as $fixingAttribute) {
+                if (!isset($productAttributesFixed[$fixingAttribute['reference']])) {
                     $productAttributesFixed[$fixingAttribute['reference']] = array();
                 }
                 $productAttributesFixed[$fixingAttribute['reference']][] = $fixingAttribute;
@@ -193,10 +196,10 @@ class FmProductExport extends FmModel
                 $minQuantity = 0;
                 $attributes = array();
                 $id = $productAttribute[0]['id_product_attribute'];
-                if($ref == '') {
+                if ($ref == '') {
                     $ref = $product->reference;
                 }
-                foreach($productAttribute as $simpleAttr) {
+                foreach ($productAttribute as $simpleAttr) {
                     $quantity += intval($simpleAttr['quantity']);
                     $minQuantity = intval($simpleAttr['minimal_quantity']);
                     $attributes[] = array(
