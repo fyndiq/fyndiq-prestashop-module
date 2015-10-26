@@ -7,14 +7,14 @@ COVERAGE_DIR = $(BASE)/coverage
 BIN_DIR = $(BASE)/vendor/bin
 
 COMMIT = $(shell git rev-parse --short HEAD)
-MODULE_VERSION = $(shell grep -Po "VERSION = '\K[^']*" src/backoffice/FmUtils.php)
+MODULE_VERSION = $(shell perl -nle "print $$& if /VERSION = \'\K([\d.]+)/" src/backoffice/FmUtils.php)
 
 build: clean
 	mkdir $(BUILD_DIR)
 	rsync -a --exclude='.*' $(SRC_DIR) $(BUILD_DIR)
 	mv $(BUILD_DIR)/src $(BUILD_DIR)/fyndiqmerchant
 	# replace COMMIT hash
-	sed -i'' 's/XXXXXX/$(COMMIT)/g' $(BUILD_DIR)/fyndiqmerchant/backoffice/FmUtils.php
+	sed -i'' -e 's/XXXXXX/$(COMMIT)/g' $(BUILD_DIR)/fyndiqmerchant/backoffice/FmUtils.php
 	#cp $(DOCS_DIR)/* $(BUILD_DIR)/fyndiqmerchant
 	cp $(BASE)/LICENSE $(BUILD_DIR)/fyndiqmerchant
 	cd $(BUILD_DIR); zip -r -X fyndiq-prestashop-module-v$(MODULE_VERSION)-$(COMMIT).zip fyndiqmerchant/
