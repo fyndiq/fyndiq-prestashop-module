@@ -47,6 +47,7 @@ class FmOrder extends FmModel
         $address->firstname = $fyndiqOrder->delivery_firstname;
         $address->lastname = $fyndiqOrder->delivery_lastname;
         $address->phone = $fyndiqOrder->delivery_phone;
+        $address->phone_mobile = $fyndiqOrder->delivery_phone;
         $address->address1 = $fyndiqOrder->delivery_address;
         $address->postcode = $fyndiqOrder->delivery_postalcode;
         $address->city = $fyndiqOrder->delivery_city;
