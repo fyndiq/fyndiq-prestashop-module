@@ -52,7 +52,7 @@ class FmNotificationService
      */
     private function order_created($params)
     {
-        $importOrdersStatus = $this->fmConfig->get('import_orders_status');
+        $importOrdersStatus = $this->fmConfig->get('disable_orders');
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
             return $this->getFyndiqOutput()->showError(403, 'Forbidden', 'Forbidden');
         }

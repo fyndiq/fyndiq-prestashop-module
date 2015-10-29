@@ -18,7 +18,7 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $importOrdersStatus = $this->fmConfig->get('import_orders_status');
+        $importOrdersStatus = $this->fmConfig->get('disable_orders');
 
         $path = $fmPrestashop->getModuleUrl();
         $this->data = array(
@@ -92,7 +92,7 @@ class FmController
             }
             $this->fmConfig->set('username', $username);
             $this->fmConfig->set('api_token', $apiToken);
-            $this->fmConfig->set('import_orders_status', $importOrdersStatus);
+            $this->fmConfig->set('disable_orders', $importOrdersStatus);
             $base = $this->fmPrestashop->getBaseModuleUrl();
             $pingToken = $this->fmPrestashop->toolsEncrypt(time());
             $this->fmConfig->set('ping_token', $pingToken);
