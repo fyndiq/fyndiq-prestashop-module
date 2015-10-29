@@ -256,7 +256,7 @@ class FmServiceController
      */
     private function importOrders()
     {
-        $importOrdersStatus = $this->fmConfig->get('import_orders_status');
+        $importOrdersStatus = $this->fmConfig->get('disable_orders');
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
             return false;
         }
