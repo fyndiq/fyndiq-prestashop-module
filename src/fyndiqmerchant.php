@@ -66,6 +66,8 @@ class FyndiqMerchant extends Module
         // create order mapping database
         $ret &= $fmOrder->install();
 
+        $this->registerHook('displayAdminProductsExtra');
+
         return (bool)$ret;
     }
 
@@ -161,4 +163,12 @@ class FyndiqMerchant extends Module
     {
         return $this->$name;
     }
+
+
+    public function hookDisplayAdminProductsExtra($params) {
+         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
+    }
+
+
+
 }

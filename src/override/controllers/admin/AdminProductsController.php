@@ -34,8 +34,9 @@ class AdminProductsController extends AdminProductsControllerCore
     protected function processBulkExportToFyndiq(){
         if (is_array($this->boxes) && !empty($this->boxes)){
             error_log('EXPORT: ' . json_encode($this->boxes));
+            $defaultDiscount = 0; // getDefaultDiscount();
             foreach ($this->boxes as $product_id){
-
+                //INSERT OR UPDATE ($product_id, $defaultDiscount)
             }
         }
     }
@@ -43,10 +44,19 @@ class AdminProductsController extends AdminProductsControllerCore
     protected function processRemoveFromFyndiq(){
         if (is_array($this->boxes) && !empty($this->boxes)){
             error_log('REMOVE: ' . json_encode($this->boxes));
+            $ids = array();
             foreach ($this->boxes as $product_id){
-
+                $ids[] = intval($product_id);
             }
+            // DELETE where product_id in ($ids)
         }
+    }
+
+    public function renderList()
+    {
+        $this->addRowAction('export_to_fyndiq');
+        $this->addRowAction('remove_from_fyndiq');
+        return parent::renderList();
     }
 
 }
