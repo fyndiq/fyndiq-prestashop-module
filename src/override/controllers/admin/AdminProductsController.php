@@ -6,7 +6,9 @@ class AdminProductsController extends AdminProductsControllerCore
     public function __construct()
     {
         parent::__construct();
-        error_log('AdminProductsController' . time());
+        error_log('AdminProductsController');
+
+        // Add Bulk actions
         $this->bulk_actions['export_to_fyndiq'] = array(
             'text' => $this->l('Export to Fyndiq'),
             'icon' => 'icon-plus',
@@ -17,6 +19,15 @@ class AdminProductsController extends AdminProductsControllerCore
             'icon' => 'icon-minus',
             'confirm' => $this->l('Remove from Fyndiq?')
         );
+
+        $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_products` fyn_p ON fyn_p.product_id = a.id_product';
+
+        // Add Table column
+        $this->fields_list['state'] = array(
+            'title' => $this->l('Exported to Fyndiq'),
+        );
+
+        // Add Actions
         $this->actions_available = array_merge($this->actions_available, array('export_to_fyndiq', 'remove_from_fyndiq'));
     }
 
