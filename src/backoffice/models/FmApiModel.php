@@ -12,13 +12,7 @@ class FmApiModel {
     {
         $this->username = $username;
         $this->apiToken = $apiToken;
-        $this->userAgent = FyndiqUtils::getUserAgentString(
-            self::PLATFORM_NAME,
-            $platformVersion,
-            FmUtils::MODULE_NAME,
-            FmUtils::VERSION,
-            FmUtils::COMMIT
-        );
+        $this->userAgent = FyndiqUtils::getUserAgentString(self::PLATFORM_NAME, $platformVersion, "module", FmUtils::VERSION, FmConfig::COMMIT);
     }
 
     public function callApi($method, $path, $data = array(), $username = '', $apiToken = '')
