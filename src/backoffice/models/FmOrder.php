@@ -272,13 +272,13 @@ class FmOrder extends FmModel
         $context->customer = $customer;
 
         foreach ($fyndiqOrderRows as $newRow) {
-            $numArticle = (int)$newrow->quantity;
+            $numArticle = (int)$newRow->quantity;
             $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
             if (!$result) {
                 throw new PrestaShopException(
                     sprintf(FyndiqTranslation::get(
-                        'Error adding product with SKU: %s to cart. Possible reasons: not for sale or not enough stock left'
-                    ), $newRow->sku)
+                        'Error adding product with SKU: `%s` (%s-%s) to cart. Possible reasons: not for sale or not enough stock left'
+                    ), $newRow->sku, $newRow->productId, $newRow->combinationId)
                 );
             }
         }
