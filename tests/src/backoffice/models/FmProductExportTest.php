@@ -354,7 +354,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(array(
                     'id' => 13,
                     'product-category-id' => 5,
-                    'product-category-name' => 'category',
+                    'product-category-name' => 'category / path',
                     'product-currency' => 'ZAM',
                     'quantity' => 14,
                     'product-description' => 'description',
@@ -377,6 +377,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                         'price' => 4.1814,
                         'oldprice' => 18.18,
                         'images' => array(),
+                        'article-name' => 'name',
                         'properties' => array(
                             array(
                                 'name' => 'name',
@@ -398,6 +399,9 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
 
         $this->fmPrestashop->method('getCountryCode')
             ->willReturn('BG');
+
+        $this->fmPrestashop->method('getCategoryPath')
+            ->willReturn('category / path');
 
         $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $descriptionType);
         $this->assertTrue($result);

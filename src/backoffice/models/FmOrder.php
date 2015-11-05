@@ -175,38 +175,6 @@ class FmOrder extends FmModel
         return $prestaOrder;
     }
 
-    public function insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState)
-    {
-        // Insert new Order detail list using cart for the current order
-        if ($this->fmPrestashop->isPs1516()) {
-            $orderDetail = $this->fmPrestashop->newOrderDetail();
-            return $orderDetail->createList(
-                $prestaOrder,
-                $cart,
-                $importState,
-                $cartProducts
-            );
-        }
-        if ($this->fmPrestashop->version === FmPrestashop::FMPSV14) {
-            $result = true;
-            foreach ($cartProducts as $product) {
-                $orderDetail = $this->fmPrestashop->newOrderDetail();
-                $orderDetail->id_order = $prestaOrder->id;
-                $orderDetail->product_id = $product['id_product'];
-                $orderDetail->product_attribute_id = $product['id_product_attribute'];
-                $orderDetail->product_name = $product['name'];
-                $orderDetail->product_quantity = $product['quantity'];
-                $product['cart_quantity'] = $product['quantity'];
-                $orderDetail->product_price = $product['price'];
-                $orderDetail->tax_rate = $product['rate'];
-                $result &= $orderDetail->add();
-                $this->fmPrestashop->productUpdateQuantity($product);
-            }
-            return (bool)$result;
-        }
-        return false;
-    }
-
     public function addOrderToHistory($prestaOrderId, $importState)
     {
         // create state in history
@@ -256,7 +224,7 @@ class FmOrder extends FmModel
     }
 
     /**
-     * create orders from Fyndiq orders
+     * Create orders from Fyndiq orders
      *
      * @param $fyndiqOrder
      * @return bool
@@ -267,9 +235,9 @@ class FmOrder extends FmModel
     {
         $context = $this->fmPrestashop->contextGetContext();
 
-        $fyndiqorderRows = $fyndiqOrder->order_rows;
+        $fyndiqOrderRows = $fyndiqOrder->order_rows;
 
-        foreach ($fyndiqorderRows as $key => $row) {
+        foreach ($fyndiqOrderRows as $key => $row) {
             list($productId, $combinationId) = $this->getProductBySKU($row->sku);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
@@ -282,7 +250,7 @@ class FmOrder extends FmModel
             }
             $row->productId = $productId;
             $row->combinationId = $combinationId;
-            $fyndiqorderRows[$key] = $row;
+            $fyndiqOrderRows[$key] = $row;
         }
 
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
@@ -303,12 +271,19 @@ class FmOrder extends FmModel
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
         $context->customer = $customer;
 
-        foreach ($fyndiqorderRows as $newrow) {
-            $numArticle = (int)$newrow->quantity;
-            $cart->updateQty($numArticle, $newrow->productId, $newrow->combinationId);
+        foreach ($fyndiqOrderRows as $newRow) {
+            $numArticle = (int)$newRow->quantity;
+            $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
+            if (!$result) {
+                throw new PrestaShopException(
+                    sprintf(FyndiqTranslation::get(
+                        'Error adding product with SKU: `%s` (%s-%s) to cart. Possible reasons: not for sale or not enough stock left'
+                    ), $newRow->sku, $newRow->productId, $newRow->combinationId)
+                );
+            }
         }
 
-        $cartProducts = $this->updateProductsPrices($fyndiqorderRows, $cart->getProducts());
+        $cartProducts = $this->updateProductsPrices($fyndiqOrderRows, $cart->getProducts());
 
         $prestaOrder = $this->createPrestaOrder(
             $cart,
@@ -326,7 +301,7 @@ class FmOrder extends FmModel
             throw new PrestaShopException(FyndiqTranslation::get('error-save-order'));
         }
 
-        $this->insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState);
+        $this->fmPrestashop->insertOrderDetails($prestaOrder, $cart, $importState, $cartProducts);
 
         if ($this->fmPrestashop->isPs1516()) {
             // create payment in order because Fyndiq handles the payment - so it looks already paid in PrestaShop
@@ -419,16 +394,22 @@ class FmOrder extends FmModel
             return false;
         }
         // Check products
-        $sql = 'SELECT id_product FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
-            WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
+        $sql = 'SELECT
+                    id_product
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
+                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                ORDER BY id_product DESC';
         $productId = $this->fmPrestashop->dbGetInstance()->getValue($sql);
         if ($productId) {
             return array($productId, 0);
         }
         // Check combinations
-        $sql = 'SELECT id_product_attribute, id_product
-            FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
-            WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
+        $sql = 'SELECT
+                    id_product_attribute,
+                    id_product
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
+                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                ORDER BY id_product_attribute DESC';
         $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($sql);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);

@@ -43,6 +43,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'messages' => array(),
                     'path' => 'http://localhost/module',
                     'currency' => 'ZWL',
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
@@ -63,6 +64,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'json_messages' => '[]',
                     'messages' => array(),
                     'path' => 'http://localhost/module',
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
@@ -83,6 +85,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'json_messages' => '[]',
                     'messages' => array(),
                     'path' => 'http://localhost/module',
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
@@ -118,7 +121,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
 
     public function testHandleRequestAuthenticateSaveException()
     {
-        $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
+        $this->fmPrestashop->method('toolsGetValue')->willReturn(FmUtils::ORDERS_ENABLED);
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $this->fmApiModel->expects($this->once())
             ->method('callApi')
@@ -143,10 +146,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             );
 
         $this->fmOutput->expects($this->once())
-            ->method('showModuleError')
-            ->with(
-                $this->equalTo('Test Exception')
-            )
+            ->method('render')
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
@@ -237,6 +237,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                             'name' => FyndiqTranslation::get('Short and long description'),
                         ),
                     ),
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
@@ -290,6 +291,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'import_date' => '2013-01-01 12:12:12',
                     'isToday' => false,
                     'import_time' => '12:12:12',
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
@@ -359,6 +361,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'json_messages' => '[]',
                     'messages' => array(),
                     'path' => 'http://localhost/module',
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
@@ -388,6 +391,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'messages' => array(),
                     'path' => 'http://localhost/module',
                     'message' => 'Test Exception',
+                    'orders_enabled' => true,
                 ))
             )
             ->willReturn(true);
