@@ -121,7 +121,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
 
     public function testHandleRequestAuthenticateSaveException()
     {
-        $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
+        $this->fmPrestashop->method('toolsGetValue')->willReturn(FmUtils::ORDERS_ENABLED);
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $this->fmApiModel->expects($this->once())
             ->method('callApi')
@@ -146,10 +146,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             );
 
         $this->fmOutput->expects($this->once())
-            ->method('showModuleError')
-            ->with(
-                $this->equalTo('Test Exception')
-            )
+            ->method('render')
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
