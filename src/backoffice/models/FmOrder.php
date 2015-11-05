@@ -271,9 +271,16 @@ class FmOrder extends FmModel
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
         $context->customer = $customer;
 
-        foreach ($fyndiqOrderRows as $newrow) {
+        foreach ($fyndiqOrderRows as $newRow) {
             $numArticle = (int)$newrow->quantity;
-            $cart->updateQty($numArticle, $newrow->productId, $newrow->combinationId);
+            $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
+            if (!$result) {
+                throw new PrestaShopException(
+                    sprintf(FyndiqTranslation::get(
+                        'Error adding product with SKU: %s to cart. Possible reasons: not for sale or not enough stock left'
+                    ), $newRow->sku)
+                );
+            }
         }
 
         $cartProducts = $this->updateProductsPrices($fyndiqOrderRows, $cart->getProducts());
@@ -387,16 +394,22 @@ class FmOrder extends FmModel
             return false;
         }
         // Check products
-        $sql = 'SELECT id_product FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
-            WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
+        $sql = 'SELECT
+                    id_product
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
+                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                ORDER BY id_product DESC';
         $productId = $this->fmPrestashop->dbGetInstance()->getValue($sql);
         if ($productId) {
             return array($productId, 0);
         }
         // Check combinations
-        $sql = 'SELECT id_product_attribute, id_product
-            FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
-            WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"';
+        $sql = 'SELECT
+                    id_product_attribute,
+                    id_product
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
+                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                ORDER BY id_product_attribute DESC';
         $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($sql);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
