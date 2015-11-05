@@ -167,7 +167,13 @@ class FyndiqMerchant extends Module
 
     public function hookDisplayAdminProductsExtra($params)
     {
-         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
+        $this->smarty->assign(
+            array(
+                'fyndiq_price' => 666,
+                'fyndiq_exported' => true,
+            )
+        );
+        return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
 
 }
