@@ -616,4 +616,28 @@ class FmPrestashop
             $cart = new stdClass();
         }
     }
+
+    public function insertOrderDetails($prestaOrder, $cart, $importState, $cartProducts)
+    {
+        if ($this->version === FmPrestashop::FMPSV14) {
+            $result = true;
+            foreach ($cartProducts as $product) {
+                $orderDetail = $this->newOrderDetail();
+                $orderDetail->id_order = $prestaOrder->id;
+                $orderDetail->product_id = $product['id_product'];
+                $orderDetail->product_attribute_id = $product['id_product_attribute'];
+                $orderDetail->product_name = $product['name'];
+                $orderDetail->product_quantity = $product['quantity'];
+                $product['cart_quantity'] = $product['quantity'];
+                $orderDetail->product_price = $product['price'];
+                $orderDetail->tax_rate = $product['rate'];
+                $result &= $orderDetail->add();
+                $this->productUpdateQuantity($product);
+            }
+            return (bool)$result;
+        }
+        // Insert new Order detail list using cart for the current order
+        $orderDetail = $this->newOrderDetail();
+        return $orderDetail->createList($prestaOrder, $cart, $importState, $cartProducts);
+    }
 }
