@@ -165,10 +165,9 @@ class FyndiqMerchant extends Module
     }
 
 
-    public function hookDisplayAdminProductsExtra($params) {
+    public function hookDisplayAdminProductsExtra($params)
+    {
          return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
-
-
 
 }

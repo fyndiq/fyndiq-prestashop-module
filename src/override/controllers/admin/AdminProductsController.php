@@ -41,7 +41,8 @@ class AdminProductsController extends AdminProductsControllerCore
         }
     }
 
-    protected function processRemoveFromFyndiq(){
+    protected function processRemoveFromFyndiq()
+    {
         if (is_array($this->boxes) && !empty($this->boxes)){
             error_log('REMOVE: ' . json_encode($this->boxes));
             $ids = array();
@@ -52,23 +53,23 @@ class AdminProductsController extends AdminProductsControllerCore
         }
     }
 
-    public function renderList()
-    {
-        $this->addRowAction('export_to_fyndiq');
-        $this->addRowAction('remove_from_fyndiq');
-        return parent::renderList();
-    }
-
     public function initPageHeaderToolbar()
     {
         if (empty($this->display)) {
-            $this->page_header_toolbar_btn['update_fyndiq_status'] = array(
-                    'href' => self::$currentIndex.'&update_fyndiq_status&token='.$this->token,
+            $this->page_header_toolbar_btn['updateFyndiqStatus'] = array(
+                    'href' => self::$currentIndex.'&updateFyndiqStatus&token='.$this->token,
                     'desc' => $this->l('Update Fyndiq status', null, null, false),
                     'icon' => 'process-icon-refresh'
                 );
         }
         return parent::initPageHeaderToolbar();
+    }
+
+    public function initProcess() {
+        if (Tools::isSubmit('updateFyndiqStatus')) {
+            error_log('updateFyndiqStatus');
+        }
+        parent::initProcess();
     }
 
 }
