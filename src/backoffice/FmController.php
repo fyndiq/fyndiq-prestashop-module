@@ -259,6 +259,14 @@ class FmController
 
     private function disconnect()
     {
+        $updateData = array(
+            FyndiqUtils::NAME_PRODUCT_FEED_URL => '',
+            FyndiqUtils::NAME_PING_URL => '',
+            FyndiqUtils::NAME_NOTIFICATION_URL => '',
+        );
+        $username = $this->fmConfig->get('username');
+        $apiToken = $this->fmConfig->get('api_token');
+        $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
         if ($this->fmConfig->delete('username') &&
             $this->fmConfig->delete('api_token')) {
             return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
