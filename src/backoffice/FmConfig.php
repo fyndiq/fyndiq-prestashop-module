@@ -18,7 +18,7 @@ class FmConfig
         if ($storeId === false) {
             $storeId = $this->fmPrestashop->getStoreId();
         }
-        if ($storeId == self::DEFAULT_STORE_ID){
+        if ($storeId == self::DEFAULT_STORE_ID) {
             return self::CONFIG_NAME . '_' . $name;
         }
         return self::CONFIG_NAME . '_' .$storeId . '_' . $name;

@@ -42,7 +42,7 @@ class FilePageController
     {
         try {
             $storeId = 0;
-            if (isset($get['store_id']) && $get['store_id']){
+            if (isset($get['store_id']) && $get['store_id']) {
                 $storeId = intval($get['store_id']);
                 $this->fmPrestashop->setStoreId($storeId);
             }

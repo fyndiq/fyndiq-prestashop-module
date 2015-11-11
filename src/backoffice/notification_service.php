@@ -39,7 +39,7 @@ class FmNotificationService
         if ($eventName) {
             if ($eventName[0] != '_' && method_exists($this, $eventName)) {
                 $storeId = 0;
-                if (isset($params['store_id']) && $params['store_id']){
+                if (isset($params['store_id']) && $params['store_id']) {
                     $storeId = intval($params['store_id']);
                     $this->fmPrestashop->setStoreId($storeId);
                 }

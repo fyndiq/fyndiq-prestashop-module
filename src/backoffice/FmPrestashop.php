@@ -661,5 +661,4 @@ class FmPrestashop
         }
         return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
     }
-
 }
