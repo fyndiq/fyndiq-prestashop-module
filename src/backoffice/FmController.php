@@ -78,6 +78,18 @@ class FmController
         return $this->fmOutput->render('api_unavailable', $this->data);
     }
 
+    // TODO: Remove me once beta merchants are patched
+    private function patchProductsTable()
+    {
+        try {
+            $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
+            $sql = 'ALTER TABLE ' . $tableName . ' ADD COLUMN store_id int(10) unsigned DEFAULT 1 AFTER id';
+            $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+        } catch (Exception $e) {
+            // be discrete
+        }
+    }
+
     private function authenticate()
     {
         if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
@@ -110,6 +122,10 @@ class FmController
             }
             try {
                 $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
+
+                // TODO: Remove me once beta merchants are patched
+                $this->patchProductsTable();
+
                 $this->fmPrestashop->sleep(1);
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {

@@ -154,7 +154,7 @@ class FmNotificationService
         FyndiqUtils::debug('$languageId', $languageId);
         $stockMin = $this->fmConfig->get('stock_min');
         $descriptionType = intval($this->fmConfig->get('description_type'));
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType);
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
         fclose($file);
         $result = file_get_contents($filePath);
         FyndiqUtils::debug('$result', $result, true);

@@ -20,6 +20,7 @@ class FmProductExport extends FmModel
         $sql = 'SELECT product_id
                 FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '
                 WHERE product_id="' . $productId . '"
+                AND store_id=' . $storeId .'
                 LIMIT 1';
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
@@ -28,6 +29,7 @@ class FmProductExport extends FmModel
     public function addProduct($productId, $expPricePercentage, $storeId)
     {
         $data = array(
+            'store_id' => $storeId,
             'product_id' => (int)$productId,
             'exported_price_percentage' => $expPricePercentage
         );
@@ -42,7 +44,7 @@ class FmProductExport extends FmModel
         return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
             $data,
-            'product_id = "' . $productId . '"',
+            'product_id = "' . $productId . '" AND store_id = '. $storeId,
             1
         );
     }
@@ -51,15 +53,17 @@ class FmProductExport extends FmModel
     {
         return (bool)$this->fmPrestashop->dbDelete(
             $this->tableName,
-            'product_id = ' . $productId,
+            'product_id = "' . $productId . '" AND store_id = '. $storeId,
             1
         );
     }
 
     public function getProduct($productId, $storeId)
     {
-        $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) .
-            ' WHERE product_id= ' . $productId;
+        $sql = 'SELECT *
+                FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '
+                WHERE product_id= ' . $productId . '
+                AND store_id=' . $storeId;
         return $this->fmPrestashop->dbGetInstance()->getRow($sql);
     }
 
@@ -80,7 +84,7 @@ class FmProductExport extends FmModel
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $sql = 'CREATE UNIQUE INDEX productIndex
-            ON ' . $tableName . ' (product_id);';
+            ON ' . $tableName . ' (product_id, store_id);';
         $ret &= (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $exportPath = $this->fmPrestashop->getExportPath();
