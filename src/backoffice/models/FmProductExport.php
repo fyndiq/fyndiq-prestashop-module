@@ -70,6 +70,7 @@ class FmProductExport extends FmModel
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName .' (
             id int(20) unsigned primary key AUTO_INCREMENT,
+            store_id int(10) unsigned,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
             state varchar(64) default NULL);';

@@ -640,4 +640,12 @@ class FmPrestashop
         $orderDetail = $this->newOrderDetail();
         return $orderDetail->createList($prestaOrder, $cart, $importState, $cartProducts);
     }
+
+    public function getStoreId()
+    {
+        if ($this->version == self::FMPSV14) {
+            return 0;
+        }
+        return Context::getContext()->shop->id;
+    }
 }
