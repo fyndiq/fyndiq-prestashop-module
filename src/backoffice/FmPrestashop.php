@@ -269,7 +269,7 @@ class FmPrestashop
     public function getExportFileName()
     {
         if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
-            return sprintf(self::EXPORT_FILE_NAME_PATTERN, self::getCurrentShopId());
+            return sprintf(self::EXPORT_FILE_NAME_PATTERN, $this->getStoreId());
         }
         // fallback to 0 for non-multistore setups
         return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
