@@ -659,6 +659,8 @@ class FmPrestashop
         if ($this->version == self::FMPSV14) {
             return true;
         }
+        $context = Context::getContext();
+        $context->shop = new Shop($storeId);
         return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
     }
 }

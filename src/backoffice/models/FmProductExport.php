@@ -276,7 +276,6 @@ class FmProductExport extends FmModel
 
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $storeId);
-
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
                 // Product not found (maybe not in this store);
