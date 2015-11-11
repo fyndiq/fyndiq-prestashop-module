@@ -69,7 +69,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     private function getCart()
     {
         $cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts'))
+            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts', 'delete'))
             ->getMock();
         $cart->id_customer = 10;
         $cart->id_address_invoice = 11;
@@ -278,7 +278,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 'addOrderToHistory',
                 'addOrderMessage',
                 'addOrderLog',
-                'updateProductsPrices'
+                'updateProductsPrices',
             ))
             ->getMock();
 

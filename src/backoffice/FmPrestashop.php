@@ -18,6 +18,7 @@ class FmPrestashop
     public $moduleName = '';
     private $categoryCache = array();
     private $context;
+    private $storeId = false;
 
     public function __construct($moduleName)
     {
@@ -641,11 +642,24 @@ class FmPrestashop
         return $orderDetail->createList($prestaOrder, $cart, $importState, $cartProducts);
     }
 
-    public function getStoreId()
+    public function getStoreId($skipCache = false)
     {
+        if (!$skipCache && $this->storeId !== false) {
+            return $this->storeId;
+        }
         if ($this->version == self::FMPSV14) {
             return 0;
         }
         return Context::getContext()->shop->id;
     }
+
+    public function setStoreId($storeId)
+    {
+        $this->storeId = $storeId;
+        if ($this->version == self::FMPSV14) {
+            return true;
+        }
+        return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
+    }
+
 }

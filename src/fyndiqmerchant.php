@@ -78,14 +78,15 @@ class FyndiqMerchant extends Module
         $fmConfig = new FmConfig($this->fmPrestashop);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
+        $storeId = $this->fmPrestashop->getStoreId();
 
         // Delete configuration
-        $ret &= (bool)$fmConfig->delete('username');
-        $ret &= (bool)$fmConfig->delete('api_token');
-        $ret &= (bool)$fmConfig->delete('language');
-        $ret &= (bool)$fmConfig->delete('price_percentage');
-        $ret &= (bool)$fmConfig->delete('import_state');
-        $ret &= (bool)$fmConfig->delete('done_state');
+        $ret &= (bool)$fmConfig->delete('username', $storeId);
+        $ret &= (bool)$fmConfig->delete('api_token', $storeId);
+        $ret &= (bool)$fmConfig->delete('language', $storeId);
+        $ret &= (bool)$fmConfig->delete('price_percentage', $storeId);
+        $ret &= (bool)$fmConfig->delete('import_state', $storeId);
+        $ret &= (bool)$fmConfig->delete('done_state', $storeId);
 
         // Drop product table
         $ret &= $fmProductExport->uninstall();
@@ -150,9 +151,14 @@ class FyndiqMerchant extends Module
         if (!$this->fmPrestashop->isPs1516()) {
             $this->setAdminPathCookie();
         }
+        $storeId = $this->fmPrestashop->getStoreId();
         $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
         $fmConfig = new FmConfig($this->fmPrestashop);
-        $fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'), $this->fmPrestashop->globalGetVersion());
+        $fmApiModel = new FmApiModel(
+            $fmConfig->get('username', $storeId),
+            $fmConfig->get('api_token', $storeId),
+            $this->fmPrestashop->globalGetVersion()
+        );
         $controller = new FmController($this->fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }

@@ -40,9 +40,13 @@ if ($fmPrestashop->isPs1516()) {
         $cookie->id_employee = $fyCookie->id_employee;
     }
 }
-
+$storeId = $fmPrestashop->getStoreId();
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $fmConfig = new FmConfig($fmPrestashop);
-$fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'), $fmPrestashop->globalGetVersion());
+$fmApiModel = new FmApiModel(
+    $fmConfig->get('username', $storeId),
+    $fmConfig->get('api_token', $storeId),
+    $fmPrestashop->globalGetVersion()
+);
 $ajaxService = new FmServiceController($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
 $ajaxService->handleRequest($_POST);

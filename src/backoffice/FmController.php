@@ -18,7 +18,8 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $importOrdersStatus = $this->fmConfig->get('disable_orders');
+        $storeId = $this->fmPrestashop->getStoreId();
+        $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
 
         $path = $fmPrestashop->getModuleUrl();
         $this->data = array(

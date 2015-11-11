@@ -6,6 +6,8 @@ class FmProductExport extends FmModel
     const PENDING = 'PENDING';
     const FOR_SALE = 'FOR_SALE';
 
+    private $hasStoreId = false;
+
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
@@ -13,16 +15,17 @@ class FmProductExport extends FmModel
     }
 
 
-    public function productExist($productId)
+    public function productExist($productId, $storeId)
     {
-        $sql = "SELECT product_id
-        FROM " . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . "
-        WHERE product_id='" . $productId . "' LIMIT 1";
+        $sql = 'SELECT product_id
+                FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '
+                WHERE product_id="' . $productId . '"
+                LIMIT 1';
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
     }
 
-    public function addProduct($productId, $expPricePercentage)
+    public function addProduct($productId, $expPricePercentage, $storeId)
     {
         $data = array(
             'product_id' => (int)$productId,
@@ -31,7 +34,7 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $expPricePercentage)
+    public function updateProduct($productId, $expPricePercentage, $storeId)
     {
         $data = array(
             'exported_price_percentage' => $expPricePercentage
@@ -44,7 +47,7 @@ class FmProductExport extends FmModel
         );
     }
 
-    public function deleteProduct($productId)
+    public function deleteProduct($productId, $storeId)
     {
         return (bool)$this->fmPrestashop->dbDelete(
             $this->tableName,
@@ -53,7 +56,7 @@ class FmProductExport extends FmModel
         );
     }
 
-    public function getProduct($productId)
+    public function getProduct($productId, $storeId)
     {
         $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) .
             ' WHERE product_id= ' . $productId;
@@ -137,10 +140,9 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId, $descriptionType)
+    public function getStoreProduct($languageId, $productId, $descriptionType, $storeId = null)
     {
-
-        $product = $this->fmPrestashop->productNew($productId, false, $languageId);
+        $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
             return false;
         }
@@ -257,7 +259,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType)
+    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId)
     {
         $result = true;
         $fmProducts = $this->getFyndiqProducts();
@@ -269,10 +271,13 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$stockMin', $stockMin);
 
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $storeId);
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
-
+            if (!$storeProduct) {
+                // Product not found (maybe not in this store);
+                continue;
+            }
             if (count($storeProduct['combinations']) === 0 && $storeProduct['minimal_quantity'] > 1) {
                 FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
                 continue;
