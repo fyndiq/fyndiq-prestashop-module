@@ -263,7 +263,6 @@ class FmProductExport extends FmModel
      */
     public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId)
     {
-        $result = true;
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency

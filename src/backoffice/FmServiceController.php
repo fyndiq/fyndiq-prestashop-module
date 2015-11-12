@@ -376,7 +376,7 @@ class FmServiceController
             fwrite($file, $testMessage);
             fclose($file);
             $content = file_get_contents($tempFileName);
-            if ($testMessage == file_get_contents($tempFileName)) {
+            if ($testMessage == $content) {
                 $messages[] = sprintf(FyndiqTranslation::get('File `%s` successfully read.'), $tempFileName);
             }
             FyndiqUtils::deleteFile($tempFileName);

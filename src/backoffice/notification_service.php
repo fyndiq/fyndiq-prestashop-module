@@ -113,14 +113,14 @@ class FmNotificationService
                 $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                 $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
                 fclose($file);
-                return $this->_update_product_info();
+                return $this->updateProductInfo();
             } catch (Exception $e) {
                 return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
             }
         }
     }
 
-    private function _update_product_info()
+    private function updateProductInfo()
     {
         $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
         $tableName = $module->config_name . '_products';
