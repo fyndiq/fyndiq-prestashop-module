@@ -24,22 +24,22 @@ class FmConfig
         return self::CONFIG_NAME . '_' .$storeId . '_' . $name;
     }
 
-    public function delete($name, $storeId = false)
+    public function delete($name, $storeId)
     {
         return $this->fmPrestashop->configurationDeleteByName($this->key($name, $storeId));
     }
 
-    public function get($name, $storeId = false)
+    public function get($name, $storeId)
     {
         return $this->fmPrestashop->configurationGet($this->key($name, $storeId));
     }
 
-    public function set($name, $value, $storeId = false)
+    public function set($name, $value, $storeId)
     {
         return $this->fmPrestashop->configurationUpdateValue($this->key($name, $storeId), $value);
     }
 
-    public function isAuthorized($storeId = false)
+    public function isAuthorized($storeId)
     {
         $ret = true;
         $ret &= $this->get('username', $storeId) !== false;
@@ -48,7 +48,7 @@ class FmConfig
         return (bool)$ret;
     }
 
-    public function isSetUp($storeId = false)
+    public function isSetUp($storeId)
     {
         $ret = true;
         $ret &= $this->get('language', $storeId) !== false;

@@ -11,6 +11,7 @@ class FmController
     private $fmOutput;
     private $fmConfig;
     private $fmPrestashop;
+    private $storeId = null;
 
     public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
     {
@@ -18,8 +19,8 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $storeId = $this->fmPrestashop->getStoreId();
-        $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
+        $this->storeId = $this->fmPrestashop->getStoreId();
+        $importOrdersStatus = $this->fmConfig->get('disable_orders', $this->storeId);
 
         $path = $fmPrestashop->getModuleUrl();
         $this->data = array(
@@ -50,9 +51,9 @@ class FmController
         $action = $action ? $action : 'main';
 
         // Force authorize if not authorized
-        $action = $this->fmConfig->isAuthorized() ? $action : 'authenticate';
+        $action = $this->fmConfig->isAuthorized($this->storeId) ? $action : 'authenticate';
         // Force setup if not set up
-        $action = $this->fmConfig->isSetUp() ? $action : 'settings';
+        $action = $this->fmConfig->isSetUp($this->storeId) ? $action : 'settings';
         $action = $action != 'authenticate' ? $this->serviceIsOperational($action) : $action;
 
         switch ($action) {
@@ -93,7 +94,6 @@ class FmController
     private function authenticate()
     {
         if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
-            $storeId = $this->fmPrestashop->getStoreId();
             $username = strval($this->fmPrestashop->toolsGetValue('username'));
             $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
             $importOrdersStatus = strval($this->fmPrestashop->toolsGetValue('import_orders_disabled'))
@@ -112,13 +112,13 @@ class FmController
             $this->fmConfig->set('ping_token', $pingToken);
             $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $this->storeId,
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $this->storeId,
             );
             if ($importOrdersStatus == FmUtils::ORDERS_ENABLED) {
                 $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $this->storeId;
             }
             try {
                 $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
@@ -129,8 +129,8 @@ class FmController
                 $this->fmPrestashop->sleep(1);
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {
-                $this->fmConfig->delete('username');
-                $this->fmConfig->delete('api_token');
+                $this->fmConfig->delete('username', $this->storeId);
+                $this->fmConfig->delete('api_token', $this->storeId);
                 return $this->fmOutput->render('authenticate', $this->data, $e->getMessage());
             }
         }
@@ -139,7 +139,6 @@ class FmController
 
     private function main()
     {
-        $this->data['currency'] = $this->fmPrestashop->getCurrency($this->fmConfig->get('currency'));
         return $this->fmOutput->render('main', $this->data);
     }
 
@@ -154,24 +153,24 @@ class FmController
             $stockMin = $stockMin < 0 ? 0 : $stockMin;
             $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
 
-            if ($this->fmConfig->set('language', $languageId) &&
-                $this->fmConfig->set('price_percentage', $pricePercentage) &&
-                $this->fmConfig->set('import_state', $orderImportState) &&
-                $this->fmConfig->set('done_state', $orderDoneState) &&
-                $this->fmConfig->set('stock_min', $stockMin) &&
-                $this->fmConfig->set('description_type', $descriptionType)
+            if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
+                $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
+                $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
+                $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
+                $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
+                $this->fmConfig->set('description_type', $descriptionType, $this->storeId)
             ) {
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
             return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error saving settings'));
         }
 
-        $selectedLanguage = $this->fmConfig->get('language');
-        $pricePercentage = $this->fmConfig->get('price_percentage');
-        $orderImportState = $this->fmConfig->get('import_state');
-        $orderDoneState = $this->fmConfig->get('done_state');
-        $stockMin = $this->fmConfig->get('stock_min');
-        $descriptionType = intval($this->fmConfig->get('description_type'));
+        $selectedLanguage = $this->fmConfig->get('language', $this->storeId);
+        $pricePercentage = $this->fmConfig->get('price_percentage', $this->storeId);
+        $orderImportState = $this->fmConfig->get('import_state', $this->storeId);
+        $orderDoneState = $this->fmConfig->get('done_state', $this->storeId);
+        $stockMin = $this->fmConfig->get('stock_min', $this->storeId);
+        $descriptionType = intval($this->fmConfig->get('description_type', $this->storeId));
 
         // if there is a configured language, show it as selected
         $selectedLanguage =  $selectedLanguage ?
@@ -267,7 +266,7 @@ class FmController
 
     private function orders()
     {
-        $importDate = $this->fmConfig->get('import_date');
+        $importDate = $this->fmConfig->get('import_date', $this->storeId);
         $isToday = date('Ymd') === date('Ymd', strtotime($importDate));
         $this->data['import_date'] = $importDate;
         $this->data['isToday'] = $isToday;
@@ -282,11 +281,11 @@ class FmController
             FyndiqUtils::NAME_PING_URL => '',
             FyndiqUtils::NAME_NOTIFICATION_URL => '',
         );
-        $username = $this->fmConfig->get('username');
-        $apiToken = $this->fmConfig->get('api_token');
+        $username = $this->fmConfig->get('username', $this->storeId);
+        $apiToken = $this->fmConfig->get('api_token', $this->storeId);
         $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
-        if ($this->fmConfig->delete('username') &&
-            $this->fmConfig->delete('api_token')) {
+        if ($this->fmConfig->delete('username', $this->storeId) &&
+            $this->fmConfig->delete('api_token', $this->storeId)) {
             return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
         }
         return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error disconnecting account'));

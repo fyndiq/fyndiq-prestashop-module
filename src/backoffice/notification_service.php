@@ -107,7 +107,7 @@ class FmNotificationService
                 $languageId = $this->fmConfig->get('language', $storeId);
                 $stockMin = $this->fmConfig->get('stock_min', $storeId);
                 $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-                $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType);
+                $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
                 fclose($file);
                 return $this->_update_product_info();
             } catch (Exception $e) {
