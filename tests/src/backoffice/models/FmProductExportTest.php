@@ -46,7 +46,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo('test_products'),
                 $this->equalTo(array(
                     'product_id' => 1,
-                    'exported_price_percentage' => 12
+                    'exported_price_percentage' => 12,
+                    'store_id' => 1
                 ))
             )
             ->willReturn(true);
@@ -67,7 +68,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(array(
                     'exported_price_percentage' => 12
                 )),
-                $this->equalTo('product_id = "1"'),
+                $this->equalTo('product_id = "1" AND store_id = 1'),
                 $this->equalTo(1)
             )
             ->willReturn(true);
@@ -404,7 +405,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('getCategoryPath')
             ->willReturn('category / path');
 
-        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $descriptionType);
+        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $descriptionType, 1);
         $this->assertTrue($result);
     }
 

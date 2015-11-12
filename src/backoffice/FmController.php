@@ -31,7 +31,7 @@ class FmController
         );
     }
 
-    private function serviceIsOperational($action)
+    protected function serviceIsOperational($action)
     {
         try {
             $this->fmApiModel->callApi('GET', 'settings/');
@@ -104,12 +104,12 @@ class FmController
             if (empty($username) || empty($apiToken)) {
                 return $this->fmOutput->showModuleError(FyndiqTranslation::get('empty-username-token'));
             }
-            $this->fmConfig->set('username', $username);
-            $this->fmConfig->set('api_token', $apiToken);
-            $this->fmConfig->set('disable_orders', $importOrdersStatus);
             $base = $this->fmPrestashop->getBaseModuleUrl();
             $pingToken = $this->fmPrestashop->toolsEncrypt(time());
-            $this->fmConfig->set('ping_token', $pingToken);
+            $this->fmConfig->set('ping_token', $pingToken, $this->storeId);
+            $this->fmConfig->set('username', $username, $this->storeId);
+            $this->fmConfig->set('api_token', $apiToken, $this->storeId);
+            $this->fmConfig->set('disable_orders', $importOrdersStatus, $this->storeId);
             $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $this->storeId,
