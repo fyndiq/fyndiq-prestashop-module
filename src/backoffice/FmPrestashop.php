@@ -18,6 +18,7 @@ class FmPrestashop
     public $moduleName = '';
     private $categoryCache = array();
     private $context;
+    private $storeId = false;
 
     public function __construct($moduleName)
     {
@@ -268,7 +269,7 @@ class FmPrestashop
     public function getExportFileName()
     {
         if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
-            return sprintf(self::EXPORT_FILE_NAME_PATTERN, self::getCurrentShopId());
+            return sprintf(self::EXPORT_FILE_NAME_PATTERN, $this->getStoreId());
         }
         // fallback to 0 for non-multistore setups
         return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
@@ -639,5 +640,27 @@ class FmPrestashop
         // Insert new Order detail list using cart for the current order
         $orderDetail = $this->newOrderDetail();
         return $orderDetail->createList($prestaOrder, $cart, $importState, $cartProducts);
+    }
+
+    public function getStoreId($skipCache = false)
+    {
+        if (!$skipCache && $this->storeId !== false) {
+            return $this->storeId;
+        }
+        if ($this->version == self::FMPSV14) {
+            return 0;
+        }
+        return Context::getContext()->shop->id;
+    }
+
+    public function setStoreId($storeId)
+    {
+        $this->storeId = $storeId;
+        if ($this->version == self::FMPSV14) {
+            return true;
+        }
+        $context = Context::getContext();
+        $context->shop = new Shop($storeId);
+        return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
     }
 }

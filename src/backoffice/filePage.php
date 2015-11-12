@@ -38,15 +38,19 @@ class FilePageController
         $this->fmPrestashop->initHeadlessScript();
     }
 
-    public function handleRequest()
+    public function handleRequest($get)
     {
         try {
+            $storeId = 0;
+            if (isset($get['store_id']) && $get['store_id']) {
+                $storeId = intval($get['store_id']);
+                $this->fmPrestashop->setStoreId($storeId);
+            }
             $username = $this->fmConfig->get('username');
             $apiToken = $this->fmConfig->get('api_token');
             if (!empty($username) && !empty($apiToken)) {
                 $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
                 $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
-
 
                 if (FyndiqUtils::mustRegenerateFile($fileName)) {
                     // Write the file if it does not exist or is older than the interval
@@ -55,7 +59,7 @@ class FilePageController
                     $languageId = $this->fmConfig->get('language');
                     $stockMin = $this->fmConfig->get('stock_min');
                     $descriptionType = intval($this->fmConfig->get('description_type'));
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType);
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);
@@ -84,4 +88,4 @@ $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
 $filePageControoler = new FilePageController($fmPrestashop, $fmConfig, $fmOutput, $fmProductExport);
-$filePageControoler->handleRequest();
+$filePageControoler->handleRequest($_GET);

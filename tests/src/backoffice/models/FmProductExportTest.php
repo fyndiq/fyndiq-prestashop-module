@@ -4,6 +4,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $this->storeId = 1;
 
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
             ->disableOriginalConstructor()
@@ -30,7 +31,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->db->method('ExecuteS')
             ->willReturn(1);
 
-        $result = $this->fmProductExport->productExist($productId);
+        $result = $this->fmProductExport->productExist($productId, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -50,7 +51,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-        $result = $this->fmProductExport->addProduct($productId, $expPricePercentage);
+        $result = $this->fmProductExport->addProduct($productId, $expPricePercentage, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -71,7 +72,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-        $result = $this->fmProductExport->updateProduct($productId, $expPricePercentage);
+        $result = $this->fmProductExport->updateProduct($productId, $expPricePercentage, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -83,7 +84,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->method('dbDelete')
             ->willReturn(true);
 
-        $result = $this->fmProductExport->deleteProduct($productId);
+        $result = $this->fmProductExport->deleteProduct($productId, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -95,7 +96,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->db->method('getRow')
             ->willReturn($data);
 
-        $result = $this->fmProductExport->getProduct($productId);
+        $result = $this->fmProductExport->getProduct($productId, $this->storeId);
         $this->assertEquals($data, $result);
     }
 

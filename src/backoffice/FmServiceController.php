@@ -115,7 +115,7 @@ class FmServiceController
         $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage');
         $languageId = $this->fmConfig->get('language');
         $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
-
+        $storeId = $this->fmPrestashop->getStoreId();
         foreach ($rows as $row) {
             $discountPercentage = $fyndiqDiscountPercentage;
             $product = $fmProductExport->getStoreProduct($languageId, $row['id_product'], $descriptionType);
@@ -135,7 +135,7 @@ class FmServiceController
             $product['fyndiq_quantity'] = $product['quantity'];
             $product['fyndiq_status'] = 'noton';
 
-            $fynProduct = $fmProductExport->getProduct($row['id_product']);
+            $fynProduct = $fmProductExport->getProduct($row['id_product'], $storeId);
             if ($fynProduct) {
                 $discountPercentage = $fynProduct['exported_price_percentage'];
                 $product['fyndiq_exported'] = true;
@@ -283,14 +283,15 @@ class FmServiceController
     {
         $result = true;
         if (isset($args['products']) && is_array($args['products'])) {
+            $storeId = $this->fmPrestashop->getStoreId();
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
                 $product= $row['product'];
-                if ($fmProductExport->productExist($product['id'])) {
-                    $result &= $fmProductExport->updateProduct($product['id'], $product['fyndiq_percentage']);
+                if ($fmProductExport->productExist($product['id'], $storeId)) {
+                    $result &= $fmProductExport->updateProduct($product['id'], $product['fyndiq_percentage'], $storeId);
                     continue;
                 }
-                $result &= $fmProductExport->addProduct($product['id'], $product['fyndiq_percentage']);
+                $result &= $fmProductExport->addProduct($product['id'], $product['fyndiq_percentage'], $storeId);
             }
         }
         return (bool)$result;
@@ -300,10 +301,11 @@ class FmServiceController
     {
         $result = true;
         if (isset($args['products']) && is_array($args['products'])) {
+            $storeId = $this->fmPrestashop->getStoreId();
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
                 $product = $row['product'];
-                $fmProductExport->deleteProduct($product['id']);
+                $fmProductExport->deleteProduct($product['id'], $storeId);
             }
         }
         return $result;

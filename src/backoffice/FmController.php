@@ -18,7 +18,8 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $importOrdersStatus = $this->fmConfig->get('disable_orders');
+        $storeId = $this->fmPrestashop->getStoreId();
+        $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
 
         $path = $fmPrestashop->getModuleUrl();
         $this->data = array(
@@ -77,9 +78,22 @@ class FmController
         return $this->fmOutput->render('api_unavailable', $this->data);
     }
 
+    // TODO: Remove me once beta merchants are patched
+    private function patchProductsTable()
+    {
+        try {
+            $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
+            $sql = 'ALTER TABLE ' . $tableName . ' ADD COLUMN store_id int(10) unsigned DEFAULT 1 AFTER id';
+            $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+        } catch (Exception $e) {
+            // be discrete
+        }
+    }
+
     private function authenticate()
     {
         if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
+            $storeId = $this->fmPrestashop->getStoreId();
             $username = strval($this->fmPrestashop->toolsGetValue('username'));
             $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
             $importOrdersStatus = strval($this->fmPrestashop->toolsGetValue('import_orders_disabled'))
@@ -98,16 +112,20 @@ class FmController
             $this->fmConfig->set('ping_token', $pingToken);
             $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php',
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId,
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $storeId,
             );
             if ($importOrdersStatus == FmUtils::ORDERS_ENABLED) {
                 $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created';
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
             }
             try {
                 $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
+
+                // TODO: Remove me once beta merchants are patched
+                $this->patchProductsTable();
+
                 $this->fmPrestashop->sleep(1);
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             } catch (Exception $e) {

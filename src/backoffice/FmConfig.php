@@ -4,6 +4,7 @@ class FmConfig
 {
 
     const CONFIG_NAME = 'FYNDIQMERCHANT';
+    const DEFAULT_STORE_ID = 1;
 
     protected $fmPrestashop;
 
@@ -12,42 +13,47 @@ class FmConfig
         $this->fmPrestashop = $fmPrestashop;
     }
 
-    private function key($name)
+    private function key($name, $storeId)
     {
-        return self::CONFIG_NAME . '_' . $name;
+        if ($storeId === false) {
+            $storeId = $this->fmPrestashop->getStoreId();
+        }
+        if ($storeId == self::DEFAULT_STORE_ID) {
+            return self::CONFIG_NAME . '_' . $name;
+        }
+        return self::CONFIG_NAME . '_' .$storeId . '_' . $name;
     }
 
-    public function delete($name)
+    public function delete($name, $storeId = false)
     {
-        return $this->fmPrestashop->configurationDeleteByName($this->key($name));
+        return $this->fmPrestashop->configurationDeleteByName($this->key($name, $storeId));
     }
 
-    public function get($name)
+    public function get($name, $storeId = false)
     {
-        return $this->fmPrestashop->configurationGet($this->key($name));
+        return $this->fmPrestashop->configurationGet($this->key($name, $storeId));
     }
 
-    public function set($name, $value)
+    public function set($name, $value, $storeId = false)
     {
-        return $this->fmPrestashop->configurationUpdateValue($this->key($name), $value);
+        return $this->fmPrestashop->configurationUpdateValue($this->key($name, $storeId), $value);
     }
 
-    public function isAuthorized()
+    public function isAuthorized($storeId = false)
     {
         $ret = true;
-        $ret &= $this->get('username') !== false;
-        $ret &= $this->get('api_token') !== false;
+        $ret &= $this->get('username', $storeId) !== false;
+        $ret &= $this->get('api_token', $storeId) !== false;
 
         return (bool)$ret;
     }
 
-    public function isSetUp()
+    public function isSetUp($storeId = false)
     {
         $ret = true;
-        $ret &= $this->get('language') !== false;
-        $ret &= $this->get('import_state') !== false;
-        $ret &= $this->get('done_state') !== false;
-
+        $ret &= $this->get('language', $storeId) !== false;
+        $ret &= $this->get('import_state', $storeId) !== false;
+        $ret &= $this->get('done_state', $storeId) !== false;
         return (bool)$ret;
     }
 }

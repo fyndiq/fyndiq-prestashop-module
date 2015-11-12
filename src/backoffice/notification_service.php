@@ -38,7 +38,12 @@ class FmNotificationService
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
             if ($eventName[0] != '_' && method_exists($this, $eventName)) {
-                return $this->$eventName($params);
+                $storeId = 0;
+                if (isset($params['store_id']) && $params['store_id']) {
+                    $storeId = intval($params['store_id']);
+                    $this->fmPrestashop->setStoreId($storeId);
+                }
+                return $this->$eventName($params, $storeId);
             }
         }
         return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
@@ -50,7 +55,7 @@ class FmNotificationService
      * @param array $params
      * @return bool
      */
-    private function order_created($params)
+    private function order_created($params, $storeId)
     {
         $importOrdersStatus = $this->fmConfig->get('disable_orders');
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
@@ -81,7 +86,7 @@ class FmNotificationService
      *
      * @param $params
      */
-    private function ping($params)
+    private function ping($params, $storeId)
     {
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
@@ -123,7 +128,7 @@ class FmNotificationService
         return $productInfo->getAll();
     }
 
-    private function debug($params)
+    private function debug($params, $storeId)
     {
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
@@ -149,7 +154,7 @@ class FmNotificationService
         FyndiqUtils::debug('$languageId', $languageId);
         $stockMin = $this->fmConfig->get('stock_min');
         $descriptionType = intval($this->fmConfig->get('description_type'));
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType);
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
         fclose($file);
         $result = file_get_contents($filePath);
         FyndiqUtils::debug('$result', $result, true);
