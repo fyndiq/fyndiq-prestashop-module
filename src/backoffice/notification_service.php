@@ -38,11 +38,8 @@ class FmNotificationService
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
             if ($eventName[0] != '_' && method_exists($this, $eventName)) {
-                $storeId = 0;
-                if (isset($params['store_id']) && $params['store_id']) {
-                    $storeId = intval($params['store_id']);
-                    $this->fmPrestashop->setStoreId($storeId);
-                }
+                // This is set in service_init.php
+                $storeId = $this->fmPrestashop->getStoreId();
                 return $this->$eventName($params, $storeId);
             }
         }
@@ -57,7 +54,7 @@ class FmNotificationService
      */
     private function order_created($params, $storeId)
     {
-        $importOrdersStatus = $this->fmConfig->get('disable_orders');
+        $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
             return $this->getFyndiqOutput()->showError(403, 'Forbidden', 'Forbidden');
         }
@@ -68,7 +65,7 @@ class FmNotificationService
                 $ret = $this->fmApiModel->callApi('GET', $url);
                 $order = $ret['data'];
                 $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-                $idOrderState = $this->fmConfig->get('import_state');
+                $idOrderState = $this->fmConfig->get('import_state', $storeId);
                 $taxAddressType = $this->fmPrestashop->getTaxAddressType();
                 if (!$fmOrder->orderExists($order->id)) {
                     $fmOrder->create($order, $idOrderState, $taxAddressType);
@@ -89,27 +86,27 @@ class FmNotificationService
     private function ping($params, $storeId)
     {
         $token = isset($params['token']) ? $params['token'] : null;
-        if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
+        if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
         }
 
         $this->fmOutput->flushHeader('OK');
 
         $locked = false;
-        $lastPing = $this->fmConfig->get('ping_time');
+        $lastPing = $this->fmConfig->get('ping_time', $storeId);
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
         if (!$locked) {
-            $this->fmConfig->set('ping_time', time());
+            $this->fmConfig->set('ping_time', time(), $storeId);
             $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
             try {
                 $file = fopen($filePath, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
                 $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-                $languageId = $this->fmConfig->get('language');
-                $stockMin = $this->fmConfig->get('stock_min');
-                $descriptionType = intval($this->fmConfig->get('description_type'));
+                $languageId = $this->fmConfig->get('language', $storeId);
+                $stockMin = $this->fmConfig->get('stock_min', $storeId);
+                $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                 $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType);
                 fclose($file);
                 return $this->_update_product_info();
@@ -131,14 +128,14 @@ class FmNotificationService
     private function debug($params, $storeId)
     {
         $token = isset($params['token']) ? $params['token'] : null;
-        if (is_null($token) || $token != $this->fmConfig->get('ping_token')) {
+        if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
         }
 
         FyndiqUtils::debugStart();
         FyndiqUtils::debug('USER AGENT', $this->fmApiModel->getUserAgent());
         $locked = false;
-        $lastPing = $this->fmConfig->get('ping_time');
+        $lastPing = $this->fmConfig->get('ping_time', $storeId);
         if ($lastPing && $lastPing > strtotime('9 minutes ago')) {
             $locked = true;
         }
@@ -150,10 +147,10 @@ class FmNotificationService
         FyndiqUtils::debug('$file', $file);
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-        $languageId = $this->fmConfig->get('language');
+        $languageId = $this->fmConfig->get('language', $storeId);
         FyndiqUtils::debug('$languageId', $languageId);
-        $stockMin = $this->fmConfig->get('stock_min');
-        $descriptionType = intval($this->fmConfig->get('description_type'));
+        $stockMin = $this->fmConfig->get('stock_min', $storeId);
+        $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
         $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
         fclose($file);
         $result = file_get_contents($filePath);
@@ -162,9 +159,15 @@ class FmNotificationService
     }
 }
 
+
 $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
-$fmApiModel = new FmApiModel($fmConfig->get('username'), $fmConfig->get('api_token'), $fmPrestashop->globalGetVersion());
+$storeId = $this->fmPrestashop->getStoreId();
+$fmApiModel = new FmApiModel(
+    $fmConfig->get('username', $storeId),
+    $fmConfig->get('api_token', $storeId),
+    $fmPrestashop->globalGetVersion()
+);
 
 $notifications = new FmNotificationService($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel);
 $notifications->handleRequest($_GET);
