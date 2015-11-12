@@ -37,10 +37,14 @@ class FmNotificationService
     {
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
-            if ($eventName[0] != '_' && method_exists($this, $eventName)) {
-                // This is set in service_init.php
-                $storeId = $this->fmPrestashop->getStoreId();
-                return $this->$eventName($params, $storeId);
+            $storeId = $this->fmPrestashop->getStoreId();
+            switch($eventName) {
+                case 'order_created':
+                    return $this->orderCreated($params, $storeId);
+                case 'ping':
+                    return $this->ping($params, $storeId);
+                case 'debug':
+                    return $this->debug($params, $storeId);
             }
         }
         return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
@@ -52,7 +56,7 @@ class FmNotificationService
      * @param array $params
      * @return bool
      */
-    private function order_created($params, $storeId)
+    private function orderCreated($params, $storeId)
     {
         $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
