@@ -6,8 +6,6 @@ class FmProductExport extends FmModel
     const PENDING = 'PENDING';
     const FOR_SALE = 'FOR_SALE';
 
-    const SKU_SEPARATOR = '-';
-
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
@@ -141,7 +139,7 @@ class FmProductExport extends FmModel
         switch ($skuTypeId) {
             case FmUtils::SKU_ID:
                 if ($article) {
-                   return $product->id . self::SKU_SEPARATOR . $article['id_product_attribute'];
+                   return $product->id . FmUtils::SKU_SEPARATOR . $article['id_product_attribute'];
                 }
                 return $product->id;
             case FmUtils::SKU_EAN:

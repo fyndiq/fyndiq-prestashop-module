@@ -45,7 +45,7 @@ class FilePageController
                 $storeId = intval($get['store_id']);
                 $this->fmPrestashop->setStoreId($storeId);
             }
-            $storeId = $storeId->getStoreId();
+            $storeId = $this->fmPrestashop->getStoreId();
             $username = $this->fmConfig->get('username', $storeId);
             $apiToken = $this->fmConfig->get('api_token', $storeId);
             if (!empty($username) && !empty($apiToken)) {

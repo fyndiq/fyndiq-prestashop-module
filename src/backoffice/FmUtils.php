@@ -25,6 +25,9 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
+    const SKU_SEPARATOR = '-';
+
+
     public static function getFileWriter($file)
     {
         return new FyndiqCSVFeedWriter($file);
