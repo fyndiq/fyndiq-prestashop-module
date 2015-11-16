@@ -215,7 +215,8 @@ class FmServiceController
         $page = (isset($args['page']) && $args['page'] > 0) ? $args['page']: 1;
         return array(
             'orders' => $this->prepareOrders(
-                $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE)
+                $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE),
+                $this->fmPrestashop->getStoreId()
             ),
             'pagination' => FyndiqUtils::getPaginationHTML(
                 $total,
