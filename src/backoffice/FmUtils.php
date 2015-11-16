@@ -19,6 +19,12 @@ class FmUtils
     const ORDERS_ENABLED = 0;
     const ORDERS_DISABLED = 1;
 
+    const SKU_DEFAULT = 0;
+
+    const SKU_REFERENCE = 0;
+    const SKU_EAN = 1;
+    const SKU_ID = 2;
+
     public static function getFileWriter($file)
     {
         return new FyndiqCSVFeedWriter($file);

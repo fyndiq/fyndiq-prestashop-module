@@ -144,6 +144,7 @@ class FmController
 
     private function settings()
     {
+        $showSKUSelect = intval($this->fmPrestashop->toolsGetValue('set_sku')) === 1;
         if ($this->fmPrestashop->toolsIsSubmit('submit_save_settings')) {
             $languageId = intval($this->fmPrestashop->toolsGetValue('language_id'));
             $pricePercentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
@@ -152,13 +153,18 @@ class FmController
             $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
             $stockMin = $stockMin < 0 ? 0 : $stockMin;
             $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
+            $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
+            $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
+
+            $this->config->set('sku_type_id', intval($post['sku_type_id']));
 
             if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
                 $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
                 $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
                 $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
                 $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
-                $this->fmConfig->set('description_type', $descriptionType, $this->storeId)
+                $this->fmConfig->set('description_type', $descriptionType, $this->storeId) &&
+                $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId)
             ) {
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
@@ -171,6 +177,7 @@ class FmController
         $orderDoneState = $this->fmConfig->get('done_state', $this->storeId);
         $stockMin = $this->fmConfig->get('stock_min', $this->storeId);
         $descriptionType = intval($this->fmConfig->get('description_type', $this->storeId));
+        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $this->storeId));
 
         // if there is a configured language, show it as selected
         $selectedLanguage =  $selectedLanguage ?
@@ -180,6 +187,7 @@ class FmController
         $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
         $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
         $descriptionType = $descriptionType ? $descriptionType : FmUtils::LONG_DESCRIPTION;
+        $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
 
         $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->fmPrestashop->orderStateGetOrderStates($languageId);
@@ -211,7 +219,26 @@ class FmController
             );
         }
 
-        $descriptionTypes = array(
+        $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
+        $this->data['price_percentage'] = $pricePercentage;
+        $this->data['selected_language'] = $selectedLanguage;
+        $this->data['order_states'] = $states;
+        $this->data['order_import_state'] = $orderImportState;
+        $this->data['order_done_state'] = $orderDoneState;
+        $this->data['stock_min'] = $stockMin;
+        $this->data['probes'] = $this->getProbes();
+        $this->data['description_type_id'] = $descriptionType;
+        $this->data['description_types'] = $this->getDescriptonTypes();
+        $this->data['sku_type_id'] = $skuTypeId;
+        $this->data['sku_types'] = $this->getSKUTypes();
+        $this->data['showSKUSelect'] = $showSKUSelect;
+
+        return $this->fmOutput->render('settings', $this->data);
+    }
+
+    protected function getDescriptonTypes()
+    {
+        return array(
             array(
                 'id' => FmUtils::LONG_DESCRIPTION,
                 'name' => FyndiqTranslation::get('Description'),
@@ -225,19 +252,24 @@ class FmController
                 'name' => FyndiqTranslation::get('Short and long description'),
             ),
         );
+    }
 
-        $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
-        $this->data['price_percentage'] = $pricePercentage;
-        $this->data['selected_language'] = $selectedLanguage;
-        $this->data['order_states'] = $states;
-        $this->data['order_import_state'] = $orderImportState;
-        $this->data['order_done_state'] = $orderDoneState;
-        $this->data['stock_min'] = $stockMin;
-        $this->data['probes'] = $this->getProbes();
-        $this->data['description_type_id'] = $descriptionType;
-        $this->data['description_types'] = $descriptionTypes;
-
-        return $this->fmOutput->render('settings', $this->data);
+    protected function getSKUTypes()
+    {
+        return array(
+            array(
+                'id' => FmUtils::SKU_REFERENCE,
+                'name' => FyndiqTranslation::get('Reference code'),
+            ),
+            array(
+                'id' => FmUtils::SKU_EAN,
+                'name' => FyndiqTranslation::get('EAN'),
+            ),
+            array(
+                'id' => FmUtils::SKU_ID,
+                'name' => FyndiqTranslation::get('Database ID'),
+            ),
+        );
     }
 
     protected function getProbes()
