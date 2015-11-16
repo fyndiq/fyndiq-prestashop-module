@@ -6,6 +6,8 @@ class FmProductExport extends FmModel
     const PENDING = 'PENDING';
     const FOR_SALE = 'FOR_SALE';
 
+    const SKU_SEPARATOR = '-';
+
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
@@ -134,6 +136,27 @@ class FmProductExport extends FmModel
         }
     }
 
+    public function getProductSKU($skuTypeId, $product, $article = false)
+    {
+        switch ($skuTypeId) {
+            case FmUtils::SKU_ID:
+                if ($article) {
+                   return $product->id . self::SKU_SEPARATOR . $article['id_product_attribute'];
+                }
+                return $product->id;
+            case FmUtils::SKU_EAN:
+                if ($article) {
+                    return $article['ean13'];
+                }
+                return $product->ean13;
+            default:
+                if ($article) {
+                    return $article['reference'];
+                }
+                return $product->reference;
+        }
+    }
+
     /**
      * Returns single product with combinations or false if product is not active/found
      *
@@ -142,7 +165,7 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId, $descriptionType, $storeId = null)
+    public function getStoreProduct($languageId, $productId, $descriptionType, $skuTypeId, $storeId = null)
     {
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
@@ -153,7 +176,7 @@ class FmProductExport extends FmModel
             'id' => $product->id,
             'name' => $product->name,
             'category_id' => $this->getCategoryId($product->getCategories()),
-            'reference' => $product->reference,
+            'reference' => $this->getProductSKU($skuTypeId, $product),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
             'price' => $this->fmPrestashop->getPrice($product),
@@ -190,7 +213,7 @@ class FmProductExport extends FmModel
         if ($productAttributes) {
             $combinationImages = $product->getCombinationImages($languageId);
             foreach ($productAttributes as $fixingAttribute) {
-                $reference = $fixingAttribute['reference'];
+                $reference = $this->getProductSKU($skuTypeId, $product, $fixingAttribute);
                 if ($reference == '') {
                     continue;
                 }
@@ -261,7 +284,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -272,7 +295,7 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$stockMin', $stockMin);
 
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $storeId);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $skuTypeId, $storeId);
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
                 // Product not found (maybe not in this store);

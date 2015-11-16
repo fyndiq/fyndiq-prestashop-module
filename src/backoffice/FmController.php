@@ -156,8 +156,6 @@ class FmController
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
             $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
 
-            $this->config->set('sku_type_id', intval($post['sku_type_id']));
-
             if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
                 $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
                 $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
