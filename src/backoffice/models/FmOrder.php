@@ -231,14 +231,14 @@ class FmOrder extends FmModel
      * @throws FyndiqProductSKUNotFound
      * @throws PrestaShopException
      */
-    public function create($fyndiqOrder, $importState, $taxAddressType)
+    public function create($fyndiqOrder, $importState, $taxAddressType, $skuTypeId)
     {
         $context = $this->fmPrestashop->contextGetContext();
 
         $fyndiqOrderRows = $fyndiqOrder->order_rows;
 
         foreach ($fyndiqOrderRows as $key => $row) {
-            list($productId, $combinationId) = $this->getProductBySKU($row->sku);
+            list($productId, $combinationId) = $this->getProductBySKU($row->sku, $skuTypeId);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
                     FyndiqTranslation::get('error-import-product-not-found'),
@@ -389,16 +389,29 @@ class FmOrder extends FmModel
      * @param string $productSKU
      * @return bool|array
      */
-    public function getProductBySKU($productSKU)
+    public function getProductBySKU($sku, $skuTypeId)
     {
-        if (!isset($productSKU)) {
-            return false;
+        if (empty($sku)) {
+            return array(false, false);
         }
+        switch ($skuTypeId) {
+            case FmUtils::SKU_REFERENCE :
+                return $this->getProductBySKUReference($sku);
+            case FmUtils::SKU_EAN:
+                return $this->getProductBySKUEAN($sku);
+            case FmUtils::SKU_ID:
+                return $this->getProductBySKUID($sku);
+        }
+        return array(false, false);
+    }
+
+    protected function getProductBySKUField($sku, $fieldName)
+    {
         // Check products
         $sql = 'SELECT
                     id_product
                 FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
-                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                WHERE ' . $fieldName . ' = "'.$this->fmPrestashop->dbEscape($sku).'"
                 ORDER BY id_product DESC';
         $productId = $this->fmPrestashop->dbGetInstance()->getValue($sql);
         if ($productId) {
@@ -409,13 +422,35 @@ class FmOrder extends FmModel
                     id_product_attribute,
                     id_product
                 FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
-                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                WHERE ' . $fieldName . ' = "'.$this->fmPrestashop->dbEscape($sku).'"
                 ORDER BY id_product_attribute DESC';
         $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($sql);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }
-        return false;
+        return array(false, false);
+    }
+
+    protected function getProductBySKUReference($sku)
+    {
+        return $this->getProductBySKUField($sku, $languageId, 'reference');
+    }
+
+    protected function getProductBySKUEAN($sku)
+    {
+        return $this->getProductBySKUField($sku, $languageId, 'ean13');
+    }
+
+    protected function getProductBySKUID($sku)
+    {
+        $parts = explode(FmUtils::SKU_SEPARATOR, $sku);
+        if (count($parts) == 2 && is_numeric($parts[0]) && is_numeric($parts[1])) {
+            return $parts;
+        }
+        if (count($parts) == 1 && is_numeric($sku)) {
+            return array($sku, false);
+        }
+        return array(false, false);
     }
 
     public function getOrderTotal($products, $tax = true)

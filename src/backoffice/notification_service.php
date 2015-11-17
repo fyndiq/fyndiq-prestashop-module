@@ -111,7 +111,8 @@ class FmNotificationService
                 $languageId = $this->fmConfig->get('language', $storeId);
                 $stockMin = $this->fmConfig->get('stock_min', $storeId);
                 $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-                $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
+                $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+                $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
                 fclose($file);
                 return $this->updateProductInfo();
             } catch (Exception $e) {
@@ -155,7 +156,8 @@ class FmNotificationService
         FyndiqUtils::debug('$languageId', $languageId);
         $stockMin = $this->fmConfig->get('stock_min', $storeId);
         $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $storeId);
+        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
         fclose($file);
         $result = file_get_contents($filePath);
         FyndiqUtils::debug('$result', $result, true);
@@ -166,7 +168,7 @@ class FmNotificationService
 
 $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
-$storeId = $this->fmPrestashop->getStoreId();
+$storeId = $fmPrestashop->getStoreId();
 $fmApiModel = new FmApiModel(
     $fmConfig->get('username', $storeId),
     $fmConfig->get('api_token', $storeId),

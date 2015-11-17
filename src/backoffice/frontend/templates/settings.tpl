@@ -66,6 +66,21 @@
                         </select>
                     </div>
 
+                    {if $showSKUSelect}
+                    <div class="form-group">
+                        <label for="fm-sku-type">{fi18n s='Unique SKU field'}</label>
+                        <select name="sku_type_id" id="fm-sku-type">
+                            {foreach $sku_types as $sku_type}
+                                <option value="{$sku_type.id}"
+                                        {if $sku_type.id == $sku_type_id}
+                                            selected="selected"
+                                        {/if}
+                                        >{$sku_type.name}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <p>{fi18n s='Attention: if this value is changed, products already existing on Fyndiq will be removed and uploaded again.'}</p>
+                    {/if}
 
                     {if $orders_enabled}
                     <h2>{fi18n s='Orders'}</h2>
