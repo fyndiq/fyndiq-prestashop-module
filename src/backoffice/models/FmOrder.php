@@ -433,12 +433,12 @@ class FmOrder extends FmModel
 
     protected function getProductBySKUReference($sku)
     {
-        return $this->getProductBySKUField($sku, $languageId, 'reference');
+        return $this->getProductBySKUField($sku, 'reference');
     }
 
     protected function getProductBySKUEAN($sku)
     {
-        return $this->getProductBySKUField($sku, $languageId, 'ean13');
+        return $this->getProductBySKUField($sku, 'ean13');
     }
 
     protected function getProductBySKUID($sku)
