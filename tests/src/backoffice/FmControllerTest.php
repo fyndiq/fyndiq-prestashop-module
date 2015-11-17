@@ -42,7 +42,6 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                     'json_messages' => '[]',
                     'messages' => array(),
                     'path' => 'http://localhost/module',
-                    'currency' => 'ZWL',
                     'orders_enabled' => true,
                 ))
             )
@@ -158,6 +157,9 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('toolsGetValue')->willReturn('authenticate');
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $this->fmPrestashop->expects($this->once())->method('sleep')->willReturn(true);
+
+        $this->fmConfig->method('isAuthorized')->willReturn(true);
+        $this->fmConfig->method('isSetUp')->willReturn(true);
 
         $this->fmApiModel->expects($this->once())
             ->method('callApi')

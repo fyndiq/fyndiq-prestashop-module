@@ -26,10 +26,10 @@ require_once('./FmUtils.php');
 require_once('./FmPrestashop.php');
 
 $fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-
+$shop_id = null;
 if ($fmPrestashop->isPs1516()) {
     // Set the correct shop context
-    $shop_id = '';
+    $shop_id = null;
     Shop::setContext(Shop::CONTEXT_ALL);
     if ($context->cookie->shopContext) {
         $split = explode('-', $context->cookie->shopContext);
@@ -50,10 +50,8 @@ if ($fmPrestashop->isPs1516()) {
             }
         }
     }
-    // Replace existing shop if necessary
-    if (!$shop_id) {
-        $context->shop = new Shop(Configuration::get('PS_SHOP_DEFAULT'));
-    } elseif ($context->shop->id != $shop_id) {
-        $context->shop = new Shop($shop_id);
-    }
+    if (isset($_GET['store_id']) && is_numeric($_GET['store_id'])) {
+        $shop_id = intval($_GET['store_id']);
+    };
 }
+$fmPrestashop->setStoreId($shop_id);

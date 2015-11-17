@@ -655,10 +655,13 @@ class FmPrestashop
 
     public function setStoreId($storeId)
     {
-        $this->storeId = $storeId;
         if ($this->version == self::FMPSV14) {
             return true;
         }
+        if (!$storeId) {
+            $storeId = Configuration::get('PS_SHOP_DEFAULT');
+        }
+        $this->storeId = $storeId;
         $context = Context::getContext();
         $context->shop = new Shop($storeId);
         return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
