@@ -364,7 +364,7 @@ class FmOrder extends FmModel
     {
         $offset = $perPage * ($page - 1);
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        $sqlQuery = 'SELECT * FROM ' . $tableName . ' ORDER BY id DESC LIMIT ' . $offset . ', ' . $perPage;
+        $sqlQuery = 'SELECT * FROM ' . $tableName . ' WHERE order_id > 0 ORDER BY id DESC LIMIT ' . $offset . ', ' . $perPage;
         $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
         return $orders;
     }
@@ -372,7 +372,7 @@ class FmOrder extends FmModel
     public function getTotal()
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        $sql = 'SELECT count(id) as amount FROM ' . $tableName;
+        $sql = 'SELECT count(id) as amount FROM ' . $tableName .' WHERE order_id > 0';
         return $this->fmPrestashop->dbGetInstance()->getValue($sql);
     }
 
@@ -485,5 +485,11 @@ class FmOrder extends FmModel
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
         return (bool)$this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
+    }
+
+    public function clearReservations()
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        return (bool)$this->fmPrestashop->dbDelete($tableName, 'order_id = 0');
     }
 }
