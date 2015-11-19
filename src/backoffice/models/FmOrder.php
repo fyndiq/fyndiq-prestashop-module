@@ -274,6 +274,7 @@ class FmOrder extends FmModel
         foreach ($fyndiqOrderRows as $newRow) {
             $numArticle = (int)$newRow->quantity;
             $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
+
             if (!$result) {
                 $cart->delete();
                 throw new PrestaShopException(
@@ -346,6 +347,9 @@ class FmOrder extends FmModel
     public function addOrderLog($orderId, $fyndiqOrderId)
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        // Remove reservation
+        $this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
+
         $data = array(
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,
@@ -465,5 +469,21 @@ class FmOrder extends FmModel
     public function markOrderAsDone($orderId, $orderDoneState)
     {
         return $this->fmPrestashop->markOrderAsDone($orderId, $orderDoneState);
+    }
+
+    public function reserve($fyndiqOrderId)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        $data = array(
+            'order_id' => 0,
+            'fyndiq_orderid' => $fyndiqOrderId,
+        );
+        return (bool)$this->fmPrestashop->dbInsert($tableName, $data);
+    }
+
+    public function unreserve($fyndiqOrderId)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        return (bool)$this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
     }
 }
