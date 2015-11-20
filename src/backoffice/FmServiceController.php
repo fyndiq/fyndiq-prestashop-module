@@ -263,6 +263,8 @@ class FmServiceController
             return false;
         }
         $fmOrder = $this->loadModel('FmOrder');
+        // Clear any remaining reservations
+        $fmOrder->clearReservations();
         $orderFetch = new FmOrderFetch(
             $this->fmPrestashop,
             $this->fmConfig,
