@@ -77,7 +77,7 @@ class FmNotificationService
                     $fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
                 }
             } catch (Exception $e) {
-                $fmOrder->unreserve($intval($order->id));
+                $fmOrder->unreserve(intval($order->id));
                 return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
             }
             return $this->fmOutput->output('OK');
