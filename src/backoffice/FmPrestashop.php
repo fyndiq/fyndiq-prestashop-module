@@ -82,7 +82,7 @@ class FmPrestashop
         if (!isset($this->categoryCache[$categoryId])) {
             $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
             if ($path) {
-                $pathSegments = explode('>', $path);
+                $pathSegments = explode('>', html_entity_decode($path, ENT_COMPAT | ENT_HTML401, 'utf-8'));
                 array_pop($pathSegments);
                 $this->categoryCache[$categoryId] = implode(self::CATEGORY_DELIMITER, $pathSegments);
             } else {
