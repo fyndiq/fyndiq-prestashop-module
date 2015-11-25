@@ -62,6 +62,8 @@ class FmServiceController
                     return $this->probeModuleIntegrity($args, $storeId);
                 case 'probe_connection';
                     return $this->probeConnection($args, $storeId);
+                case 'probe_products';
+                    return $this->probeProducts($args, $storeId);
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
@@ -475,6 +477,19 @@ class FmServiceController
                 }
             }
             $messages[] = FyndiqTranslation::get('Connection to Fyndiq successfully tested');
+            return implode('<br />', $messages);
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
+    }
+
+    private function probeProducts($args)
+    {
+        $messages = array();
+        $fmProduct = $this->loadModel('FmProduct');
+        try {
             return implode('<br />', $messages);
         } catch (Exception $e) {
             $messages[] = $e->getMessage();
