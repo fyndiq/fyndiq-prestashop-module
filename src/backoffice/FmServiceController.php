@@ -488,8 +488,14 @@ class FmServiceController
     private function probeProducts($args)
     {
         $messages = array();
-        $fmProduct = $this->loadModel('FmProduct');
         try {
+            $fmProduct = $this->loadModel('FmProduct');
+            $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
+            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmUtils::SKU_DEFAULT;
+            $duplicates = $fmProduct->checkProducts($skuTypeId);
+            foreach($duplicates as $duplicate) {
+                $messages[] = $duplicate['ref'];
+            }
             return implode('<br />', $messages);
         } catch (Exception $e) {
             $messages[] = $e->getMessage();

@@ -289,6 +289,11 @@ class FmController
                 'label' => FyndiqTranslation::get('Connection to Fyndiq'),
                 'action' => 'probe_connection',
             ),
+            array(
+                'label' => FyndiqTranslation::get('Check products'),
+                'action' => 'probe_products',
+            ),
+
         );
         return json_encode($probes);
 
