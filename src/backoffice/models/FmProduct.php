@@ -95,9 +95,14 @@ class FmProduct extends FmModel
         $query = $db->query($sql);
         $all = array();
         $duplicates = array();
-        while ($row = $row->nextRow($result)) {
+        $addedDuplicates = array();
+        while ($row = $db->nextRow($query)) {
             $ref = $row['ref'];
             if (isset($all[$ref])) {
+                if (!in_array($ref, $addedDuplicates)){
+                    $duplicates[] = $all[$ref];
+                    $addedDuplicates[] = $ref;
+                }
                 // process duplicate
                 $duplicates[] = $row;
                 continue;

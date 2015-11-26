@@ -274,6 +274,10 @@ class FmController
     {
         $probes = array(
             array(
+                'label' => FyndiqTranslation::get('Check products'),
+                'action' => 'probe_products',
+            ),
+            array(
                 'label' => FyndiqTranslation::get('Checking file permissions'),
                 'action' => 'probe_file_permissions',
             ),
@@ -289,11 +293,6 @@ class FmController
                 'label' => FyndiqTranslation::get('Connection to Fyndiq'),
                 'action' => 'probe_connection',
             ),
-            array(
-                'label' => FyndiqTranslation::get('Check products'),
-                'action' => 'probe_products',
-            ),
-
         );
         return json_encode($probes);
 
