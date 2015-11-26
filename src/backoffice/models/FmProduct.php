@@ -99,11 +99,12 @@ class FmProduct extends FmModel
         while ($row = $db->nextRow($query)) {
             $ref = $row['ref'];
             if (isset($all[$ref])) {
+                // process duplicate
                 if (!in_array($ref, $addedDuplicates)){
+                    // add the first occurrence of the duplicate
                     $duplicates[] = $all[$ref];
                     $addedDuplicates[] = $ref;
                 }
-                // process duplicate
                 $duplicates[] = $row;
                 continue;
             }
