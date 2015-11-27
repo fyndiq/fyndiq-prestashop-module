@@ -134,7 +134,7 @@
         $element = $container.append($probeLine);
         $.ajax({
             url: serviceURL,
-            method: 'POST',
+            type: 'POST',
             data: {
                 action : probe.action
             }
