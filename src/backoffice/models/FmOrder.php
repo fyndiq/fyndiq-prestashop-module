@@ -231,14 +231,14 @@ class FmOrder extends FmModel
      * @throws FyndiqProductSKUNotFound
      * @throws PrestaShopException
      */
-    public function create($fyndiqOrder, $importState, $taxAddressType)
+    public function create($fyndiqOrder, $importState, $taxAddressType, $skuTypeId)
     {
         $context = $this->fmPrestashop->contextGetContext();
 
         $fyndiqOrderRows = $fyndiqOrder->order_rows;
 
         foreach ($fyndiqOrderRows as $key => $row) {
-            list($productId, $combinationId) = $this->getProductBySKU($row->sku);
+            list($productId, $combinationId) = $this->getProductBySKU($row->sku, $skuTypeId);
             if (!$productId) {
                 throw new FyndiqProductSKUNotFound(sprintf(
                     FyndiqTranslation::get('error-import-product-not-found'),
@@ -274,6 +274,7 @@ class FmOrder extends FmModel
         foreach ($fyndiqOrderRows as $newRow) {
             $numArticle = (int)$newRow->quantity;
             $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
+
             if (!$result) {
                 $cart->delete();
                 throw new PrestaShopException(
@@ -346,6 +347,9 @@ class FmOrder extends FmModel
     public function addOrderLog($orderId, $fyndiqOrderId)
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        // Remove reservation
+        $this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
+
         $data = array(
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,
@@ -360,7 +364,7 @@ class FmOrder extends FmModel
     {
         $offset = $perPage * ($page - 1);
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        $sqlQuery = 'SELECT * FROM ' . $tableName . ' ORDER BY id DESC LIMIT ' . $offset . ', ' . $perPage;
+        $sqlQuery = 'SELECT * FROM ' . $tableName . ' WHERE order_id > 0 ORDER BY id DESC LIMIT ' . $offset . ', ' . $perPage;
         $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sqlQuery);
         return $orders;
     }
@@ -368,7 +372,7 @@ class FmOrder extends FmModel
     public function getTotal()
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        $sql = 'SELECT count(id) as amount FROM ' . $tableName;
+        $sql = 'SELECT count(id) as amount FROM ' . $tableName .' WHERE order_id > 0';
         return $this->fmPrestashop->dbGetInstance()->getValue($sql);
     }
 
@@ -389,16 +393,29 @@ class FmOrder extends FmModel
      * @param string $productSKU
      * @return bool|array
      */
-    public function getProductBySKU($productSKU)
+    public function getProductBySKU($sku, $skuTypeId)
     {
-        if (!isset($productSKU)) {
-            return false;
+        if (empty($sku)) {
+            return array(false, false);
         }
+        switch ($skuTypeId) {
+            case FmUtils::SKU_REFERENCE :
+                return $this->getProductBySKUReference($sku);
+            case FmUtils::SKU_EAN:
+                return $this->getProductBySKUEAN($sku);
+            case FmUtils::SKU_ID:
+                return $this->getProductBySKUID($sku);
+        }
+        return array(false, false);
+    }
+
+    protected function getProductBySKUField($sku, $fieldName)
+    {
         // Check products
         $sql = 'SELECT
                     id_product
                 FROM ' . $this->fmPrestashop->globDbPrefix() . 'product' . '
-                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                WHERE ' . $fieldName . ' = "'.$this->fmPrestashop->dbEscape($sku).'"
                 ORDER BY id_product DESC';
         $productId = $this->fmPrestashop->dbGetInstance()->getValue($sql);
         if ($productId) {
@@ -409,13 +426,35 @@ class FmOrder extends FmModel
                     id_product_attribute,
                     id_product
                 FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute' . '
-                WHERE reference = "'.$this->fmPrestashop->dbEscape($productSKU).'"
+                WHERE ' . $fieldName . ' = "'.$this->fmPrestashop->dbEscape($sku).'"
                 ORDER BY id_product_attribute DESC';
         $combinationRow = $this->fmPrestashop->dbGetInstance()->getRow($sql);
         if ($combinationRow) {
             return array($combinationRow['id_product'], $combinationRow['id_product_attribute']);
         }
-        return false;
+        return array(false, false);
+    }
+
+    protected function getProductBySKUReference($sku)
+    {
+        return $this->getProductBySKUField($sku, 'reference');
+    }
+
+    protected function getProductBySKUEAN($sku)
+    {
+        return $this->getProductBySKUField($sku, 'ean13');
+    }
+
+    protected function getProductBySKUID($sku)
+    {
+        $parts = explode(FmUtils::SKU_SEPARATOR, $sku);
+        if (count($parts) == 2 && is_numeric($parts[0]) && is_numeric($parts[1])) {
+            return $parts;
+        }
+        if (count($parts) == 1 && is_numeric($sku)) {
+            return array($sku, false);
+        }
+        return array(false, false);
     }
 
     public function getOrderTotal($products, $tax = true)
@@ -430,5 +469,27 @@ class FmOrder extends FmModel
     public function markOrderAsDone($orderId, $orderDoneState)
     {
         return $this->fmPrestashop->markOrderAsDone($orderId, $orderDoneState);
+    }
+
+    public function reserve($fyndiqOrderId)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        $data = array(
+            'order_id' => 0,
+            'fyndiq_orderid' => $fyndiqOrderId,
+        );
+        return (bool)$this->fmPrestashop->dbInsert($tableName, $data);
+    }
+
+    public function unreserve($fyndiqOrderId)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        return (bool)$this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
+    }
+
+    public function clearReservations()
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
+        return (bool)$this->fmPrestashop->dbDelete($tableName, 'order_id = 0');
     }
 }

@@ -34,33 +34,34 @@ class FmServiceController
     public function routeRequest($action, $args)
     {
         try {
+            $storeId = $this->fmPrestashop->getStoreId();
             switch ($action) {
                 case 'get_categories':
-                    return $this->getCategories($args);
+                    return $this->getCategories($args, $storeId);
                 case 'get_products':
-                    return $this->getProducts($args);
+                    return $this->getProducts($args, $storeId);
                 case 'export_products':
-                    return $this->exportProducts($args);
+                    return $this->exportProducts($args, $storeId);
                 case 'delete_exported_products':
-                    return $this->deleteExportedProducts($args);
+                    return $this->deleteExportedProducts($args, $storeId);
                 case 'update_order_status':
-                    return $this->updateOrderStatus($args);
+                    return $this->updateOrderStatus($args, $storeId);
                 case 'load_orders':
-                    return $this->loadOrders($args);
+                    return $this->loadOrders($args, $storeId);
                 case 'get_delivery_notes':
-                    return $this->getDeliveryNotes($args);
+                    return $this->getDeliveryNotes($args, $storeId);
                 case 'import_orders':
-                    return $this->importOrders($args);
+                    return $this->importOrders($args, $storeId);
                 case 'update_product_status':
-                    return $this->updateProductStatus($args);
+                    return $this->updateProductStatus($args, $storeId);
                 case 'probe_file_permissions':
-                    return $this->probeFilePermissions($args);
+                    return $this->probeFilePermissions($args, $storeId);
                 case 'probe_database';
-                    return $this->probeDatabase($args);
+                    return $this->probeDatabase($args, $storeId);
                 case 'probe_module_integrity';
-                    return $this->probeModuleIntegrity($args);
+                    return $this->probeModuleIntegrity($args, $storeId);
                 case 'probe_connection';
-                    return $this->probeConnection($args);
+                    return $this->probeConnection($args, $storeId);
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
@@ -89,9 +90,9 @@ class FmServiceController
      *
      * @param $args
      */
-    private function getCategories($args)
+    private function getCategories($args, $storeId)
     {
-        $languageId = $this->fmConfig->get('language');
+        $languageId = $this->fmConfig->get('language', $storeId);
         $fmCategory = $this->loadModel('FmCategory');
         return $fmCategory->getSubcategories($languageId, intval($args['category_id']));
     }
@@ -101,7 +102,7 @@ class FmServiceController
      *
      * @param $args
      */
-    private function getProducts($args)
+    private function getProducts($args, $storeId)
     {
         $products = array();
         $fmProduct = $this->loadModel('FmProduct');
@@ -112,13 +113,13 @@ class FmServiceController
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
-        $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage');
-        $languageId = $this->fmConfig->get('language');
-        $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
-        $storeId = $this->fmPrestashop->getStoreId();
+        $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage', $storeId);
+        $languageId = $this->fmConfig->get('language', $storeId);
+        $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
+        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
         foreach ($rows as $row) {
             $discountPercentage = $fyndiqDiscountPercentage;
-            $product = $fmProductExport->getStoreProduct($languageId, $row['id_product'], $descriptionType);
+            $product = $fmProductExport->getStoreProduct($languageId, $row['id_product'], $descriptionType, $skuTypeId);
             // Don't show deactivated products
             if (empty($product)) {
                 continue;
@@ -170,9 +171,9 @@ class FmServiceController
         );
     }
 
-    protected function prepareOrders($orders)
+    protected function prepareOrders($orders, $storeId)
     {
-        $orderDoneState = $this->fmConfig->get('done_state');
+        $orderDoneState = $this->fmConfig->get('done_state', $storeId);
 
         $result = array();
         foreach ($orders as $order) {
@@ -186,10 +187,10 @@ class FmServiceController
             }
             $tabcontroller = $this->fmPrestashop->isPs1516() ? 'controller' : 'tab';
             $urlarray = array(
-              $tabcontroller => 'AdminOrders',
-              'id_order' => $order['order_id'],
-              'vieworder' => 1,
-              'token' => $this->fmPrestashop->getAdminTokenLite()
+                $tabcontroller => 'AdminOrders',
+                'id_order' => $order['order_id'],
+                'vieworder' => 1,
+                'token' => $this->fmPrestashop->getAdminTokenLite()
             );
             $url = 'index.php?' . http_build_query($urlarray);
 
@@ -208,14 +209,15 @@ class FmServiceController
         return $result;
     }
 
-    private function loadOrders($args)
+    private function loadOrders($args, $storeId)
     {
         $fmOrder = $this->loadModel('FmOrder');
         $total = $fmOrder->getTotal();
         $page = (isset($args['page']) && $args['page'] > 0) ? $args['page']: 1;
         return array(
             'orders' => $this->prepareOrders(
-                $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE)
+                $fmOrder->getImportedOrders($page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE),
+                $this->fmPrestashop->getStoreId()
             ),
             'pagination' => FyndiqUtils::getPaginationHTML(
                 $total,
@@ -226,12 +228,12 @@ class FmServiceController
         );
     }
 
-    private function updateOrderStatus($args)
+    private function updateOrderStatus($args, $storeId)
     {
         $doneStateName = '';
         if (isset($args['orders']) && is_array($args['orders'])) {
             $doneState = '';
-            $doneState = $this->fmConfig->get('done_state');
+            $doneState = $this->fmConfig->get('done_state', $storeId);
             $fmOrder = $this->loadModel('FmOrder');
             foreach ($args['orders'] as $order) {
                 if (is_numeric($order)) {
@@ -254,13 +256,15 @@ class FmServiceController
      * @param $args
      * @throws PrestaShopException
      */
-    private function importOrders()
+    private function importOrders($args, $storeId)
     {
-        $importOrdersStatus = $this->fmConfig->get('disable_orders');
+        $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
             return false;
         }
         $fmOrder = $this->loadModel('FmOrder');
+        // Clear any remaining reservations
+        $fmOrder->clearReservations();
         $orderFetch = new FmOrderFetch(
             $this->fmPrestashop,
             $this->fmConfig,
@@ -270,7 +274,7 @@ class FmServiceController
         $orderFetch->getAll();
         $time = $this->getTime();
         $newDate = date('Y-m-d H:i:s', $time);
-        $this->fmConfig->set('import_date', $newDate);
+        $this->fmConfig->set('import_date', $newDate, $storeId);
         return date('G:i:s', $time);
     }
 
@@ -376,7 +380,7 @@ class FmServiceController
             fwrite($file, $testMessage);
             fclose($file);
             $content = file_get_contents($tempFileName);
-            if ($testMessage == file_get_contents($tempFileName)) {
+            if ($testMessage == $content) {
                 $messages[] = sprintf(FyndiqTranslation::get('File `%s` successfully read.'), $tempFileName);
             }
             FyndiqUtils::deleteFile($tempFileName);
