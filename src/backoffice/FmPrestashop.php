@@ -56,9 +56,9 @@ class FmPrestashop
         return $url . '/index.php?' . http_build_query($args);
     }
 
-    public function getAdminTokenLite()
+    public function getAdminTokenLite($controller)
     {
-        return Tools::getAdminTokenLite('AdminOrders');
+        return Tools::getAdminTokenLite($controller);
     }
 
     /**

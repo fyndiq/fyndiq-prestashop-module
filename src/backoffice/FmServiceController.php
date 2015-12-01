@@ -62,6 +62,8 @@ class FmServiceController
                     return $this->probeModuleIntegrity($args, $storeId);
                 case 'probe_connection';
                     return $this->probeConnection($args, $storeId);
+                case 'probe_products';
+                    return $this->probeProducts($args, $storeId);
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
@@ -190,7 +192,7 @@ class FmServiceController
                 $tabcontroller => 'AdminOrders',
                 'id_order' => $order['order_id'],
                 'vieworder' => 1,
-                'token' => $this->fmPrestashop->getAdminTokenLite()
+                'token' => $this->fmPrestashop->getAdminTokenLite('AdminOrders')
             );
             $url = 'index.php?' . http_build_query($urlarray);
 
@@ -475,6 +477,51 @@ class FmServiceController
                 }
             }
             $messages[] = FyndiqTranslation::get('Connection to Fyndiq successfully tested');
+            return implode('<br />', $messages);
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
+    }
+
+    protected function getProductLink($productId) {
+        $tabcontroller = $this->fmPrestashop->isPs1516() ? 'controller' : 'tab';
+        $urlarray = array(
+            $tabcontroller => 'AdminProducts',
+            'id_product' => $productId,
+            'updateproduct' => 1,
+            'token' => $this->fmPrestashop->getAdminTokenLite('AdminProducts')
+        );
+        return 'index.php?' . http_build_query($urlarray);
+    }
+
+    private function probeProducts($args)
+    {
+        $messages = array();
+        try {
+            $fmProduct = $this->loadModel('FmProduct');
+            $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
+            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmUtils::SKU_DEFAULT;
+            $duplicates = $fmProduct->checkProducts($skuTypeId);
+            foreach($duplicates as $duplicate) {
+                if ($duplicate['parent']) {
+                    $messages[] = sprintf(
+                        FyndiqTranslation::get('Combination %d in product <a href="%s">%d</a> with SKU `%s`'),
+                        $duplicate['id_product'],
+                        $this->getProductLink($duplicate['parent']),
+                        $duplicate['parent'],
+                        $duplicate['ref']
+                    );
+                    continue;
+                }
+                $messages[] = sprintf(
+                    FyndiqTranslation::get('Product <a href="%s">%d</a> with SKU `%s`'),
+                    $this->getProductLink($duplicate['id_product']),
+                    $duplicate['id_product'],
+                    $duplicate['ref']
+                );
+            }
             return implode('<br />', $messages);
         } catch (Exception $e) {
             $messages[] = $e->getMessage();
