@@ -522,7 +522,10 @@ class FmServiceController
                     $duplicate['ref']
                 );
             }
-            return implode('<br />', $messages);
+            if ($messages) {
+                return implode('<br />', $messages);
+            }
+            return FyndiqTranslation::get('No issues detected.');
         } catch (Exception $e) {
             $messages[] = $e->getMessage();
             $this->fmOutput->responseError('', implode('<br />', $messages));

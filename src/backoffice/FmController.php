@@ -274,7 +274,7 @@ class FmController
     {
         $probes = array(
             array(
-                'label' => FyndiqTranslation::get('Check products'),
+                'label' => FyndiqTranslation::get('Checking for duplicate SKU-s'),
                 'action' => 'probe_products',
             ),
             array(
