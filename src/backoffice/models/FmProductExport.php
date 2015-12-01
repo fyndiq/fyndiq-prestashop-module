@@ -212,9 +212,6 @@ class FmProductExport extends FmModel
             $combinationImages = $product->getCombinationImages($languageId);
             foreach ($productAttributes as $fixingAttribute) {
                 $reference = $this->getProductSKU($skuTypeId, $product, $fixingAttribute);
-                if ($reference == '') {
-                    continue;
-                }
                 if (!isset($productAttributesFixed[$reference])) {
                     $productAttributesFixed[$reference] = array();
                 }
