@@ -106,17 +106,23 @@ class FmNotificationService
         }
         if (!$locked) {
             $this->fmConfig->set('ping_time', time(), $storeId);
-            $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
+            $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
+            $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
+            $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
             try {
-                $file = fopen($filePath, 'w+');
+                $file = fopen($tempFileName, 'w+');
                 $feedWriter = FmUtils::getFileWriter($file);
-                $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
                 $languageId = $this->fmConfig->get('language', $storeId);
                 $stockMin = $this->fmConfig->get('stock_min', $storeId);
                 $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                 $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-                $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
+                $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
                 fclose($file);
+                if ($result) {
+                    FyndiqUtils::moveFile($tempFileName, $fileName);
+                } else {
+                    FyndiqUtils::deleteFile($tempFileName);
+                }
                 return $this->updateProductInfo();
             } catch (Exception $e) {
                 return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
