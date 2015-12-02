@@ -666,4 +666,15 @@ class FmPrestashop
         $context->shop = new Shop($storeId);
         return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
     }
+
+    public function getInstalledModules()
+    {
+        $result = array();
+        foreach (Module::getModulesInstalled() as $row) {
+            $row['title'] = Module::getModuleName($row['name']);
+            $result[] = $row;
+        }
+        return $result;
+    }
+
 }
