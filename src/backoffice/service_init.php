@@ -31,7 +31,7 @@ if ($fmPrestashop->isPs1516()) {
     // Set the correct shop context
     $shop_id = null;
     Shop::setContext(Shop::CONTEXT_ALL);
-    if ($context->cookie->shopContext) {
+    if (isset($context) && $context->cookie && $context->cookie->shopContext) {
         $split = explode('-', $context->cookie->shopContext);
         if (count($split) == 2) {
             if ($split[0] == 'g') {

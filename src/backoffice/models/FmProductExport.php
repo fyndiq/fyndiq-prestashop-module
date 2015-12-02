@@ -324,10 +324,6 @@ class FmProductExport extends FmModel
 
             $articles = array();
             foreach ($storeProduct['combinations'] as $combination) {
-                if ($combination['reference'] == '') {
-                    FyndiqUtils::debug('MISSING SKU', $combination);
-                    continue;
-                }
                 if ($combination['minimal_quantity'] > 1) {
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;

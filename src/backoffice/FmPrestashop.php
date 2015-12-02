@@ -80,7 +80,14 @@ class FmPrestashop
     public function getCategoryPath($categoryId)
     {
         if (!isset($this->categoryCache[$categoryId])) {
-            $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
+            $path = false;
+            if (method_exists('Tools', 'getCategoryLink')) {
+                try {
+                    $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
+                } catch (Exception $e) {
+                    $path = false;
+                }
+            }
             if ($path) {
                 $pathSegments = explode('>', html_entity_decode($path, ENT_COMPAT | ENT_HTML401, 'utf-8'));
                 array_pop($pathSegments);
@@ -151,15 +158,19 @@ class FmPrestashop
 
     public function getImageLink($linkRewrite, $idImage, $imageType)
     {
-        if ($this->version == self::FMPSV14) {
-            $link = new Link();
-            return $link->getImageLink($linkRewrite, $idImage, $imageType);
-        }
         if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
             $context = $this->contextGetContext();
-            return $context->link->getImageLink($linkRewrite, $idImage, $imageType);
+            if ($context->link) {
+                return $context->link->getImageLink($linkRewrite, $idImage, $imageType);
+            }
         }
-        return '';
+        $link = new Link();
+        $url = $link->getImageLink($linkRewrite, $idImage, $imageType);
+        // Nasty fix for PS 1.5.3.1
+        if (strpos($url, 'http') !== 0) {
+            $url = 'http://' . $url;
+        }
+        return $url;
     }
 
     public function getProductAttributes($product, $languageId)
