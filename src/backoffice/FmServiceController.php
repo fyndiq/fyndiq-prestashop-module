@@ -64,6 +64,8 @@ class FmServiceController
                     return $this->probeConnection($args, $storeId);
                 case 'probe_products';
                     return $this->probeProducts($args, $storeId);
+                case 'probe_modules';
+                    return $this->probeModules($args, $storeId);
                 default:
                     return $this->fmOutput->responseError(
                         'Not Found',
@@ -526,6 +528,24 @@ class FmServiceController
                 return implode('<br />', $messages);
             }
             return FyndiqTranslation::get('No issues detected.');
+        } catch (Exception $e) {
+            $messages[] = $e->getMessage();
+            $this->fmOutput->responseError('', implode('<br />', $messages));
+            return null;
+        }
+    }
+
+    private function probeModules()
+    {
+        $messages = array();
+        try {
+            $modules = $this->fmPrestashop->getInstalledModules();
+            $messages[] = '<pre>';
+            foreach ($modules as $row) {
+                $messages[] = implode("\t", $row);
+            }
+            $messages[] = '</pre>';
+            return implode(PHP_EOL, $messages);
         } catch (Exception $e) {
             $messages[] = $e->getMessage();
             $this->fmOutput->responseError('', implode('<br />', $messages));
