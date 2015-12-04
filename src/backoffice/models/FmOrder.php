@@ -18,6 +18,8 @@ class FmOrder extends FmModel
 
     const ID_CARRIER = 1;
 
+    const DEBUG_MODE = false;
+
     /**
      * install the table in the database
      *
@@ -34,7 +36,7 @@ class FmOrder extends FmModel
             order_id INT(10));';
         $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
-        $sql = 'CREATE UNIQUE INDEX orderIndex ON ' . $tableName . ' (fyndiq_orderid);';
+        $sql = 'CREATE UNIQUE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
         $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         return (bool)$res;
@@ -285,6 +287,307 @@ class FmOrder extends FmModel
             }
         }
 
+        return $this->createPrestashopOrders(
+            $context,
+            $fyndiqOrder,
+            $cart,
+            $fyndiqOrderRows,
+            $importState
+        );
+    }
+
+    public function updatePackagesProductsPrices($orderRows, $packagesList)
+    {
+        foreach ($orderRows as $row) {
+            foreach ($packagesList as $idAddress => $packages) {
+                foreach ($packages as $idPackage => $package) {
+                    foreach ($package['product_list'] as $idProduct => $product) {
+                        if ($product['id_product'] == $row->productId && $product['id_product_attribute'] == $row->combinationId) {
+                            $product['quantity'] = $row->quantity;
+                            $product['price'] = $this->fmPrestashop->toolsPsRound(
+                                (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
+                                2
+                            );
+                            $product['price_wt'] = floatval($row->unit_price_amount);
+                            $product['total_wt'] = floatval(($row->unit_price_amount*$row->quantity));
+                            $product['total'] = $this->fmPrestashop->toolsPsRound(floatval((($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100))*$row->quantity)), 2);
+                            $product['rate'] = floatval($row->vat_percent);
+                            $packagesList[$idAddress][$idPackage]['product_list'][$idProduct] = $product;
+                        }
+                    }
+                }
+            }
+        }
+        return $packagesList;
+    }
+
+
+    protected function createPS1516Orders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
+    {
+        $payment_method = self::FYNDIQ_PAYMENT_METHOD;
+        $amount_paid = $cart->getOrderTotal(true, Cart::BOTH);
+        $dont_touch_amount = false;
+        $id_cart = $cart->id;
+        $id_order_state = $importState;
+        $this->context = $context;
+        $this->context->cart = new Cart($cart->id);
+        $this->context->customer = new Customer((int)$this->context->cart->id_customer);
+        $this->context->customer = new Customer($this->context->cart->id_customer);
+        $this->context->language = new Language($this->context->cart->id_lang);
+        $this->context->shop = new Shop($this->context->cart->id_shop);
+        $cartProducts = $this->updateProductsPrices($fyndiqOrderRows, $cart->getProducts());
+
+        ShopUrl::resetMainDomainCache();
+
+        $id_currency = (int)$this->context->cart->id_currency;
+        $this->context->currency = new Currency($id_currency, null, $this->context->shop->id);
+        if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
+            $context_country = $this->context->country;
+        }
+
+        $order_status = new OrderState((int)$id_order_state, (int)$this->context->language->id);
+        if (!Validate::isLoadedObject($order_status))
+        {
+            throw new PrestaShopException('Can\'t load Order status');
+        }
+
+        // Does order already exists ?
+        if (!Validate::isLoadedObject($this->context->cart) || $this->context->cart->OrderExists() == true)
+        {
+            throw  new PrestaShopException('Cart cannot be loaded or an order has already been placed using this cart');
+        }
+
+        // For each package, generate an order
+        $delivery_option_list = $this->context->cart->getDeliveryOptionList();
+        $package_list = $this->context->cart->getPackageList();
+        $package_list = $this->updatePackagesProductsPrices($fyndiqOrderRows, $package_list);
+        $cart_delivery_option = $this->context->cart->getDeliveryOption();
+
+        // If some delivery options are not defined, or not valid, use the first valid option
+        foreach ($delivery_option_list as $id_address => $package) {
+            if (!isset($cart_delivery_option[$id_address]) || !array_key_exists($cart_delivery_option[$id_address], $package)){
+
+                foreach ($package as $key => $val)
+                {
+                    $cart_delivery_option[$id_address] = $key;
+                    break;
+                }
+            }
+        }
+
+        $order_list = array();
+        $order_detail_list = array();
+
+        do {
+            $reference = Order::generateReference();
+        }while (Order::getByReference($reference)->count());
+
+        $this->currentOrderReference = $reference;
+
+        $order_creation_failed = false;
+        $cart_total_paid = (float)Tools::ps_round((float)$this->context->cart->getOrderTotal(true, Cart::BOTH), 2);
+        foreach ($cart_delivery_option as $id_address => $key_carriers) {
+            foreach ($delivery_option_list[$id_address][$key_carriers]['carrier_list'] as $id_carrier => $data) {
+                error_log(json_encode($data['package_list']));
+                foreach ($data['package_list'] as $id_package)
+                {
+                    error_log(json_encode($package_list));
+                    error_log("[$id_address][$id_package]");
+                    // Rewrite the id_warehouse
+                    $package_list[$id_address][$id_package]['id_warehouse'] = (int)$this->context->cart->getPackageIdWarehouse($package_list[$id_address][$id_package], (int)$id_carrier);
+                    $package_list[$id_address][$id_package]['id_carrier'] = $id_carrier;
+                }
+            }
+        }
+
+        // Make sure CarRule caches are empty
+        CartRule::cleanCache();
+
+        $cart_rules = $this->context->cart->getCartRules();
+        foreach ($cart_rules as $cart_rule)
+        {
+            if (($rule = new CartRule((int)$cart_rule['obj']->id)) && Validate::isLoadedObject($rule))
+            {
+                if ($error = $rule->checkValidity($this->context, true, true))
+                {
+                    $this->context->cart->removeCartRule((int)$rule->id);
+                }
+            }
+        }
+
+        foreach ($package_list as $id_address => $packageByAddress) {
+            foreach ($packageByAddress as $id_package => $package) {
+                $order = new Order();
+                $order->product_list = $package['product_list'];
+
+                if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery')
+                {
+                    $address = new Address($id_address);
+                    $this->context->country = new Country($address->id_country, $this->context->cart->id_lang);
+                    if (!$this->context->country->active)
+                        throw new PrestaShopException('The delivery address country is not active.');
+                }
+                $carrier = null;
+                if (!$this->context->cart->isVirtualCart() && isset($package['id_carrier']))
+                {
+                    $carrier = new Carrier($package['id_carrier'], $this->context->cart->id_lang);
+                    $order->id_carrier = (int)$carrier->id;
+                    $id_carrier = (int)$carrier->id;
+                }
+                else
+                {
+                    $order->id_carrier = 0;
+                    $id_carrier = 0;
+                }
+
+                $order->id_customer = (int)$this->context->cart->id_customer;
+                $order->id_address_invoice = (int)$this->context->cart->id_address_invoice;
+                $order->id_address_delivery = (int)$id_address;
+                $order->id_currency = $this->context->currency->id;
+                $order->id_lang = (int)$this->context->cart->id_lang;
+                $order->id_cart = (int)$this->context->cart->id;
+                $order->reference = $reference;
+                $order->id_shop = (int)$this->context->shop->id;
+                $order->id_shop_group = (int)$this->context->shop->id_shop_group;
+
+                $order->secure_key = pSQL($this->context->customer->secure_key);
+                $order->payment = $payment_method;
+                $order->module = self::FYNDIQ_ORDERS_MODULE;
+                $order->recyclable = $this->context->cart->recyclable;
+                $order->gift = (int)$this->context->cart->gift;
+                $order->gift_message = $this->context->cart->gift_message;
+                $order->mobile_theme = $this->context->cart->mobile_theme;
+                $order->conversion_rate = $this->context->currency->conversion_rate;
+                $amount_paid = Tools::ps_round((float)$amount_paid, 2);
+                $order->total_paid_real = 0;
+
+
+                $order->total_products = (float)$this->context->cart->getOrderTotal(false, Cart::ONLY_PRODUCTS, $order->product_list, $id_carrier);
+                $order->total_products_wt = (float)$this->context->cart->getOrderTotal(true, Cart::ONLY_PRODUCTS, $order->product_list, $id_carrier);
+
+                $order->total_discounts_tax_excl = (float)abs($this->context->cart->getOrderTotal(false, Cart::ONLY_DISCOUNTS, $order->product_list, $id_carrier));
+                $order->total_discounts_tax_incl = (float)abs($this->context->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS, $order->product_list, $id_carrier));
+                $order->total_discounts = $order->total_discounts_tax_incl;
+
+                $order->total_shipping_tax_excl = (float)$this->context->cart->getPackageShippingCost((int)$id_carrier, false, null, $order->product_list);
+                $order->total_shipping_tax_incl = (float)$this->context->cart->getPackageShippingCost((int)$id_carrier, true, null, $order->product_list);
+                $order->total_shipping = $order->total_shipping_tax_incl;
+
+                if (!is_null($carrier) && Validate::isLoadedObject($carrier))
+                    $order->carrier_tax_rate = $carrier->getTaxesRate(new Address($this->context->cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')}));
+
+                $order->total_wrapping_tax_excl = (float)abs($this->context->cart->getOrderTotal(false, Cart::ONLY_WRAPPING, $order->product_list, $id_carrier));
+                $order->total_wrapping_tax_incl = (float)abs($this->context->cart->getOrderTotal(true, Cart::ONLY_WRAPPING, $order->product_list, $id_carrier));
+                $order->total_wrapping = $order->total_wrapping_tax_incl;
+
+                $order->total_paid_tax_excl = (float)Tools::ps_round((float)$this->context->cart->getOrderTotal(false, Cart::BOTH, $order->product_list, $id_carrier), 2);
+                $order->total_paid_tax_incl = (float)Tools::ps_round((float)$this->context->cart->getOrderTotal(true, Cart::BOTH, $order->product_list, $id_carrier), 2);
+                $order->total_paid = $order->total_paid_tax_incl;
+
+                $order->invoice_date = '0000-00-00 00:00:00';
+                $order->delivery_date = '0000-00-00 00:00:00';
+
+                // Creating order
+                $result = $order->add();
+                if (!$result) {
+                    throw new PrestaShopException('Can\'t save Order');
+                }
+
+                $order_list[] = $order;
+error_log(json_encode($order->product_list));
+                // Insert new Order detail list using cart for the current order
+                $order_detail = new OrderDetail(null, null, $this->context);
+                $order_detail->createList($order, $this->context->cart, $id_order_state, $order->product_list, 0, true, $package_list[$id_address][$id_package]['id_warehouse']);
+
+                $order_detail_list[] = $order_detail;
+
+                // Adding an entry in order_carrier table
+                if (!is_null($carrier))
+                {
+                    $order_carrier = new OrderCarrier();
+                    $order_carrier->id_order = (int)$order->id;
+                    $order_carrier->id_carrier = (int)$id_carrier;
+                    $order_carrier->weight = (float)$order->getTotalWeight();
+                    $order_carrier->shipping_cost_tax_excl = (float)$order->total_shipping_tax_excl;
+                    $order_carrier->shipping_cost_tax_incl = (float)$order->total_shipping_tax_incl;
+                    $order_carrier->add();
+                }
+            }
+        }
+
+        // The country can only change if the address used for the calculation is the delivery address, and if multi-shipping is activated
+        if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery')
+            $this->context->country = $context_country;
+
+        if (!$this->context->country->active) {
+            throw new PrestaShopException('The order address country is not active.');
+        }
+        // Register Payment only if the order status validate the order
+        if ($order_status->logable) {
+            // $order is the last order loop in the foreach
+            // The method addOrderPayment of the class Order make a create a paymentOrder
+            //     linked to the order reference and not to the order id
+            if (isset($extra_vars['transaction_id'])){
+                $transaction_id = $extra_vars['transaction_id'];
+            } else {
+                $transaction_id = null;
+            }
+
+            if (!$order->addOrderPayment($amount_paid, null, $transaction_id)){
+                throw new PrestaShopException('Can\'t save Order Payment');
+            }
+        }
+
+        // Make sure CarRule caches are empty
+        CartRule::cleanCache();
+        foreach ($order_detail_list as $key => $order_detail) {
+            $order = $order_list[$key];
+            if (!$order_creation_failed && isset($order->id)) {
+                $this->addOrderMessage($order->id, $fyndiqOrder->id, $fyndiqOrder->delivery_note);
+
+                // Hook validate order
+                Hook::exec('actionValidateOrder', array(
+                    'cart' => $this->context->cart,
+                    'order' => $order,
+                    'customer' => $this->context->customer,
+                    'currency' => $this->context->currency,
+                    'orderStatus' => $order_status
+                ));
+
+                foreach ($cartProducts as $product){
+                    if ($order_status->logable){
+                        ProductSale::addProductSale((int)$product['id_product'], (int)$product['cart_quantity']);
+                    }
+                }
+
+                // updates stock in shops
+                if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT')) {
+                    $product_list = $order->getProducts();
+                    foreach ($product_list as $product) {
+                        // if the available quantities depends on the physical stock
+                        if (StockAvailable::dependsOnStock($product['product_id'])) {
+                            // synchronizes
+                            StockAvailable::synchronize($product['product_id'], $order->id_shop);
+                        }
+                    }
+                }
+                $this->addOrderToHistory($order->id, $importState);
+                $this->addOrderLog($order->id, $fyndiqOrder->id);
+                unset($order_detail);
+            } else {
+                throw new PrestaShopException('Order creation failed');
+            }
+        } // End foreach $order_detail_list
+        return true;
+    }
+
+
+    protected function createPrestashopOrders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
+    {
+        if ($this->fmPrestashop->isPs1516()) {
+            return $this->createPS1516Orders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState);
+        }
+
         $cartProducts = $this->updateProductsPrices($fyndiqOrderRows, $cart->getProducts());
 
         $prestaOrder = $this->createPrestaOrder(
@@ -321,6 +624,8 @@ class FmOrder extends FmModel
         return $this->addOrderLog($prestaOrder->id, $fyndiqOrder->id);
     }
 
+
+
     /**
      * check if the order exists.
      *
@@ -347,9 +652,6 @@ class FmOrder extends FmModel
     public function addOrderLog($orderId, $fyndiqOrderId)
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
-        // Remove reservation
-        $this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
-
         $data = array(
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,

@@ -89,6 +89,15 @@ class FmController
         } catch (Exception $e) {
             // be discrete
         }
+        try {
+            $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+            $sql = 'DROP INDEX orderIndex ON ' . $tableName . ';';
+            $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+            $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
+            $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+        } catch (Exception $e) {
+            // be discrete
+        }
     }
 
     private function authenticate()
