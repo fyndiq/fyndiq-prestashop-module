@@ -565,7 +565,7 @@ class FmPrestashop
     // Cart
     public function newCart()
     {
-        return new Cart();
+        return new FmCart();
     }
 
     public function cartOnlyProducts()

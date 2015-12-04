@@ -71,7 +71,6 @@ TXT;
 $order = json_decode($torder);
 return $this->fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
 
-
         $errors = array();
         foreach ($data as $order) {
             if (!$this->fmOrder->orderExists($order->id)) {

@@ -204,27 +204,6 @@ class FmOrder extends FmModel
         return $orderMessage->add();
     }
 
-    public function updateProductsPrices($orderRows, $products)
-    {
-        foreach ($orderRows as $row) {
-            foreach ($products as $key => $product) {
-                if ($product['id_product'] == $row->productId && $product['id_product_attribute'] == $row->combinationId) {
-                    $product['quantity'] = $row->quantity;
-                    $product['price'] = $this->fmPrestashop->toolsPsRound(
-                        (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
-                        2
-                    );
-                    $product['price_wt'] = floatval($row->unit_price_amount);
-                    $product['total_wt'] = floatval(($row->unit_price_amount*$row->quantity));
-                    $product['total'] = $this->fmPrestashop->toolsPsRound(floatval((($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100))*$row->quantity)), 2);
-                    $product['rate'] = floatval($row->vat_percent);
-                    $products[$key] = $product;
-                }
-            }
-        }
-        return $products;
-    }
-
     /**
      * Create orders from Fyndiq orders
      *
@@ -256,6 +235,7 @@ class FmOrder extends FmModel
         }
 
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
+        $cart->setOrderDetails($fyndiqOrderRows);
 
         // Check address
         if ($taxAddressType == 'id_address_delivery') {
@@ -265,7 +245,6 @@ class FmOrder extends FmModel
                 throw new PrestaShopException(FyndiqTranslation::get('error-delivery-country-not-active'));
             }
         }
-
         // Save the cart
         $cart->add();
 
@@ -296,32 +275,6 @@ class FmOrder extends FmModel
         );
     }
 
-    public function updatePackagesProductsPrices($orderRows, $packagesList)
-    {
-        foreach ($orderRows as $row) {
-            foreach ($packagesList as $idAddress => $packages) {
-                foreach ($packages as $idPackage => $package) {
-                    foreach ($package['product_list'] as $idProduct => $product) {
-                        if ($product['id_product'] == $row->productId && $product['id_product_attribute'] == $row->combinationId) {
-                            $product['quantity'] = $row->quantity;
-                            $product['price'] = $this->fmPrestashop->toolsPsRound(
-                                (float)($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100)),
-                                2
-                            );
-                            $product['price_wt'] = floatval($row->unit_price_amount);
-                            $product['total_wt'] = floatval(($row->unit_price_amount*$row->quantity));
-                            $product['total'] = $this->fmPrestashop->toolsPsRound(floatval((($row->unit_price_amount / ((100+intval($row->vat_percent)) / 100))*$row->quantity)), 2);
-                            $product['rate'] = floatval($row->vat_percent);
-                            $packagesList[$idAddress][$idPackage]['product_list'][$idProduct] = $product;
-                        }
-                    }
-                }
-            }
-        }
-        return $packagesList;
-    }
-
-
     protected function createPS1516Orders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
     {
         $payment_method = self::FYNDIQ_PAYMENT_METHOD;
@@ -330,12 +283,12 @@ class FmOrder extends FmModel
         $id_cart = $cart->id;
         $id_order_state = $importState;
         $this->context = $context;
-        $this->context->cart = new Cart($cart->id);
+        $this->context->cart = new FmCart($cart->id);
+        $this->context->cart->setOrderDetails($fyndiqOrderRows);
         $this->context->customer = new Customer((int)$this->context->cart->id_customer);
         $this->context->customer = new Customer($this->context->cart->id_customer);
         $this->context->language = new Language($this->context->cart->id_lang);
         $this->context->shop = new Shop($this->context->cart->id_shop);
-        $cartProducts = $this->updateProductsPrices($fyndiqOrderRows, $cart->getProducts());
 
         ShopUrl::resetMainDomainCache();
 
@@ -360,7 +313,6 @@ class FmOrder extends FmModel
         // For each package, generate an order
         $delivery_option_list = $this->context->cart->getDeliveryOptionList();
         $package_list = $this->context->cart->getPackageList();
-        $package_list = $this->updatePackagesProductsPrices($fyndiqOrderRows, $package_list);
         $cart_delivery_option = $this->context->cart->getDeliveryOption();
 
         // If some delivery options are not defined, or not valid, use the first valid option
@@ -554,7 +506,7 @@ error_log(json_encode($order->product_list));
                     'orderStatus' => $order_status
                 ));
 
-                foreach ($cartProducts as $product){
+                foreach ($this->context->cart->getProducts() as $product){
                     if ($order_status->logable){
                         ProductSale::addProductSale((int)$product['id_product'], (int)$product['cart_quantity']);
                     }
@@ -588,7 +540,7 @@ error_log(json_encode($order->product_list));
             return $this->createPS1516Orders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState);
         }
 
-        $cartProducts = $this->updateProductsPrices($fyndiqOrderRows, $cart->getProducts());
+        $cartProducts = $cart->getProducts();
 
         $prestaOrder = $this->createPrestaOrder(
             $cart,
