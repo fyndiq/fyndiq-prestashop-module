@@ -1,6 +1,7 @@
 <?php
 
-class FmCart extends Cart {
+class FmCart extends Cart
+{
 
     protected $_orderDetails = array();
 
@@ -11,7 +12,7 @@ class FmCart extends Cart {
 
     protected function updateProductPrices($products)
     {
-       foreach ($this->_orderDetails as $row) {
+        foreach ($this->_orderDetails as $row) {
             foreach ($products as $key => $product) {
                 if ($product['id_product'] == $row->productId && $product['id_product_attribute'] == $row->combinationId) {
                     $product['quantity'] = $row->quantity;
@@ -28,7 +29,7 @@ class FmCart extends Cart {
                     $product['rate'] = floatval($row->vat_percent);
                     $products[$key] = $product;
                 }
-            }
+             }
         }
         return $products;
     }
@@ -37,5 +38,25 @@ class FmCart extends Cart {
     {
         $result = parent::getProducts($refresh, $id_product, $id_country);
         return $this->updateProductPrices($result);
+    }
+
+    public function getOrderTotal($with_taxes = true, $type = Cart::BOTH, $products = null, $id_carrier = null, $use_cache = true) {
+        $total = 0;
+        if (!in_array($type, array(Cart::ONLY_PRODUCTS, Cart::BOTH))) {
+            return $total;
+        }
+        $search = array();
+        if (is_array($products)) {
+            foreach ($products as $row) {
+                $search[] = $row['id_product'] . '-' . $row['id_product_attribute'];
+            }
+        }
+        foreach ($this->getProducts() as $product) {
+            if ($search && !in_array($product['id_product'] . '-' . $product['id_product_attribute'], $search)) {
+                continue;
+            }
+            $total += $with_taxes ? $product['total_wt'] : $product['total'];
+        }
+        return (float)$total;
     }
 }

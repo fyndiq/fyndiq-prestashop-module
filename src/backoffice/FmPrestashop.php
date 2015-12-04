@@ -687,5 +687,4 @@ class FmPrestashop
         }
         return $result;
     }
-
 }

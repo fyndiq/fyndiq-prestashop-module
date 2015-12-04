@@ -75,13 +75,16 @@ class FmProduct extends FmModel
     protected function getSKUFieldName($skuTypeId, $isArticle = false)
     {
         switch ($skuTypeId) {
-            case FmUtils::SKU_ID: return 'id_product';
-            case FmUtils::SKU_EAN: return 'ean13';
+            case FmUtils::SKU_ID:
+                return 'id_product';
+            case FmUtils::SKU_EAN:
+                return 'ean13';
         }
         return 'reference';
     }
 
-    public function checkProducts($skuTypeId) {
+    public function checkProducts($skuTypeId)
+    {
         if ($skuTypeId == FmUtils::SKU_ID) {
             return array();
         }
@@ -100,7 +103,7 @@ class FmProduct extends FmModel
             $ref = $row['ref'];
             if (isset($all[$ref])) {
                 // process duplicate
-                if (!in_array($ref, $addedDuplicates)){
+                if (!in_array($ref, $addedDuplicates)) {
                     // add the first occurrence of the duplicate
                     $duplicates[] = $all[$ref];
                     $addedDuplicates[] = $ref;

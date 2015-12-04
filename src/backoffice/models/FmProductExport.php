@@ -139,7 +139,7 @@ class FmProductExport extends FmModel
         switch ($skuTypeId) {
             case FmUtils::SKU_ID:
                 if ($article) {
-                   return $product->id . FmUtils::SKU_SEPARATOR . $article['id_product_attribute'];
+                    return $product->id . FmUtils::SKU_SEPARATOR . $article['id_product_attribute'];
                 }
                 return $product->id;
             case FmUtils::SKU_EAN:

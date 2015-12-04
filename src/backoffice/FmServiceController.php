@@ -487,7 +487,8 @@ class FmServiceController
         }
     }
 
-    protected function getProductLink($productId) {
+    protected function getProductLink($productId)
+    {
         $tabcontroller = $this->fmPrestashop->isPs1516() ? 'controller' : 'tab';
         $urlarray = array(
             $tabcontroller => 'AdminProducts',
@@ -506,7 +507,7 @@ class FmServiceController
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
             $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmUtils::SKU_DEFAULT;
             $duplicates = $fmProduct->checkProducts($skuTypeId);
-            foreach($duplicates as $duplicate) {
+            foreach ($duplicates as $duplicate) {
                 if ($duplicate['parent']) {
                     $messages[] = sprintf(
                         FyndiqTranslation::get('Combination %d in product <a href="%s">%d</a> with SKU `%s`'),

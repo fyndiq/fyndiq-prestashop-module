@@ -33,7 +33,7 @@ class FmOrderFetch extends FyndiqPaginatedFetch
         $idOrderState = $this->fmConfig->get('import_state', $this->storeId);
         $taxAddressType = $this->fmPrestashop->getTaxAddressType();
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $this->storeId));
-$torder = <<<TXT
+        $torder = <<<TXT
 {
     "id": 17,
     "created": "2015-12-04T07:56:05",
@@ -68,13 +68,13 @@ $torder = <<<TXT
     "delivery_note": "https:\/\/cdn.fyndiq.se\/upload\/test_order\/DeliveryNote.pdf"
 }
 TXT;
-$order = json_decode($torder);
-return $this->fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
+        $order = json_decode($torder);
+        return $this->fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
 
         $errors = array();
         foreach ($data as $order) {
             if (!$this->fmOrder->orderExists($order->id)) {
-                try{
+                try {
                     $this->fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
                 } catch (Exception $e) {
                     $errors[] = $e->getMessage();
