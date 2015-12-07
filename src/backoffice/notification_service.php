@@ -9,6 +9,7 @@ require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
 require_once('./models/FmApiModel.php');
 require_once('./models/FmModel.php');
+require_once('./models/FmCart.php');
 require_once('./models/FmOrder.php');
 require_once('./models/FmProduct.php');
 require_once('./models/FmProductExport.php');

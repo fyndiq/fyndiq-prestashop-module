@@ -18,8 +18,6 @@ class FmOrder extends FmModel
 
     const ID_CARRIER = 1;
 
-    const DEBUG_MODE = false;
-
     /**
      * install the table in the database
      *
