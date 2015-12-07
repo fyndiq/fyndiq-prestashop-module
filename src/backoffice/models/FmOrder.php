@@ -257,7 +257,7 @@ class FmOrder extends FmModel
             $numArticle = (int)$newRow->quantity;
             $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
 
-            if (!$result) {
+            if (!$result || $result == -1) {
                 $cart->delete();
                 throw new PrestaShopException(
                     sprintf(FyndiqTranslation::get(
@@ -736,7 +736,7 @@ class FmOrder extends FmModel
         return $this->removeFromQueue($fyndiqOrderId);
     }
 
-    public function processFullQueue($idOrderState, $taxAddressType, $skuTypeId)
+    public function processFullOrderQueue($idOrderState, $taxAddressType, $skuTypeId)
     {
         $errors = array();
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);

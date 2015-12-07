@@ -7,9 +7,9 @@ require_once('./service_init.php');
 require_once('./FmConfig.php');
 require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
+require_once('./FmCart.php');
 require_once('./models/FmApiModel.php');
 require_once('./models/FmModel.php');
-require_once('./models/FmCart.php');
 require_once('./models/FmOrder.php');
 require_once('./models/FmProduct.php');
 require_once('./models/FmProductExport.php');
@@ -68,13 +68,14 @@ class FmNotificationService
             try {
                 $ret = $this->fmApiModel->callApi('GET', $url);
                 $order = $ret['data'];
+                $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
                 if (!$fmOrder->orderQueued(intval($order->id))) {
                     $fmOrder->addToQueue($order);
                     $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
                     $idOrderState = $this->fmConfig->get('import_state', $storeId);
                     $skuTypeId = $this->fmConfig->get('sku_type_id', $storeId);
                     $taxAddressType = $this->fmPrestashop->getTaxAddressType();
-                    $fmOrder->processQueueItem(intval($order->id), $idOrderState, $taxAddressType, $skuTypeId);
+                    $fmOrder->processOrderQueueItem(intval($order->id), $idOrderState, $taxAddressType, $skuTypeId);
                 }
             } catch (Exception $e) {
                 return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());

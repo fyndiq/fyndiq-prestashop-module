@@ -279,7 +279,7 @@ class FmServiceController
         $taxAddressType = $this->fmPrestashop->getTaxAddressType();
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
 
-        $fmOrder->processFullQueue($idOrderState, $taxAddressType, $skuTypeId);
+        $fmOrder->processFullOrderQueue($idOrderState, $taxAddressType, $skuTypeId);
 
         $time = $this->getTime();
         $newDate = date('Y-m-d H:i:s', $time);
