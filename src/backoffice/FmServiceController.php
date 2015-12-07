@@ -267,8 +267,6 @@ class FmServiceController
             return false;
         }
         $fmOrder = $this->loadModel('FmOrder');
-        // Clear any remaining reservations
-        $fmOrder->clearReservations();
         $orderFetch = new FmOrderFetch(
             $this->fmPrestashop,
             $this->fmConfig,
@@ -276,6 +274,13 @@ class FmServiceController
             $this->fmApiModel
         );
         $orderFetch->getAll();
+
+        $idOrderState = $this->fmConfig->get('import_state', $storeId);
+        $taxAddressType = $this->fmPrestashop->getTaxAddressType();
+        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+
+        $fmOrder->processFullQueue($idOrderState, $taxAddressType, $skuTypeId);
+
         $time = $this->getTime();
         $newDate = date('Y-m-d H:i:s', $time);
         $this->fmConfig->set('import_date', $newDate, $storeId);

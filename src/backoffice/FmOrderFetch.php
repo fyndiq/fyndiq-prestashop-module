@@ -30,21 +30,10 @@ class FmOrderFetch extends FyndiqPaginatedFetch
 
     function processData($data)
     {
-        $idOrderState = $this->fmConfig->get('import_state', $this->storeId);
-        $taxAddressType = $this->fmPrestashop->getTaxAddressType();
-        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $this->storeId));
-        $errors = array();
         foreach ($data as $order) {
-            if (!$this->fmOrder->orderExists($order->id)) {
-                try {
-                    $this->fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
-                } catch (Exception $e) {
-                    $errors[] = $e->getMessage();
-                }
+            if (!$this->fmOrder->orderQueued(intval($order->id))) {
+                $this->fmOrder->addToQueue($order);
             }
-        }
-        if ($errors) {
-             throw new Exception(implode("\n", $errors));
         }
         return true;
     }

@@ -18,7 +18,6 @@ require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
 class FmNotificationService
 {
-
     public function __construct($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel)
     {
         $this->fmPrestashop = $fmPrestashop;
@@ -69,16 +68,15 @@ class FmNotificationService
             try {
                 $ret = $this->fmApiModel->callApi('GET', $url);
                 $order = $ret['data'];
-                $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-                $idOrderState = $this->fmConfig->get('import_state', $storeId);
-                $skuTypeId = $this->fmConfig->get('sku_type_id', $storeId);
-                $taxAddressType = $this->fmPrestashop->getTaxAddressType();
-                if (!$fmOrder->orderExists(intval($order->id))) {
-                    $fmOrder->reserve(intval($order->id));
-                    $fmOrder->create($order, $idOrderState, $taxAddressType, $skuTypeId);
+                if (!$fmOrder->orderQueued(intval($order->id))) {
+                    $fmOrder->addToQueue($order);
+                    $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
+                    $idOrderState = $this->fmConfig->get('import_state', $storeId);
+                    $skuTypeId = $this->fmConfig->get('sku_type_id', $storeId);
+                    $taxAddressType = $this->fmPrestashop->getTaxAddressType();
+                    $fmOrder->processQueueItem(intval($order->id), $idOrderState, $taxAddressType, $skuTypeId);
                 }
             } catch (Exception $e) {
-                $fmOrder->unreserve(intval($order->id));
                 return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
             }
             return $this->fmOutput->output('OK');

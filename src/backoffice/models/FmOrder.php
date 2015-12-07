@@ -31,10 +31,13 @@ class FmOrder extends FmModel
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName . ' (
             id int(20) unsigned primary key AUTO_INCREMENT,
             fyndiq_orderid INT(10),
-            order_id INT(10));';
+            order_id INT(10) DEFAULT null,
+            status INT(10) DEFAULT 0,
+            body TEXT DEFAULT null,
+            created timestamp DEFAULT CURRENT_TIMESTAMP);';
         $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
-        $sql = 'CREATE UNIQUE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
+        $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
         $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         return (bool)$res;
@@ -491,7 +494,6 @@ class FmOrder extends FmModel
         if ($this->fmPrestashop->configurationGet('PS_ADVANCED_STOCK_MANAGEMENT') && $this->fmPrestashop->isPs1516()) {
             return $this->createPS1516Orders($context, $fyndiqOrder, $cart->id, $fyndiqOrderRows, $importState);
         }
-
         $cartProducts = $cart->getProducts();
 
         $prestaOrder = $this->createPrestaOrder(
@@ -525,7 +527,8 @@ class FmOrder extends FmModel
         $prestaOrder->update();
 
         //Add order to log (PrestaShop database) so it doesn't get added again next time this is run
-        return $this->addOrderLog($prestaOrder->id, $fyndiqOrder->id);
+        $this->addOrderLog($prestaOrder->id, $fyndiqOrder->id);
+        return $this->removeFromQueue($fyndiqOrder->id);
     }
 
 
@@ -559,6 +562,7 @@ class FmOrder extends FmModel
         $data = array(
             'order_id' => $orderId,
             'fyndiq_orderid' => $fyndiqOrderId,
+            'body' => ''
         );
         return (bool)$this->fmPrestashop->dbInsert(
             $tableName,
@@ -677,25 +681,79 @@ class FmOrder extends FmModel
         return $this->fmPrestashop->markOrderAsDone($orderId, $orderDoneState);
     }
 
-    public function reserve($fyndiqOrderId)
+    public function orderQueued($fyndiqOrderId)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS(
+            'SELECT * FROM ' . $tableName . '
+            WHERE fyndiq_orderid=' . $this->fmPrestashop->dbEscape($fyndiqOrderId) . '
+            AND order_id = 0
+            LIMIT 1;'
+        );
+        return count($orders) > 0;
+    }
+
+    public function addToQueue($order)
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
         $data = array(
+            'fyndiq_orderid' => intval($order->id),
+            'body' => json_encode($order),
+            'status' => 0,
             'order_id' => 0,
-            'fyndiq_orderid' => $fyndiqOrderId,
         );
-        return (bool)$this->fmPrestashop->dbInsert($tableName, $data);
+        return (bool)$this->fmPrestashop->dbInsert(
+            $tableName,
+            $data
+        );
     }
 
-    public function unreserve($fyndiqOrderId)
+    public function removeFromQueue($fyndiqOrderId)
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
-        return (bool)$this->fmPrestashop->dbDelete($tableName, 'fyndiq_orderid = ' . $fyndiqOrderId);
+        $data = array(
+            'status' => 1
+        );
+        $where = 'fyndiq_orderid = ' . $this->fmPrestashop->dbEscape($fyndiqOrderId) . ' AND status = 0 AND order_id = 0';
+        $this->fmPrestashop->dbUpdate($tableName, $data, $where);
     }
 
-    public function clearReservations()
+    public function processOrderQueueItem($fyndiqOrderId, $idOrderState, $taxAddressType, $skuTypeId)
     {
-        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
-        return (bool)$this->fmPrestashop->dbDelete($tableName, 'order_id = 0');
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $sql = 'SELECT * FROM ' . $tableName . '
+                WHERE fyndiq_orderid=' . $this->fmPrestashop->dbEscape($fyndiqOrderId) . '
+                AND status = 0
+                AND order_id = 0
+                LIMIT 1';
+        $rawOrders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+        if (!$rawOrders){
+            return;
+        }
+        $rawOrder = array_pop($rawOrders);
+        $fyndiqOrder = json_decode($rawOrder['body']);
+        $this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
+        return $this->removeFromQueue($fyndiqOrderId);
+    }
+
+    public function processFullQueue($idOrderState, $taxAddressType, $skuTypeId)
+    {
+        $errors = array();
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $sql = 'SELECT fyndiq_orderid FROM ' . $tableName . ' WHERE status=0 AND order_id=0';
+        $rawOrders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+        if ($rawOrders) {
+            foreach ($rawOrders as $row) {
+                try {
+                    $this->processOrderQueueItem($row['fyndiq_orderid'], $idOrderState, $taxAddressType, $skuTypeId);
+                } catch (Exception $e) {
+                    $errors[] = $e->getMessage();
+                }
+            }
+            if ($errors) {
+                throw new Exception(implode('\n', $errors));
+            }
+        }
+        return true;
     }
 }

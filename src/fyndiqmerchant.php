@@ -60,6 +60,7 @@ class FyndiqMerchant extends Module
         $fmConfig = new FmConfig($this->fmPrestashop);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
+        $fmConfig->set('patch_version', 3);
 
         // create product mapping database
         $ret &= $fmProductExport->install();
