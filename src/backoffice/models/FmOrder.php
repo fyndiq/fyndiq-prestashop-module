@@ -273,16 +273,16 @@ class FmOrder extends FmModel
         );
     }
 
-    protected function createPS1516Orders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
+    // Adapted from PaymentModule::validateOrder
+    protected function createPS1516Orders($context, $fyndiqOrder, $cartId, $fyndiqOrderRows, $importState)
     {
-        $context->cart = new FmCart($cart->id);
+        $context->cart = new FmCart($cartId);
         $context->cart->setOrderDetails($fyndiqOrderRows);
-        $amount_paid = $context->cart->getOrderTotal(true, Cart::BOTH);
-error_log($amount_paid);
+
         $context->customer = new Customer((int)$context->cart->id_customer);
-        $context->customer = new Customer($context->cart->id_customer);
         $context->language = new Language($context->cart->id_lang);
         $context->shop = new Shop($context->cart->id_shop);
+        $amount_paid = $context->cart->getOrderTotal(true, Cart::BOTH);
 
         ShopUrl::resetMainDomainCache();
 
@@ -317,8 +317,8 @@ error_log($amount_paid);
             }
         }
 
-        $order_list = array();
-        $order_detail_list = array();
+        $orderList = array();
+        $orderDetailList = array();
 
         do {
             $reference = Order::generateReference();
@@ -338,22 +338,9 @@ error_log($amount_paid);
             }
         }
 
-        // Make sure CarRule caches are empty
-        CartRule::cleanCache();
-
-        $cart_rules = $context->cart->getCartRules();
-        foreach ($cart_rules as $cart_rule) {
-            if (($rule = new CartRule((int)$cart_rule['obj']->id)) && Validate::isLoadedObject($rule)) {
-                if ($error = $rule->checkValidity($context, true, true)) {
-                    $context->cart->removeCartRule((int)$rule->id);
-                    }
-            }
-        }
-
         foreach ($package_list as $id_address => $packageByAddress) {
             foreach ($packageByAddress as $id_package => $package) {
                 $order = new Order();
-error_log(json_encode($package['product_list']));
                 $order->product_list = $package['product_list'];
 
                 if (Configuration::get('PS_TAX_ADDRESS_TYPE') == 'id_address_delivery') {
@@ -427,13 +414,13 @@ error_log(json_encode($package['product_list']));
                     throw new PrestaShopException('Can\'t save Order');
                 }
 
-                $order_list[] = $order;
+                $orderList[] = $order;
 
                 // Insert new Order detail list using cart for the current order
                 $order_detail = new OrderDetail(null, null, $context);
                 $order_detail->createList($order, $context->cart, $importState, $order->product_list, 0, true, $package_list[$id_address][$id_package]['id_warehouse']);
 
-                $order_detail_list[] = $order_detail;
+                $orderDetailList[] = $order_detail;
 
                 // Adding an entry in order_carrier table
                 if (!is_null($carrier)) {
@@ -456,26 +443,9 @@ error_log(json_encode($package['product_list']));
         if (!$context->country->active) {
             throw new PrestaShopException('The order address country is not active.');
         }
-        // Register Payment only if the order status validate the order
-        if ($order_status->logable) {
-            // $order is the last order loop in the foreach
-            // The method addOrderPayment of the class Order make a create a paymentOrder
-            //     linked to the order reference and not to the order id
-            if (isset($extra_vars['transaction_id'])) {
-                $transaction_id = $extra_vars['transaction_id'];
-            } else {
-                $transaction_id = null;
-            }
 
-            if (!$order->addOrderPayment($amount_paid, null, $transaction_id)) {
-                throw new PrestaShopException('Can\'t save Order Payment');
-            }
-        }
-
-        // Make sure CarRule caches are empty
-        CartRule::cleanCache();
-        foreach ($order_detail_list as $key => $order_detail) {
-            $order = $order_list[$key];
+        foreach ($orderDetailList as $key => $order_detail) {
+            $order = $orderList[$key];
             if (!$order_creation_failed && isset($order->id)) {
                 $this->addOrderMessage($order->id, $fyndiqOrder->id, $fyndiqOrder->delivery_note);
 
@@ -511,7 +481,7 @@ error_log(json_encode($package['product_list']));
             } else {
                 throw new PrestaShopException('Order creation failed');
             }
-        } // End foreach $order_detail_list
+        } // End foreach $orderDetailList
         return true;
     }
 
@@ -519,7 +489,7 @@ error_log(json_encode($package['product_list']));
     protected function createPrestashopOrders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
     {
         if ($this->fmPrestashop->isPs1516()) {
-            return $this->createPS1516Orders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState);
+            return $this->createPS1516Orders($context, $fyndiqOrder, $cart->id, $fyndiqOrderRows, $importState);
         }
 
         $cartProducts = $cart->getProducts();
