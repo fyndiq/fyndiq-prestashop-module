@@ -727,7 +727,7 @@ class FmOrder extends FmModel
                 AND order_id = 0
                 LIMIT 1';
         $rawOrders = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
-        if (!$rawOrders){
+        if (!$rawOrders) {
             return;
         }
         $rawOrder = array_pop($rawOrders);

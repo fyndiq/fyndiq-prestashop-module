@@ -29,7 +29,7 @@ class FmCart extends Cart
                     $product['rate'] = floatval($row->vat_percent);
                     $products[$key] = $product;
                 }
-             }
+            }
         }
         return $products;
     }
@@ -40,7 +40,8 @@ class FmCart extends Cart
         return $this->updateProductPrices($result);
     }
 
-    public function getOrderTotal($with_taxes = true, $type = Cart::BOTH, $products = null, $id_carrier = null, $use_cache = true) {
+    public function getOrderTotal($with_taxes = true, $type = Cart::BOTH, $products = null, $id_carrier = null, $use_cache = true)
+    {
         $total = 0;
         if (!in_array($type, array(Cart::ONLY_PRODUCTS, Cart::BOTH))) {
             return $total;
