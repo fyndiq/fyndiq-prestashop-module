@@ -488,7 +488,7 @@ class FmOrder extends FmModel
 
     protected function createPrestashopOrders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
     {
-        if ($this->fmPrestashop->isPs1516()) {
+        if ($this->fmPrestashop->configurationGet('PS_ADVANCED_STOCK_MANAGEMENT') && $this->fmPrestashop->isPs1516()) {
             return $this->createPS1516Orders($context, $fyndiqOrder, $cart->id, $fyndiqOrderRows, $importState);
         }
 
