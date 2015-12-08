@@ -603,9 +603,9 @@ class FmPrestashop
     }
 
     // OrderDetail
-    public function newOrderDetail()
+    public function newOrderDetail($id = null, $id_lang = null, $context = null)
     {
-        return new OrderDetail();
+        return new OrderDetail($id, $id_lang, $context);
     }
 
     // Country
