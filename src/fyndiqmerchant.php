@@ -7,6 +7,7 @@ if (!defined('_PS_VERSION_')) {
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once('backoffice/includes/shared/src/init.php');
 require_once('backoffice/FmUtils.php');
+require_once('backoffice/FmCart.php');
 require_once('backoffice/FmConfig.php');
 require_once('backoffice/FmOutput.php');
 require_once('backoffice/FmPrestashop.php');
@@ -59,6 +60,7 @@ class FyndiqMerchant extends Module
         $fmConfig = new FmConfig($this->fmPrestashop);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
+        $fmConfig->set('patch_version', 3);
 
         // create product mapping database
         $ret &= $fmProductExport->install();

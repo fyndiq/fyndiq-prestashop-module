@@ -55,6 +55,8 @@ class FmController
         // Force setup if not set up
         $action = $this->fmConfig->isSetUp($this->storeId) ? $action : 'settings';
         $action = $action != 'authenticate' ? $this->serviceIsOperational($action) : $action;
+        $patchVersion = $this->fmConfig->get('patch_version', 0);
+        $this->patchTables($patchVersion, 0);
 
         switch ($action) {
             case 'api_unavailable':
@@ -80,14 +82,51 @@ class FmController
     }
 
     // TODO: Remove me once beta merchants are patched
-    private function patchProductsTable()
+    private function patchTables($patchVersion, $storeId)
     {
+        $newVersion = $patchVersion;
         try {
-            $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
-            $sql = 'ALTER TABLE ' . $tableName . ' ADD COLUMN store_id int(10) unsigned DEFAULT 1 AFTER id';
-            $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+            $version = 1;
+            if ($patchVersion < $version) {
+                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
+                $sql = 'ALTER TABLE ' . $tableName . ' ADD COLUMN store_id int(10) unsigned DEFAULT 1 AFTER id';
+                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+            }
+            $newVersion = $version;
         } catch (Exception $e) {
             // be discrete
+        }
+        try {
+            $version = 2;
+            if ($patchVersion < $version) {
+                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+                $sql = 'DROP INDEX orderIndex ON ' . $tableName . ';';
+                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+                $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
+                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+            }
+            $newVersion = $version;
+        } catch (Exception $e) {
+            // be discrete
+        }
+
+        try {
+            $version = 3;
+            if ($patchVersion < $version) {
+                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+
+                $sql = 'ALTER TABLE ' . $tableName . '
+                        ADD COLUMN status INT(10) DEFAULT 1,
+                        ADD COLUMN body TEXT DEFAULT null,
+                        ADD COLUMN created timestamp DEFAULT CURRENT_TIMESTAMP';
+                $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
+            }
+            $newVersion = $version;
+        } catch (Exception $e) {
+            // be discrete
+        }
+        if ($newVersion != $patchVersion) {
+            $this->fmConfig->set('patch_version', $newVersion, $storeId);
         }
     }
 
@@ -122,9 +161,6 @@ class FmController
             }
             try {
                 $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
-
-                // TODO: Remove me once beta merchants are patched
-                $this->patchProductsTable();
 
                 $this->fmPrestashop->sleep(1);
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
