@@ -257,7 +257,7 @@ class FmOrder extends FmModel
             $numArticle = (int)$newRow->quantity;
             $result = $cart->updateQty($numArticle, $newRow->productId, $newRow->combinationId);
 
-            if (!$result || $result == -1) {
+            if (!$result || $result === -1) {
                 $cart->delete();
                 throw new PrestaShopException(
                     sprintf(FyndiqTranslation::get(
