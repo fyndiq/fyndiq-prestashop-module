@@ -151,7 +151,7 @@ class FmController
             $this->fmConfig->set('disable_orders', $importOrdersStatus, $this->storeId);
             $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $this->storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $this->storeId . '&token=' . $pingToken,
                 FyndiqUtils::NAME_PING_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $this->storeId,
             );
