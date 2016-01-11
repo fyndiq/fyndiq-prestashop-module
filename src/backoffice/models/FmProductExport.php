@@ -357,6 +357,8 @@ class FmProductExport extends FmModel
             $feedWriter->addCompleteProduct($exportProduct, $articles);
             FyndiqUtils::debug('Any Validation Errors', $feedWriter->getLastProductErrors());
         }
+        FyndiqUtils::debug('$feedWriter->getProductCount()', $feedWriter->getProductCount());
+        FyndiqUtils::debug('$feedWriter->getArticleCount()', $feedWriter->getArticleCount());
         FyndiqUtils::debug('End');
         return $feedWriter->write();
     }
