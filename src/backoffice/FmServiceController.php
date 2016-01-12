@@ -266,12 +266,12 @@ class FmServiceController
         if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
             return false;
         }
+        $importDate = $this->fmConfig->get('import_date', $storeId);
         $fmOrder = $this->loadModel('FmOrder');
         $orderFetch = new FmOrderFetch(
-            $this->fmPrestashop,
-            $this->fmConfig,
             $fmOrder,
-            $this->fmApiModel
+            $this->fmApiModel,
+            $importDate
         );
         $orderFetch->getAll();
 
@@ -281,9 +281,11 @@ class FmServiceController
 
         $fmOrder->processFullOrderQueue($idOrderState, $taxAddressType, $skuTypeId);
 
-        $time = $this->getTime();
-        $newDate = date('Y-m-d H:i:s', $time);
-        $this->fmConfig->set('import_date', $newDate, $storeId);
+        $time = $orderFetch->getLastTimestamp();
+        if ($time) {
+            $newDate = date('Y-m-d H:i:s', $time);
+            $this->fmConfig->set('import_date', $newDate, $storeId);
+        }
         return date('G:i:s', $time);
     }
 
