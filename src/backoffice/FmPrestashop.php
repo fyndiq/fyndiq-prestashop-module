@@ -18,6 +18,7 @@ class FmPrestashop
     public $moduleName = '';
     private $categoryCache = array();
     private $context;
+    private $storeId = false;
 
     public function __construct($moduleName)
     {
@@ -55,9 +56,9 @@ class FmPrestashop
         return $url . '/index.php?' . http_build_query($args);
     }
 
-    public function getAdminTokenLite()
+    public function getAdminTokenLite($controller)
     {
-        return Tools::getAdminTokenLite('AdminOrders');
+        return Tools::getAdminTokenLite($controller);
     }
 
     /**
@@ -79,9 +80,16 @@ class FmPrestashop
     public function getCategoryPath($categoryId)
     {
         if (!isset($this->categoryCache[$categoryId])) {
-            $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
+            $path = false;
+            if (method_exists('Tools', 'getCategoryLink')) {
+                try {
+                    $path = trim(strip_tags(Tools::getFullPath($categoryId, '')), '> ');
+                } catch (Exception $e) {
+                    $path = false;
+                }
+            }
             if ($path) {
-                $pathSegments = explode('>', $path);
+                $pathSegments = explode('>', html_entity_decode($path, ENT_COMPAT | ENT_HTML401, 'utf-8'));
                 array_pop($pathSegments);
                 $this->categoryCache[$categoryId] = implode(self::CATEGORY_DELIMITER, $pathSegments);
             } else {
@@ -150,15 +158,19 @@ class FmPrestashop
 
     public function getImageLink($linkRewrite, $idImage, $imageType)
     {
-        if ($this->version == self::FMPSV14) {
-            $link = new Link();
-            return $link->getImageLink($linkRewrite, $idImage, $imageType);
-        }
         if ($this->version == self::FMPSV15 || $this->version == self::FMPSV16) {
             $context = $this->contextGetContext();
-            return $context->link->getImageLink($linkRewrite, $idImage, $imageType);
+            if ($context->link) {
+                return $context->link->getImageLink($linkRewrite, $idImage, $imageType);
+            }
         }
-        return '';
+        $link = new Link();
+        $url = $link->getImageLink($linkRewrite, $idImage, $imageType);
+        // Nasty fix for PS 1.5.3.1
+        if (strpos($url, 'http') !== 0) {
+            $url = 'http://' . $url;
+        }
+        return $url;
     }
 
     public function getProductAttributes($product, $languageId)
@@ -268,7 +280,7 @@ class FmPrestashop
     public function getExportFileName()
     {
         if ($this->isPs1516() && Shop::getContext() === Shop::CONTEXT_SHOP) {
-            return sprintf(self::EXPORT_FILE_NAME_PATTERN, self::getCurrentShopId());
+            return sprintf(self::EXPORT_FILE_NAME_PATTERN, $this->getStoreId());
         }
         // fallback to 0 for non-multistore setups
         return sprintf(self::EXPORT_FILE_NAME_PATTERN, 0);
@@ -553,7 +565,7 @@ class FmPrestashop
     // Cart
     public function newCart()
     {
-        return new Cart();
+        return new FmCart();
     }
 
     public function cartOnlyProducts()
@@ -591,9 +603,9 @@ class FmPrestashop
     }
 
     // OrderDetail
-    public function newOrderDetail()
+    public function newOrderDetail($id = null, $id_lang = null, $context = null)
     {
-        return new OrderDetail();
+        return new OrderDetail($id, $id_lang, $context);
     }
 
     // Country
@@ -615,5 +627,64 @@ class FmPrestashop
             global $cart;
             $cart = new stdClass();
         }
+    }
+
+    public function insertOrderDetails($prestaOrder, $cart, $importState, $cartProducts)
+    {
+        if ($this->version === FmPrestashop::FMPSV14) {
+            $result = true;
+            foreach ($cartProducts as $product) {
+                $orderDetail = $this->newOrderDetail();
+                $orderDetail->id_order = $prestaOrder->id;
+                $orderDetail->product_id = $product['id_product'];
+                $orderDetail->product_attribute_id = $product['id_product_attribute'];
+                $orderDetail->product_name = $product['name'];
+                $orderDetail->product_quantity = $product['quantity'];
+                $product['cart_quantity'] = $product['quantity'];
+                $orderDetail->product_price = $product['price'];
+                $orderDetail->tax_rate = $product['rate'];
+                $result &= $orderDetail->add();
+                $this->productUpdateQuantity($product);
+            }
+            return (bool)$result;
+        }
+        // Insert new Order detail list using cart for the current order
+        $orderDetail = $this->newOrderDetail();
+        return $orderDetail->createList($prestaOrder, $cart, $importState, $cartProducts);
+    }
+
+    public function getStoreId($skipCache = false)
+    {
+        if (!$skipCache && $this->storeId !== false) {
+            return $this->storeId;
+        }
+        if ($this->version == self::FMPSV14) {
+            return 0;
+        }
+        return Context::getContext()->shop->id;
+    }
+
+    public function setStoreId($storeId)
+    {
+        if ($this->version == self::FMPSV14) {
+            return true;
+        }
+        if (!$storeId) {
+            $storeId = Configuration::get('PS_SHOP_DEFAULT');
+        }
+        $this->storeId = $storeId;
+        $context = Context::getContext();
+        $context->shop = new Shop($storeId);
+        return Shop::setContext(Shop::CONTEXT_SHOP, $storeId);
+    }
+
+    public function getInstalledModules()
+    {
+        $result = array();
+        foreach (Module::getModulesInstalled() as $row) {
+            $row['title'] = Module::getModuleName($row['name']);
+            $result[] = $row;
+        }
+        return $result;
     }
 }

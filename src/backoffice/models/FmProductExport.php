@@ -13,25 +13,28 @@ class FmProductExport extends FmModel
     }
 
 
-    public function productExist($productId)
+    public function productExist($productId, $storeId)
     {
-        $sql = "SELECT product_id
-        FROM " . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . "
-        WHERE product_id='" . $productId . "' LIMIT 1";
+        $sql = 'SELECT product_id
+                FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '
+                WHERE product_id="' . $productId . '"
+                AND store_id=' . $storeId .'
+                LIMIT 1';
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
     }
 
-    public function addProduct($productId, $expPricePercentage)
+    public function addProduct($productId, $expPricePercentage, $storeId)
     {
         $data = array(
+            'store_id' => $storeId,
             'product_id' => (int)$productId,
             'exported_price_percentage' => $expPricePercentage
         );
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $expPricePercentage)
+    public function updateProduct($productId, $expPricePercentage, $storeId)
     {
         $data = array(
             'exported_price_percentage' => $expPricePercentage
@@ -39,24 +42,26 @@ class FmProductExport extends FmModel
         return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
             $data,
-            'product_id = "' . $productId . '"',
+            'product_id = "' . $productId . '" AND store_id = '. $storeId,
             1
         );
     }
 
-    public function deleteProduct($productId)
+    public function deleteProduct($productId, $storeId)
     {
         return (bool)$this->fmPrestashop->dbDelete(
             $this->tableName,
-            'product_id = ' . $productId,
+            'product_id = "' . $productId . '" AND store_id = '. $storeId,
             1
         );
     }
 
-    public function getProduct($productId)
+    public function getProduct($productId, $storeId)
     {
-        $sql = 'SELECT * FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) .
-            ' WHERE product_id= ' . $productId;
+        $sql = 'SELECT *
+                FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '
+                WHERE product_id= ' . $productId . '
+                AND store_id=' . $storeId;
         return $this->fmPrestashop->dbGetInstance()->getRow($sql);
     }
 
@@ -70,13 +75,14 @@ class FmProductExport extends FmModel
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName .' (
             id int(20) unsigned primary key AUTO_INCREMENT,
+            store_id int(10) unsigned,
             product_id int(10) unsigned,
             exported_price_percentage int(20) unsigned,
             state varchar(64) default NULL);';
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $sql = 'CREATE UNIQUE INDEX productIndex
-            ON ' . $tableName . ' (product_id);';
+            ON ' . $tableName . ' (product_id, store_id);';
         $ret &= (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $exportPath = $this->fmPrestashop->getExportPath();
@@ -128,6 +134,27 @@ class FmProductExport extends FmModel
         }
     }
 
+    public function getProductSKU($skuTypeId, $product, $article = false)
+    {
+        switch ($skuTypeId) {
+            case FmUtils::SKU_ID:
+                if ($article) {
+                    return $product->id . FmUtils::SKU_SEPARATOR . $article['id_product_attribute'];
+                }
+                return $product->id;
+            case FmUtils::SKU_EAN:
+                if ($article) {
+                    return $article['ean13'];
+                }
+                return $product->ean13;
+            default:
+                if ($article) {
+                    return $article['reference'];
+                }
+                return $product->reference;
+        }
+    }
+
     /**
      * Returns single product with combinations or false if product is not active/found
      *
@@ -136,10 +163,9 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId, $descriptionType)
+    public function getStoreProduct($languageId, $productId, $descriptionType, $skuTypeId, $storeId = null)
     {
-
-        $product = $this->fmPrestashop->productNew($productId, false, $languageId);
+        $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
             return false;
         }
@@ -148,7 +174,7 @@ class FmProductExport extends FmModel
             'id' => $product->id,
             'name' => $product->name,
             'category_id' => $this->getCategoryId($product->getCategories()),
-            'reference' => $product->reference,
+            'reference' => $this->getProductSKU($skuTypeId, $product),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
             'price' => $this->fmPrestashop->getPrice($product),
@@ -185,10 +211,7 @@ class FmProductExport extends FmModel
         if ($productAttributes) {
             $combinationImages = $product->getCombinationImages($languageId);
             foreach ($productAttributes as $fixingAttribute) {
-                $reference = $fixingAttribute['reference'];
-                if ($reference == '') {
-                    continue;
-                }
+                $reference = $this->getProductSKU($skuTypeId, $product, $fixingAttribute);
                 if (!isset($productAttributesFixed[$reference])) {
                     $productAttributesFixed[$reference] = array();
                 }
@@ -256,9 +279,8 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType)
+    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId)
     {
-        $result = true;
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency
@@ -268,10 +290,12 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$stockMin', $stockMin);
 
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType);
-
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $skuTypeId, $storeId);
             FyndiqUtils::debug('$storeProduct', $storeProduct);
-
+            if (!$storeProduct) {
+                // Product not found (maybe not in this store);
+                continue;
+            }
             if (count($storeProduct['combinations']) === 0 && $storeProduct['minimal_quantity'] > 1) {
                 FyndiqUtils::debug('minimal_quantity > 1 SKIPPING PRODUCT', $storeProduct['minimal_quantity']);
                 continue;
@@ -300,10 +324,6 @@ class FmProductExport extends FmModel
 
             $articles = array();
             foreach ($storeProduct['combinations'] as $combination) {
-                if ($combination['reference'] == '') {
-                    FyndiqUtils::debug('MISSING SKU', $combination);
-                    continue;
-                }
                 if ($combination['minimal_quantity'] > 1) {
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;

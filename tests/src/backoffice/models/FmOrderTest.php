@@ -69,7 +69,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     private function getCart()
     {
         $cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts'))
+            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts', 'delete'))
             ->getMock();
         $cart->id_customer = 10;
         $cart->id_address_invoice = 11;
@@ -152,6 +152,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $expected->id_country = $countryId;
         $expected->id_customer = $customerId;
         $expected->alias = $alias;
+        $expected->phone_mobile = $fyndiqOrder->delivery_phone;
 
         $this->fmPrestashop->expects($this->once())
             ->method('newAddress')
@@ -277,7 +278,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 'addOrderToHistory',
                 'addOrderMessage',
                 'addOrderLog',
-                'updateProductsPrices'
+                'updateProductsPrices',
             ))
             ->getMock();
 
@@ -490,76 +491,6 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $result = $this->fmOrder->createPrestaOrder($cart, $context, $cartProducts, $createdDate, $importState);
         $this->assertEquals($expected, $result);
-    }
-
-    public function testInsertOrderDetail()
-    {
-        $prestaOrder = $this->getPrestaOrder();
-        $cart = $this->getCart();
-        $importState = 'import_state';
-        $cartProducts = array(1, 2, 3);
-
-        $orderDetail = $this->getOrderDetail();
-
-        $orderDetail->expects($this->once())
-            ->method('createList')
-            ->with(
-                $this->equalTo($prestaOrder),
-                $this->equalTo($cart),
-                $this->equalTo($importState),
-                $this->equalTo($cartProducts)
-            )
-            ->willReturn(true);
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('newOrderDetail')
-            ->willReturn($orderDetail);
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('isPs1516')
-            ->willReturn(true);
-
-        $result = $this->fmOrder->insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState);
-        $this->assertTrue($result);
-    }
-
-    public function testInsertOrderDetailPS14()
-    {
-        $prestaOrder = $this->getPrestaOrder();
-        $cart = $this->getCart();
-        $importState = 'import_state';
-        $cartProducts = array(array(
-            'id_product' => 1,
-            'id_product_attribute' => 2,
-            'name' => 'name3',
-            'quantity' => 3,
-            'price' => 4.44,
-            'rate' => 1,
-        ));
-
-        $orderDetail = $this->getOrderDetail();
-
-        $orderDetail->expects($this->once())
-            ->method('add')
-            ->willReturn(true);
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('newOrderDetail')
-            ->willReturn($orderDetail);
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('isPs1516')
-            ->willReturn(false);
-        $this->fmPrestashop->version = FmPrestashop::FMPSV14;
-
-        $result = $this->fmOrder->insertOrderDetail($prestaOrder, $cart, $cartProducts, $importState);
-        $this->assertTrue($result);
-    }
-
-    public function testInsertOrderDetailWrongVersion()
-    {
-        $result = $this->fmOrder->insertOrderDetail(null, null, null, null);
-        $this->assertFalse($result);
     }
 
     public function testAddOrderToHistory()

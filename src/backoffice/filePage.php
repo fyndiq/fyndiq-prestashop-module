@@ -38,24 +38,29 @@ class FilePageController
         $this->fmPrestashop->initHeadlessScript();
     }
 
-    public function handleRequest()
+    public function handleRequest($get)
     {
         try {
-            $username = $this->fmConfig->get('username');
-            $apiToken = $this->fmConfig->get('api_token');
+            if (isset($get['store_id']) && $get['store_id']) {
+                $storeId = intval($get['store_id']);
+                $this->fmPrestashop->setStoreId($storeId);
+            }
+            $storeId = $this->fmPrestashop->getStoreId();
+            $username = $this->fmConfig->get('username', $storeId);
+            $apiToken = $this->fmConfig->get('api_token', $storeId);
             if (!empty($username) && !empty($apiToken)) {
                 $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
                 $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
-
 
                 if (FyndiqUtils::mustRegenerateFile($fileName)) {
                     // Write the file if it does not exist or is older than the interval
                     $file = fopen($tempFileName, 'w+');
                     $feedWriter = FmUtils::getFileWriter($file);
-                    $languageId = $this->fmConfig->get('language');
-                    $stockMin = $this->fmConfig->get('stock_min');
-                    $descriptionType = intval($this->fmConfig->get('description_type'));
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType);
+                    $languageId = $this->fmConfig->get('language', $storeId);
+                    $stockMin = $this->fmConfig->get('stock_min', $storeId);
+                    $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
+                    $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);
@@ -84,4 +89,4 @@ $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $fmProductExport = new FmProductExport($fmPrestashop, $fmConfig);
 $filePageControoler = new FilePageController($fmPrestashop, $fmConfig, $fmOutput, $fmProductExport);
-$filePageControoler->handleRequest();
+$filePageControoler->handleRequest($_GET);

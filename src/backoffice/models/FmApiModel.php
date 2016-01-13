@@ -3,6 +3,7 @@
 class FmApiModel {
 
     const PLATFORM_NAME = 'Prestashop';
+    const MODULE_NAME = 'module';
 
     private $username = '';
     private $apiToken = '';
@@ -15,7 +16,7 @@ class FmApiModel {
         $this->userAgent = FyndiqUtils::getUserAgentString(
             self::PLATFORM_NAME,
             $platformVersion,
-            FmUtils::MODULE_NAME,
+            self::MODULE_NAME,
             FmUtils::VERSION,
             FmUtils::COMMIT
         );

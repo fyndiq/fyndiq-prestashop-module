@@ -4,6 +4,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $this->storeId = 1;
 
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
             ->disableOriginalConstructor()
@@ -30,7 +31,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->db->method('ExecuteS')
             ->willReturn(1);
 
-        $result = $this->fmProductExport->productExist($productId);
+        $result = $this->fmProductExport->productExist($productId, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -45,12 +46,13 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo('test_products'),
                 $this->equalTo(array(
                     'product_id' => 1,
-                    'exported_price_percentage' => 12
+                    'exported_price_percentage' => 12,
+                    'store_id' => 1
                 ))
             )
             ->willReturn(true);
 
-        $result = $this->fmProductExport->addProduct($productId, $expPricePercentage);
+        $result = $this->fmProductExport->addProduct($productId, $expPricePercentage, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -66,12 +68,12 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(array(
                     'exported_price_percentage' => 12
                 )),
-                $this->equalTo('product_id = "1"'),
+                $this->equalTo('product_id = "1" AND store_id = 1'),
                 $this->equalTo(1)
             )
             ->willReturn(true);
 
-        $result = $this->fmProductExport->updateProduct($productId, $expPricePercentage);
+        $result = $this->fmProductExport->updateProduct($productId, $expPricePercentage, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -83,7 +85,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->method('dbDelete')
             ->willReturn(true);
 
-        $result = $this->fmProductExport->deleteProduct($productId);
+        $result = $this->fmProductExport->deleteProduct($productId, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -95,7 +97,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->db->method('getRow')
             ->willReturn($data);
 
-        $result = $this->fmProductExport->getProduct($productId);
+        $result = $this->fmProductExport->getProduct($productId, $this->storeId);
         $this->assertEquals($data, $result);
     }
 
@@ -354,7 +356,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(array(
                     'id' => 13,
                     'product-category-id' => 5,
-                    'product-category-name' => 'category',
+                    'product-category-name' => 'category / path',
                     'product-currency' => 'ZAM',
                     'quantity' => 14,
                     'product-description' => 'description',
@@ -377,6 +379,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                         'price' => 4.1814,
                         'oldprice' => 18.18,
                         'images' => array(),
+                        'article-name' => 'name',
                         'properties' => array(
                             array(
                                 'name' => 'name',
@@ -399,7 +402,10 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('getCountryCode')
             ->willReturn('BG');
 
-        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $descriptionType);
+        $this->fmPrestashop->method('getCategoryPath')
+            ->willReturn('category / path');
+
+        $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $descriptionType, 1);
         $this->assertTrue($result);
     }
 

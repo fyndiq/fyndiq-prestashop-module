@@ -70,4 +70,49 @@ class FmProduct extends FmModel
     {
         return $this->fmPrestashop->dbUpdate($tableName, array('state' => $newStatus));
     }
+
+
+    protected function getSKUFieldName($skuTypeId, $isArticle = false)
+    {
+        switch ($skuTypeId) {
+            case FmUtils::SKU_ID:
+                return 'id_product';
+            case FmUtils::SKU_EAN:
+                return 'ean13';
+        }
+        return 'reference';
+    }
+
+    public function checkProducts($skuTypeId)
+    {
+        if ($skuTypeId == FmUtils::SKU_ID) {
+            return array();
+        }
+        $fieldName = $this->getSKUFieldName($skuTypeId);
+        $sql = 'SELECT id_product, 0 AS parent, '. $fieldName .' as ref
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product
+                UNION ALL
+                SELECT id_product_attribute as id_product, id_product AS parent, ' . $fieldName . ' as ref
+                FROM ' . $this->fmPrestashop->globDbPrefix() . 'product_attribute';
+        $db = $this->fmPrestashop->dbGetInstance();
+        $query = $db->query($sql);
+        $all = array();
+        $duplicates = array();
+        $addedDuplicates = array();
+        while ($row = $db->nextRow($query)) {
+            $ref = $row['ref'];
+            if (isset($all[$ref])) {
+                // process duplicate
+                if (!in_array($ref, $addedDuplicates)) {
+                    // add the first occurrence of the duplicate
+                    $duplicates[] = $all[$ref];
+                    $addedDuplicates[] = $ref;
+                }
+                $duplicates[] = $row;
+                continue;
+            }
+            $all[$ref] = $row;
+        }
+        return $duplicates;
+    }
 }

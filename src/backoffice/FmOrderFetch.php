@@ -9,12 +9,13 @@ class FmOrderFetch extends FyndiqPaginatedFetch
         $this->fmConfig = $fmConfig;
         $this->fmOrder = $fmOrder;
         $this->fmApiModel = $fmApiModel;
+        $this->storeId = $this->fmPrestashop->getStoreId();
     }
 
     function getInitialPath()
     {
         $url = 'orders/';
-        $date = $this->fmConfig->get('import_date');
+        $date = $this->fmConfig->get('import_date', $this->storeId);
         if (!empty($date)) {
             $url .= '?min_date=' . urlencode($date);
         }
@@ -29,11 +30,9 @@ class FmOrderFetch extends FyndiqPaginatedFetch
 
     function processData($data)
     {
-        $idOrderState = $this->fmConfig->get('import_state');
-        $taxAddressType = $this->fmPrestashop->getTaxAddressType();
         foreach ($data as $order) {
-            if (!$this->fmOrder->orderExists($order->id)) {
-                $this->fmOrder->create($order, $idOrderState, $taxAddressType);
+            if (!$this->fmOrder->orderQueued(intval($order->id))) {
+                $this->fmOrder->addToQueue($order);
             }
         }
         return true;

@@ -7,6 +7,8 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop = $this->getMockBuilder('FmPrestashop')
             ->disableOriginalConstructor()
             ->getMock();
+        $this->fmPrestashop->method('getStoreId')
+            ->willReturn(1);
         $this->config = new FmConfig($this->fmPrestashop);
     }
 
@@ -20,7 +22,7 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-        $result = $this->config->delete($key);
+        $result = $this->config->delete($key, 1);
         $this->assertTrue($result);
     }
 
@@ -34,7 +36,7 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-        $result = $this->config->get($key);
+        $result = $this->config->get($key, 1);
         $this->assertTrue($result);
     }
 
@@ -50,21 +52,21 @@ class FmConfigTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-        $result = $this->config->set($key, $value);
+        $result = $this->config->set($key, $value, 1);
         $this->assertTrue($result);
     }
 
     public function testIsAuthorized()
     {
         $this->fmPrestashop->method('configurationGet')->willReturn(true);
-        $result = $this->config->isAuthorized();
+        $result = $this->config->isAuthorized(1);
         $this->assertTrue($result);
     }
 
     public function testIsSetUp()
     {
         $this->fmPrestashop->method('configurationGet')->willReturn(true);
-        $result = $this->config->isSetUp();
+        $result = $this->config->isSetUp(1);
         $this->assertTrue($result);
     }
 }
