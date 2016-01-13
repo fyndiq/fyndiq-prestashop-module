@@ -114,8 +114,12 @@ class FmProductExport extends FmModel
      * @param $categories
      * @return mixed
      */
-    private function getCategoryId($categories)
+    private function getCategoryId($product)
     {
+        if (method_exists($product, 'getDefaultCategory')) {
+            return $product->getDefaultCategory();
+        }
+        $categories = $product->getCategories();
         if (is_array($categories)) {
             return array_pop($categories);
         }
@@ -173,7 +177,7 @@ class FmProductExport extends FmModel
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
-            'category_id' => $this->getCategoryId($product->getCategories()),
+            'category_id' => $this->getCategoryId($product),
             'reference' => $this->getProductSKU($skuTypeId, $product),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
@@ -357,6 +361,8 @@ class FmProductExport extends FmModel
             $feedWriter->addCompleteProduct($exportProduct, $articles);
             FyndiqUtils::debug('Any Validation Errors', $feedWriter->getLastProductErrors());
         }
+        FyndiqUtils::debug('$feedWriter->getProductCount()', $feedWriter->getProductCount());
+        FyndiqUtils::debug('$feedWriter->getArticleCount()', $feedWriter->getArticleCount());
         FyndiqUtils::debug('End');
         return $feedWriter->write();
     }

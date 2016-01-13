@@ -3,21 +3,20 @@
 class FmOrderFetch extends FyndiqPaginatedFetch
 {
 
-    function __construct($fmPrestashop, $fmConfig, $fmOrder, $fmApiModel)
+    protected $lastTimestamp = 0;
+
+    function __construct($fmOrder, $fmApiModel, $importDate)
     {
-        $this->fmPrestashop = $fmPrestashop;
-        $this->fmConfig = $fmConfig;
         $this->fmOrder = $fmOrder;
         $this->fmApiModel = $fmApiModel;
-        $this->storeId = $this->fmPrestashop->getStoreId();
+        $this->importDate = $importDate;
     }
 
     function getInitialPath()
     {
         $url = 'orders/';
-        $date = $this->fmConfig->get('import_date', $this->storeId);
-        if (!empty($date)) {
-            $url .= '?min_date=' . urlencode($date);
+        if (!empty($this->importDate)) {
+            $url .= '?min_date=' . urlencode($this->importDate);
         }
         return $url;
     }
@@ -31,6 +30,10 @@ class FmOrderFetch extends FyndiqPaginatedFetch
     function processData($data)
     {
         foreach ($data as $order) {
+            $timestamp = strtotime($order->created);
+            if ($timestamp > $this->lastTimestamp) {
+                $this->lastTimestamp = $timestamp;
+            }
             if (!$this->fmOrder->orderQueued(intval($order->id))) {
                 $this->fmOrder->addToQueue($order);
             }
@@ -41,5 +44,9 @@ class FmOrderFetch extends FyndiqPaginatedFetch
     function getSleepIntervalSeconds()
     {
         return 1 / self::THROTTLE_ORDER_RPS;
+    }
+
+    function getLastTimestamp() {
+        return $this->lastTimestamp;
     }
 }
