@@ -192,6 +192,10 @@ class FyndiqMerchant extends Module
             $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig);
         }
         return $this->modules[$modelName];
+    }
 
+    public function __($text)
+    {
+        return FyndiqTranslation::get($text);
     }
 }

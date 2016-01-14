@@ -3,55 +3,57 @@
 class AdminProductsController extends AdminProductsControllerCore
 {
 
-    protected function getFyndiqModule()
-    {
-        return Module::getInstanceByName('fyndiqmerchant');
-    }
-
     public function __construct()
     {
         parent::__construct();
 
+        $module = $this->getFyndiqModule();
+
         // Add Bulk actions
         $this->bulk_actions['export_to_fyndiq'] = array(
-            'text' => $this->l('Export to Fyndiq'),
+            'text' => $module->__('Export to Fyndiq'),
             'icon' => 'icon-plus',
-            'confirm' => $this->l('Export to Fyndiq?')
+            'confirm' => $module->__('Are you sure you want to export the selected products to Fyndiq?')
         );
         $this->bulk_actions['remove_from_fyndiq'] = array(
-            'text' => $this->l('Remove from Fyndiq'),
+            'text' => $module->__('Remove from Fyndiq'),
             'icon' => 'icon-minus',
-            'confirm' => $this->l('Remove from Fyndiq?')
+            'confirm' => $module->__('Are you sure you want to remove the selected products from Fyndiq?')
         );
 
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_products` fyn_p ON fyn_p.product_id = a.id_product';
-        $this->_select .= ', IF(fyn_p.id is null, "-", "Exported") AS fyndiq_exported';
+        $this->_select .= ', IF(fyn_p.id is null, "-", "' . $module->__('Exported') . '") AS fyndiq_exported';
 
         // Add Table column
         $this->fields_list['fyndiq_exported'] = array(
-            'title' => $this->l('Fyndiq'),
+            'title' => $module->__('Fyndiq'),
         );
 
         // Add Actions
         $this->actions_available = array_merge($this->actions_available, array('export_to_fyndiq', 'remove_from_fyndiq'));
     }
 
+    protected function getFyndiqModule()
+    {
+        return Module::getInstanceByName('fyndiqmerchant');
+    }
+
     protected function processBulkExportToFyndiq()
     {
+        $module = $this->getFyndiqModule();
         if (is_array($this->boxes) && !empty($this->boxes)) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
                 $shopId = (int)$this->context->shop->getContextShopID();
-                error_log('EXPORT: ' . json_encode($this->boxes));
-                $fmProductExport = $this->getFyndiqModule()->getModel('FmProductExport');
+                $fmProductExport = $module->getModel('FmProductExport');
                 foreach ($this->boxes as $productId) {
                     $fmProductExport->exportProduct($productId, $shopId);
                 }
                 return true;
             }
-            // ERROR: not store context
+            $this->errors[] = $module->__('Please select store context');
             return false;
         }
-        // ERROR: nothing selected
+        $this->errors[] = $module->__('Please select products to be exported to Fyndiq');
         return false;
     }
 
@@ -66,10 +68,10 @@ class AdminProductsController extends AdminProductsControllerCore
                 }
                 return true;
             }
-            // ERROR: not store context
+            $this->errors[] = $module->__('Please select store context');
             return false;
         }
-        // ERROR: nothing selected
+        $this->errors[] = $module->__('Please select products to be removed from Fyndiq');
         return false;
     }
 
