@@ -6,51 +6,73 @@ class AdminProductsController extends AdminProductsControllerCore
     public function __construct()
     {
         parent::__construct();
-        error_log('AdminProductsController');
+
+        $module = $this->getFyndiqModule();
 
         // Add Bulk actions
         $this->bulk_actions['export_to_fyndiq'] = array(
-            'text' => $this->l('Export to Fyndiq'),
+            'text' => $module->__('Export to Fyndiq'),
             'icon' => 'icon-plus',
-            'confirm' => $this->l('Export to Fyndiq?')
+            'confirm' => $module->__('Are you sure you want to export the selected products to Fyndiq?')
         );
         $this->bulk_actions['remove_from_fyndiq'] = array(
-            'text' => $this->l('Remove to Fyndiq'),
+            'text' => $module->__('Remove from Fyndiq'),
             'icon' => 'icon-minus',
-            'confirm' => $this->l('Remove from Fyndiq?')
+            'confirm' => $module->__('Are you sure you want to remove the selected products from Fyndiq?')
         );
 
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_products` fyn_p ON fyn_p.product_id = a.id_product';
+        $this->_select .= ', IF(fyn_p.id is null, "-", "' . $module->__('Exported') . '") AS fyndiq_exported';
 
         // Add Table column
-        $this->fields_list['state'] = array(
-            'title' => $this->l('Exported to Fyndiq'),
+        $this->fields_list['fyndiq_exported'] = array(
+            'title' => $module->__('Fyndiq'),
         );
 
         // Add Actions
         $this->actions_available = array_merge($this->actions_available, array('export_to_fyndiq', 'remove_from_fyndiq'));
     }
 
-    protected function processBulkExportToFyndiq(){
-        if (is_array($this->boxes) && !empty($this->boxes)){
-            error_log('EXPORT: ' . json_encode($this->boxes));
-            $defaultDiscount = 0; // getDefaultDiscount();
-            foreach ($this->boxes as $product_id){
-                //INSERT OR UPDATE ($product_id, $defaultDiscount)
-            }
-        }
+    protected function getFyndiqModule()
+    {
+        return Module::getInstanceByName('fyndiqmerchant');
     }
 
-    protected function processRemoveFromFyndiq()
+    protected function processBulkExportToFyndiq()
     {
-        if (is_array($this->boxes) && !empty($this->boxes)){
-            error_log('REMOVE: ' . json_encode($this->boxes));
-            $ids = array();
-            foreach ($this->boxes as $product_id){
-                $ids[] = intval($product_id);
+        $module = $this->getFyndiqModule();
+        if (is_array($this->boxes) && !empty($this->boxes)) {
+            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
+                $shopId = (int)$this->context->shop->getContextShopID();
+                $fmProductExport = $module->getModel('FmProductExport');
+                foreach ($this->boxes as $productId) {
+                    $fmProductExport->exportProduct($productId, $shopId);
+                }
+                return true;
             }
-            // DELETE where product_id in ($ids)
+            $this->errors[] = $module->__('Please select store context');
+            return false;
         }
+        $this->errors[] = $module->__('Please select products to be exported to Fyndiq');
+        return false;
+    }
+
+    protected function processBulkRemoveFromFyndiq()
+    {
+        if (is_array($this->boxes) && !empty($this->boxes)) {
+            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
+                $shopId = (int)$this->context->shop->getContextShopID();
+                $fmProductExport = $this->getFyndiqModule()->getModel('FmProductExport');
+                foreach ($this->boxes as $productId) {
+                    $fmProductExport->removeProduct($productId, $shopId);
+                }
+                return true;
+            }
+            $this->errors[] = $module->__('Please select store context');
+            return false;
+        }
+        $this->errors[] = $module->__('Please select products to be removed from Fyndiq');
+        return false;
     }
 
     public function initPageHeaderToolbar()
@@ -65,11 +87,11 @@ class AdminProductsController extends AdminProductsControllerCore
         return parent::initPageHeaderToolbar();
     }
 
-    public function initProcess() {
+    public function initProcess()
+    {
         if (Tools::isSubmit('updateFyndiqStatus')) {
             error_log('updateFyndiqStatus');
         }
         parent::initProcess();
     }
-
 }

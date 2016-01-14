@@ -15,11 +15,11 @@ class AdminOrdersController extends AdminOrdersControllerCore
         return parent::initPageHeaderToolbar();
     }
 
-    public function initProcess() {
+    public function initProcess()
+    {
         if (Tools::isSubmit('importFyndiqOrders')) {
             error_log('importFyndiqOrders');
         }
         parent::initProcess();
     }
-
 }

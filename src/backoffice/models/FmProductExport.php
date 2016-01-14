@@ -12,8 +12,13 @@ class FmProductExport extends FmModel
         $this->tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
     }
 
+    public function exportProduct($productId, $storeId) {
+        if (!$this->productExists($productId, $storeId)) {
+            return $this->addProduct($productId, $storeId);
+        }
+    }
 
-    public function productExist($productId, $storeId)
+    public function productExists($productId, $storeId)
     {
         $sql = 'SELECT product_id
                 FROM ' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '
@@ -24,12 +29,11 @@ class FmProductExport extends FmModel
         return count($data) > 0;
     }
 
-    public function addProduct($productId, $expPricePercentage, $storeId)
+    public function addProduct($productId, $storeId)
     {
         $data = array(
             'store_id' => $storeId,
-            'product_id' => (int)$productId,
-            'exported_price_percentage' => $expPricePercentage
+            'product_id' => $productId,
         );
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
@@ -47,7 +51,7 @@ class FmProductExport extends FmModel
         );
     }
 
-    public function deleteProduct($productId, $storeId)
+    public function removeProduct($productId, $storeId)
     {
         return (bool)$this->fmPrestashop->dbDelete(
             $this->tableName,
@@ -74,11 +78,12 @@ class FmProductExport extends FmModel
     {
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName .' (
-            id int(20) unsigned primary key AUTO_INCREMENT,
-            store_id int(10) unsigned,
-            product_id int(10) unsigned,
-            exported_price_percentage int(20) unsigned,
-            state varchar(64) default NULL);';
+                    id int(20) unsigned primary key AUTO_INCREMENT,
+                    store_id int(10) unsigned,
+                    product_id int(10) unsigned
+                    name varchar(128) NOT NULL DEFAULT "",
+                    description text NOT NULL DEFAULT "",
+                );';
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
         $sql = 'CREATE UNIQUE INDEX productIndex
