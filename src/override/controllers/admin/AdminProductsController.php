@@ -31,11 +31,12 @@ class AdminProductsController extends AdminProductsControllerCore
         $this->actions_available = array_merge($this->actions_available, array('export_to_fyndiq', 'remove_from_fyndiq'));
     }
 
-    protected function processBulkExportToFyndiq(){
-        if (is_array($this->boxes) && !empty($this->boxes)){
+    protected function processBulkExportToFyndiq()
+    {
+        if (is_array($this->boxes) && !empty($this->boxes)) {
             error_log('EXPORT: ' . json_encode($this->boxes));
             $defaultDiscount = 0; // getDefaultDiscount();
-            foreach ($this->boxes as $product_id){
+            foreach ($this->boxes as $product_id) {
                 //INSERT OR UPDATE ($product_id, $defaultDiscount)
             }
         }
@@ -43,10 +44,10 @@ class AdminProductsController extends AdminProductsControllerCore
 
     protected function processRemoveFromFyndiq()
     {
-        if (is_array($this->boxes) && !empty($this->boxes)){
+        if (is_array($this->boxes) && !empty($this->boxes)) {
             error_log('REMOVE: ' . json_encode($this->boxes));
             $ids = array();
-            foreach ($this->boxes as $product_id){
+            foreach ($this->boxes as $product_id) {
                 $ids[] = intval($product_id);
             }
             // DELETE where product_id in ($ids)
@@ -65,11 +66,11 @@ class AdminProductsController extends AdminProductsControllerCore
         return parent::initPageHeaderToolbar();
     }
 
-    public function initProcess() {
+    public function initProcess()
+    {
         if (Tools::isSubmit('updateFyndiqStatus')) {
             error_log('updateFyndiqStatus');
         }
         parent::initProcess();
     }
-
 }

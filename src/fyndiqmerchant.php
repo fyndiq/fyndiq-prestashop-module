@@ -183,5 +183,4 @@ class FyndiqMerchant extends Module
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
-
 }
