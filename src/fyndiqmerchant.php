@@ -20,6 +20,10 @@ require_once('backoffice/models/FmOrder.php');
 class FyndiqMerchant extends Module
 {
 
+    private $fmPrestashop = null;
+    private $fmConfig = null;
+    private $modules = array();
+
     public function __construct()
     {
         $this->config_name = 'FYNDIQMERCHANT';
@@ -28,12 +32,13 @@ class FyndiqMerchant extends Module
         $this->version = FmUtils::VERSION;
         $this->author = 'Fyndiq AB';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = array('min' => '1.4.0', 'max' => '1.6');
+        $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6');
 
         parent::__construct();
 
         // Initialize translations
         $this->fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
+        $this->fmConfig = new FmConfig($this->fmPrestashop);
         $languageId = $this->fmPrestashop->getLanguageId();
         FyndiqTranslation::init($this->fmPrestashop->languageGetIsoById($languageId));
 
@@ -57,10 +62,9 @@ class FyndiqMerchant extends Module
         // Create tab
         $ret &= $this->installTab();
 
-        $fmConfig = new FmConfig($this->fmPrestashop);
-        $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
-        $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
-        $fmConfig->set('patch_version', 3, 0);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
+        $this->fmConfig->set('patch_version', 3, 0);
 
         // create product mapping database
         $ret &= $fmProductExport->install();
@@ -79,18 +83,17 @@ class FyndiqMerchant extends Module
 
         $ret &= (bool)parent::uninstall();
 
-        $fmConfig = new FmConfig($this->fmPrestashop);
-        $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
-        $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
         $storeId = $this->fmPrestashop->getStoreId();
 
         // Delete configuration
-        $ret &= (bool)$fmConfig->delete('username', $storeId);
-        $ret &= (bool)$fmConfig->delete('api_token', $storeId);
-        $ret &= (bool)$fmConfig->delete('language', $storeId);
-        $ret &= (bool)$fmConfig->delete('price_percentage', $storeId);
-        $ret &= (bool)$fmConfig->delete('import_state', $storeId);
-        $ret &= (bool)$fmConfig->delete('done_state', $storeId);
+        $ret &= (bool)$this->fmConfig->delete('username', $storeId);
+        $ret &= (bool)$this->fmConfig->delete('api_token', $storeId);
+        $ret &= (bool)$this->fmConfig->delete('language', $storeId);
+        $ret &= (bool)$this->fmConfig->delete('price_percentage', $storeId);
+        $ret &= (bool)$this->fmConfig->delete('import_state', $storeId);
+        $ret &= (bool)$this->fmConfig->delete('done_state', $storeId);
 
         // Drop product table
         $ret &= $fmProductExport->uninstall();
@@ -157,13 +160,13 @@ class FyndiqMerchant extends Module
         }
         $storeId = $this->fmPrestashop->getStoreId();
         $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
-        $fmConfig = new FmConfig($this->fmPrestashop);
+        $this->fmConfig = new FmConfig($this->fmPrestashop);
         $fmApiModel = new FmApiModel(
-            $fmConfig->get('username', $storeId),
-            $fmConfig->get('api_token', $storeId),
+            $this->fmConfig->get('username', $storeId),
+            $this->fmConfig->get('api_token', $storeId),
             $this->fmPrestashop->globalGetVersion()
         );
-        $controller = new FmController($this->fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
+        $controller = new FmController($this->fmPrestashop, $fmOutput, $this->fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }
 
@@ -182,5 +185,13 @@ class FyndiqMerchant extends Module
             )
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
+    }
+
+    public function getModel($modelName) {
+        if (!isset($this->modules[$modelName])) {
+            $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig);
+        }
+        return $this->modules[$modelName];
+
     }
 }

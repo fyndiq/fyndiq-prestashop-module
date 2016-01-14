@@ -180,6 +180,11 @@ class FmController
 
     private function settings()
     {
+        // TODO: REMOVE ME
+        $module = $this->fmPrestashop->moduleGetInstanceByName();
+        $module->uninstallOverrides();
+        $module->installOverrides();
+
         $showSKUSelect = intval($this->fmPrestashop->toolsGetValue('set_sku')) === 1;
         if ($this->fmPrestashop->toolsIsSubmit('submit_save_settings')) {
             $languageId = intval($this->fmPrestashop->toolsGetValue('language_id'));

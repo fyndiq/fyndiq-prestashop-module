@@ -302,7 +302,7 @@ class FmServiceController
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
                 $product= $row['product'];
-                if ($fmProductExport->productExist($product['id'], $storeId)) {
+                if ($fmProductExport->productExists($product['id'], $storeId)) {
                     $result &= $fmProductExport->updateProduct($product['id'], $product['fyndiq_percentage'], $storeId);
                     continue;
                 }
@@ -320,7 +320,7 @@ class FmServiceController
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
                 $product = $row['product'];
-                $fmProductExport->deleteProduct($product['id'], $storeId);
+                $fmProductExport->removeProduct($product['id'], $storeId);
             }
         }
         return $result;

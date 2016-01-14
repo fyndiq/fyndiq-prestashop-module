@@ -3,10 +3,14 @@
 class AdminProductsController extends AdminProductsControllerCore
 {
 
+    protected function getFyndiqModule()
+    {
+        return Module::getInstanceByName('fyndiqmerchant');
+    }
+
     public function __construct()
     {
         parent::__construct();
-        error_log('AdminProductsController');
 
         // Add Bulk actions
         $this->bulk_actions['export_to_fyndiq'] = array(
@@ -15,16 +19,17 @@ class AdminProductsController extends AdminProductsControllerCore
             'confirm' => $this->l('Export to Fyndiq?')
         );
         $this->bulk_actions['remove_from_fyndiq'] = array(
-            'text' => $this->l('Remove to Fyndiq'),
+            'text' => $this->l('Remove from Fyndiq'),
             'icon' => 'icon-minus',
             'confirm' => $this->l('Remove from Fyndiq?')
         );
 
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_products` fyn_p ON fyn_p.product_id = a.id_product';
+        $this->_select .= ', IF(fyn_p.id is null, "-", "Exported") AS fyndiq_exported';
 
         // Add Table column
-        $this->fields_list['state'] = array(
-            'title' => $this->l('Exported to Fyndiq'),
+        $this->fields_list['fyndiq_exported'] = array(
+            'title' => $this->l('Fyndiq'),
         );
 
         // Add Actions
@@ -34,24 +39,38 @@ class AdminProductsController extends AdminProductsControllerCore
     protected function processBulkExportToFyndiq()
     {
         if (is_array($this->boxes) && !empty($this->boxes)) {
-            error_log('EXPORT: ' . json_encode($this->boxes));
-            $defaultDiscount = 0; // getDefaultDiscount();
-            foreach ($this->boxes as $product_id) {
-                //INSERT OR UPDATE ($product_id, $defaultDiscount)
+            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
+                $shopId = (int)$this->context->shop->getContextShopID();
+                error_log('EXPORT: ' . json_encode($this->boxes));
+                $fmProductExport = $this->getFyndiqModule()->getModel('FmProductExport');
+                foreach ($this->boxes as $productId) {
+                    $fmProductExport->exportProduct($productId, $shopId);
+                }
+                return true;
             }
+            // ERROR: not store context
+            return false;
         }
+        // ERROR: nothing selected
+        return false;
     }
 
-    protected function processRemoveFromFyndiq()
+    protected function processBulkRemoveFromFyndiq()
     {
         if (is_array($this->boxes) && !empty($this->boxes)) {
-            error_log('REMOVE: ' . json_encode($this->boxes));
-            $ids = array();
-            foreach ($this->boxes as $product_id) {
-                $ids[] = intval($product_id);
+            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
+                $shopId = (int)$this->context->shop->getContextShopID();
+                $fmProductExport = $this->getFyndiqModule()->getModel('FmProductExport');
+                foreach ($this->boxes as $productId) {
+                    $fmProductExport->removeProduct($productId, $shopId);
+                }
+                return true;
             }
-            // DELETE where product_id in ($ids)
+            // ERROR: not store context
+            return false;
         }
+        // ERROR: nothing selected
+        return false;
     }
 
     public function initPageHeaderToolbar()
