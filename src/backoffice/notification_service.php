@@ -167,7 +167,8 @@ class FmNotificationService
         $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
         $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
-        fclose($file);
+        $fcloseResult = fclose($file);
+        FyndiqUtils::debug('$fcloseResult', $fcloseResult);
         $result = file_get_contents($filePath);
         FyndiqUtils::debug('$result', $result, true);
         FyndiqUtils::debugStop();
