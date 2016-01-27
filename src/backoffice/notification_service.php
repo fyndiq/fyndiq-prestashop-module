@@ -45,6 +45,8 @@ class FmNotificationService
                     return $this->ping($params, $storeId);
                 case 'debug':
                     return $this->debug($params, $storeId);
+                case 'info':
+                    return $this->info($params, $storeId);
             }
         }
         return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
@@ -173,8 +175,19 @@ class FmNotificationService
         FyndiqUtils::debug('$result', $result, true);
         FyndiqUtils::debugStop();
     }
-}
 
+    private function info($params, $storeId)
+    {
+        return $this->fmOutput->outputJSON(
+            FyndiqUtils::getInfo(
+                FmApiModel::PLATFORM_NAME,
+                $this->fmPrestashop->globalGetVersion(),
+                FmUtils::VERSION,
+                FmUtils::COMMIT
+            )
+        );
+    }
+}
 
 $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
