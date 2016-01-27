@@ -46,7 +46,8 @@ class FmOrderFetch extends FyndiqPaginatedFetch
         return 1 / self::THROTTLE_ORDER_RPS;
     }
 
-    function getLastTimestamp() {
+    function getLastTimestamp()
+    {
         return $this->lastTimestamp;
     }
 }
