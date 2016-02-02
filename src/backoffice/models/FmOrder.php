@@ -697,7 +697,7 @@ class FmOrder extends FmModel
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
         $data = array(
             'fyndiq_orderid' => intval($order->id),
-            'body' => json_encode($order),
+            'body' => FmUtils::jsonEncode($order),
             'status' => 0,
             'order_id' => 0,
         );
