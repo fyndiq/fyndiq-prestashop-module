@@ -44,7 +44,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
     {
         $storeId = $this->fmPrestashop->getStoreId();
         $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
-        if ($importOrdersStatus == FmUtils::ORDERS_DISABLED) {
+        if ($importOrdersStatus === FmUtils::ORDERS_DISABLED) {
             $this->errors[] = $module->__('Orders are disabled.');
             return false;
         }
