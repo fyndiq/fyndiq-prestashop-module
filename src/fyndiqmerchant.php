@@ -195,7 +195,7 @@ class FyndiqMerchant extends Module
         }
         return $this->modules[$modelName];
     }
-    public function getFetchModel($modelName, $usedModel, $date = null)
+    public function getFetchClass($modelName, $usedModel, $date = null)
     {
         //$storeId = $this->fmPrestashop->getStoreId();
         $fmApiModel = new FmApiModel(

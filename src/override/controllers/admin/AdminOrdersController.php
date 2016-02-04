@@ -52,7 +52,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $fmOrder = $this->module->getModel('FmOrder');
 
         try {
-            $orderFetch = $this->module->getFetchModel(
+            $orderFetch = $this->module->getFetchClass(
                 'FmOrderFetch',
                 $fmOrder,
                 $importDate
