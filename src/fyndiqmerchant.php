@@ -16,6 +16,7 @@ require_once('backoffice/models/FmModel.php');
 require_once('backoffice/models/FmProductExport.php');
 require_once('backoffice/models/FmApiModel.php');
 require_once('backoffice/models/FmOrder.php');
+require_once('backoffice/FmOrderFetch.php');
 
 class FyndiqMerchant extends Module
 {
@@ -187,9 +188,23 @@ class FyndiqMerchant extends Module
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
 
-    public function getModel($modelName) {
+    public function getModel($modelName)
+    {
         if (!isset($this->modules[$modelName])) {
             $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig);
+        }
+        return $this->modules[$modelName];
+    }
+    public function getFetchModel($modelName, $usedModel, $date = null)
+    {
+        //$storeId = $this->fmPrestashop->getStoreId();
+        $fmApiModel = new FmApiModel(
+            $this->fmConfig->get('username', $storeId),
+            $this->fmConfig->get('api_token', $storeId),
+            $this->fmPrestashop->globalGetVersion()
+        );
+        if (!isset($this->modules[$modelName])) {
+            $this->modules[$modelName] = new $modelName($usedModel, $fmApiModel, $date);
         }
         return $this->modules[$modelName];
     }
