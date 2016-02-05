@@ -548,6 +548,24 @@ class FmOrder extends FmModel
         return count($orders) > 0;
     }
 
+
+    /**
+     * check if the Fyndiq order exists.
+     *
+     * @param $order_id
+     * @return bool|int
+     */
+    public function FynOrderExists($orderId)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS(
+            'SELECT * FROM ' . $tableName . '
+            WHERE order_id=' . $this->fmPrestashop->dbEscape($orderId) . ' LIMIT 1;'
+        );
+        return count($orders) > 0 ? $orders[0]['fyndiq_orderid']: false ;
+    }
+
+
     /**
      * Add the order to database. (to check what orders have already been added.
      *

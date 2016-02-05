@@ -175,6 +175,22 @@ class FyndiqMerchant extends Module
         return $this->$name;
     }
 
+    public function getApiModel()
+    {
+         $storeId = $this->fmPrestashop->getStoreId();
+            $fmApiModel = new FmApiModel(
+                $this->fmConfig->get('username', $storeId),
+                $this->fmConfig->get('api_token', $storeId),
+                $this->fmPrestashop->globalGetVersion()
+            );
+        return $fmApiModel;
+    }
+    public function getFmOutput()
+    {
+        $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
+        return $fmOutput;
+    }
+
 
     public function hookDisplayAdminProductsExtra($params)
     {
@@ -187,7 +203,8 @@ class FyndiqMerchant extends Module
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
 
-    public function getModel($modelName) {
+    public function getModel($modelName)
+    {
         if (!isset($this->modules[$modelName])) {
             $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig);
         }
