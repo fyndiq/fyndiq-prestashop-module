@@ -28,43 +28,37 @@ class AdminOrdersController extends AdminOrdersControllerCore
     protected function processBulkDownloadDeliveryNotes()
     {
         $module = $this->getFyndiqModule();
-        $fynOrdersId = array();
-        $filterFynOrd = array(
-            'orders' => array()
-        );
-
         if (is_array($this->boxes) && !empty($this->boxes)) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
                 $fmOrder = $module->getModel('FmOrder');
+                $fynOrderIds = array();
+                $requestData = array(
+                    'orders' => array()
+                );
                 // get Fyndiq orders
                 $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
                 if(count($fyndiqOrders)){
-                    if(count($fyndiqOrders) === count($this->boxes)){
-                        foreach ($fyndiqOrders as $orderId) {
-                            $filterFynOrd['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
-                            array_push($fynOrdersId, intval($orderId['fyndiq_orderid']));
-                        }
-                        // Generating a PDF
-                        try {
-                            $ret = $module->getApiModel()->callApi('POST', 'delivery_notes/', $filterFynOrd);
-                            $fmOutput = new FmOutput($module->getFmPrestashop(), $module, $module->getFmPrestashop()->contextGetContext()->smarty);
-                            $fileName = 'delivery_notes-' . implode('_', $fynOrdersId) .'.pdf';
-                            if ($ret['status'] == 200) {
-                                $file = fopen('php://temp', 'wb+');
-                                // Saving data to file
-                                fputs($file, $ret['data']);
-                                $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
-                                fclose($file);
-                                return true;
-                            }
-                            return FyndiqTranslation::get('unhandled-error-message');
-                        } catch (Exception $e) {
-                            $module->getFmOutput->output($e->getMessage());
-                            return false;
-                        }
+                    foreach ($fyndiqOrders as $orderId) {
+                        $requestData['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
+                        $fynOrderIds[] = intval($orderId['fyndiq_orderid']);
                     }
-                    else {
-                        $this->errors[] = $module->__("Please select only Fyndiq order");
+                    // Generating a PDF
+                    try {
+                        $fmPrestashop = $module->getFmPrestashop();
+                        $fmOutput = new FmOutput($fmPrestashop, $module, $fmPrestashop->contextGetContext()->smarty);
+                        $ret = $module->getApiModel()->callApi('POST', 'delivery_notes/', $requestData);
+                        $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) .'.pdf';
+                        if ($ret['status'] == 200) {
+                            $file = fopen('php://temp', 'wb+');
+                            // Saving data to file
+                            fputs($file, $ret['data']);
+                            $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
+                            fclose($file);
+                            return true;
+                        }
+                        return FyndiqTranslation::get('unhandled-error-message');
+                    } catch (Exception $e) {
+                        $module->getFmOutput->output($e->getMessage());
                         return false;
                     }
                 }
@@ -72,9 +66,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
                     $this->errors[] = $module->__("Please select only Fyndiq order");
                     return false;
                 }
-
             }
-
         }
         $this->errors[] = $module->__('Please, pick at least one order');
         return false;
