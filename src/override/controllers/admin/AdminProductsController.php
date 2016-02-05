@@ -44,7 +44,7 @@ class AdminProductsController extends AdminProductsControllerCore
         if (is_array($this->boxes) && !empty($this->boxes)) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
                 $shopId = (int)$this->context->shop->getContextShopID();
-                $fmProductExport = $module->getModel('FmProductExport');
+                $fmProductExport = $module->getModel('FmProductExport', $shopId);
                 foreach ($this->boxes as $productId) {
                     $fmProductExport->exportProduct($productId, $shopId);
                 }
@@ -62,7 +62,7 @@ class AdminProductsController extends AdminProductsControllerCore
         if (is_array($this->boxes) && !empty($this->boxes)) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
                 $shopId = (int)$this->context->shop->getContextShopID();
-                $fmProductExport = $this->getFyndiqModule()->getModel('FmProductExport');
+                $fmProductExport = $this->getFyndiqModule()->getModel('FmProductExport', $shopId);
                 foreach ($this->boxes as $productId) {
                     $fmProductExport->removeProduct($productId, $shopId);
                 }

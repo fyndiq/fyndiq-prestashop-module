@@ -45,31 +45,31 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $storeId = $this->fmPrestashop->getStoreId();
         $importOrdersStatus = $this->fmConfig->get('disable_orders', $storeId);
         if ($importOrdersStatus === FmUtils::ORDERS_DISABLED) {
-            $this->errors[] = $module->__('Orders are disabled.');
+            $this->errors[] = $this->module->__('Orders are disabled.');
             return false;
         }
         $importDate = $this->fmConfig->get('import_date', $storeId);
-        $fmOrder = $this->module->getModel('FmOrder');
+        $fmOrder = $this->module->getModel('FmOrder', $storeId);
+        $fmApiModel = $this->module->getModel('FmApiModel', $storeId);
 
         try {
-            $orderFetch = $this->module->getFetchClass(
-                'FmOrderFetch',
-                $fmOrder,
-                $importDate
-            );
-            $orderFetch->getAll();
-        }
-        catch(Exception $e) {
-            $this->errors[] = $module->__($e->getMessage());
+            $fmOrderFetch = new FmOrderFetch($fmOrder, $fmApiModel, $importDate);
+            $fmOrderFetch->getAll();
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
             return false;
         }
+
         $idOrderState = $this->fmConfig->get('import_state', $storeId);
         $taxAddressType = $this->fmPrestashop->getTaxAddressType();
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
 
-        $fmOrder->processFullOrderQueue($idOrderState, $taxAddressType, $skuTypeId);
-
-        $time = $orderFetch->getLastTimestamp();
+        try {
+            $fmOrder->processFullOrderQueue($idOrderState, $taxAddressType, $skuTypeId);
+        } catch (Exception $e) {
+            $this->errors = array_merge($this->errors, explode("\n", $e->getMessage()));
+        }
+        $time = $fmOrderFetch->getLastTimestamp();
         if ($time) {
             $newDate = date('Y-m-d H:i:s', $time);
             $this->fmConfig->set('import_date', $newDate, $storeId);

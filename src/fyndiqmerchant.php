@@ -162,11 +162,7 @@ class FyndiqMerchant extends Module
         $storeId = $this->fmPrestashop->getStoreId();
         $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
         $this->fmConfig = new FmConfig($this->fmPrestashop);
-        $fmApiModel = new FmApiModel(
-            $this->fmConfig->get('username', $storeId),
-            $this->fmConfig->get('api_token', $storeId),
-            $this->fmPrestashop->globalGetVersion()
-        );
+        $fmApiModel = new FmApiModel($this->fmPrestashop, $this->fmConfig, $storeId);
         $controller = new FmController($this->fmPrestashop, $fmOutput, $this->fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }
@@ -188,23 +184,10 @@ class FyndiqMerchant extends Module
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
 
-    public function getModel($modelName)
+    public function getModel($modelName, $storeId = -1)
     {
         if (!isset($this->modules[$modelName])) {
-            $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig);
-        }
-        return $this->modules[$modelName];
-    }
-    public function getFetchClass($modelName, $usedModel, $date = null)
-    {
-        //$storeId = $this->fmPrestashop->getStoreId();
-        $fmApiModel = new FmApiModel(
-            $this->fmConfig->get('username', $storeId),
-            $this->fmConfig->get('api_token', $storeId),
-            $this->fmPrestashop->globalGetVersion()
-        );
-        if (!isset($this->modules[$modelName])) {
-            $this->modules[$modelName] = new $modelName($usedModel, $fmApiModel, $date);
+            $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig, $storeId);
         }
         return $this->modules[$modelName];
     }
