@@ -29,7 +29,6 @@ class AdminOrdersController extends AdminOrdersControllerCore
     {
         $module = $this->getFyndiqModule();
         $fynOrdersId = array();
-        $invalidOrdId = array();
         $filterFynOrd = array(
             'orders' => array()
         );
@@ -37,38 +36,40 @@ class AdminOrdersController extends AdminOrdersControllerCore
         if (is_array($this->boxes) && !empty($this->boxes)) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
                 $fmOrder = $module->getModel('FmOrder');
-                // filter the fyndiq order ID
-                foreach ($this->boxes as $orderId) {
-                    if ($fynOrderId = $fmOrder->FynOrderExists($orderId)) {
-                        $filterFynOrd['orders'][] = array('order' => intval($fynOrderId));
-                        array_push($fynOrdersId, intval($fynOrderId));
-                    } else {
-                        array_push($invalidOrdId, $orderId);
+                // get Fyndiq orders
+                $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
+                if(count($fyndiqOrders)){
+                    if(count($fyndiqOrders) === count($this->boxes)){
+                        foreach ($fyndiqOrders as $orderId) {
+                            $filterFynOrd['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
+                            array_push($fynOrdersId, intval($orderId['fyndiq_orderid']));
+                        }
+                        // Generating a PDF
+                        try {
+                            $ret = $module->getApiModel()->callApi('POST', 'delivery_notes/', $filterFynOrd);
+                            $fmOutput = new FmOutput($module->getFmPrestashop(), $module, $module->getFmPrestashop()->contextGetContext()->smarty);
+                            $fileName = 'delivery_notes-' . implode('_', $fynOrdersId) .'.pdf';
+                            if ($ret['status'] == 200) {
+                                $file = fopen('php://temp', 'wb+');
+                                // Saving data to file
+                                fputs($file, $ret['data']);
+                                $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
+                                fclose($file);
+                                return true;
+                            }
+                            return FyndiqTranslation::get('unhandled-error-message');
+                        } catch (Exception $e) {
+                            $module->getFmOutput->output($e->getMessage());
+                            return false;
+                        }
+                    }
+                    else {
+                        $this->errors[] = $module->__("Please select only Fyndiq order");
+                        return false;
                     }
                 }
-                // generating PDF file
-                if (!count($invalidOrdId)) {
-                    try {
-                           $ret = $module->getApiModel()->callApi('POST', 'delivery_notes/', $filterFynOrd);
-                           $fileName = 'delivery_notes-' . implode('_', $fynOrdersId) .'.pdf';
-                        if ($ret['status'] == 200) {
-                            $file = fopen('php://temp', 'wb+');
-                            // Saving data to file
-                            fputs($file, $ret['data']);
-                            $module->getFmOutput()->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
-                            fclose($file);
-                            return null;
-                        }
-                            return FyndiqTranslation::get('unhandled-error-message');
-                    } catch (Exception $e) {
-                        $module->getFmOutput->output($e->getMessage());
-                        return null;
-                    }
-
-                    return true;
-                } else {
-
-                    $this->errors[] = $module->__(implode(',', $invalidOrdId) . ' these are not Fyndiq Order. Please select only Fyndiq order');
+                else{
+                    $this->errors[] = $module->__("Please select only Fyndiq order");
                     return false;
                 }
 

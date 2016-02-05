@@ -175,6 +175,11 @@ class FyndiqMerchant extends Module
         return $this->$name;
     }
 
+    /**
+     * get API Object
+     *
+     * @return object
+     */
     public function getApiModel()
     {
          $storeId = $this->fmPrestashop->getStoreId();
@@ -185,10 +190,16 @@ class FyndiqMerchant extends Module
             );
         return $fmApiModel;
     }
-    public function getFmOutput()
+
+    /**
+     * get prestashop Object
+     *
+     * @return object
+     */
+    public function getFmPrestashop()
     {
-        $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
-        return $fmOutput;
+        return $this->fmPrestashop;
+
     }
 
 
