@@ -11,12 +11,11 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->module = $this->getFyndiqModule();
         $this->fmPrestashop = new FmPrestashop('fyndiqmerchant');
         $this->fmConfig = new fmConfig($this->fmPrestashop);
-          // Add Bulk actions
 
+        // Add Bulk actions
         $this->bulk_actions['download_delivery_notes'] = array(
             'text' => $this->module->__('Download Delivery Notes')
         );
-
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_orders` fyn_o ON fyn_o.order_id = a.id_order';
         $this->_select .= ', IF(fyn_o.id is null, "-", fyn_o.fyndiq_orderid) AS fyndiq_order';
 
@@ -24,7 +23,8 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->fields_list['fyndiq_order'] = array(
             'title' => $this->module->__('Fyndiq Order'),
         );
-            // Add Actions
+
+        // Add Actions
         $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes'));
     }
 
