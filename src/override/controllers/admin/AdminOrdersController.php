@@ -1,7 +1,8 @@
 <?php
-
 class AdminOrdersController extends AdminOrdersControllerCore
 {
+
+    protected $module;
 
     public function __construct()
     {
@@ -11,6 +12,10 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->fmPrestashop = new FmPrestashop('fyndiqmerchant');
         $this->fmConfig = new fmConfig($this->fmPrestashop);
 
+        // Add Bulk actions
+        $this->bulk_actions['download_delivery_notes'] = array(
+            'text' => $this->module->__('Download Delivery Notes')
+        );
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_orders` fyn_o ON fyn_o.order_id = a.id_order';
         $this->_select .= ', IF(fyn_o.id is null, "-", fyn_o.fyndiq_orderid) AS fyndiq_order';
 
@@ -18,6 +23,55 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->fields_list['fyndiq_order'] = array(
             'title' => $this->module->__('Fyndiq Order'),
         );
+
+        // Add Actions
+        $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes'));
+    }
+
+    protected function processBulkDownloadDeliveryNotes()
+    {
+        if (!is_array($this->boxes) || !$this->boxes) {
+            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
+                $this->errors[] = $this->module->__('Please, pick at least one order');
+                return false;
+            }
+        }
+        $fmOrder = $this->module->getModel('FmOrder');
+        // get Fyndiq orders
+        $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
+        if (!count($fyndiqOrders)) {
+            $this->errors[] = $this->module->__("Please select only Fyndiq order");
+            return false;
+        }
+        $fyndiqOrderIds = array();
+        $requestData = array(
+            'orders' => array()
+        );
+        foreach ($fyndiqOrders as $orderId) {
+            $requestData['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
+            $fyndiqOrderIds[] = intval($orderId['fyndiq_orderid']);
+        }
+        // Generating a PDF
+        try {
+            $fmPrestashop = $this->module->getFmPrestashop();
+            $fmOutput = new FmOutput($fmPrestashop, $this->module, $fmPrestashop->contextGetContext()->smarty);
+            $shopId = (int)$this->context->shop->getContextShopID();
+            $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
+            $ret = $fmApiModel->callApi('POST', 'delivery_notes/', $requestData);
+            $fileName = 'delivery_notes-' . implode('_', $fyndiqOrderIds) . '.pdf';
+            if ($ret['status'] == 200) {
+                $file = fopen('php://temp', 'wb+');
+                // Saving data to file
+                fputs($file, $ret['data']);
+                $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
+                fclose($file);
+            }
+            return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+            return false;
+        }
+        return true;
     }
 
     public function initPageHeaderToolbar()

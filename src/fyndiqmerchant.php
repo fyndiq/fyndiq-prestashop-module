@@ -172,6 +172,15 @@ class FyndiqMerchant extends Module
         return $this->$name;
     }
 
+    /**
+     * get prestashop Object
+     *
+     * @return object
+     */
+    public function getFmPrestashop()
+    {
+        return $this->fmPrestashop;
+    }
 
     public function hookDisplayAdminProductsExtra($params)
     {
