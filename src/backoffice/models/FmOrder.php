@@ -768,7 +768,7 @@ class FmOrder extends FmModel
                 }
             }
             if ($errors) {
-                throw new Exception(implode('\n', $errors));
+                throw new Exception(implode("\n", $errors));
             }
         }
         return true;

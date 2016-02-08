@@ -12,7 +12,8 @@ class FmProductExport extends FmModel
         $this->tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
     }
 
-    public function exportProduct($productId, $storeId) {
+    public function exportProduct($productId, $storeId)
+    {
         if (!$this->productExists($productId, $storeId)) {
             return $this->addProduct($productId, $storeId);
         }
