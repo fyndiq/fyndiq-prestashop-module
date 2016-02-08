@@ -185,7 +185,7 @@ class FyndiqMerchant extends Module
                 $this->fmConfig->get('api_token', $storeId),
                 $this->fmPrestashop->globalGetVersion()
             );
-        return $fmApiModel;
+            return $fmApiModel;
     }
 
     /**

@@ -2,6 +2,8 @@
 class AdminOrdersController extends AdminOrdersControllerCore
 {
 
+    protected $module;
+
     public function __construct()
     {
         parent::__construct();
@@ -12,7 +14,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
 
           // Add Bulk actions
         $this->bulk_actions['download_delivery_notes'] = array(
-            'text' => $module->__('Download Delivery Notes')
+            'text' => $this->module->__('Download Delivery Notes')
         );
 
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_orders` fyn_o ON fyn_o.order_id = a.id_order';
@@ -29,26 +31,27 @@ class AdminOrdersController extends AdminOrdersControllerCore
 
     protected function processBulkDownloadDeliveryNotes()
     {
-        $module = $this->getFyndiqModule();
         if (is_array($this->boxes) && !empty($this->boxes)) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
-                $fmOrder = $module->getModel('FmOrder');
+                $fmOrder = $this->module->getModel('FmOrder');
                 $fynOrderIds = array();
                 $requestData = array(
                     'orders' => array()
                 );
                 // get Fyndiq orders
                 $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
-                if(count($fyndiqOrders)){
+                if (count($fyndiqOrders)) {
                     foreach ($fyndiqOrders as $orderId) {
                         $requestData['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
                         $fynOrderIds[] = intval($orderId['fyndiq_orderid']);
                     }
                     // Generating a PDF
                     try {
-                        $fmPrestashop = $module->getFmPrestashop();
-                        $fmOutput = new FmOutput($fmPrestashop, $module, $fmPrestashop->contextGetContext()->smarty);
-                        $ret = $module->getApiModel()->callApi('POST', 'delivery_notes/', $requestData);
+                        $fmPrestashop = $this->module->getFmPrestashop();
+                        $fmOutput = new FmOutput($fmPrestashop, $this->module, $fmPrestashop->contextGetContext()->smarty);
+                        $shopId = (int)$this->context->shop->getContextShopID();
+                        $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
+                        $ret = $fmApiModel->callApi('POST', 'delivery_notes/', $requestData);
                         $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) .'.pdf';
                         if ($ret['status'] == 200) {
                             $file = fopen('php://temp', 'wb+');
@@ -60,17 +63,16 @@ class AdminOrdersController extends AdminOrdersControllerCore
                         }
                         return FyndiqTranslation::get('unhandled-error-message');
                     } catch (Exception $e) {
-                        $module->getFmOutput->output($e->getMessage());
+                        $this->module->getFmOutput->output($e->getMessage());
                         return false;
                     }
-                }
-                else{
-                    $this->errors[] = $module->__("Please select only Fyndiq order");
+                } else {
+                    $this->errors[] = $this->module->__("Please select only Fyndiq order");
                     return false;
                 }
             }
         }
-        $this->errors[] = $module->__('Please, pick at least one order');
+        $this->errors[] = $this->module->__('Please, pick at least one order');
         return false;
     }
 
