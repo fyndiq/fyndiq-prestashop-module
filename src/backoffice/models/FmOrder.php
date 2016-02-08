@@ -560,7 +560,7 @@ class FmOrder extends FmModel
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
         $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS(
             'SELECT * FROM ' . $tableName . '
-            WHERE order_id IN ('. implode(", ", $orderIds).' );'
+            WHERE order_id IN ('. implode(', ', $orderIds).' );'
         );
         return $orders;
     }

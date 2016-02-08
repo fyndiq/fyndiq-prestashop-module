@@ -31,49 +31,48 @@ class AdminOrdersController extends AdminOrdersControllerCore
 
     protected function processBulkDownloadDeliveryNotes()
     {
-        if (is_array($this->boxes) && !empty($this->boxes)) {
+        if (!is_array($this->boxes) || !$this->boxes) {
             if (Shop::getContext() == Shop::CONTEXT_SHOP) {
-                $fmOrder = $this->module->getModel('FmOrder');
-                $fynOrderIds = array();
-                $requestData = array(
-                    'orders' => array()
-                );
-                // get Fyndiq orders
-                $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
-                if (count($fyndiqOrders)) {
-                    foreach ($fyndiqOrders as $orderId) {
-                        $requestData['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
-                        $fynOrderIds[] = intval($orderId['fyndiq_orderid']);
-                    }
-                    // Generating a PDF
-                    try {
-                        $fmPrestashop = $this->module->getFmPrestashop();
-                        $fmOutput = new FmOutput($fmPrestashop, $this->module, $fmPrestashop->contextGetContext()->smarty);
-                        $shopId = (int)$this->context->shop->getContextShopID();
-                        $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
-                        $ret = $fmApiModel->callApi('POST', 'delivery_notes/', $requestData);
-                        $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) .'.pdf';
-                        if ($ret['status'] == 200) {
-                            $file = fopen('php://temp', 'wb+');
-                            // Saving data to file
-                            fputs($file, $ret['data']);
-                            $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
-                            fclose($file);
-                            return true;
-                        }
-                        return FyndiqTranslation::get('unhandled-error-message');
-                    } catch (Exception $e) {
-                        $this->module->getFmOutput->output($e->getMessage());
-                        return false;
-                    }
-                } else {
-                    $this->errors[] = $this->module->__("Please select only Fyndiq order");
-                    return false;
-                }
+                $this->errors[] = $this->module->__('Please, pick at least one order');
+                return false;
             }
         }
-        $this->errors[] = $this->module->__('Please, pick at least one order');
-        return false;
+        $fmOrder = $this->module->getModel('FmOrder');
+        $fynOrderIds = array();
+        $requestData = array(
+            'orders' => array()
+        );
+        // get Fyndiq orders
+        $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
+        if (!count($fyndiqOrders)) {
+            $this->errors[] = $this->module->__("Please select only Fyndiq order");
+            return false;
+        }
+        foreach ($fyndiqOrders as $orderId) {
+            $requestData['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
+            $fynOrderIds[] = intval($orderId['fyndiq_orderid']);
+        }
+        // Generating a PDF
+        try {
+            $fmPrestashop = $this->module->getFmPrestashop();
+            $fmOutput = new FmOutput($fmPrestashop, $this->module, $fmPrestashop->contextGetContext()->smarty);
+            $shopId = (int)$this->context->shop->getContextShopID();
+            $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
+            $ret = $fmApiModel->callApi('POST', 'delivery_notes/', $requestData);
+            $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) .'.pdf';
+            if ($ret['status'] == 200) {
+                $file = fopen('php://temp', 'wb+');
+                // Saving data to file
+                fputs($file, $ret['data']);
+                $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
+                fclose($file);
+                return true;
+            }
+            return FyndiqTranslation::get('unhandled-error-message');
+        } catch (Exception $e) {
+            $this->module->getFmOutput->output($e->getMessage());
+            return false;
+        }
     }
 
     public function initPageHeaderToolbar()

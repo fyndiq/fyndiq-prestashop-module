@@ -173,22 +173,6 @@ class FyndiqMerchant extends Module
     }
 
     /**
-     * get API Object
-     *
-     * @return object
-     */
-    public function getApiModel()
-    {
-         $storeId = $this->fmPrestashop->getStoreId();
-            $fmApiModel = new FmApiModel(
-                $this->fmConfig->get('username', $storeId),
-                $this->fmConfig->get('api_token', $storeId),
-                $this->fmPrestashop->globalGetVersion()
-            );
-            return $fmApiModel;
-    }
-
-    /**
      * get prestashop Object
      *
      * @return object
