@@ -11,8 +11,8 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->module = $this->getFyndiqModule();
         $this->fmPrestashop = new FmPrestashop('fyndiqmerchant');
         $this->fmConfig = new fmConfig($this->fmPrestashop);
-
           // Add Bulk actions
+
         $this->bulk_actions['download_delivery_notes'] = array(
             'text' => $this->module->__('Download Delivery Notes')
         );
@@ -24,7 +24,6 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->fields_list['fyndiq_order'] = array(
             'title' => $this->module->__('Fyndiq Order'),
         );
-
             // Add Actions
         $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes'));
     }
@@ -59,20 +58,20 @@ class AdminOrdersController extends AdminOrdersControllerCore
             $shopId = (int)$this->context->shop->getContextShopID();
             $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
             $ret = $fmApiModel->callApi('POST', 'delivery_notes/', $requestData);
-            $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) .'.pdf';
+            $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) . '.pdf';
             if ($ret['status'] == 200) {
                 $file = fopen('php://temp', 'wb+');
                 // Saving data to file
                 fputs($file, $ret['data']);
                 $fmOutput->streamFile($file, $fileName, 'application/pdf', strlen($ret['data']));
                 fclose($file);
-                return true;
             }
-            return FyndiqTranslation::get('unhandled-error-message');
+            return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
         } catch (Exception $e) {
-            $this->module->getFmOutput->output($e->getMessage());
+            $this->errors[] = $this->module->__($this->module->getFmOutput->output($e->getMessage()));
             return false;
         }
+        return true;
     }
 
     public function initPageHeaderToolbar()

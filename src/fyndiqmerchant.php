@@ -180,9 +180,7 @@ class FyndiqMerchant extends Module
     public function getFmPrestashop()
     {
         return $this->fmPrestashop;
-
     }
-
 
     public function hookDisplayAdminProductsExtra($params)
     {
@@ -194,7 +192,6 @@ class FyndiqMerchant extends Module
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
     }
-
 
     public function getModel($modelName, $storeId = -1)
     {
