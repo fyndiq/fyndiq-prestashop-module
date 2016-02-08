@@ -37,19 +37,19 @@ class AdminOrdersController extends AdminOrdersControllerCore
             }
         }
         $fmOrder = $this->module->getModel('FmOrder');
-        $fynOrderIds = array();
-        $requestData = array(
-            'orders' => array()
-        );
         // get Fyndiq orders
         $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
         if (!count($fyndiqOrders)) {
             $this->errors[] = $this->module->__("Please select only Fyndiq order");
             return false;
         }
+        $fyndiqOrderIds = array();
+        $requestData = array(
+            'orders' => array()
+        );
         foreach ($fyndiqOrders as $orderId) {
             $requestData['orders'][] = array('order' => intval($orderId['fyndiq_orderid']));
-            $fynOrderIds[] = intval($orderId['fyndiq_orderid']);
+            $fyndiqOrderIds[] = intval($orderId['fyndiq_orderid']);
         }
         // Generating a PDF
         try {
@@ -58,7 +58,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
             $shopId = (int)$this->context->shop->getContextShopID();
             $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
             $ret = $fmApiModel->callApi('POST', 'delivery_notes/', $requestData);
-            $fileName = 'delivery_notes-' . implode('_', $fynOrderIds) . '.pdf';
+            $fileName = 'delivery_notes-' . implode('_', $fyndiqOrderIds) . '.pdf';
             if ($ret['status'] == 200) {
                 $file = fopen('php://temp', 'wb+');
                 // Saving data to file
@@ -68,7 +68,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
             }
             return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
         } catch (Exception $e) {
-            $this->errors[] = $this->module->__($this->module->getFmOutput->output($e->getMessage()));
+            $this->errors[] = $e->getMessage();
             return false;
         }
         return true;
