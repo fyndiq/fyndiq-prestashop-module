@@ -586,17 +586,6 @@ class FmOrder extends FmModel
     }
 
     /**
-     * remove table from database.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        return $this->fmPrestashop->dbGetInstance()->Execute('DROP TABLE ' . $tableName);
-    }
-
-    /**
      * Try to match product by SKU
      *
      * @param string $productSKU
@@ -697,7 +686,7 @@ class FmOrder extends FmModel
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders');
         $data = array(
             'fyndiq_orderid' => intval($order->id),
-            'body' => FmUtils::jsonEncode($order),
+            'body' => serialize($order),
             'status' => 0,
             'order_id' => 0,
         );
@@ -730,7 +719,7 @@ class FmOrder extends FmModel
             return;
         }
         $rawOrder = array_pop($rawOrders);
-        $fyndiqOrder = json_decode($rawOrder['body']);
+        $fyndiqOrder = unserialize($rawOrder['body']);
         $this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
         return $this->removeFromQueue($fyndiqOrderId);
     }
