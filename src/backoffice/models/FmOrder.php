@@ -586,17 +586,6 @@ class FmOrder extends FmModel
     }
 
     /**
-     * remove table from database.
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-        return $this->fmPrestashop->dbGetInstance()->Execute('DROP TABLE ' . $tableName);
-    }
-
-    /**
      * Try to match product by SKU
      *
      * @param string $productSKU
