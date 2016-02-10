@@ -97,7 +97,7 @@ class FyndiqMerchant extends Module
         $ret &= $this->uninstallTab();
 
         // drop order table
-        $ret &= $fmOrder->uninstall();
+        //$ret &= $fmOrder->uninstall();
 
         return (bool)$ret;
     }
