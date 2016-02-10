@@ -12,9 +12,13 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->fmPrestashop = new FmPrestashop('fyndiqmerchant');
         $this->fmConfig = new fmConfig($this->fmPrestashop);
 
-        // Add Bulk actions
+        // Add option as download delivery notes to Bulk action
         $this->bulk_actions['download_delivery_notes'] = array(
             'text' => $this->module->__('Download Delivery Notes')
+        );
+        // Add option as mark as done to Bulk action
+        $this->bulk_actions['mark_as_done'] = array(
+            'text' => $this->module->__('Mark as Done')
         );
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_orders` fyn_o ON fyn_o.order_id = a.id_order';
         $this->_select .= ', IF(fyn_o.id is null, "-", fyn_o.fyndiq_orderid) AS fyndiq_order';
@@ -25,7 +29,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
         );
 
         // Add Actions
-        $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes'));
+        $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes'),array('mark_as_done'));
     }
 
     protected function processBulkDownloadDeliveryNotes()
@@ -71,6 +75,34 @@ class AdminOrdersController extends AdminOrdersControllerCore
             $this->errors[] = $e->getMessage();
             return false;
         }
+        return true;
+    }
+
+    protected function processBulkMarkAsDone()
+    {
+        if (!is_array($this->boxes) || !$this->boxes) {
+            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
+                $this->errors[] = $this->module->__('Please, pick at least one order');
+                return false;
+            }
+        }
+        // get Fyndiq orders
+        $fmOrder = $this->loadModel('FmOrder');
+        $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
+        if (!count($fyndiqOrders)) {
+            $this->errors[] = $this->module->__("Please select only Fyndiq order");
+            return false;
+        }
+        $doneState = '';
+        $shopId = (int)$this->context->shop->getContextShopID();
+        $doneState = $this->module->fmConfig->get('done_state', $shopId);
+        foreach ($fyndiqOrders as $order) {
+            if (is_numeric($order)) {
+                $fmOrder->markOrderAsDone($order, $doneState);
+            }
+        }
+        $doneStateName = $this->fmPrestashop->getOrderStateName($doneState);
+
         return true;
     }
 
