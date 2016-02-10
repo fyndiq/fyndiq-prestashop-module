@@ -1,8 +1,8 @@
 <?php
 class AdminOrdersController extends AdminOrdersControllerCore
 {
-
     protected $module;
+    protected $fmConfig;
 
     public function __construct()
     {
@@ -87,22 +87,22 @@ class AdminOrdersController extends AdminOrdersControllerCore
             }
         }
         // get Fyndiq orders
-        $fmOrder = $this->loadModel('FmOrder');
+        $fmOrder = $this->module->getModel('FmOrder');
         $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
         if (!count($fyndiqOrders)) {
             $this->errors[] = $this->module->__("Please select only Fyndiq order");
             return false;
         }
-        $doneState = '';
+        foreach ($fyndiqOrders as $orderId) {
+            $orderIds[] = intval($orderId['order_id']);
+        }
         $shopId = (int)$this->context->shop->getContextShopID();
-        $doneState = $this->module->fmConfig->get('done_state', $shopId);
-        foreach ($fyndiqOrders as $order) {
+        $doneState = $this->fmConfig->get('done_state', $shopId);
+        foreach ($orderIds as $order) {
             if (is_numeric($order)) {
                 $fmOrder->markOrderAsDone($order, $doneState);
             }
         }
-        $doneStateName = $this->fmPrestashop->getOrderStateName($doneState);
-
         return true;
     }
 
