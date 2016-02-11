@@ -29,17 +29,16 @@ class AdminOrdersController extends AdminOrdersControllerCore
         );
 
         // Add Actions
-        $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes', 'mark_as_done'));
+        $this->actions_available = array_merge($this->actions_available, array(
+            'download_delivery_notes',
+            'mark_as_done'
+        ));
     }
 
     protected function processBulkDownloadDeliveryNotes()
     {
-        if (!is_array($this->boxes) || !$this->boxes) {
-            $this->errors[] = $this->module->__('Please, pick at least one order');
-            return false;
-        }
-        if (Shop::getContext() != Shop::CONTEXT_SHOP) {
-            $this->errors[] = $this->module->__('Please select store context');
+        if ($errMsg = $this->validateInput()) {
+            $this->errors[] = $this->module->__($errMsg);
             return false;
         }
         $fmOrder = $this->module->getModel('FmOrder');
@@ -82,12 +81,8 @@ class AdminOrdersController extends AdminOrdersControllerCore
 
     protected function processBulkMarkAsDone()
     {
-        if (!is_array($this->boxes) || !$this->boxes) {
-            $this->errors[] = $this->module->__('Please, pick at least one order');
-            return false;
-        }
-        if (Shop::getContext() != Shop::CONTEXT_SHOP) {
-            $this->errors[] = $this->module->__('Please select store context');
+        if ($errMsg = $this->validateInput()) {
+            $this->errors[] = $this->module->__($errMsg);
             return false;
         }
         // filter Fyndiq orders
@@ -102,7 +97,10 @@ class AdminOrdersController extends AdminOrdersControllerCore
             'orders' => array()
         );
         foreach ($fyndiqOrders as $orderId) {
-            $requestData['orders'][] = array('id' => intval($orderId['fyndiq_orderid']), 'marked' => true);
+            $requestData['orders'][] = array(
+                'id' => intval($orderId['fyndiq_orderid']),
+                'marked' => true
+                );
             $orderIds[] = intval($orderId['order_id']);
         }
         $shopId = (int)$this->context->shop->getContextShopID();
@@ -119,6 +117,18 @@ class AdminOrdersController extends AdminOrdersControllerCore
             return true;
         }
         return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
+    }
+
+    public function validateInput()
+    {
+        $msg = '';
+        if (!is_array($this->boxes) || !$this->boxes) {
+             $msg = 'Please, pick at least one order';
+        }
+        if (Shop::getContext() != Shop::CONTEXT_SHOP) {
+             $msg = 'Please select store context';
+        }
+        return $msg;
     }
 
     public function initPageHeaderToolbar()
