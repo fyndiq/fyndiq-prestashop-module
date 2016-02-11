@@ -107,18 +107,23 @@ class AdminOrdersController extends AdminOrdersControllerCore
         }
         $shopId = (int)$this->context->shop->getContextShopID();
         $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
-        $res = $fmApiModel->callApi('POST', 'orders/marked/', $requestData);
-        if ($res['status'] == 204) {
-            // change the status of the order to merchant shop
-            $doneState = $this->fmConfig->get('done_state', $shopId);
-            foreach ($orderIds as $order) {
-                if (is_numeric($order)) {
-                    $fmOrder->markOrderAsDone($order, $doneState);
+        try{
+            $res = $fmApiModel->callApi('POST', 'orders/marked/', $requestData);
+            if ($res['status'] == FyndiqAPICall::HTTP_SUCCESS_NONCONTENT) {
+                // change the status of the order to merchant shop
+                $doneState = $this->fmConfig->get('done_state', $shopId);
+                foreach ($orderIds as $order) {
+                    if (is_numeric($order)) {
+                        $fmOrder->markOrderAsDone($order, $doneState);
+                    }
                 }
+                return true;
             }
-            return true;
+            return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+            return false;
         }
-        return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
     }
 
     public function validateOrderInput()
