@@ -37,8 +37,9 @@ class AdminOrdersController extends AdminOrdersControllerCore
 
     protected function processBulkDownloadDeliveryNotes()
     {
-        if ($errMsg = $this->validateInput()) {
-            $this->errors[] = $this->module->__($errMsg);
+        $errMsg = $this->validateOrderInput();
+        if ($errMsg) {
+            $this->errors[] = $errMsg;
             return false;
         }
         $fmOrder = $this->module->getModel('FmOrder');
@@ -81,8 +82,9 @@ class AdminOrdersController extends AdminOrdersControllerCore
 
     protected function processBulkMarkAsDone()
     {
-        if ($errMsg = $this->validateInput()) {
-            $this->errors[] = $this->module->__($errMsg);
+        $errMsg = $this->validateOrderInput();
+        if ($errMsg) {
+            $this->errors[] = $errMsg;
             return false;
         }
         // filter Fyndiq orders
@@ -100,7 +102,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
             $requestData['orders'][] = array(
                 'id' => intval($orderId['fyndiq_orderid']),
                 'marked' => true
-                );
+            );
             $orderIds[] = intval($orderId['order_id']);
         }
         $shopId = (int)$this->context->shop->getContextShopID();
@@ -119,16 +121,15 @@ class AdminOrdersController extends AdminOrdersControllerCore
         return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
     }
 
-    public function validateInput()
+    public function validateOrderInput()
     {
-        $msg = '';
         if (!is_array($this->boxes) || !$this->boxes) {
-             $msg = 'Please, pick at least one order';
+             return $this->module->__('Please, pick at least one order');
         }
         if (Shop::getContext() != Shop::CONTEXT_SHOP) {
-             $msg = 'Please select store context';
+            return $this->module->__('Please select store context');
         }
-        return $msg;
+        return '';
     }
 
     public function initPageHeaderToolbar()
