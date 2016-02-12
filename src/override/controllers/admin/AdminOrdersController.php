@@ -1,8 +1,8 @@
 <?php
 class AdminOrdersController extends AdminOrdersControllerCore
 {
-
     protected $module;
+    protected $fmConfig;
 
     public function __construct()
     {
@@ -12,9 +12,13 @@ class AdminOrdersController extends AdminOrdersControllerCore
         $this->fmPrestashop = new FmPrestashop('fyndiqmerchant');
         $this->fmConfig = new fmConfig($this->fmPrestashop);
 
-        // Add Bulk actions
+        // Add option as download delivery notes to Bulk action
         $this->bulk_actions['download_delivery_notes'] = array(
             'text' => $this->module->__('Download Delivery Notes')
+        );
+        // Add option as mark as done to Bulk action
+        $this->bulk_actions['mark_as_done'] = array(
+            'text' => $this->module->__('Mark as Done')
         );
         $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_orders` fyn_o ON fyn_o.order_id = a.id_order';
         $this->_select .= ', IF(fyn_o.id is null, "-", fyn_o.fyndiq_orderid) AS fyndiq_order';
@@ -25,22 +29,24 @@ class AdminOrdersController extends AdminOrdersControllerCore
         );
 
         // Add Actions
-        $this->actions_available = array_merge($this->actions_available, array('download_delivery_notes'));
+        $this->actions_available = array_merge($this->actions_available, array(
+            'download_delivery_notes',
+            'mark_as_done'
+        ));
     }
 
     protected function processBulkDownloadDeliveryNotes()
     {
-        if (!is_array($this->boxes) || !$this->boxes) {
-            if (Shop::getContext() == Shop::CONTEXT_SHOP) {
-                $this->errors[] = $this->module->__('Please, pick at least one order');
-                return false;
-            }
+        $errMsg = $this->validateOrderInput();
+        if ($errMsg) {
+            $this->errors[] = $errMsg;
+            return false;
         }
         $fmOrder = $this->module->getModel('FmOrder');
         // get Fyndiq orders
         $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
         if (!count($fyndiqOrders)) {
-            $this->errors[] = $this->module->__("Please select only Fyndiq order");
+            $this->errors[] = $this->module->__('Please select only Fyndiq order');
             return false;
         }
         $fyndiqOrderIds = array();
@@ -72,6 +78,63 @@ class AdminOrdersController extends AdminOrdersControllerCore
             return false;
         }
         return true;
+    }
+
+    protected function processBulkMarkAsDone()
+    {
+        $errMsg = $this->validateOrderInput();
+        if ($errMsg) {
+            $this->errors[] = $errMsg;
+            return false;
+        }
+        // filter Fyndiq orders
+        $fmOrder = $this->module->getModel('FmOrder');
+        $fyndiqOrders = $fmOrder->getFyndiqOrders($this->boxes);
+        if (!count($fyndiqOrders)) {
+            $this->errors[] = $this->module->__('Please select only Fyndiq order');
+            return false;
+        }
+        //prepare post data
+        $requestData = array(
+            'orders' => array()
+        );
+        foreach ($fyndiqOrders as $orderId) {
+            $requestData['orders'][] = array(
+                'id' => intval($orderId['fyndiq_orderid']),
+                'marked' => true
+            );
+            $orderIds[] = intval($orderId['order_id']);
+        }
+        $shopId = (int)$this->context->shop->getContextShopID();
+        $fmApiModel = $this->module->getModel('FmApiModel', $shopId);
+        try {
+            $res = $fmApiModel->callApi('POST', 'orders/marked/', $requestData);
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+            return false;
+        }
+        if ($res['status'] == FyndiqAPICall::HTTP_SUCCESS_NONCONTENT) {
+            // change the status of the order to merchant shop
+            $doneState = $this->fmConfig->get('done_state', $shopId);
+            foreach ($orderIds as $order) {
+                if (is_numeric($order)) {
+                    $fmOrder->markOrderAsDone($order, $doneState);
+                }
+            }
+            return true;
+        }
+        return FyndiqTranslation::get('An unhandled error occurred. If this persists, please contact Fyndiq integration support.');
+    }
+
+    public function validateOrderInput()
+    {
+        if (!is_array($this->boxes) || !$this->boxes) {
+             return $this->module->__('Please, pick at least one order');
+        }
+        if (Shop::getContext() != Shop::CONTEXT_SHOP) {
+            return $this->module->__('Please select store context');
+        }
+        return '';
     }
 
     public function initPageHeaderToolbar()
