@@ -60,9 +60,6 @@ class FyndiqMerchant extends Module
 
         $ret &= (bool)parent::install();
 
-        // Create tab
-        $ret &= $this->installTab();
-
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
         $this->fmConfig->set('patch_version', 3, 0);
@@ -99,47 +96,10 @@ class FyndiqMerchant extends Module
         // Drop product table
         $ret &= $fmProductExport->uninstall();
 
-        // Remove the menu tab
-        $ret &= $this->uninstallTab();
-
         // drop order table
         $ret &= $fmOrder->uninstall();
 
         return (bool)$ret;
-    }
-
-    /**
-     * Install tab to the menu
-     *
-     * @return mixed
-     */
-    private function installTab()
-    {
-        $tab = new Tab();
-        $tab->active = 1;
-        $tab->class_name = 'FyndiqPage';
-        $tab->name = array();
-        foreach (Language::getLanguages(true) as $lang) {
-            $tab->name[$lang['id_lang']] = 'Fyndiq';
-        }
-        $tab->id_parent = (int)Tab::getIdFromClassName('AdminParentModules');
-        $tab->module = $this->name;
-        return $tab->add();
-    }
-
-    /**
-     * Remove tab from menu
-     *
-     * @return mixed
-     */
-    private function uninstallTab()
-    {
-        $idTab = (int)Tab::getIdFromClassName('FyndiqPage');
-        if ($idTab) {
-            $tab = new Tab($idTab);
-            return $tab->delete();
-        }
-        return false;
     }
 
     private function setAdminPathCookie()
