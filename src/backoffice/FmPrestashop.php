@@ -353,9 +353,9 @@ class FmPrestashop
         return Tools::isSubmit($name);
     }
 
-    public function toolsGetValue($name)
+    public function toolsGetValue($name, $optional = '')
     {
-        return Tools::getValue($name);
+        return Tools::getValue($name, $optional);
     }
 
     public function toolsRedirect($url)

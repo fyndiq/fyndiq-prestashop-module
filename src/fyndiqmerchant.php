@@ -24,6 +24,7 @@ class FyndiqMerchant extends Module
     private $fmPrestashop = null;
     private $fmConfig = null;
     private $modules = array();
+    private $storeId = null;
 
     public function __construct()
     {
@@ -34,6 +35,7 @@ class FyndiqMerchant extends Module
         $this->author = 'Fyndiq AB';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6');
+        $this->bootstrap = true;
 
         parent::__construct();
 
@@ -42,6 +44,7 @@ class FyndiqMerchant extends Module
         $this->fmConfig = new FmConfig($this->fmPrestashop);
         $languageId = $this->fmPrestashop->getLanguageId();
         FyndiqTranslation::init($this->fmPrestashop->languageGetIsoById($languageId));
+        $this->storeId = $this->fmPrestashop->getStoreId();
 
         $this->displayName = 'Fyndiq';
         $this->description = FyndiqTranslation::get('module-description');
@@ -56,50 +59,63 @@ class FyndiqMerchant extends Module
 
     public function install()
     {
-        $ret = true;
-
-        $ret &= (bool)parent::install();
+        if (!parent::install()
+            || !$this->registerHook('displayAdminProductsExtra')
+            || !$this->registerHook('displayBackOfficeHeader')
+            || !$this->defaultConfig()
+        )
+            return false;
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
         $this->fmConfig->set('patch_version', 3, 0);
 
-        // create product mapping database
-        $ret &= $fmProductExport->install();
-
-        // create order mapping database
-        $ret &= $fmOrder->install();
-
-        $this->registerHook('displayAdminProductsExtra');
-
-        return (bool)$ret;
+        if (!$fmProductExport->install()
+            || !$fmOrder->install()
+        )
+            return false;
+        return true;
     }
 
     public function uninstall()
     {
-        $ret = true;
-
-        $ret &= (bool)parent::uninstall();
+        if (!parent::uninstall())
+            return false;
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-        $storeId = $this->fmPrestashop->getStoreId();
 
-        // Delete configuration
-        $ret &= (bool)$this->fmConfig->delete('username', $storeId);
-        $ret &= (bool)$this->fmConfig->delete('api_token', $storeId);
-        $ret &= (bool)$this->fmConfig->delete('language', $storeId);
-        $ret &= (bool)$this->fmConfig->delete('price_percentage', $storeId);
-        $ret &= (bool)$this->fmConfig->delete('import_state', $storeId);
-        $ret &= (bool)$this->fmConfig->delete('done_state', $storeId);
+        if (!(bool)$this->fmConfig->delete('username', $this->storeId)
+            || !(bool)$this->fmConfig->delete('api_token', $this->storeId)
+            || !(bool)$this->fmConfig->delete('disable_orders', $this->storeId)
+            || !(bool)$this->fmConfig->delete('language', $this->storeId)
+            || !(bool)$this->fmConfig->delete('price_percentage', $this->storeId)
+            || !(bool)$this->fmConfig->delete('stock_min', $this->storeId)
+            || !(bool)$this->fmConfig->delete('description_type', $this->storeId)
+            || !(bool)$this->fmConfig->delete('import_state', $this->storeId)
+            || !(bool)$this->fmConfig->delete('done_state', $this->storeId)
+            || !(bool)$this->fmConfig->delete('ping_token', $this->storeId)
+            || !$fmProductExport->uninstall()
+            || !$fmOrder->uninstall()
+        )
+            return false;
+        return true;
+    }
 
-        // Drop product table
-        $ret &= $fmProductExport->uninstall();
-
-        // drop order table
-        $ret &= $fmOrder->uninstall();
-
-        return (bool)$ret;
+    private function defaultConfig()
+    {
+        if (!$this->fmConfig->set('username', '', $this->storeId)
+            || !$this->fmConfig->set('api_token', '', $this->storeId)
+            || !$this->fmConfig->set('disable_orders', FmUtils::ORDERS_ENABLED, $this->storeId)
+            || !$this->fmConfig->set('language', $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'), $this->storeId)
+            || !$this->fmConfig->set('price_percentage', FmUtils::DEFAULT_DISCOUNT_PERCENTAGE, $this->storeId)
+            || !$this->fmConfig->set('stock_min', 0, $this->storeId)
+            || !$this->fmConfig->set('description_type', FmUtils::LONG_DESCRIPTION, $this->storeId)
+            || !$this->fmConfig->set('import_state', FmUtils::DEFAULT_ORDER_IMPORT_STATE, $this->storeId)
+            || !$this->fmConfig->set('done_state', FmUtils::DEFAULT_ORDER_DONE_STATE, $this->storeId)
+        )
+            return false;
+        return true;
     }
 
     private function setAdminPathCookie()
@@ -119,10 +135,9 @@ class FyndiqMerchant extends Module
         if (!$this->fmPrestashop->isPs1516()) {
             $this->setAdminPathCookie();
         }
-        $storeId = $this->fmPrestashop->getStoreId();
         $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
         $this->fmConfig = new FmConfig($this->fmPrestashop);
-        $fmApiModel = new FmApiModel($this->fmPrestashop, $this->fmConfig, $storeId);
+        $fmApiModel = new FmApiModel($this->fmPrestashop, $this->fmConfig, $this->storeId);
         $controller = new FmController($this->fmPrestashop, $fmOutput, $this->fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }
@@ -140,6 +155,14 @@ class FyndiqMerchant extends Module
     public function getFmPrestashop()
     {
         return $this->fmPrestashop;
+    }
+
+   public function hookDisplayBackOfficeHeader()
+   {
+       if(!($this->fmPrestashop->toolsGetValue('controller') == 'AdminModules' && $this->fmPrestashop->toolsGetValue('configure') == 'fyndiqmerchant')){
+          return;
+       }
+       $this->context->controller->addJS($this->fmPrestashop->getModulePath().'/backoffice/includes/shared/frontend/js/FmNewUI.js', 'all');
     }
 
     public function hookDisplayAdminProductsExtra($params)
