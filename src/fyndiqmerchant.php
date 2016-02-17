@@ -61,10 +61,10 @@ class FyndiqMerchant extends Module
     {
         if (!parent::install()
             || !$this->registerHook('displayAdminProductsExtra')
-            || !$this->registerHook('displayBackOfficeHeader')
             || !$this->defaultConfig()
-        )
+        ) {
             return false;
+        }
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
@@ -72,15 +72,17 @@ class FyndiqMerchant extends Module
 
         if (!$fmProductExport->install()
             || !$fmOrder->install()
-        )
+        ) {
             return false;
+        }
         return true;
     }
 
     public function uninstall()
     {
-        if (!parent::uninstall())
+        if (!parent::uninstall()) {
             return false;
+        }
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
@@ -97,8 +99,9 @@ class FyndiqMerchant extends Module
             || !(bool)$this->fmConfig->delete('ping_token', $this->storeId)
             || !$fmProductExport->uninstall()
             || !$fmOrder->uninstall()
-        )
+        ) {
             return false;
+        }
         return true;
     }
 
@@ -109,12 +112,13 @@ class FyndiqMerchant extends Module
             || !$this->fmConfig->set('disable_orders', FmUtils::ORDERS_ENABLED, $this->storeId)
             || !$this->fmConfig->set('language', $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'), $this->storeId)
             || !$this->fmConfig->set('price_percentage', FmUtils::DEFAULT_DISCOUNT_PERCENTAGE, $this->storeId)
-            || !$this->fmConfig->set('stock_min', 0, $this->storeId)
+            || !$this->fmConfig->set('stock_min', 1, $this->storeId)
             || !$this->fmConfig->set('description_type', FmUtils::LONG_DESCRIPTION, $this->storeId)
             || !$this->fmConfig->set('import_state', FmUtils::DEFAULT_ORDER_IMPORT_STATE, $this->storeId)
             || !$this->fmConfig->set('done_state', FmUtils::DEFAULT_ORDER_DONE_STATE, $this->storeId)
-        )
+        ) {
             return false;
+        }
         return true;
     }
 
@@ -155,14 +159,6 @@ class FyndiqMerchant extends Module
     public function getFmPrestashop()
     {
         return $this->fmPrestashop;
-    }
-
-   public function hookDisplayBackOfficeHeader()
-   {
-       if(!($this->fmPrestashop->toolsGetValue('controller') == 'AdminModules' && $this->fmPrestashop->toolsGetValue('configure') == 'fyndiqmerchant')){
-          return;
-       }
-       $this->context->controller->addJS($this->fmPrestashop->getModulePath().'/backoffice/includes/shared/frontend/js/FmNewUI.js', 'all');
     }
 
     public function hookDisplayAdminProductsExtra($params)

@@ -54,4 +54,8 @@ class FmOutput extends FyndiqOutput
     {
         return $this->module->displayError($message);
     }
+    public function showModuleSuccess($message)
+    {
+        return $this->module->displayConfirmation($message);
+    }
 }
