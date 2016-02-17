@@ -81,9 +81,9 @@ class FmProductExport extends FmModel
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName .' (
                     id int(20) unsigned primary key AUTO_INCREMENT,
                     store_id int(10) unsigned,
-                    product_id int(10) unsigned
+                    product_id int(10) unsigned,
                     name varchar(128) NOT NULL DEFAULT "",
-                    description text NOT NULL DEFAULT "",
+                    description text NOT NULL DEFAULT ""
                 );';
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
