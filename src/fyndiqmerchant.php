@@ -71,6 +71,7 @@ class FyndiqMerchant extends Module
         $ret &= $fmOrder->install();
 
         $this->registerHook('displayAdminProductsExtra');
+        $this->registerHook('actionProductUpdate');
 
         return (bool)$ret;
     }
@@ -144,13 +145,41 @@ class FyndiqMerchant extends Module
 
     public function hookDisplayAdminProductsExtra($params)
     {
+        $id_product = (int)Tools::getValue('id_product');
+        $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $storeId = $this->fmPrestashop->getStoreId();
+        $fynProduct = $productModel->getProduct($id_product, $storeId);
         $this->smarty->assign(
             array(
-                'fyndiq_price' => 666,
-                'fyndiq_exported' => true,
+                'fyndiq_price' => !isset($fynProduct['fyndiq_price']) ? '' : $fynProduct['fyndiq_price'],
+                'fyndiq_exported' => !empty($fynProduct),
             )
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
+    }
+
+    public function hookActionProductUpdate($params)
+    {
+        // get all languages
+        // for each of them, store the new field
+
+        $id_product = (int)Tools::getValue('id_product');
+        $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $storeId = $this->fmPrestashop->getStoreId();
+        $exported = Tools::getValue('fyndiq_exported');
+        $price = Tools::getValue('fyndiq_price');
+        var_dump($exported);
+        var_dump($price);
+
+        if($exported && !$productModel->productExists($id_product, $storeId)) {
+            $productModel->addProduct($id_product, $storeId);
+        }
+        if($exported) {
+            $productModel->updateProduct($id_product, $price, $storeId);
+        }
+        if(!$exported && $productModel->productExists($id_product, $storeId)) {
+            $productModel->removeProduct($id_product, $storeId);
+        }
     }
 
     public function getModel($modelName, $storeId = -1)

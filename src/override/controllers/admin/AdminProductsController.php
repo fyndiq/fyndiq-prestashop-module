@@ -8,6 +8,7 @@ class AdminProductsController extends AdminProductsControllerCore
         parent::__construct();
 
         $module = $this->getFyndiqModule();
+        $this->fmPrestashop = $module->getFmPrestashop();
 
         // Add Bulk actions
         $this->bulk_actions['export_to_fyndiq'] = array(
@@ -21,7 +22,7 @@ class AdminProductsController extends AdminProductsControllerCore
             'confirm' => $module->__('Are you sure you want to remove the selected products from Fyndiq?')
         );
 
-        $this->_join .= PHP_EOL . ' LEFT JOIN `' . _DB_PREFIX_ . 'FYNDIQMERCHANT_products` fyn_p ON fyn_p.product_id = a.id_product';
+        $this->_join .= PHP_EOL . ' LEFT JOIN `' . $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true) . '` fyn_p ON fyn_p.product_id = a.id_product';
         $this->_select .= ', IF(fyn_p.id is null, "-", "' . $module->__('Exported') . '") AS fyndiq_exported';
 
         // Add Table column
