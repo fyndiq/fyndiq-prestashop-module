@@ -100,7 +100,7 @@ class FyndiqMerchant extends Module
 
     private function defaultConfig()
     {
-        if (!$this->fmConfig->set('username', '', $this->storeId)
+        return !$this->fmConfig->set('username', '', $this->storeId)
             || !$this->fmConfig->set('api_token', '', $this->storeId)
             || !$this->fmConfig->set('disable_orders', FmUtils::ORDERS_ENABLED, $this->storeId)
             || !$this->fmConfig->set('language', $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'), $this->storeId)
@@ -108,16 +108,12 @@ class FyndiqMerchant extends Module
             || !$this->fmConfig->set('stock_min', 0, $this->storeId)
             || !$this->fmConfig->set('description_type', FmUtils::LONG_DESCRIPTION, $this->storeId)
             || !$this->fmConfig->set('import_state', FmUtils::DEFAULT_ORDER_IMPORT_STATE, $this->storeId)
-            || !$this->fmConfig->set('done_state', FmUtils::DEFAULT_ORDER_DONE_STATE, $this->storeId)
-        ) {
-            return false;
-        }
-        return true;
+            || !$this->fmConfig->set('done_state', FmUtils::DEFAULT_ORDER_DONE_STATE, $this->storeId) ? false: true;
     }
 
     private function deleteConfig()
     {
-        if (!(bool)$this->fmConfig->delete('username', $this->storeId)
+        return !(bool)$this->fmConfig->delete('username', $this->storeId)
             || !(bool)$this->fmConfig->delete('api_token', $this->storeId)
             || !(bool)$this->fmConfig->delete('disable_orders', $this->storeId)
             || !(bool)$this->fmConfig->delete('language', $this->storeId)
@@ -126,11 +122,7 @@ class FyndiqMerchant extends Module
             || !(bool)$this->fmConfig->delete('description_type', $this->storeId)
             || !(bool)$this->fmConfig->delete('import_state', $this->storeId)
             || !(bool)$this->fmConfig->delete('done_state', $this->storeId)
-            || !(bool)$this->fmConfig->delete('ping_token', $this->storeId)
-        ) {
-            return false;
-        }
-        return true;
+            || !(bool)$this->fmConfig->delete('ping_token', $this->storeId) ? false: true;
     }
 
     private function setAdminPathCookie()

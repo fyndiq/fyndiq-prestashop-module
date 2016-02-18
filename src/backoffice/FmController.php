@@ -5,7 +5,7 @@ class FmController
     private $fmOutput;
     private $fmConfig;
     private $fmPrestashop;
-    protected $_module;
+    protected $module;
 
     public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
     {
@@ -13,7 +13,7 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $this->_module = $this->fmPrestashop->moduleGetInstanceByName();
+        $this->module = $this->fmPrestashop->moduleGetInstanceByName();
     }
 
     public function handleRequest()
@@ -22,7 +22,7 @@ class FmController
         $patchVersion = $this->fmConfig->get('patch_version', 0);
         $this->patchTables($patchVersion, 0);
         $storeId = $this->fmPrestashop->getStoreId();
-        if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->_module->name)) {
+        if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->module->name)) {
             $postErrors = $this->postValidation();
             if (!count($postErrors)) {
                 $output .= $this->postProcess($storeId);
@@ -42,19 +42,19 @@ class FmController
         $stockMin = $this->fmPrestashop->toolsGetValue('stock_min');
 
         if (!$this->fmPrestashop->toolsGetValue('username')) {
-            $errors[] = $this->_module->__('Username is required');
+            $errors[] = $this->module->__('Username is required');
         }
 
         if (!$this->fmPrestashop->toolsGetValue('api_token')) {
-            $errors[] = $this->_module->__('API Token is required');
+            $errors[] = $this->module->__('API Token is required');
         }
 
         if (!empty($percentage) && !is_numeric($percentage)) {
-            $errors[] = $this->_module->__('Price Percentage should be numeric');
+            $errors[] = $this->module->__('Price Percentage should be numeric');
         }
 
         if (!empty($stockMin) && !is_numeric($stockMin)) {
-            $errors[] = $this->_module->__('Lowest quantity should be numeric');
+            $errors[] = $this->module->__('Lowest quantity should be numeric');
         }
         return $errors;
     }
@@ -88,12 +88,12 @@ class FmController
             $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $api_token);
         } catch (Exception $e) {
             if ($e instanceof FyndiqAPIUnsupportedStatus) {
-                return $this->fmOutput->showModuleError($this->_module->__('Currently API is Unavailable'));
+                return $this->fmOutput->showModuleError($this->module->__('Currently API is Unavailable'));
             }
             if ($e instanceof FyndiqAPIAuthorizationFailed) {
-                return $this->fmOutput->showModuleError($this->_module->__('Invalid username or API token'));
+                return $this->fmOutput->showModuleError($this->module->__('Invalid username or API token'));
             }
-            return $this->fmOutput->showModuleError($this->_module->__($e->getMessage()));
+            return $this->fmOutput->showModuleError($this->module->__($e->getMessage()));
         }
         if ($this->fmConfig->set('username', $username, $storeId) &&
             $this->fmConfig->set('api_token', $api_token, $storeId) &&
@@ -106,9 +106,9 @@ class FmController
             $this->fmConfig->set('description_type', $descriptionType, $storeId) &&
             $this->fmConfig->set('ping_token', $pingToken, $storeId)
         ) {
-            return $this->fmOutput->showModuleSuccess($this->_module->__('Settings updated'));
+            return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
         }
-        return $this->fmOutput->showModuleError($this->_module->__('Error saving settings'));
+        return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
     }
 
     public function displayForm($storeId)
@@ -117,8 +117,8 @@ class FmController
         $helper = new HelperForm();
 
         // Modul and token
-        $helper->module = $this->_module;
-        $helper->name_controller = $this->_module->name;
+        $helper->module = $this->module;
+        $helper->name_controller = $this->module->name;
         $helper->token = $this->fmPrestashop->getAdminTokenLite('AdminModules');
 
         // Language
@@ -127,8 +127,8 @@ class FmController
         $helper->allow_employee_form_lang = $default_lang;
 
         // Title and toolbar
-        $helper->title = $this->_module->displayName;
-        $helper->submit_action = 'submit'.$this->_module->name;
+        $helper->title = $this->module->displayName;
+        $helper->submit_action = 'submit'.$this->module->name;
 
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFieldsValues($storeId),
@@ -207,15 +207,15 @@ class FmController
         return array(
             array(
                 'id' => FmUtils::LONG_DESCRIPTION,
-                'name' => $this->_module->__('Description'),
+                'name' => $this->module->__('Description'),
             ),
             array(
                 'id' => FmUtils::SHORT_DESCRIPTION,
-                'name' => $this->_module->__('Short description'),
+                'name' => $this->module->__('Short description'),
             ),
             array(
                 'id' => FmUtils::SHORT_AND_LONG_DESCRIPTION,
-                'name' => $this->_module->__('Short and long description'),
+                'name' => $this->module->__('Short and long description'),
             ),
         );
     }
@@ -237,15 +237,15 @@ class FmController
         return array(
             array(
                 'id' => FmUtils::SKU_REFERENCE,
-                'name' => $this->_module->__('Reference code'),
+                'name' => $this->module->__('Reference code'),
             ),
             array(
                 'id' => FmUtils::SKU_EAN,
-                'name' => $this->_module->__('EAN'),
+                'name' => $this->module->__('EAN'),
             ),
             array(
                 'id' => FmUtils::SKU_ID,
-                'name' => $this->_module->__('Database ID'),
+                'name' => $this->module->__('Database ID'),
             ),
         );
     }
@@ -254,27 +254,27 @@ class FmController
     {
         $probes = array(
             array(
-                'label' => $this->_module->__('Checking for duplicate SKU-s'),
+                'label' => $this->module->__('Checking for duplicate SKU-s'),
                 'action' => 'probe_products',
             ),
             array(
-                'label' => $this->_module->__('Checking file permissions'),
+                'label' => $this->module->__('Checking file permissions'),
                 'action' => 'probe_file_permissions',
             ),
             array(
-                'label' => $this->_module->__('Checking database'),
+                'label' => $this->module->__('Checking database'),
                 'action' => 'probe_database',
             ),
             array(
-                'label' => $this->_module->__('Module integrity'),
+                'label' => $this->module->__('Module integrity'),
                 'action' => 'probe_module_integrity',
             ),
             array(
-                'label' => $this->_module->__('Connection to Fyndiq'),
+                'label' => $this->module->__('Connection to Fyndiq'),
                 'action' => 'probe_connection',
             ),
             array(
-                'label' => $this->_module->__('Installed modules'),
+                'label' => $this->module->__('Installed modules'),
                 'action' => 'probe_modules',
             ),
         );
@@ -289,7 +289,7 @@ class FmController
         $languages = $this->fmPrestashop->languageGetLanguages();
         $desciotionsType = $this->getDescriptonTypes();
 
-        $formSettings = new FmFormSetting($this->_module);
+        $formSettings = new FmFormSetting($this->module);
         $formSettings->setLegend('Settings', 'icon-cogs');
         $formSettings->setDescriptions('In order to use this module, you have to select which language you will be using.
                                         The language, you select, will be used when exporting products to Fyndiq Make sure
