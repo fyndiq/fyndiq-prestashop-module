@@ -6,7 +6,6 @@ class FmController
     private $fmConfig;
     private $fmPrestashop;
     protected $_module;
-    private $storeId = null;
     protected $_html = '';
 
     public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
@@ -15,28 +14,23 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $this->storeId = $this->fmPrestashop->getStoreId();
         $this->_module = $this->fmPrestashop->moduleGetInstanceByName();
     }
 
     public function handleRequest()
     {
-        return $this->settings();
-    }
-
-    private function settings()
-    {
+        $storeId = $this->fmPrestashop->getStoreId();
         if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->_module->name)) {
             $postErrors = $this->_postValidation();
             if (!count($postErrors)) {
-                $this->_postProcess();
+                $this->_postProcess($storeId);
             } else {
                 foreach ($postErrors as $err) {
                     $this->_html .= $this->fmOutput->showModuleError($err);
                 }
             }
         }
-        $this->_html .= $this->displayForm();
+        $this->_html .= $this->displayForm($storeId);
         return $this->_html;
     }
 
@@ -69,7 +63,7 @@ class FmController
         return $errors;
     }
 
-    protected function _postProcess()
+    protected function _postProcess($storeId)
     {
         $username = $this->fmPrestashop->toolsGetValue('username');
         $api_token = $this->fmPrestashop->toolsGetValue('api_token');
@@ -83,7 +77,7 @@ class FmController
         $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $pingToken = $this->fmPrestashop->toolsEncrypt(time());
 
-        $res = $this->sendSettings($username, $api_token, $pingToken, $disable_orders);
+        $res = $this->sendSettings($username, $api_token, $pingToken, $disable_orders, $storeId);
 
         if (!is_array($res) && $res === 'Unsupported HTTP status: 0') {
             return $this->_html .= $this->fmOutput->showModuleError($this->_module->__('Currently API is Unavailable'));
@@ -95,34 +89,34 @@ class FmController
             return $this->_html .= $this->fmOutput->showModuleError($this->_module->__($res));
         }
 
-        if ($this->fmConfig->set('username', $username, $this->storeId) &&
-            $this->fmConfig->set('api_token', $api_token, $this->storeId) &&
-            $this->fmConfig->set('disable_orders', $disable_orders, $this->storeId) &&
-            $this->fmConfig->set('language', $languageId, $this->storeId) &&
-            $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
-            $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
-            $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
-            $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
-            $this->fmConfig->set('description_type', $descriptionType, $this->storeId) &&
-            $this->fmConfig->set('ping_token', $pingToken, $this->storeId)
+        if ($this->fmConfig->set('username', $username, $storeId) &&
+            $this->fmConfig->set('api_token', $api_token, $storeId) &&
+            $this->fmConfig->set('disable_orders', $disable_orders, $storeId) &&
+            $this->fmConfig->set('language', $languageId, $storeId) &&
+            $this->fmConfig->set('price_percentage', $pricePercentage, $storeId) &&
+            $this->fmConfig->set('import_state', $orderImportState, $storeId) &&
+            $this->fmConfig->set('done_state', $orderDoneState, $storeId) &&
+            $this->fmConfig->set('stock_min', $stockMin, $storeId) &&
+            $this->fmConfig->set('description_type', $descriptionType, $storeId) &&
+            $this->fmConfig->set('ping_token', $pingToken, $storeId)
         ) {
             return $this->_html .= $this->fmOutput->showModuleSuccess($this->_module->__('Settings updated'));
         }
         return $this->_html .= $this->fmOutput->showModuleError($this->_module->__('Error saving settings'));
     }
 
-    protected function sendSettings($username, $apiToken, $pingToken, $ordersEnable)
+    protected function sendSettings($username, $apiToken, $pingToken, $ordersEnable, $storeId)
     {
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $this->storeId . '&token=' . $pingToken,
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $pingToken,
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $this->storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $storeId,
         );
         if ($ordersEnable) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
-                $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $this->storeId;
+                $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
         }
         try {
             $res = $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
@@ -132,7 +126,7 @@ class FmController
         }
     }
 
-    public function displayForm()
+    public function displayForm($storeId)
     {
         $fields_form = $this->getSettingsForm();
         $helper = new HelperForm();
@@ -152,25 +146,25 @@ class FmController
         $helper->submit_action = 'submit'.$this->_module->name;
 
         $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFieldsValues(),
+            'fields_value' => $this->getConfigFieldsValues($storeId),
             'languages' => $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'),
             'id_language' => $this->fmPrestashop->getLanguageId()
         );
         return $helper->generateForm(array($fields_form));
     }
 
-    public function getConfigFieldsValues()
+    public function getConfigFieldsValues($storeId)
     {
         return array(
-            'username' => $this->fmPrestashop->toolsGetValue('username', $this->fmConfig->get('username', $this->storeId)),
-            'api_token' => $this->fmPrestashop->toolsGetValue('api_token', $this->fmConfig->get('api_token', $this->storeId)),
-            'disable_orders' => $this->fmPrestashop->toolsGetValue('disable_orders', $this->fmConfig->get('disable_orders', $this->storeId)),
-            'language' => $this->fmPrestashop->toolsGetValue('language', $this->fmConfig->get('language', $this->storeId)),
-            'price_percentage' => $this->fmPrestashop->toolsGetValue('price_percentage', $this->fmConfig->get('price_percentage', $this->storeId)),
-            'stock_min' => $this->fmPrestashop->toolsGetValue('stock_min', $this->fmConfig->get('stock_min', $this->storeId)),
-            'description_type' => $this->fmPrestashop->toolsGetValue('description_type', $this->fmConfig->get('description_type', $this->storeId)),
-            'import_state' => $this->fmPrestashop->toolsGetValue('import_state', $this->fmConfig->get('import_state', $this->storeId)),
-            'done_state' => $this->fmPrestashop->toolsGetValue('done_state', $this->fmConfig->get('done_state', $this->storeId))
+            'username' => $this->fmPrestashop->toolsGetValue('username', $this->fmConfig->get('username', $storeId)),
+            'api_token' => $this->fmPrestashop->toolsGetValue('api_token', $this->fmConfig->get('api_token', $storeId)),
+            'disable_orders' => $this->fmPrestashop->toolsGetValue('disable_orders', $this->fmConfig->get('disable_orders', $storeId)),
+            'language' => $this->fmPrestashop->toolsGetValue('language', $this->fmConfig->get('language', $storeId)),
+            'price_percentage' => $this->fmPrestashop->toolsGetValue('price_percentage', $this->fmConfig->get('price_percentage', $storeId)),
+            'stock_min' => $this->fmPrestashop->toolsGetValue('stock_min', $this->fmConfig->get('stock_min', $storeId)),
+            'description_type' => $this->fmPrestashop->toolsGetValue('description_type', $this->fmConfig->get('description_type', $storeId)),
+            'import_state' => $this->fmPrestashop->toolsGetValue('import_state', $this->fmConfig->get('import_state', $storeId)),
+            'done_state' => $this->fmPrestashop->toolsGetValue('done_state', $this->fmConfig->get('done_state', $storeId))
         );
     }
 
