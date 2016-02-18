@@ -108,6 +108,7 @@ class FyndiqMerchant extends Module
             || !$this->fmConfig->set('stock_min', 0, $this->storeId)
             || !$this->fmConfig->set('description_type', FmUtils::LONG_DESCRIPTION, $this->storeId)
             || !$this->fmConfig->set('import_state', FmUtils::DEFAULT_ORDER_IMPORT_STATE, $this->storeId)
+            || !$this->fmConfig->set('customerGroup_id', FmUtils::DEFAULT_CUSTOMER_GROUP_ID, $this->storeId)
             || !$this->fmConfig->set('done_state', FmUtils::DEFAULT_ORDER_DONE_STATE, $this->storeId) ? false: true;
     }
 
@@ -122,6 +123,7 @@ class FyndiqMerchant extends Module
             || !(bool)$this->fmConfig->delete('description_type', $this->storeId)
             || !(bool)$this->fmConfig->delete('import_state', $this->storeId)
             || !(bool)$this->fmConfig->delete('done_state', $this->storeId)
+            || !(bool)$this->fmConfig->delete('customerGroup_id', $this->storeId)
             || !(bool)$this->fmConfig->delete('ping_token', $this->storeId) ? false: true;
     }
 

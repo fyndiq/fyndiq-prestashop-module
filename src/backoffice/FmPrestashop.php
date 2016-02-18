@@ -408,6 +408,11 @@ class FmPrestashop
         return OrderState::invoiceAvailable($orderStateId);
     }
 
+    // Customer Group
+    public function getCustomerGroups($languageId)
+    {
+        return Group::getGroups($languageId, true);
+    }
     // Language
     public function languageGetLanguages()
     {

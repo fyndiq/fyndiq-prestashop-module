@@ -30,6 +30,7 @@ class FmUtils
     const DEFAULT_DISCOUNT_PERCENTAGE = 10;
     const DEFAULT_ORDER_IMPORT_STATE = 3;
     const DEFAULT_ORDER_DONE_STATE = 4;
+    const DEFAULT_CUSTOMER_GROUP_ID = 1;
 
 
     public static function getFileWriter($file)

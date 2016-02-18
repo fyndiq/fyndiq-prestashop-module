@@ -70,6 +70,7 @@ class FmController
         $orderDoneState = intval($this->fmPrestashop->toolsGetValue('done_state'));
         $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
         $stockMin = $stockMin < 0 ? 0 : $stockMin;
+        $customerGroupId = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $pingToken = $this->fmPrestashop->toolsEncrypt(time());
 
@@ -104,6 +105,7 @@ class FmController
             $this->fmConfig->set('done_state', $orderDoneState, $storeId) &&
             $this->fmConfig->set('stock_min', $stockMin, $storeId) &&
             $this->fmConfig->set('description_type', $descriptionType, $storeId) &&
+            $this->fmConfig->set('customerGroup_id', $customerGroupId, $storeId) &&
             $this->fmConfig->set('ping_token', $pingToken, $storeId)
         ) {
             return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
@@ -147,6 +149,7 @@ class FmController
             'language' => $this->fmPrestashop->toolsGetValue('language', $this->fmConfig->get('language', $storeId)),
             'price_percentage' => $this->fmPrestashop->toolsGetValue('price_percentage', $this->fmConfig->get('price_percentage', $storeId)),
             'stock_min' => $this->fmPrestashop->toolsGetValue('stock_min', $this->fmConfig->get('stock_min', $storeId)),
+            'customerGroup_id' => $this->fmPrestashop->toolsGetValue('customerGroup_id', $this->fmConfig->get('customerGroup_id', $storeId)),
             'description_type' => $this->fmPrestashop->toolsGetValue('description_type', $this->fmConfig->get('description_type', $storeId)),
             'import_state' => $this->fmPrestashop->toolsGetValue('import_state', $this->fmConfig->get('import_state', $storeId)),
             'done_state' => $this->fmPrestashop->toolsGetValue('done_state', $this->fmConfig->get('done_state', $storeId))
@@ -286,6 +289,7 @@ class FmController
     {
         $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->getOrderStates($languageId);
+        $customerGroups = $this->fmPrestashop->getCustomerGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
         $desciotionsType = $this->getDescriptonTypes();
 
@@ -303,6 +307,7 @@ class FmController
         $formSettings->setTextField('Percentage in numbers only', 'price_percentage', 'This percentage is the percentage of the price that will be cut off your price,
                                          if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).', 'fixed-width-xs');
         $formSettings->setTextField('Lowest quantity to send to Fyndiq', 'stock_min', '', 'fixed-width-xs');
+        $formSettings->setSelect('Customer Group', 'customerGroup_id', 'Select Customer group to send to fyndiq', $customerGroups, 'id_group', 'name');
         $formSettings->setSelect('Description to use', 'description_type', '', $desciotionsType, 'id', 'name');
         $formSettings->setSelect('Import State', 'import_state', '', $orderStates, 'id_order_state', 'name');
         $formSettings->setSelect('Done State', 'done_state', '', $orderStates, 'id_order_state', 'name');
