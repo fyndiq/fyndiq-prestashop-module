@@ -16,8 +16,8 @@ class FmUtils
     const SHORT_DESCRIPTION = 2;
     const SHORT_AND_LONG_DESCRIPTION = 3;
 
-    const ORDERS_ENABLED = 1;
-    const ORDERS_DISABLED = 0;
+    const ORDERS_ENABLED = 0;
+    const ORDERS_DISABLED = 1;
 
     const SKU_DEFAULT = 0;
 

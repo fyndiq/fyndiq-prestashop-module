@@ -6,7 +6,6 @@ class FmController
     private $fmConfig;
     private $fmPrestashop;
     protected $_module;
-    protected $_html = '';
 
     public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
     {
@@ -19,26 +18,29 @@ class FmController
 
     public function handleRequest()
     {
+        $output = '';
         $patchVersion = $this->fmConfig->get('patch_version', 0);
         $this->patchTables($patchVersion, 0);
         $storeId = $this->fmPrestashop->getStoreId();
         if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->_module->name)) {
-            $postErrors = $this->_postValidation();
+            $postErrors = $this->postValidation();
             if (!count($postErrors)) {
-                $this->_postProcess($storeId);
-            } else {
-                foreach ($postErrors as $err) {
-                    $this->_html .= $this->fmOutput->showModuleError($err);
-                }
+                $output .= $this->postProcess($storeId);
+            }
+            foreach ($postErrors as $err) {
+                $output .= $this->fmOutput->showModuleError($err);
             }
         }
-        $this->_html .= $this->displayForm($storeId);
-        return $this->_html;
+        $output .= $this->displayForm($storeId);
+        return $output;
     }
 
-    protected function _postValidation()
+    protected function postValidation()
     {
         $errors = array();
+        $percentage = $this->fmPrestashop->toolsGetValue('price_percentage');
+        $stockMin = $this->fmPrestashop->toolsGetValue('stock_min');
+
         if (!$this->fmPrestashop->toolsGetValue('username')) {
             $errors[] = $this->_module->__('Username is required');
         }
@@ -47,25 +49,17 @@ class FmController
             $errors[] = $this->_module->__('API Token is required');
         }
 
-        if (empty($this->fmPrestashop->toolsGetValue('price_percentage'))) {
-            $errors[] = $this->_module->__('Price Percentage is required');
-        } elseif (!is_numeric($this->fmPrestashop->toolsGetValue('price_percentage'))) {
+        if (!empty($percentage) && !is_numeric($percentage)) {
             $errors[] = $this->_module->__('Price Percentage should be numeric');
-        } elseif (intval($this->fmPrestashop->toolsGetValue('price_percentage')) < 1 || intval($this->fmPrestashop->toolsGetValue('price_percentage')) > 100) {
-            $errors[] = $this->_module->__('Price Percentage should be a number between 1 and 100');
         }
 
-        if (empty($this->fmPrestashop->toolsGetValue('stock_min'))) {
-            $errors[] = $this->_module->__('Lowest quantity is required');
-        } elseif (!is_numeric($this->fmPrestashop->toolsGetValue('stock_min'))) {
+        if (!empty($stockMin) && !is_numeric($stockMin)) {
             $errors[] = $this->_module->__('Lowest quantity should be numeric');
-        } elseif (intval($this->fmPrestashop->toolsGetValue('stock_min')) < 1) {
-            $errors[] = $this->_module->__('Lowest quantity should be more than 1');
         }
         return $errors;
     }
 
-    protected function _postProcess($storeId)
+    protected function postProcess($storeId)
     {
         $username = $this->fmPrestashop->toolsGetValue('username');
         $api_token = $this->fmPrestashop->toolsGetValue('api_token');
@@ -79,18 +73,28 @@ class FmController
         $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $pingToken = $this->fmPrestashop->toolsEncrypt(time());
 
-        $res = $this->sendSettings($username, $api_token, $pingToken, $disable_orders, $storeId);
-
-        if (!is_array($res) && $res === 'Unsupported HTTP status: 0') {
-            return $this->_html .= $this->fmOutput->showModuleError($this->_module->__('Currently API is Unavailable'));
+        $base = $this->fmPrestashop->getBaseModuleUrl();
+        $updateData = array(
+                FyndiqUtils::NAME_PRODUCT_FEED_URL =>
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $pingToken,
+                FyndiqUtils::NAME_PING_URL =>
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $storeId,
+        );
+        if (!$disable_orders) {
+            $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
+                $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
         }
-        if (!is_array($res) && $res === 'Unauthorized') {
-            return $this->_html .= $this->fmOutput->showModuleError($this->_module->__('Invalid username or API token'));
+        try {
+            $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $api_token);
+        } catch (Exception $e) {
+            if ($e instanceof FyndiqAPIUnsupportedStatus) {
+                return $this->fmOutput->showModuleError($this->_module->__('Currently API is Unavailable'));
+            }
+            if ($e instanceof FyndiqAPIAuthorizationFailed) {
+                return $this->fmOutput->showModuleError($this->_module->__('Invalid username or API token'));
+            }
+            return $this->fmOutput->showModuleError($this->_module->__($e->getMessage()));
         }
-        if (!is_array($res)) {
-            return $this->_html .= $this->fmOutput->showModuleError($this->_module->__($res));
-        }
-
         if ($this->fmConfig->set('username', $username, $storeId) &&
             $this->fmConfig->set('api_token', $api_token, $storeId) &&
             $this->fmConfig->set('disable_orders', $disable_orders, $storeId) &&
@@ -102,30 +106,9 @@ class FmController
             $this->fmConfig->set('description_type', $descriptionType, $storeId) &&
             $this->fmConfig->set('ping_token', $pingToken, $storeId)
         ) {
-            return $this->_html .= $this->fmOutput->showModuleSuccess($this->_module->__('Settings updated'));
+            return $this->fmOutput->showModuleSuccess($this->_module->__('Settings updated'));
         }
-        return $this->_html .= $this->fmOutput->showModuleError($this->_module->__('Error saving settings'));
-    }
-
-    protected function sendSettings($username, $apiToken, $pingToken, $ordersEnable, $storeId)
-    {
-        $base = $this->fmPrestashop->getBaseModuleUrl();
-        $updateData = array(
-                FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $pingToken,
-                FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $storeId,
-        );
-        if ($ordersEnable) {
-            $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
-                $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
-        }
-        try {
-            $res = $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
-            return $res;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+        return $this->fmOutput->showModuleError($this->_module->__('Error saving settings'));
     }
 
     public function displayForm($storeId)
@@ -313,7 +296,7 @@ class FmController
                                         you select a language that contains Swedish product info!');
         $formSettings->setTextField('Username', 'username', 'Enter here your fyndiq username', '');
         $formSettings->setTextField('API Token', 'api_token', 'Enter here your fyndiq API Token.', '');
-        $formSettings->setSwitch('Import Order', 'disable_orders', 'Enable order import from Fyndiq');
+        $formSettings->setSwitch('Disable Order', 'disable_orders', 'Enable/Disable order import from Fyndiq');
         $formSettings->setSelect('Language', 'language', 'In order to use this module, you have to select which language you will be using.
                                 The language, you select, will be used when exporting products to Fyndiq.
                                 Make sure you select a language that contains Swedish product info!', $languages, 'id_lang', 'name');
