@@ -17,6 +17,7 @@ require_once('backoffice/models/FmProductExport.php');
 require_once('backoffice/models/FmApiModel.php');
 require_once('backoffice/models/FmOrder.php');
 require_once('backoffice/FmOrderFetch.php');
+require_once('backoffice/FmFormSetting.php');
 
 class FyndiqMerchant extends Module
 {
