@@ -19,6 +19,8 @@ class FmController
 
     public function handleRequest()
     {
+        $patchVersion = $this->fmConfig->get('patch_version', 0);
+        $this->patchTables($patchVersion, 0);
         $storeId = $this->fmPrestashop->getStoreId();
         if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->_module->name)) {
             $postErrors = $this->_postValidation();
