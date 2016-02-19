@@ -30,8 +30,8 @@ class FmFormSetting
 
     /**
      * [setLegend description]
-     * @param [String] $title [description]
-     * @param [String] $icon  [description]
+     * @param String $title [description]
+     * @param String $icon  [description]
      * @return [OBJECT] [description]
      */
     public function setLegend($title, $icon)

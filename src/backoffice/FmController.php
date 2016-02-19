@@ -98,6 +98,12 @@ class FmController
             return $this->fmOutput->showModuleError($e->getMessage());
         }
 
+        /**
+         * @var $$key denotes the Variable variables.
+         *  meaning 'A variable variable takes the value of a variable and treats that as the name of a variable' - php Manual
+         * For example: as you can see in the below $$key, we want to get the value from $username variable and store to database.
+         *  so that, username is a dynamic key and here treats as a variable.
+         */
         foreach (FmUtils::getConfigKeys() as $key => $value) {
             if (!$this->fmConfig->set($key, $$key, $storeId)) {
                 return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
