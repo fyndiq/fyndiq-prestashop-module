@@ -62,14 +62,12 @@ class FyndiqMerchant extends Module
     {
         if (!parent::install()
             || !$this->registerHook('displayAdminProductsExtra')
-            || !$this->defaultConfig()
         ) {
             return false;
         }
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-        $this->fmConfig->set('patch_version', 3, 0);
 
         return $fmProductExport->install() && $fmOrder->install();
     }
@@ -86,17 +84,6 @@ class FyndiqMerchant extends Module
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
 
         return $fmProductExport->uninstall() && $fmOrder->uninstall();
-    }
-
-    private function defaultConfig()
-    {
-        $defaultLang = $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT');
-        foreach (FmUtils::getConfigKeys($defaultLang) as $key => $value) {
-            if (!$this->fmConfig->set($key, $value, $this->storeId)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private function deleteConfig()

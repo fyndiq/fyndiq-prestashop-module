@@ -19,8 +19,6 @@ class FmController
     public function handleRequest()
     {
         $output = '';
-        $patchVersion = $this->fmConfig->get('patch_version', 0);
-        $this->patchTables($patchVersion, 0);
         $storeId = $this->fmPrestashop->getStoreId();
         if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->module->name)) {
             $postErrors = $this->postValidation();
@@ -143,58 +141,10 @@ class FmController
     {
         $result = array();
         foreach (FmUtils::getConfigKeys() as $key => $value) {
-            $result[$key] = $this->fmPrestashop->toolsGetValue($key, $this->fmConfig->get($key, $storeId));
+            $configVal = $this->fmConfig->get($key, $storeId);
+            $result[$key] = $this->fmPrestashop->toolsGetValue($key, $configVal ? $configVal : $value);
         }
         return $result;
-    }
-
-    // TODO: Remove me once beta merchants are patched
-    private function patchTables($patchVersion, $storeId)
-    {
-        $newVersion = $patchVersion;
-        try {
-            $version = 1;
-            if ($patchVersion < $version) {
-                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
-                $sql = 'ALTER TABLE ' . $tableName . ' ADD COLUMN store_id int(10) unsigned DEFAULT 1 AFTER id';
-                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
-            }
-            $newVersion = $version;
-        } catch (Exception $e) {
-            // be discrete
-        }
-        try {
-            $version = 2;
-            if ($patchVersion < $version) {
-                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-                $sql = 'DROP INDEX orderIndex ON ' . $tableName . ';';
-                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
-                $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
-                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
-            }
-            $newVersion = $version;
-        } catch (Exception $e) {
-            // be discrete
-        }
-
-        try {
-            $version = 3;
-            if ($patchVersion < $version) {
-                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
-
-                $sql = 'ALTER TABLE ' . $tableName . '
-                        ADD COLUMN status INT(10) DEFAULT 1,
-                        ADD COLUMN body TEXT DEFAULT null,
-                        ADD COLUMN created timestamp DEFAULT CURRENT_TIMESTAMP';
-                $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
-            }
-            $newVersion = $version;
-        } catch (Exception $e) {
-            // be discrete
-        }
-        if ($newVersion != $patchVersion) {
-            $this->fmConfig->set('patch_version', $newVersion, $storeId);
-        }
     }
 
     protected function getDescriptonTypes()
