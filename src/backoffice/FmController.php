@@ -50,36 +50,37 @@ class FmController
         }
 
         if (!empty($percentage) && !is_numeric($percentage)) {
-            $errors[] = $this->module->__('Price Percentage should be numeric');
+            $errors[] = $this->module->__('Price Percentage must be a number');
         }
 
         if (!empty($stockMin) && !is_numeric($stockMin)) {
-            $errors[] = $this->module->__('Lowest quantity should be numeric');
+            $errors[] = $this->module->__('Lowest quantity must be a numeber');
         }
         return $errors;
     }
 
     protected function postProcess($storeId)
     {
+        /** variable name should be same as param's name */
         $username = $this->fmPrestashop->toolsGetValue('username');
         $api_token = $this->fmPrestashop->toolsGetValue('api_token');
         $disable_orders = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
-        $languageId = intval($this->fmPrestashop->toolsGetValue('language'));
-        $pricePercentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
-        $orderImportState = intval($this->fmPrestashop->toolsGetValue('import_state'));
-        $orderDoneState = intval($this->fmPrestashop->toolsGetValue('done_state'));
-        $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
-        $stockMin = $stockMin < 0 ? 0 : $stockMin;
-        $customerGroupId = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
-        $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
-        $pingToken = $this->fmPrestashop->toolsEncrypt(time());
+        $language = intval($this->fmPrestashop->toolsGetValue('language'));
+        $price_percentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
+        $import_state = intval($this->fmPrestashop->toolsGetValue('import_state'));
+        $done_state = intval($this->fmPrestashop->toolsGetValue('done_state'));
+        $stock_min = intval($this->fmPrestashop->toolsGetValue('stock_min'));
+        $stock_min = $stock_min < 0 ? 0 : $stock_min;
+        $customerGroup_id = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
+        $description_type = intval($this->fmPrestashop->toolsGetValue('description_type'));
+        $ping_token = $this->fmPrestashop->toolsEncrypt(time());
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $pingToken,
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $ping_token,
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $ping_token . '&store_id=' . $storeId,
         );
         if (!$disable_orders) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
@@ -94,23 +95,15 @@ class FmController
             if ($e instanceof FyndiqAPIAuthorizationFailed) {
                 return $this->fmOutput->showModuleError($this->module->__('Invalid username or API token'));
             }
-            return $this->fmOutput->showModuleError($this->module->__($e->getMessage()));
+            return $this->fmOutput->showModuleError($e->getMessage());
         }
-        if ($this->fmConfig->set('username', $username, $storeId) &&
-            $this->fmConfig->set('api_token', $api_token, $storeId) &&
-            $this->fmConfig->set('disable_orders', $disable_orders, $storeId) &&
-            $this->fmConfig->set('language', $languageId, $storeId) &&
-            $this->fmConfig->set('price_percentage', $pricePercentage, $storeId) &&
-            $this->fmConfig->set('import_state', $orderImportState, $storeId) &&
-            $this->fmConfig->set('done_state', $orderDoneState, $storeId) &&
-            $this->fmConfig->set('stock_min', $stockMin, $storeId) &&
-            $this->fmConfig->set('description_type', $descriptionType, $storeId) &&
-            $this->fmConfig->set('customerGroup_id', $customerGroupId, $storeId) &&
-            $this->fmConfig->set('ping_token', $pingToken, $storeId)
-        ) {
-            return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
+
+        foreach (FmUtils::getConfigKeys() as $key => $value) {
+            if (!$this->fmConfig->set($key, $$key, $storeId)) {
+                return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
+            }
         }
-        return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
+        return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
     }
 
     public function displayForm($storeId)
@@ -142,18 +135,11 @@ class FmController
 
     public function getConfigFieldsValues($storeId)
     {
-        return array(
-            'username' => $this->fmPrestashop->toolsGetValue('username', $this->fmConfig->get('username', $storeId)),
-            'api_token' => $this->fmPrestashop->toolsGetValue('api_token', $this->fmConfig->get('api_token', $storeId)),
-            'disable_orders' => $this->fmPrestashop->toolsGetValue('disable_orders', $this->fmConfig->get('disable_orders', $storeId)),
-            'language' => $this->fmPrestashop->toolsGetValue('language', $this->fmConfig->get('language', $storeId)),
-            'price_percentage' => $this->fmPrestashop->toolsGetValue('price_percentage', $this->fmConfig->get('price_percentage', $storeId)),
-            'stock_min' => $this->fmPrestashop->toolsGetValue('stock_min', $this->fmConfig->get('stock_min', $storeId)),
-            'customerGroup_id' => $this->fmPrestashop->toolsGetValue('customerGroup_id', $this->fmConfig->get('customerGroup_id', $storeId)),
-            'description_type' => $this->fmPrestashop->toolsGetValue('description_type', $this->fmConfig->get('description_type', $storeId)),
-            'import_state' => $this->fmPrestashop->toolsGetValue('import_state', $this->fmConfig->get('import_state', $storeId)),
-            'done_state' => $this->fmPrestashop->toolsGetValue('done_state', $this->fmConfig->get('done_state', $storeId))
-        );
+        $result = array();
+        foreach (FmUtils::getConfigKeys() as $key => $value) {
+            $result[$key] = $this->fmPrestashop->toolsGetValue($key, $this->fmConfig->get($key, $storeId));
+        }
+        return $result;
     }
 
     // TODO: Remove me once beta merchants are patched
@@ -293,26 +279,26 @@ class FmController
         $languages = $this->fmPrestashop->languageGetLanguages();
         $desciotionsType = $this->getDescriptonTypes();
 
-        $formSettings = new FmFormSetting($this->module);
-        $formSettings->setLegend('Settings', 'icon-cogs');
-        $formSettings->setDescriptions('In order to use this module, you have to select which language you will be using.
+        $formSettings = new FmFormSetting();
+        return $formSettings
+        ->setLegend($this->module->__('Settings'), 'icon-cogs')
+        ->setDescriptions($this->module->__('In order to use this module, you have to select which language you will be using.
                                         The language, you select, will be used when exporting products to Fyndiq Make sure
-                                        you select a language that contains Swedish product info!');
-        $formSettings->setTextField('Username', 'username', 'Enter here your fyndiq username', '');
-        $formSettings->setTextField('API Token', 'api_token', 'Enter here your fyndiq API Token.', '');
-        $formSettings->setSwitch('Disable Order', 'disable_orders', 'Enable/Disable order import from Fyndiq');
-        $formSettings->setSelect('Language', 'language', 'In order to use this module, you have to select which language you will be using.
+                                        you select a language that contains Swedish product info!'))
+        ->setTextField($this->module->__('Username'), 'username', $this->module->__('Enter here your fyndiq username'), '')
+        ->setTextField($this->module->__('API Token'), 'api_token', $this->module->__('Enter here your fyndiq API Token.'), '')
+        ->setSwitch($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'))
+        ->setSelect($this->module->__('Language'), 'language', $this->module->__('In order to use this module, you have to select which language you will be using.
                                 The language, you select, will be used when exporting products to Fyndiq.
-                                Make sure you select a language that contains Swedish product info!', $languages, 'id_lang', 'name');
-        $formSettings->setTextField('Percentage in numbers only', 'price_percentage', 'This percentage is the percentage of the price that will be cut off your price,
-                                         if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).', 'fixed-width-xs');
-        $formSettings->setTextField('Lowest quantity to send to Fyndiq', 'stock_min', '', 'fixed-width-xs');
-        $formSettings->setSelect('Customer Group', 'customerGroup_id', 'Select Customer group to send to fyndiq', $customerGroups, 'id_group', 'name');
-        $formSettings->setSelect('Description to use', 'description_type', '', $desciotionsType, 'id', 'name');
-        $formSettings->setSelect('Import State', 'import_state', '', $orderStates, 'id_order_state', 'name');
-        $formSettings->setSelect('Done State', 'done_state', '', $orderStates, 'id_order_state', 'name');
-        $formSettings->setSubmit('Save');
-
-        return $formSettings->getFormElementsSettings();
+                                Make sure you select a language that contains Swedish product info!'), $languages, 'id_lang', 'name')
+        ->setTextField($this->module->__('Percentage in numbers only'), 'price_percentage', $this->module->__('This percentage is the percentage of the price that will be cut off your price,
+                                         if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
+        ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
+        ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
+        ->setSelect($this->module->__('Description to use'), 'description_type', '', $desciotionsType, 'id', 'name')
+        ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
+        ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+        ->setSubmit($this->module->__('Save'))
+        ->getFormElementsSettings();
     }
 }

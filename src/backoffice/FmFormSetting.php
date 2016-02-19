@@ -8,24 +8,21 @@
 class FmFormSetting
 {
     /** @var [Array] [description] */
-    /** @var [Obj] [description] */
-    protected $_form;
-    protected $_module;
+    protected $form;
 
     /**
      * [__construct description]
      * @param [OBJECT] $module [description]
      */
-    public function __construct($module)
+    public function __construct()
     {
-        $this->_module = $module;
-        $this->_form = array(
+        $this->form = array(
             'form' => array(
                 'legend' => array(),
                 'description' =>'',
                 'input' => array(),
                 'submit' => array(
-                    'title' => $this->_module->__('Save')
+                    'title' => ''
                 )
             )
         );
@@ -35,104 +32,116 @@ class FmFormSetting
      * [setLegend description]
      * @param [String] $title [description]
      * @param [String] $icon  [description]
+     * @return [OBJECT] [description]
      */
     public function setLegend($title, $icon)
     {
-        $this->_form['form']['legend'] = array(
-            'title' => $this->_module->__($title),
+        $this->form['form']['legend'] = array(
+            'title' => $title,
             'icon' => $icon,
         );
+        return $this;
     }
 
     /**
      * [setDescriptions description]
-     * @param [String] $des [description]
+     * @param String $description [description]
+     * @return [OBJECT] [description]
      */
-    public function setDescriptions($des)
+    public function setDescriptions($description)
     {
-        $this->_form['form']['description'] = $this->_module->__($des);
+        $this->form['form']['description'] = $description;
+        return $this;
     }
 
     /**
      * [setTextField description]
      * @param [String] $label [description]
      * @param [String] $name  [description]
-     * @param [String] $des   [description]
-     * @param String $class [description]
+     * @param String $description   [description]
+     * @param String $class   [description]
+     * @return [OBJECT] [description]
      */
-    public function setTextField($label, $name, $des, $class)
+    public function setTextField($label, $name, $description, $class)
     {
-        $this->_form['form']['input'][] = array(
+        $this->form['form']['input'][] = array(
                         'type' => 'text',
-                        'label'=> $this->_module->__($label),
+                        'label'=> $label,
                         'name' => $name,
                         'class' => $class,
-                        'desc' => $des? $this->_module->__($des):'',
+                        'desc' => $description ? $description : '',
         );
+        return $this;
     }
 
     /**
      * [setSelect description]
      * @param [String] $label      [description]
      * @param [String] $name       [description]
-     * @param [String] $des        [description]
+     * @param String $description        [description]
      * @param [Array] $dataSource [description]
      * @param [String] $key        [description]
      * @param [String] $text       [description]
+     * @return [OBJECT] [description]
      */
-    public function setSelect($label, $name, $des, $dataSource, $key, $text)
+    public function setSelect($label, $name, $description, $dataSource, $key, $text)
     {
-        $this->_form['form']['input'][] = array(
+        $this->form['form']['input'][] = array(
                         'type' => 'select',
-                        'label' => $this->_module->__($label),
+                        'label' => $label,
                         'name' => $name,
-                        'desc' => $des? $this->_module->__($des):'',
+                        'desc' => $description? $description : '',
                         'options' => array(
                             'query' => $dataSource,
                             'id' => $key,
                             'name' => $text
                         )
         );
+        return $this;
     }
 
     /**
      * [setSwitch description]
      * @param [String] $label [description]
      * @param [String] $name  [description]
-     * @param [String] $des   [description]
+     * @param String $description   [description]
+     * @return [OBJECT] [description]
      */
-    public function setSwitch($label, $name, $des)
+    public function setSwitch($label, $name, $description)
     {
-        $this->_form['form']['input'][] = array(
+        $this->form['form']['input'][] = array(
                         'type' => 'switch',
-                        'label'=> $this->_module->__($label),
+                        'label'=> $label,
                         'name' => $name,
                         'is_bool'=> true,
-                        'desc' => $des? $this->_module->__($des):'',
+                        'desc' => $description? $description : '',
                         'values'=> array(
                                 array(
                                     'id' => 'active_on',
                                     'value' => 1,
-                                    'label' => $this->_module->__('Enabled')
+                                    'label' => 'Enabled'
                                 ),
                                 array(
                                     'id' => 'active_off',
                                     'value' => 0,
-                                    'label' => $this->_module->__('Disabled')
+                                    'label' => 'Disabled'
                                 )
                             ),
         );
+        return $this;
     }
 
     /**
      * [setSubmit description]
      * @param [String] $title [description]
+     * @return [OBJECT] [description]
      */
     public function setSubmit($title)
     {
-        $this->_form['form']['submit'] = array(
-                    'title' => $this->_module->__($title)
+        $this->form['form']['submit'] = array(
+                    'title' => $title
         );
+        return $this;
     }
 
     /**
@@ -141,6 +150,6 @@ class FmFormSetting
      */
     public function getFormElementsSettings()
     {
-        return $this->_form;
+        return $this->form;
     }
 }

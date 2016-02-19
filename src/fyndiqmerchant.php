@@ -71,12 +71,7 @@ class FyndiqMerchant extends Module
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
         $this->fmConfig->set('patch_version', 3, 0);
 
-        if (!$fmProductExport->install()
-            || !$fmOrder->install()
-        ) {
-            return false;
-        }
-        return true;
+        return $fmProductExport->install() && $fmOrder->install();
     }
 
     public function uninstall()
@@ -90,41 +85,28 @@ class FyndiqMerchant extends Module
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
 
-        if (!$fmProductExport->uninstall()
-            || !$fmOrder->uninstall()
-        ) {
-            return false;
-        }
-        return true;
+        return $fmProductExport->uninstall() && $fmOrder->uninstall();
     }
 
     private function defaultConfig()
     {
-        return !$this->fmConfig->set('username', '', $this->storeId)
-            || !$this->fmConfig->set('api_token', '', $this->storeId)
-            || !$this->fmConfig->set('disable_orders', FmUtils::ORDERS_ENABLED, $this->storeId)
-            || !$this->fmConfig->set('language', $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'), $this->storeId)
-            || !$this->fmConfig->set('price_percentage', FmUtils::DEFAULT_DISCOUNT_PERCENTAGE, $this->storeId)
-            || !$this->fmConfig->set('stock_min', 0, $this->storeId)
-            || !$this->fmConfig->set('description_type', FmUtils::LONG_DESCRIPTION, $this->storeId)
-            || !$this->fmConfig->set('import_state', FmUtils::DEFAULT_ORDER_IMPORT_STATE, $this->storeId)
-            || !$this->fmConfig->set('customerGroup_id', FmUtils::DEFAULT_CUSTOMER_GROUP_ID, $this->storeId)
-            || !$this->fmConfig->set('done_state', FmUtils::DEFAULT_ORDER_DONE_STATE, $this->storeId) ? false: true;
+        $defaultLang = $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT');
+        foreach (FmUtils::getConfigKeys($defaultLang) as $key => $value) {
+            if (!$this->fmConfig->set($key, $value, $this->storeId)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function deleteConfig()
     {
-        return !(bool)$this->fmConfig->delete('username', $this->storeId)
-            || !(bool)$this->fmConfig->delete('api_token', $this->storeId)
-            || !(bool)$this->fmConfig->delete('disable_orders', $this->storeId)
-            || !(bool)$this->fmConfig->delete('language', $this->storeId)
-            || !(bool)$this->fmConfig->delete('price_percentage', $this->storeId)
-            || !(bool)$this->fmConfig->delete('stock_min', $this->storeId)
-            || !(bool)$this->fmConfig->delete('description_type', $this->storeId)
-            || !(bool)$this->fmConfig->delete('import_state', $this->storeId)
-            || !(bool)$this->fmConfig->delete('done_state', $this->storeId)
-            || !(bool)$this->fmConfig->delete('customerGroup_id', $this->storeId)
-            || !(bool)$this->fmConfig->delete('ping_token', $this->storeId) ? false: true;
+        foreach (FmUtils::getConfigKeys() as $key => $value) {
+            if (!(bool)$this->fmConfig->delete($key, $this->storeId)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function setAdminPathCookie()
