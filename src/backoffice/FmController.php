@@ -59,33 +59,34 @@ class FmController
 
     protected function postProcess($storeId)
     {
-        /** variable name should be same as param's name */
-        $username = $this->fmPrestashop->toolsGetValue('username');
-        $api_token = $this->fmPrestashop->toolsGetValue('api_token');
-        $disable_orders = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
-        $language = intval($this->fmPrestashop->toolsGetValue('language'));
-        $price_percentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
-        $import_state = intval($this->fmPrestashop->toolsGetValue('import_state'));
-        $done_state = intval($this->fmPrestashop->toolsGetValue('done_state'));
-        $stock_min = intval($this->fmPrestashop->toolsGetValue('stock_min'));
-        $stock_min = $stock_min < 0 ? 0 : $stock_min;
-        $customerGroup_id = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
-        $description_type = intval($this->fmPrestashop->toolsGetValue('description_type'));
-        $ping_token = $this->fmPrestashop->toolsEncrypt(time());
+        /** Array index name must be same as param's name */
+        $postArr = array();
+        $postArr['username'] = $this->fmPrestashop->toolsGetValue('username');
+        $postArr['api_token'] = $this->fmPrestashop->toolsGetValue('api_token');
+        $postArr['disable_orders'] = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
+        $postArr['language'] = intval($this->fmPrestashop->toolsGetValue('language'));
+        $postArr['price_percentage'] = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
+        $postArr['import_state'] = intval($this->fmPrestashop->toolsGetValue('import_state'));
+        $postArr['done_state'] = intval($this->fmPrestashop->toolsGetValue('done_state'));
+        $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
+        $postArr['stock_min'] = $stock_min < 0 ? 0 : $stock_min;
+        $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
+        $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
+        $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $ping_token,
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $postArr['ping_token'],
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $ping_token . '&store_id=' . $storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $postArr['ping_token'] . '&store_id=' . $storeId,
         );
         if (!$disable_orders) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
                 $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
         }
         try {
-            $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $api_token);
+            $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $postArr['username'], $postArr['api_token']);
         } catch (Exception $e) {
             if ($e instanceof FyndiqAPIUnsupportedStatus) {
                 return $this->fmOutput->showModuleError($this->module->__('Currently API is Unavailable'));
@@ -96,14 +97,8 @@ class FmController
             return $this->fmOutput->showModuleError($e->getMessage());
         }
 
-        /**
-         * @var $$key denotes the Variable variables.
-         *  meaning 'A variable variable takes the value of a variable and treats that as the name of a variable' - php Manual
-         * For example: as you can see in the below $$key, we want to get the value from $username variable and store to database.
-         *  so that, username is a dynamic key and here treats as a variable.
-         */
         foreach (FmUtils::getConfigKeys() as $key => $value) {
-            if (!$this->fmConfig->set($key, $$key, $storeId)) {
+            if (!$this->fmConfig->set($key, $postArr[$key], $storeId)) {
                 return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
             }
         }
