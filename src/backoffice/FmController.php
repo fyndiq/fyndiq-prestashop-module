@@ -20,7 +20,7 @@ class FmController
     {
         $output = '';
         $storeId = $this->fmPrestashop->getStoreId();
-        if ($this->fmPrestashop->toolsIsSubmit('submit'.$this->module->name)) {
+        if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
             if (!count($postErrors)) {
                 $output .= $this->postProcess($storeId);
@@ -69,7 +69,7 @@ class FmController
         $postArr['import_state'] = intval($this->fmPrestashop->toolsGetValue('import_state'));
         $postArr['done_state'] = intval($this->fmPrestashop->toolsGetValue('done_state'));
         $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
-        $postArr['stock_min'] = $stock_min < 0 ? 0 : $stock_min;
+        $postArr['stock_min'] = $postArr['stock_min'] < 0 ? 0 : $postArr['stock_min'];
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
@@ -110,13 +110,13 @@ class FmController
         $fields_form = $this->getSettingsForm();
         $helper = new HelperForm();
 
-        // Modul and token
+        // Module and token
         $helper->module = $this->module;
         $helper->name_controller = $this->module->name;
         $helper->token = $this->fmPrestashop->getAdminTokenLite('AdminModules');
 
         // Language
-        $default_lang = (int)$this->fmPrestashop->configurationGet('PS_LANG_DEFAULT');
+        $default_lang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
         $helper->default_form_language = $default_lang;
         $helper->allow_employee_form_lang = $default_lang;
 
@@ -126,7 +126,7 @@ class FmController
 
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFieldsValues($storeId),
-            'languages' => $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'),
+            'languages' => $this->fmPrestashop->languageGetLanguages(),
             'id_language' => $this->fmPrestashop->getLanguageId()
         );
         return $helper->generateForm(array($fields_form));
@@ -232,24 +232,24 @@ class FmController
 
         $formSettings = new FmFormSetting();
         return $formSettings
-        ->setLegend($this->module->__('Settings'), 'icon-cogs')
-        ->setDescriptions($this->module->__('In order to use this module, you have to select which language you will be using.
-                                        The language, you select, will be used when exporting products to Fyndiq Make sure
-                                        you select a language that contains Swedish product info!'))
-        ->setTextField($this->module->__('Username'), 'username', $this->module->__('Enter here your fyndiq username'), '')
-        ->setTextField($this->module->__('API Token'), 'api_token', $this->module->__('Enter here your fyndiq API Token.'), '')
-        ->setSwitch($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'))
-        ->setSelect($this->module->__('Language'), 'language', $this->module->__('In order to use this module, you have to select which language you will be using.
-                                The language, you select, will be used when exporting products to Fyndiq.
-                                Make sure you select a language that contains Swedish product info!'), $languages, 'id_lang', 'name')
-        ->setTextField($this->module->__('Percentage in numbers only'), 'price_percentage', $this->module->__('This percentage is the percentage of the price that will be cut off your price,
-                                         if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
-        ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
-        ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
-        ->setSelect($this->module->__('Description to use'), 'description_type', '', $desciotionsType, 'id', 'name')
-        ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
-        ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
-        ->setSubmit($this->module->__('Save'))
-        ->getFormElementsSettings();
+            ->setLegend($this->module->__('Settings'), 'icon-cogs')
+            ->setDescriptions($this->module->__('In order to use this module, you have to select which language you will be using.
+                                            The language, you select, will be used when exporting products to Fyndiq Make sure
+                                            you select a language that contains Swedish product info!'))
+            ->setTextField($this->module->__('Username'), 'username', $this->module->__('Enter here your fyndiq username'), '')
+            ->setTextField($this->module->__('API Token'), 'api_token', $this->module->__('Enter here your fyndiq API Token.'), '')
+            ->setSwitch($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'))
+            ->setSelect($this->module->__('Language'), 'language', $this->module->__('In order to use this module, you have to select which language you will be using.
+                                    The language, you select, will be used when exporting products to Fyndiq.
+                                    Make sure you select a language that contains Swedish product info!'), $languages, 'id_lang', 'name')
+            ->setTextField($this->module->__('Percentage in numbers only'), 'price_percentage', $this->module->__('This percentage is the percentage of the price that will be cut off your price,
+                                             if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
+            ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
+            ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
+            ->setSelect($this->module->__('Description to use'), 'description_type', '', $desciotionsType, 'id', 'name')
+            ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
+            ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+            ->setSubmit($this->module->__('Save'))
+            ->getFormElementsSettings();
     }
 }

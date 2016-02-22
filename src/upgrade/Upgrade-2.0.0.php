@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('_PS_VERSION_'))
+if (!defined('_PS_VERSION_')) {
     exit;
+}
 
 /**
  * Migration process to upgrade new module version 2.0.0
@@ -15,6 +16,5 @@ function upgrade_module_2_0_0($module)
            ADD COLUMN status INT(10) DEFAULT 1,
            ADD COLUMN body TEXT DEFAULT null,
            ADD COLUMN created timestamp DEFAULT CURRENT_TIMESTAMP';
-   return $module->getFmPrestashop()->dbGetInstance()->Execute($sql, false);
+    return $module->getFmPrestashop()->dbGetInstance()->Execute($sql, false);
 }
-
