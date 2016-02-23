@@ -353,9 +353,9 @@ class FmPrestashop
         return Tools::isSubmit($name);
     }
 
-    public function toolsGetValue($name)
+    public function toolsGetValue($name, $optional = false)
     {
-        return Tools::getValue($name);
+        return Tools::getValue($name, $optional);
     }
 
     public function toolsRedirect($url)
@@ -406,6 +406,12 @@ class FmPrestashop
     public function orderStateInvoiceAvailable($orderStateId)
     {
         return OrderState::invoiceAvailable($orderStateId);
+    }
+
+    // Customer Group
+    public function groupGetGroups($languageId)
+    {
+        return Group::getGroups($languageId, true);
     }
 
     // Language
