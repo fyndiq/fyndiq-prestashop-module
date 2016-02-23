@@ -1,5 +1,5 @@
 <div id="fyndiq-export" class="panel product-tab">
-    <h3>Export to Fyndiq</h3>
+    <h3>Fyndiq</h3>
 
     <div class="form-group">
         <div class="col-lg-1"><span class="pull-right"></span></div>
