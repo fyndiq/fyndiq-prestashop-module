@@ -142,7 +142,6 @@ class FyndiqMerchant extends Module
         $fynProduct = $productModel->getProduct($id_product, $storeId);
         $this->smarty->assign(
             array(
-                'fyndiq_price' => !isset($fynProduct['fyndiq_price']) ? '' : $fynProduct['fyndiq_price'],
                 'fyndiq_exported' => !empty($fynProduct),
             )
         );
@@ -158,9 +157,6 @@ class FyndiqMerchant extends Module
         $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $storeId = $this->fmPrestashop->getStoreId();
         $exported = Tools::getValue('fyndiq_exported');
-        $price = Tools::getValue('fyndiq_price');
-        var_dump($exported);
-        var_dump($price);
 
         if($exported && !$productModel->productExists($id_product, $storeId)) {
             $productModel->addProduct($id_product, $storeId);
