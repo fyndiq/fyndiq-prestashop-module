@@ -27,6 +27,11 @@ class FmUtils
 
     const SKU_SEPARATOR = '-';
 
+    const DEFAULT_DISCOUNT_PERCENTAGE = 10;
+    const DEFAULT_ORDER_IMPORT_STATE = 3;
+    const DEFAULT_ORDER_DONE_STATE = 4;
+    const DEFAULT_CUSTOMER_GROUP_ID = 1;
+
 
     public static function getFileWriter($file)
     {
@@ -39,5 +44,22 @@ class FmUtils
             return json_encode($data, JSON_UNESCAPED_UNICODE);
         }
         return json_encode($data);
+    }
+
+    public static function getConfigKeys($languageId = '')
+    {
+        return array(
+                'username' => '',
+                'api_token' => '',
+                'disable_orders' => self::ORDERS_ENABLED,
+                'language' => $languageId,
+                'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
+                'stock_min' => 0,
+                'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
+                'description_type' => self::LONG_DESCRIPTION,
+                'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
+                'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
+                'ping_token' => ''
+        );
     }
 }
