@@ -60,9 +60,7 @@ class FyndiqMerchant extends Module
 
     public function install()
     {
-        if (!parent::install()
-            || !$this->registerHook('displayAdminProductsExtra')
-        ) {
+        if (!parent::install() || !$this->registerHook('displayAdminProductsExtra')) {
             return false;
         }
 
@@ -74,9 +72,7 @@ class FyndiqMerchant extends Module
 
     public function uninstall()
     {
-        if (!parent::uninstall()
-            || !$this->deleteConfig()
-        ) {
+        if (!parent::uninstall() || !$this->deleteConfig()) {
             return false;
         }
 

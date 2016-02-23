@@ -353,7 +353,7 @@ class FmPrestashop
         return Tools::isSubmit($name);
     }
 
-    public function toolsGetValue($name, $optional = '')
+    public function toolsGetValue($name, $optional = false)
     {
         return Tools::getValue($name, $optional);
     }
@@ -409,7 +409,7 @@ class FmPrestashop
     }
 
     // Customer Group
-    public function getCustomerGroups($languageId)
+    public function groupGetGroups($languageId)
     {
         return Group::getGroups($languageId, true);
     }

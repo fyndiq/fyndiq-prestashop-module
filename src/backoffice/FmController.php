@@ -22,11 +22,11 @@ class FmController
         $storeId = $this->fmPrestashop->getStoreId();
         if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
-            if (!count($postErrors)) {
-                $output .= $this->postProcess($storeId);
-            }
             foreach ($postErrors as $err) {
                 $output .= $this->fmOutput->showModuleError($err);
+            }
+            if (!count($postErrors)) {
+                $output .= $this->postProcess($storeId);
             }
         }
         $output .= $this->displayForm($storeId);
@@ -107,7 +107,6 @@ class FmController
 
     public function displayForm($storeId)
     {
-        $fields_form = $this->getSettingsForm();
         $helper = new HelperForm();
 
         // Module and token
@@ -116,20 +115,21 @@ class FmController
         $helper->token = $this->fmPrestashop->getAdminTokenLite('AdminModules');
 
         // Language
-        $default_lang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
+        $defaultLang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
         $helper->default_form_language = $default_lang;
         $helper->allow_employee_form_lang = $default_lang;
 
         // Title and toolbar
         $helper->title = $this->module->displayName;
-        $helper->submit_action = 'submit'.$this->module->name;
+        $helper->submit_action = 'submit' . $this->module->name;
 
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFieldsValues($storeId),
             'languages' => $this->fmPrestashop->languageGetLanguages(),
-            'id_language' => $this->fmPrestashop->getLanguageId()
+            'id_language' => $this->fmPrestashop->getLanguageId(),
         );
-        return $helper->generateForm(array($fields_form));
+        $fieldsForm = $this->getSettingsForm();
+        return $helper->generateForm(array($fieldsForm));
     }
 
     public function getConfigFieldsValues($storeId)
@@ -226,7 +226,7 @@ class FmController
     {
         $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->getOrderStates($languageId);
-        $customerGroups = $this->fmPrestashop->getCustomerGroups($languageId);
+        $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
         $desciotionsType = $this->getDescriptonTypes();
 
