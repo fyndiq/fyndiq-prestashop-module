@@ -81,7 +81,7 @@ class FmController
                 FyndiqUtils::NAME_PING_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $postArr['ping_token'] . '&store_id=' . $storeId,
         );
-        if (!$disable_orders) {
+        if (!$postArr['disable_orders']) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
                 $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
         }
@@ -116,8 +116,8 @@ class FmController
 
         // Language
         $defaultLang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
-        $helper->default_form_language = $default_lang;
-        $helper->allow_employee_form_lang = $default_lang;
+        $helper->default_form_language = $defaultLang;
+        $helper->allow_employee_form_lang = $defaultLang;
 
         // Title and toolbar
         $helper->title = $this->module->displayName;
