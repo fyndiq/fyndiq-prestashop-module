@@ -11,7 +11,7 @@ class FmFormSetting
     protected $form;
 
     /**
-     * __construct [initialize the default form settings]
+     * initialize the default form settings
      */
     public function __construct()
     {
@@ -28,10 +28,10 @@ class FmFormSetting
     }
 
     /**
-     * [setLegend, it sets form title and form icon]
-     * @param string $title [pass the form title]
-     * @param string $icon  [pass the form icon]
-     * @return FmFormSetting [return class object]
+     * setLegend, it sets form title and form icon
+     * @param string $title     pass the form title
+     * @param string $icon      pass the form icon
+     * @return FmFormSetting    return class object
      */
     public function setLegend($title, $icon)
     {
@@ -43,9 +43,9 @@ class FmFormSetting
     }
 
     /**
-     * [setDescriptions, set the form description]
-     * @param string $description [pass form description]
-     * @return FmFormSetting [return class object]
+     * setDescriptions, set the form description]
+     * @param string $description   pass form description
+     * @return FmFormSetting        return class object
      */
     public function setDescriptions($description)
     {
@@ -54,12 +54,12 @@ class FmFormSetting
     }
 
     /**
-     * [setTextField, add textField elements to the form]
-     * @param string $label [set textfield label]
-     * @param string $name  [set textfield name]
-     * @param string $description   [set textfield description]
-     * @param string $class   [set textfield css class]
-     * @return FmFormSetting [return class object]
+     * setTextField, add textField elements to the form
+     * @param string $label         set textfield label
+     * @param string $name          set textfield name
+     * @param string $description   set textfield description
+     * @param string $class         set textfield css class
+     * @return FmFormSetting        return class object
      */
     public function setTextField($label, $name, $description, $class)
     {
@@ -74,14 +74,14 @@ class FmFormSetting
     }
 
     /**
-     * [setSelect, add select elements to the form]
-     * @param String] $label      [set select lebel]
-     * @param string $name       [set select name]
-     * @param String $description        [set select description]
-     * @param array $dataSource [set the select option datasource]
-     * @param string $key        [set the key of the option]
-     * @param string $text       [set the value of the option]
-     * @return FmFormSetting [return class object]
+     * setSelect, add select elements to the form
+     * @param String $label         set select lebel
+     * @param string $name          set select name
+     * @param String $description   set select description
+     * @param array $dataSource     set the select option datasource
+     * @param string $key           set the key of the option
+     * @param string $text          set the value of the option
+     * @return FmFormSetting        return class object
      */
     public function setSelect($label, $name, $description, $dataSource, $key, $text)
     {
@@ -100,11 +100,11 @@ class FmFormSetting
     }
 
     /**
-     * [setSwitch, add radio button elements to the form as a switch]
-     * @param string $label [set switch lebel]
-     * @param string $name  [set switch name]
-     * @param String $description   [set switch description]
-     * @return FmFormSetting [return class object]
+     * setSwitch, add radio button elements to the form as a switch
+     * @param string $label         set switch lebel
+     * @param string $name          set switch name
+     * @param String $description   set switch description
+     * @return FmFormSetting        return class object
      */
     public function setSwitch($label, $name, $description)
     {
@@ -131,9 +131,9 @@ class FmFormSetting
     }
 
     /**
-     * [setSubmit, add form submit button title]
-     * @param string $title [set the title of the submit button]
-     * @return FmFormSetting [return class object]
+     * setSubmit, add form submit button title
+     * @param string $title  set the title of the submit button
+     * @return FmFormSetting return class object
      */
     public function setSubmit($title)
     {
@@ -144,8 +144,8 @@ class FmFormSetting
     }
 
     /**
-     * [getFormElementsSettings, generates form settings]
-     * @return array [return entire form configs]
+     * getFormElementsSettings, generates form settings
+     * @return array return entire form configs
      */
     public function getFormElementsSettings()
     {

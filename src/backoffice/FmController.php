@@ -25,7 +25,7 @@ class FmController
             foreach ($postErrors as $err) {
                 $output .= $this->fmOutput->showModuleError($err);
             }
-            if (!count($postErrors)) {
+            if (count($postErrors) === 0) {
                 $output .= $this->postProcess($storeId);
             }
         }
