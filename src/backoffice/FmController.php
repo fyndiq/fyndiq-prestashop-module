@@ -233,9 +233,6 @@ class FmController
         $formSettings = new FmFormSetting();
         return $formSettings
             ->setLegend($this->module->__('Settings'), 'icon-cogs')
-            ->setDescriptions($this->module->__('In order to use this module, you have to select which language you will be using.
-                                            The language, you select, will be used when exporting products to Fyndiq Make sure
-                                            you select a language that contains Swedish product info!'))
             ->setTextField($this->module->__('Username'), 'username', $this->module->__('Enter here your fyndiq username'), '')
             ->setTextField($this->module->__('API Token'), 'api_token', $this->module->__('Enter here your fyndiq API Token.'), '')
             ->setSwitch($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'))
