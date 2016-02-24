@@ -192,7 +192,7 @@ class FmNotificationService
 $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $storeId = $fmPrestashop->getStoreId();
-$fmApiModel = new FmApiModel($fmConfig, $fmPrestashop, $storeId);
+$fmApiModel = new FmApiModel($fmPrestashop, $fmConfig, $storeId);
 
 $notifications = new FmNotificationService($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel);
 $notifications->handleRequest($_GET);
