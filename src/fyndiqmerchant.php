@@ -136,10 +136,10 @@ class FyndiqMerchant extends Module
 
     public function hookDisplayAdminProductsExtra($params)
     {
-        $id_product = (int)Tools::getValue('id_product');
+        $productId = (int)Tools::getValue('id_product');
         $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $storeId = $this->fmPrestashop->getStoreId();
-        $fynProduct = $productModel->getProduct($id_product, $storeId);
+        $fynProduct = $productModel->getProduct($productId, $storeId);
         $this->smarty->assign(
             array(
                 'fyndiq_exported' => !empty($fynProduct),
@@ -150,22 +150,19 @@ class FyndiqMerchant extends Module
 
     public function hookActionProductUpdate($params)
     {
-        // get all languages
-        // for each of them, store the new field
-
-        $id_product = (int)Tools::getValue('id_product');
+        $productId = (int)Tools::getValue('id_product');
         $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $storeId = $this->fmPrestashop->getStoreId();
         $exported = Tools::getValue('fyndiq_exported');
 
-        if($exported && !$productModel->productExists($id_product, $storeId)) {
+        if($exported && !$productModel->productExists($productId, $storeId)) {
             $productModel->addProduct($id_product, $storeId);
         }
-        if($exported) {
-            $productModel->updateProduct($id_product, $price, $storeId);
+        if($exported && $productModel->productExists($productId, $storeId)) {
+            $productModel->updateProduct($productId, $price, $storeId);
         }
-        if(!$exported && $productModel->productExists($id_product, $storeId)) {
-            $productModel->removeProduct($id_product, $storeId);
+        if(!$exported && $productModel->productExists($productId, $storeId)) {
+            $productModel->removeProduct($productId, $storeId);
         }
     }
 
