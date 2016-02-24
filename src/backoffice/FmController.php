@@ -81,7 +81,7 @@ class FmController
                 FyndiqUtils::NAME_PING_URL =>
                     $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $postArr['ping_token'] . '&store_id=' . $storeId,
         );
-        if (!$disable_orders) {
+        if (!$postArr['disable_orders']) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
                 $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
         }
@@ -116,18 +116,21 @@ class FmController
 
         // Language
         $defaultLang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
-        $helper->default_form_language = $default_lang;
-        $helper->allow_employee_form_lang = $default_lang;
+        $helper->default_form_language = $defaultLang;
+        $helper->allow_employee_form_lang = $defaultLang;
 
         // Title and toolbar
         $helper->title = $this->module->displayName;
         $helper->submit_action = 'submit' . $this->module->name;
 
-        $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFieldsValues($storeId),
-            'languages' => $this->fmPrestashop->languageGetLanguages(),
-            'id_language' => $this->fmPrestashop->getLanguageId(),
-        );
+        foreach ($this->fmPrestashop->languageGetLanguages() as $lang)
+            $helper->languages[] = array(
+                'id_lang' => $lang['id_lang'],
+                'iso_code' => $lang['iso_code'],
+                'name' => $lang['name'],
+                'is_default' => ($defaultLang == $lang['id_lang'] ? 1 : 0),
+            );
+        $helper->fields_value = $this->getConfigFieldsValues($storeId);
         $fieldsForm = $this->getSettingsForm();
         return $helper->generateForm(array($fieldsForm));
     }
