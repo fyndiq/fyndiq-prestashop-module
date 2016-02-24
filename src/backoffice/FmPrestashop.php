@@ -187,7 +187,40 @@ class FmPrestashop
 
     public function getPrice($product, $attributeId = null)
     {
-        return Product::getPriceStatic($product->id, true, $attributeId);
+        $fmConfig = new FmConfig($this);
+        $storeId = $this->getStoreId();
+        $id_group = $fmConfig->get('customerGroup_id', $storeId);
+        FyndiqUtils::debug('$id_group', $id_group);
+
+        $customer = new Customer();
+        $customer->id_default_group = $id_group;
+        $customer->id_shop = $storeId;
+
+        $context = Context::getContext()->cloneContext();
+        $context->cart = new Cart();
+        $context->customer = $customer;
+        $specific_price_output = null;
+
+        $id_currency = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
+
+        return Product::priceCalculation(
+                  $context->shop->id,
+                  $product->id,
+                  null,
+                  (int)$context->country->id,
+                  0,
+                  0,
+                  $id_currency,
+                  $id_group,
+                  1,
+                  1,
+                  6,
+                  false,
+                  true,
+                  true,
+                  $specific_price_output,
+                  true
+        );
     }
 
     public function getBasePrice($product, $attributeId = null)
