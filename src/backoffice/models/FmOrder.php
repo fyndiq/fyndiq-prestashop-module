@@ -37,8 +37,12 @@ class FmOrder extends FmModel
             created timestamp DEFAULT CURRENT_TIMESTAMP);';
         $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
-        $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
-        $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
+        try{
+            // Index creation will fail if this is reinstall
+            $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
+            $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
+        } catch (Exception $e) {
+        }
 
         return (bool)$res;
     }
