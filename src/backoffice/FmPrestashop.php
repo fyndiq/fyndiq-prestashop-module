@@ -185,11 +185,11 @@ class FmPrestashop
         return $product->$getAttrCombinations[$this->version]($languageId);
     }
 
-    public function getPrice($product, $context, $id_group, $attributeId = null)
+    public function getPrice($product, $context, $groupId, $attributeId = null)
     {
         $specific_price_output = null;
 
-        $id_currency = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
+        $currencyId = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
 
         return Product::priceCalculation(
                   $context->shop->id, // Store ID for which store
@@ -198,8 +198,8 @@ class FmPrestashop
                   (int)$context->country->id, // Country Id
                   0, // State id
                   0, // Zipcode
-                  $id_currency, // Currency id
-                  $id_group, // Customer group ID
+                  $currencyId, // Currency id
+                  $groupId, // Customer group ID
                   1, // Quantity
                   1, // Use Tax
                   6, // Decimals
