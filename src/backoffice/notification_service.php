@@ -157,18 +157,36 @@ class FmNotificationService
         }
         FyndiqUtils::debug('$lastPing', $lastPing);
         FyndiqUtils::debug('$locked', $locked);
+
         $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
         FyndiqUtils::debug('$filePath', $filePath);
+
         $file = fopen($filePath, 'w+');
         FyndiqUtils::debug('$file', $file);
+
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+
         $languageId = $this->fmConfig->get('language', $storeId);
         FyndiqUtils::debug('$languageId', $languageId);
+
         $stockMin = $this->fmConfig->get('stock_min', $storeId);
         $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
+
+        $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
+        FyndiqUtils::debug('$groupId', $groupId);
+
+        $customer = new Customer();
+        $customer->id_default_group = $groupId;
+        $customer->id_shop = $storeId;
+
+        $context = Context::getContext()->cloneContext();
+        $context->cart = new Cart();
+        $context->customer = $customer;
+
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $context, $groupId, $descriptionType, $skuTypeId, $storeId);
+
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);
         $result = file_get_contents($filePath);

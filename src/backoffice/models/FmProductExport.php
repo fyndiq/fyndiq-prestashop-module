@@ -174,7 +174,7 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId, $descriptionType, $context, $id_group, $skuTypeId, $storeId = null)
+    public function getStoreProduct($languageId, $productId, $descriptionType, $context, $groupId, $skuTypeId, $storeId = null)
     {
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
@@ -290,7 +290,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $context, $groupId, $descriptionType, $skuTypeId, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -300,20 +300,8 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
 
-        $storeId = $this->fmPrestashop->getStoreId();
-        $id_group = $this->fmConfig->get('customerGroup_id', $storeId);
-        FyndiqUtils::debug('$id_group', $id_group);
-
-        $customer = new Customer();
-        $customer->id_default_group = $id_group;
-        $customer->id_shop = $storeId;
-
-        $context = Context::getContext()->cloneContext();
-        $context->cart = new Cart();
-        $context->customer = $customer;
-
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $id_group, $skuTypeId, $storeId);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $groupId, $skuTypeId, $storeId);
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
                 // Product not found (maybe not in this store);
