@@ -185,20 +185,8 @@ class FmPrestashop
         return $product->$getAttrCombinations[$this->version]($languageId);
     }
 
-    public function getPrice($product, $attributeId = null)
+    public function getPrice($product, $context, $id_group, $attributeId = null)
     {
-        $fmConfig = new FmConfig($this);
-        $storeId = $this->getStoreId();
-        $id_group = $fmConfig->get('customerGroup_id', $storeId);
-        FyndiqUtils::debug('$id_group', $id_group);
-
-        $customer = new Customer();
-        $customer->id_default_group = $id_group;
-        $customer->id_shop = $storeId;
-
-        $context = Context::getContext()->cloneContext();
-        $context->cart = new Cart();
-        $context->customer = $customer;
         $specific_price_output = null;
 
         $id_currency = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
