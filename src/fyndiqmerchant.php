@@ -157,6 +157,7 @@ class FyndiqMerchant extends Module
 
         if($exported && !$productModel->productExists($productId, $storeId)) {
             $productModel->addProduct($id_product, $storeId);
+            return;
         }
         if($exported && $productModel->productExists($productId, $storeId)) {
             $productModel->updateProduct($productId, $price, $storeId);
