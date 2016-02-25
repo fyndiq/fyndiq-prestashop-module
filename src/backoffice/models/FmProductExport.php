@@ -300,7 +300,8 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
 
-
+        // Creating customer and add it to the context so we can set a
+        // specific discount customer group to the price.
         $customer = new Customer();
         $customer->id_default_group = $groupId;
         $customer->id_shop = $storeId;
