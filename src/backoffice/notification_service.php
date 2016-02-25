@@ -177,15 +177,7 @@ class FmNotificationService
         $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
         FyndiqUtils::debug('$groupId', $groupId);
 
-        $customer = new Customer();
-        $customer->id_default_group = $groupId;
-        $customer->id_shop = $storeId;
-
-        $context = Context::getContext()->cloneContext();
-        $context->cart = new Cart();
-        $context->customer = $customer;
-
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $context, $groupId, $descriptionType, $skuTypeId, $storeId);
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId);
 
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);
