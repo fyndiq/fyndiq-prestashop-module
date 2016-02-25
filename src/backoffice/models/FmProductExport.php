@@ -39,10 +39,10 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $expPricePercentage, $storeId)
+    public function updateProduct($productId, $fyndiqPrice, $storeId)
     {
         $data = array(
-            'exported_price_percentage' => $expPricePercentage
+            'fyndiq_price' => $fyndiqPrice
         );
         return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
@@ -81,9 +81,10 @@ class FmProductExport extends FmModel
         $sql = 'CREATE TABLE IF NOT EXISTS ' . $tableName .' (
                     id int(20) unsigned primary key AUTO_INCREMENT,
                     store_id int(10) unsigned,
-                    product_id int(10) unsigned
+                    product_id int(10) unsigned,
+                    fyndiq_price int(10) unsigned,
                     name varchar(128) NOT NULL DEFAULT "",
-                    description text NOT NULL DEFAULT "",
+                    description text NOT NULL DEFAULT ""
                 );';
         $ret = (bool)$this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
@@ -173,7 +174,7 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId, $descriptionType, $skuTypeId, $storeId = null)
+    public function getStoreProduct($languageId, $productId, $descriptionType, $context, $groupId, $skuTypeId, $storeId = null)
     {
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
@@ -289,7 +290,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -299,8 +300,17 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
 
+        // Creating customer and add it to the context so we can set a
+        // specific discount customer group to the price.
+        $customer = new Customer();
+        $customer->id_default_group = $groupId;
+        $customer->id_shop = $storeId;
+        $context = Context::getContext()->cloneContext();
+        $context->cart = new Cart();
+        $context->customer = $customer;
+
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $skuTypeId, $storeId);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $groupId, $skuTypeId, $storeId);
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
                 // Product not found (maybe not in this store);
@@ -345,7 +355,7 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::SKU => $combination['reference'],
                     FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($combination['quantity']), $stockMin),
                     FyndiqFeedWriter::PRICE => $fyndiqPrice,
-                    FyndiqFeedWriter::OLDPRICE => $combination['price'],
+                    FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $storeProduct['name'],
                 );

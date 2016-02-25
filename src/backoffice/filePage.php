@@ -48,6 +48,10 @@ class FilePageController
             $storeId = $this->fmPrestashop->getStoreId();
             $username = $this->fmConfig->get('username', $storeId);
             $apiToken = $this->fmConfig->get('api_token', $storeId);
+
+            $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
+            FyndiqUtils::debug('$groupId', $groupId);
+
             if (!empty($username) && !empty($apiToken)) {
                 $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
                 $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
@@ -60,7 +64,7 @@ class FilePageController
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
                     $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                     $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);

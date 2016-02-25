@@ -8,8 +8,8 @@ require_once('./FmConfig.php');
 require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
 require_once('./FmCart.php');
-require_once('./models/FmApiModel.php');
 require_once('./models/FmModel.php');
+require_once('./models/FmApiModel.php');
 require_once('./models/FmOrder.php');
 require_once('./models/FmProduct.php');
 require_once('./models/FmProductExport.php');
@@ -157,18 +157,28 @@ class FmNotificationService
         }
         FyndiqUtils::debug('$lastPing', $lastPing);
         FyndiqUtils::debug('$locked', $locked);
+
         $filePath = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
         FyndiqUtils::debug('$filePath', $filePath);
+
         $file = fopen($filePath, 'w+');
         FyndiqUtils::debug('$file', $file);
+
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+
         $languageId = $this->fmConfig->get('language', $storeId);
         FyndiqUtils::debug('$languageId', $languageId);
+
         $stockMin = $this->fmConfig->get('stock_min', $storeId);
         $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
+
+        $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
+        FyndiqUtils::debug('$groupId', $groupId);
+
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId);
+
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);
         $result = file_get_contents($filePath);
@@ -192,7 +202,7 @@ class FmNotificationService
 $fmConfig = new FmConfig($fmPrestashop);
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $storeId = $fmPrestashop->getStoreId();
-$fmApiModel = new FmApiModel($fmConfig, $fmPrestashop, $storeId);
+$fmApiModel = new FmApiModel($fmPrestashop, $fmConfig, $storeId);
 
 $notifications = new FmNotificationService($fmPrestashop, $fmConfig, $fmOutput, $fmApiModel);
 $notifications->handleRequest($_GET);
