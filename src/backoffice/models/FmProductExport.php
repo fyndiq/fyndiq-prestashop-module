@@ -290,7 +290,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $context, $groupId, $descriptionType, $skuTypeId, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -299,6 +299,14 @@ class FmProductExport extends FmModel
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
+
+
+        $customer = new Customer();
+        $customer->id_default_group = $groupId;
+        $customer->id_shop = $storeId;
+        $context = Context::getContext()->cloneContext();
+        $context->cart = new Cart();
+        $context->customer = $customer;
 
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $groupId, $skuTypeId, $storeId);

@@ -52,14 +52,6 @@ class FilePageController
             $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
             FyndiqUtils::debug('$groupId', $groupId);
 
-            $customer = new Customer();
-            $customer->id_default_group = $groupId;
-            $customer->id_shop = $storeId;
-
-            $context = Context::getContext()->cloneContext();
-            $context->cart = new Cart();
-            $context->customer = $customer;
-
             if (!empty($username) && !empty($apiToken)) {
                 $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
                 $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
