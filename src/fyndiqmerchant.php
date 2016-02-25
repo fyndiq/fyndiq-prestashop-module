@@ -156,7 +156,7 @@ class FyndiqMerchant extends Module
         $exported = Tools::getValue('fyndiq_exported');
 
         if($exported && !$productModel->productExists($productId, $storeId)) {
-            $productModel->addProduct($id_product, $storeId);
+            $productModel->addProduct($productId, $storeId);
             return;
         }
         if($exported && $productModel->productExists($productId, $storeId)) {
