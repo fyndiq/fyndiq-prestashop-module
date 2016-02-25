@@ -1,5 +1,4 @@
 <?php
-
 class FmApiModel extends FmModel {
 
     const PLATFORM_NAME = 'Prestashop';

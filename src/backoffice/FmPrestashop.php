@@ -185,9 +185,30 @@ class FmPrestashop
         return $product->$getAttrCombinations[$this->version]($languageId);
     }
 
-    public function getPrice($product, $attributeId = null)
+    public function getPrice($product, $context, $groupId, $attributeId = null)
     {
-        return Product::getPriceStatic($product->id, true, $attributeId);
+        $specific_price_output = null;
+
+        $currencyId = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
+
+        return Product::priceCalculation(
+                  $context->shop->id, // Store ID for which store
+                  $product->id, // product id
+                  $attributeId, // Product attribute id
+                  (int)$context->country->id, // Country Id
+                  0, // State id
+                  0, // Zipcode
+                  $currencyId, // Currency id
+                  $groupId, // Customer group ID
+                  1, // Quantity
+                  1, // Use Tax
+                  6, // Decimals
+                  false, // Only reduction
+                  true, // use reduction
+                  true, // with ecotax
+                  $specific_price_output,
+                  true // use group reduction
+        );
     }
 
     public function getBasePrice($product, $attributeId = null)

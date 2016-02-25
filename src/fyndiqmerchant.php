@@ -67,6 +67,10 @@ class FyndiqMerchant extends Module
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
 
+        $this->registerHook('displayAdminProductsExtra');
+        $this->registerHook('displayBackOfficeHeader');
+        $this->registerHook('actionProductUpdate');
+
         return $fmProductExport->install() && $fmOrder->install();
     }
 
@@ -130,16 +134,47 @@ class FyndiqMerchant extends Module
     {
         return $this->fmPrestashop;
     }
+    
+    public function hookDisplayBackOfficeHeader($params)
+    {
+      $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js' );
+    }
 
     public function hookDisplayAdminProductsExtra($params)
     {
+        $productId = (int)Tools::getValue('id_product');
+        $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $storeId = $this->fmPrestashop->getStoreId();
+        $fynProduct = $productModel->getProduct($productId, $storeId);
         $this->smarty->assign(
             array(
-                'fyndiq_price' => 666,
-                'fyndiq_exported' => true,
+                'fyndiq_exported' => !empty($fynProduct),
+                'fyndiq_title' => $fynProduct['name'],
+                'fyndiq_description' => $fynProduct['description'] 
             )
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
+    }
+
+    public function hookActionProductUpdate($params)
+    {
+        $productId = (int)Tools::getValue('id_product');
+        $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        $storeId = $this->fmPrestashop->getStoreId();
+        $exported = Tools::getValue('fyndiq_exported');
+        $title = Tools::getValue('fyndiq_title');
+        $description = Tools::getValue('fyndiq_description');
+
+        if($exported && !$productModel->productExists($productId, $storeId)) {
+            $productModel->addProduct($productId, $storeId, $title, $description);
+            return;
+        }
+        if($exported && $productModel->productExists($productId, $storeId)) {
+            $productModel->updateProduct($productId, $price, $storeId,  $title, $description);
+        }
+        if(!$exported && $productModel->productExists($productId, $storeId)) {
+            $productModel->removeProduct($productId, $storeId);
+        }
     }
 
     public function getModel($modelName, $storeId = -1)
