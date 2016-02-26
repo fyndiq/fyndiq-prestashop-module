@@ -24,6 +24,7 @@ class FmUtils
     const SKU_REFERENCE = 0;
     const SKU_EAN = 1;
     const SKU_ID = 2;
+    const FLAG_CANCEL = 6;
 
     const SKU_SEPARATOR = '-';
 
