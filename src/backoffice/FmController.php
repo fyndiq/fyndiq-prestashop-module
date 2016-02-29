@@ -189,8 +189,15 @@ class FmController
             $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
             $stockMin = $stockMin < 0 ? 0 : $stockMin;
             $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
+
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
+            $setSKUType = $skuTypeId !== false;
             $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
+
+            $skuSaved = true;
+            if ($setSKUType) {
+                $skuSaved = $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId);
+            }
 
             if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
                 $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
@@ -198,7 +205,7 @@ class FmController
                 $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
                 $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
                 $this->fmConfig->set('description_type', $descriptionType, $this->storeId) &&
-                $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId)
+                $skuSaved
             ) {
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
