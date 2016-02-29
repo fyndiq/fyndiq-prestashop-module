@@ -194,16 +194,19 @@ class FmController
             $setSKUType = $skuTypeId !== false;
             $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
 
+            $skuSaved = true;
+            if ($setSKUType) {
+                $skuSaved = $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId);
+            }
+
             if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
                 $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
                 $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
                 $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
                 $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
-                $this->fmConfig->set('description_type', $descriptionType, $this->storeId)
+                $this->fmConfig->set('description_type', $descriptionType, $this->storeId) &&
+                $skuSaved
             ) {
-                if ($setSKUType) {
-                    $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId);
-                }
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
             return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error saving settings'));
