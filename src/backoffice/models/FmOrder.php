@@ -446,7 +446,7 @@ class FmOrder extends FmModel
         }
 
         if (!$context->country->active) {
-            $this->roleBackCreatedOrder($orderList, $orderDetailList);
+            $this->rollBackCreatedOrder($orderList, $orderDetailList);
             throw new PrestaShopException('The order address country is not active.');
         }
 
@@ -485,7 +485,7 @@ class FmOrder extends FmModel
                 $this->addOrderLog($order->id, $fyndiqOrder->id);
                 unset($order_detail);
             } else {
-                $this->roleBackCreatedOrder($orderList, $orderDetailList);
+                $this->rollBackCreatedOrder($orderList, $orderDetailList);
                 throw new PrestaShopException('Order creation failed');
             }
         } // End foreach $orderDetailList
@@ -497,7 +497,7 @@ class FmOrder extends FmModel
      * @param  array    $orderList          list of orders
      * @param  array    $orderDetailList    list of order details
      */
-    private function roleBackCreatedOrder($orderList, $orderDetailList)
+    private function rollBackCreatedOrder($orderList, $orderDetailList)
     {
         foreach ($orderDetailList as $key => $order_detail) {
             $order = $orderList[$key];
@@ -512,7 +512,7 @@ class FmOrder extends FmModel
             $order_detail->delete();
         }
         /** cancel the order and change the order status to cancel */
-        $this->addOrderToHistory($order->id, FmUtils::FLAG_CANCEL);
+        $this->addOrderToHistory($order->id, $this->fmPrestashop->getCancelOrderStateId());
     }
 
     protected function createPrestashopOrders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
