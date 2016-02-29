@@ -37,7 +37,7 @@ class FmOrder extends FmModel
             created timestamp DEFAULT CURRENT_TIMESTAMP);';
         $res &= $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
 
-        try{
+        try {
             // Index creation will fail if this is reinstall
             $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
             $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
@@ -332,7 +332,6 @@ class FmOrder extends FmModel
 
         $this->currentOrderReference = $reference;
 
-        $order_creation_failed = false;
         $cart_total_paid = (float)Tools::ps_round((float)$context->cart->getOrderTotal(true, Cart::BOTH), 2);
         foreach ($cart_delivery_option as $id_address => $key_carriers) {
             foreach ($delivery_option_list[$id_address][$key_carriers]['carrier_list'] as $id_carrier => $data) {
@@ -447,12 +446,13 @@ class FmOrder extends FmModel
         }
 
         if (!$context->country->active) {
+            $this->rollBackCreatedOrder($orderList, $orderDetailList);
             throw new PrestaShopException('The order address country is not active.');
         }
 
         foreach ($orderDetailList as $key => $order_detail) {
             $order = $orderList[$key];
-            if (!$order_creation_failed && isset($order->id)) {
+            if (isset($order->id)) {
                 $this->addOrderMessage($order->id, $fyndiqOrder->id, $fyndiqOrder->delivery_note);
 
                 // Hook validate order
@@ -485,12 +485,35 @@ class FmOrder extends FmModel
                 $this->addOrderLog($order->id, $fyndiqOrder->id);
                 unset($order_detail);
             } else {
+                $this->rollBackCreatedOrder($orderList, $orderDetailList);
                 throw new PrestaShopException('Order creation failed');
             }
         } // End foreach $orderDetailList
         return true;
     }
 
+    /**
+     * roleBackOrderCreation. role back orders which are not completed.
+     * @param  array    $orderList          list of orders
+     * @param  array    $orderDetailList    list of order details
+     */
+    private function rollBackCreatedOrder($orderList, $orderDetailList)
+    {
+        foreach ($orderDetailList as $key => $order_detail) {
+            $order = $orderList[$key];
+            /** re-inject product quantity to stock*/
+            StockAvailable::updateQuantity(
+                $order_detail->product_id,
+                $order_detail->product_attribute_id,
+                $order_detail->product_quantity,
+                $order_detail->id_shop
+            );
+            /** delete order details from the order*/
+            $order_detail->delete();
+        }
+        /** cancel the order and change the order status to cancel */
+        $this->addOrderToHistory($order->id, $this->fmPrestashop->getCancelOrderStateId());
+    }
 
     protected function createPrestashopOrders($context, $fyndiqOrder, $cart, $fyndiqOrderRows, $importState)
     {

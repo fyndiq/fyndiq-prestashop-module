@@ -38,7 +38,7 @@ class FmNotificationService
         $eventName = isset($params['event']) ? $params['event'] : false;
         if ($eventName) {
             $storeId = $this->fmPrestashop->getStoreId();
-            switch($eventName) {
+            switch ($eventName) {
                 case 'order_created':
                     return $this->orderCreated($params, $storeId);
                 case 'ping':
