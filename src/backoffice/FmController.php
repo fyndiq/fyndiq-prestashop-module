@@ -189,7 +189,9 @@ class FmController
             $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
             $stockMin = $stockMin < 0 ? 0 : $stockMin;
             $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
+
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
+            $setSKUType = $skuTypeId !== false;
             $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
 
             if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
@@ -197,9 +199,11 @@ class FmController
                 $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
                 $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
                 $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
-                $this->fmConfig->set('description_type', $descriptionType, $this->storeId) &&
-                $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId)
+                $this->fmConfig->set('description_type', $descriptionType, $this->storeId)
             ) {
+                if ($setSKUType) {
+                    $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId);
+                }
                 return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
             }
             return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error saving settings'));
