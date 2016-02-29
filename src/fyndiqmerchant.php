@@ -155,14 +155,14 @@ class FyndiqMerchant extends Module
         $storeId = $this->fmPrestashop->getStoreId();
         $exported = Tools::getValue('fyndiq_exported');
 
-        if($exported && !$productModel->productExists($productId, $storeId)) {
+        if ($exported && !$productModel->productExists($productId, $storeId)) {
             $productModel->addProduct($productId, $storeId);
             return;
         }
-        if($exported && $productModel->productExists($productId, $storeId)) {
+        if ($exported && $productModel->productExists($productId, $storeId)) {
             $productModel->updateProduct($productId, $price, $storeId);
         }
-        if(!$exported && $productModel->productExists($productId, $storeId)) {
+        if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
         }
     }

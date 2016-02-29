@@ -25,6 +25,12 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
+    const CRON_INTERVAL_10 = 10;
+    const CRON_INTERVAL_30 = 30;
+    const CRON_INTERVAL_60 = 60;
+    const CRON_ACTIVE = 1;
+    const CRON_DEACTIVE = 0;
+
     const SKU_SEPARATOR = '-';
 
     const DEFAULT_DISCOUNT_PERCENTAGE = 10;
@@ -59,7 +65,9 @@ class FmUtils
                 'description_type' => self::LONG_DESCRIPTION,
                 'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
                 'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
-                'ping_token' => ''
+                'ping_token' => '',
+                'is_active_cron_task' => self::CRON_ACTIVE,
+                'fm_interval' => self::CRON_INTERVAL_10
         );
     }
 }

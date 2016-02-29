@@ -192,22 +192,22 @@ class FmPrestashop
         $currencyId = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
 
         return Product::priceCalculation(
-                  $context->shop->id, // Store ID for which store
-                  $product->id, // product id
-                  $attributeId, // Product attribute id
-                  (int)$context->country->id, // Country Id
-                  0, // State id
-                  0, // Zipcode
-                  $currencyId, // Currency id
-                  $groupId, // Customer group ID
-                  1, // Quantity
-                  1, // Use Tax
-                  6, // Decimals
-                  false, // Only reduction
-                  true, // use reduction
-                  true, // with ecotax
-                  $specific_price_output,
-                  true // use group reduction
+            $context->shop->id, // Store ID for which store
+            $product->id, // product id
+            $attributeId, // Product attribute id
+            (int)$context->country->id, // Country Id
+            0, // State id
+            0, // Zipcode
+            $currencyId, // Currency id
+            $groupId, // Customer group ID
+            1, // Quantity
+            1, // Use Tax
+            6, // Decimals
+            false, // Only reduction
+            true, // use reduction
+            true, // with ecotax
+            $specific_price_output,
+            true // use group reduction
         );
     }
 

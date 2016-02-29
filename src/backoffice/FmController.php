@@ -73,6 +73,8 @@ class FmController
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
+        $postArr['is_active_cron_task'] = intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'));
+        $postArr['fm_interval'] = intval($this->fmPrestashop->toolsGetValue('fm_interval'));
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
@@ -123,16 +125,19 @@ class FmController
         $helper->title = $this->module->displayName;
         $helper->submit_action = 'submit' . $this->module->name;
 
-        foreach ($this->fmPrestashop->languageGetLanguages() as $lang)
+        foreach ($this->fmPrestashop->languageGetLanguages() as $lang) {
             $helper->languages[] = array(
                 'id_lang' => $lang['id_lang'],
                 'iso_code' => $lang['iso_code'],
                 'name' => $lang['name'],
                 'is_default' => ($defaultLang == $lang['id_lang'] ? 1 : 0),
             );
+        }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
-        $fieldsForm = $this->getSettingsForm();
-        return $helper->generateForm(array($fieldsForm));
+        $fieldsForms =  array($this->getGeneralSettingsForm(),
+                            $this->getCronJobSettingsForm()
+                        );
+        return $helper->generateForm($fieldsForms);
     }
 
     public function getConfigFieldsValues($storeId)
@@ -140,7 +145,7 @@ class FmController
         $result = array();
         foreach (FmUtils::getConfigKeys() as $key => $value) {
             $configVal = $this->fmConfig->get($key, $storeId);
-            $result[$key] = $this->fmPrestashop->toolsGetValue($key, $configVal ? $configVal : $value);
+            $result[$key] = $this->fmPrestashop->toolsGetValue($key, $configVal !==false ? $configVal : $value);
         }
         return $result;
     }
@@ -222,10 +227,27 @@ class FmController
             ),
         );
         return json_encode($probes);
-
     }
 
-    private function getSettingsForm()
+    protected function getInterval()
+    {
+        return array(
+            array(
+                'id' => FmUtils::CRON_INTERVAL_10,
+                'name' => $this->module->__('10 Minutes'),
+            ),
+            array(
+                'id' => FmUtils::CRON_INTERVAL_30,
+                'name' => $this->module->__('30 Minutes'),
+            ),
+            array(
+                'id' => FmUtils::CRON_INTERVAL_60,
+                'name' => $this->module->__('60 Minutes'),
+            ),
+        );
+    }
+
+    private function getGeneralSettingsForm()
     {
         $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->getOrderStates($languageId);
@@ -249,6 +271,22 @@ class FmController
             ->setSelect($this->module->__('Description to use'), 'description_type', '', $desciotionsType, 'id', 'name')
             ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+            ->setSubmit($this->module->__('Save'))
+            ->getFormElementsSettings();
+    }
+
+    /**
+     * getGeneralSettingsForm generate form for CronJob options settings
+     * @return array return form elemetns
+     */
+    private function getCronJobSettingsForm()
+    {
+        $interval = $this->getInterval();
+        $formSettings = new FmFormSetting();
+        return $formSettings
+            ->setLegend($this->module->__('Feed Generator'), 'icon-cogs')
+            ->setSwitch($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'))
+            ->setSelect($this->module->__('Interval'), 'fm_interval', '', $interval, 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
