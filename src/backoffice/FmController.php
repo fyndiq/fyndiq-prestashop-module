@@ -277,7 +277,7 @@ class FmController
 
     /**
      * getGeneralSettingsForm generate form for CronJob options settings
-     * @return array return form elemetns
+     * @return array return form elements
      */
     private function getCronJobSettingsForm()
     {
@@ -285,6 +285,7 @@ class FmController
         $formSettings = new FmFormSetting();
         return $formSettings
             ->setLegend($this->module->__('Feed Generator'), 'icon-cogs')
+            ->setDescriptions($this->module->__('Prestashop CronJobs module is not installed'))
             ->setSwitch($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'))
             ->setSelect($this->module->__('Interval'), 'fm_interval', '', $interval, 'id', 'name')
             ->setSubmit($this->module->__('Save'))

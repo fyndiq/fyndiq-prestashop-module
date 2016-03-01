@@ -714,4 +714,25 @@ class FmPrestashop
         }
         return $result;
     }
+
+    /**
+     * isModuleInstalled. To check whether module is installed or not
+     * @param  string  $moduleName module name lowercase
+     * @return boolean
+     */
+    public function isModuleInstalled($moduleName)
+    {
+        return Module::isInstalled($moduleName);
+    }
+
+    /**
+     * isModuleInstalled. To check whether module is enabled or not
+     * @param  string  $moduleName module name lowercase
+     * @return boolean
+     */
+    public function isModuleEnabled($moduleName)
+    {
+        return Module::isEnabled($moduleName);
+    }
+
 }
