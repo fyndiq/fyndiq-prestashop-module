@@ -716,7 +716,7 @@ class FmPrestashop
     }
 
     /**
-     * isModuleInstalled. To check whether module is installed or not
+     * isModuleInstalled checks whether module is installed or not
      * @param  string  $moduleName module name lowercase
      * @return boolean
      */
