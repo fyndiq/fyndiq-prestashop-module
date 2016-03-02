@@ -83,7 +83,7 @@ class FmFormSetting
      * @param string $text          set the value of the option
      * @return FmFormSetting        return class object
      */
-    public function setSelect($label, $name, $description, $dataSource, $key, $text)
+    public function setSelect($label, $name, $description, $dataSource, $key, $text, $disabled = false)
     {
         $this->form['form']['input'][] = array(
                         'type' => 'select',
@@ -94,7 +94,8 @@ class FmFormSetting
                             'query' => $dataSource,
                             'id' => $key,
                             'name' => $text
-                        )
+                        ),
+                        'disabled' => $disabled,
         );
         return $this;
     }
@@ -106,7 +107,7 @@ class FmFormSetting
      * @param String $description   set switch description
      * @return FmFormSetting        return class object
      */
-    public function setSwitch($label, $name, $description)
+    public function setSwitch($label, $name, $description, $disabled = false)
     {
         $this->form['form']['input'][] = array(
                         'type' => 'switch',
@@ -126,6 +127,7 @@ class FmFormSetting
                                     'label' => 'Disabled'
                                 )
                             ),
+                        'disabled' => $disabled,
         );
         return $this;
     }

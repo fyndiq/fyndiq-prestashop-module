@@ -18,7 +18,6 @@ class FmController
 
     public function handleRequest()
     {
-        $output = '';
         $storeId = $this->fmPrestashop->getStoreId();
         if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
@@ -73,8 +72,9 @@ class FmController
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
-        $postArr['is_active_cron_task'] = intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'));
-        $postArr['fm_interval'] = intval($this->fmPrestashop->toolsGetValue('fm_interval'));
+        $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjobs') ?
+                                            intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
+                                            : $this->fmConfig->get('is_active_cron_task', $storeId);
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
@@ -104,6 +104,10 @@ class FmController
                 return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
             }
         }
+        if (!$this->setCronJobs($updateData[FyndiqUtils::NAME_PRODUCT_FEED_URL], $postArr['is_active_cron_task'])) {
+            return $this->fmOutput->showModuleError($this->module->__('Error adding cron task to the prestashop webservice'));
+        }
+
         return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
     }
 
@@ -134,9 +138,12 @@ class FmController
             );
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
-        $fieldsForms =  array($this->getGeneralSettingsForm(),
-                            $this->getCronJobSettingsForm()
-                        );
+        $fieldsForms[] =  $this->getGeneralSettingsForm();
+
+        /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
+        if ($this->fmPrestashop->toolsGetValue('set_cronjobs')) {
+            $fieldsForms[] = $this->getCronJobSettingsForm();
+        }
         return $helper->generateForm($fieldsForms);
     }
 
@@ -229,24 +236,6 @@ class FmController
         return json_encode($probes);
     }
 
-    protected function getInterval()
-    {
-        return array(
-            array(
-                'id' => FmUtils::CRON_INTERVAL_10,
-                'name' => $this->module->__('10 Minutes'),
-            ),
-            array(
-                'id' => FmUtils::CRON_INTERVAL_30,
-                'name' => $this->module->__('30 Minutes'),
-            ),
-            array(
-                'id' => FmUtils::CRON_INTERVAL_60,
-                'name' => $this->module->__('60 Minutes'),
-            ),
-        );
-    }
-
     private function getGeneralSettingsForm()
     {
         $languageId = $this->fmPrestashop->getLanguageId();
@@ -281,14 +270,69 @@ class FmController
      */
     private function getCronJobSettingsForm()
     {
-        $interval = $this->getInterval();
+        $isDisabled= false;
+        $alertMsg= $this->checkCronjobsAvailableToUse();
+        if ($alertMsg) {
+            $isDisabled= true;
+        }
         $formSettings = new FmFormSetting();
         return $formSettings
             ->setLegend($this->module->__('Feed Generator'), 'icon-cogs')
-            ->setDescriptions($this->module->__('Prestashop CronJobs module is not installed'))
-            ->setSwitch($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'))
-            ->setSelect($this->module->__('Interval'), 'fm_interval', '', $interval, 'id', 'name')
+            ->setDescriptions($this->module->__($alertMsg))
+            ->setSwitch($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'), $isDisabled)
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
+    }
+
+    /**
+     * checkCronjobsAvailableToUse. check whether Prestashop Cron jobs module is available or not to add cron task using fyndiq module
+     * @return string return empty string if available
+     */
+    private function checkCronjobsAvailableToUse()
+    {
+        if (!$this->fmPrestashop->isModuleInstalled('cronjobs')) {
+            return 'Prestashop Cron task manager module is not installed!! In order to use this option you have to install Cron task manager module from Modules and Services.';
+        }
+        if (!$this->fmPrestashop->isModuleEnabled('cronjobs')) {
+            return 'Prestashop Cron task manager module is not Enabled!! In order to use this option you have to enable Cron task manager module from Modules and Services.';
+        }
+        if ($this->fmPrestashop->configurationGet('CRONJOBS_MODE') !== 'webservice') {
+            return 'Use the PrestaShop cron tasks webservice to enable this option. Go to Cron task Manager from modules and services then change the Cron mode to Basic';
+        }
+        return '';
+    }
+
+    /**
+     * setCronJobs, add/update a Cron task to the prestashop cron task manager.
+     * @param string  $url    cron task URL
+     * @param boolean $active
+     * @return boolean
+     */
+    private function setCronJobs($url, $active = false)
+    {
+        $description = "Fyndiq Product feed";
+        $task = urlencode($url);
+        $hour = -1;
+        $day = -1;
+        $month = -1;
+        $day_of_week = -1;
+        $tableName = 'cronjobs';
+        $result = $this->fmPrestashop->dbGetInstance()->getRow('SELECT id_cronjob FROM '._DB_PREFIX_.$tableName.'
+            WHERE `description` = \''.$description.'\' AND `hour` = \''.$hour.'\' AND `day` = \''.$day.'\'
+            AND `month` = \''.$month.'\' AND `day_of_week` = \''.$day_of_week.'\'');
+        if ($result == false) {
+            $context = $this->fmPrestashop->contextGetContext();
+            $id_shop = (int)$context->shop->id;
+            $id_shop_group = (int)$context->shop->id_shop_group;
+            $query = 'INSERT INTO '._DB_PREFIX_.$tableName.'
+                (`description`, `task`, `hour`, `day`, `month`, `day_of_week`, `updated_at`, `active`, `id_shop`, `id_shop_group`)
+                VALUES (\''.$description.'\', \''.$task.'\', \''.$hour.'\', \''.$day.'\', \''.$month.'\', \''.$day_of_week.'\', NULL,'.$active.', '.$id_shop.', '.$id_shop_group.')';
+            if (($result = $this->fmPrestashop->dbGetInstance()->execute($query)) != false) {
+                return true;
+            }
+            return false;
+        }
+        return $this->fmPrestashop->dbGetInstance()->execute('UPDATE '._DB_PREFIX_.$tableName.'
+                    SET `active` = '. $active.' WHERE `id_cronjob` = \''.(int)$result['id_cronjob'].'\'');
     }
 }

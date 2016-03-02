@@ -734,5 +734,4 @@ class FmPrestashop
     {
         return Module::isEnabled($moduleName);
     }
-
 }
