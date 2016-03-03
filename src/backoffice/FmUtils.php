@@ -27,6 +27,9 @@ class FmUtils
 
     const CRON_ACTIVE = 1;
     const CRON_DEACTIVE = 0;
+    const CRON_INTERVAL_10 = 10;
+    const CRON_INTERVAL_30 = 30;
+    const CRON_INTERVAL_60 = 60;
 
     const SKU_SEPARATOR = '-';
 
@@ -64,6 +67,7 @@ class FmUtils
             'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
             'ping_token' => '',
             'is_active_cron_task' => self::CRON_DEACTIVE,
+            'fm_interval' => self::CRON_INTERVAL_10
         );
     }
 }
