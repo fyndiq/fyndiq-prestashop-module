@@ -75,7 +75,7 @@ class FmController
         $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjobs') ?
                                             intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
                                             : $this->fmConfig->get('is_active_cron_task', $storeId);
-        $postArr['fm_interval'] = intval($this->fmPrestashop->toolsGetValue('fm_interval'));
+        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjobs') ? intval($this->fmPrestashop->toolsGetValue('fm_interval')) : $this->fmConfig->get('fm_interval', $storeId);
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
@@ -285,18 +285,18 @@ class FmController
      */
     private function getCronJobSettingsForm($storeId)
     {
-        if (!$this->fmConfig->get('CRONJOBS_EXECUTION_TOKEN', $storeId)) {
+        if (!$this->fmPrestashop->configurationGetGlobal('CRONJOBS_EXECUTION_TOKEN')) {
             $token = $this->fmPrestashop->toolsEncrypt($this->fmPrestashop->toolsShopDomainSsl().time());
-            $this->fmConfig->set('CRONJOBS_EXECUTION_TOKEN', $token, $storeId);
+            $this->fmPrestashop->configurationUpdateGlobalValue('CRONJOBS_EXECUTION_TOKEN', $token);
         } else {
-            $token = $this->fmConfig->get('CRONJOBS_EXECUTION_TOKEN', $storeId);
+            $token = $this->fmPrestashop->configurationGetGlobal('CRONJOBS_EXECUTION_TOKEN');
         }
-        $cronUrl = $this->fmPrestashop->getBaseModuleUrl().'modules/fyndiqmerchant/backoffice/notification_service.php?event=cron_execute&store_id=' . $storeId.'&token='.$token;
+        $cronUrl = $this->fmPrestashop->getBaseModuleUrl().'modules/fyndiqmerchant/backoffice/notification_service.php?event=cron_execute'.'&token='.$token;
         $interval = $this->getInterval();
         $isIntervalOptionDisable = true;
-        $helpText = $this->module->__('To enable this feature, First of all select Yes and then set Interval. Make sure the curl library is installed on your server. To execute your cron tasks, please insert the following line in your cron tasks manager:');
+        $helpText = $this->module->__('To enable this feature, first of all select Yes and then set Interval. Make sure the curl library is installed on your server. To execute your cron tasks, please insert the following line in your cron tasks manager:');
         $helpText .= '</br></br><ul class="list-unstyled">
-                        <li><code>10 * * * * curl "'.$cronUrl.'"</code></li>
+                        <li><code>*/10 * * * * curl "'.$cronUrl.'"</code></li>
                     </ul>';
 
         if ($this->fmConfig->get('is_active_cron_task', $storeId)) {

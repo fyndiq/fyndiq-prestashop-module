@@ -69,6 +69,7 @@ class FyndiqMerchant extends Module
 
         $this->registerHook('displayAdminProductsExtra');
         $this->registerHook('actionProductUpdate');
+        $this->registerHook('backOfficeHeader');
 
         return $fmProductExport->install() && $fmOrder->install();
     }
@@ -165,6 +166,11 @@ class FyndiqMerchant extends Module
         if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
         }
+    }
+
+    public function hookBackOfficeHeader()
+    {
+        $this->context->controller->addjs($this->fmPrestashop->getModulePath('fyndiqmerchant').'backoffice/frontend/js/settings.js');
     }
 
     public function getModel($modelName, $storeId = -1)

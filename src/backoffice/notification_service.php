@@ -97,7 +97,7 @@ class FmNotificationService
     private function ping($params, $storeId)
     {
         if ($this->fmConfig->get('is_active_cron_task', $storeId)) {
-            return;
+            return false;
         }
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
@@ -126,15 +126,14 @@ class FmNotificationService
     private function runTasksCrons($params, $storeId)
     {
         if (!$this->fmConfig->get('is_active_cron_task', $storeId)) {
-            return;
+            return false;
         }
         $token = isset($params['token']) ? $params['token'] : null;
-        if (is_null($token) || $token != $this->fmConfig->get('CRONJOBS_EXECUTION_TOKEN', $storeId)) {
+        if (is_null($token) || $token != $this->fmPrestashop->configurationGetGlobal('CRONJOBS_EXECUTION_TOKEN')) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
         }
         $locked = false;
         $lastExecution = $this->fmConfig->get('last_execution_time', $storeId);
-
         $getTimeInterval = $this->fmConfig->get('fm_interval', $storeId). ' minutes ago';
         if ($lastExecution && $lastExecution > strtotime($getTimeInterval)) {
             $locked = true;

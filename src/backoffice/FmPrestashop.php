@@ -405,9 +405,19 @@ class FmPrestashop
         return Configuration::get($name);
     }
 
+    public function configurationGetGlobal($name)
+    {
+        return Configuration::getGlobalValue($name);
+    }
+
     public function configurationUpdateValue($name, $value)
     {
         return Configuration::updateValue($name, $value);
+    }
+
+    public function configurationUpdateGlobalValue($name, $value)
+    {
+        return Configuration::updateGlobalValue($name, $value);
     }
 
     // Category
