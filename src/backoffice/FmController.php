@@ -66,7 +66,7 @@ class FmController
         $postArr['disable_orders'] = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
         $postArr['language'] = intval($this->fmPrestashop->toolsGetValue('language'));
         $postArr['price_percentage'] = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
-        $postArr['price_discount'] = intval($this->fmPrestashop->toolsGetValue('price_discount'));
+        $postArr['price_discount'] = floatval($this->fmPrestashop->toolsGetValue('price_discount'));
         $postArr['import_state'] = intval($this->fmPrestashop->toolsGetValue('import_state'));
         $postArr['done_state'] = intval($this->fmPrestashop->toolsGetValue('done_state'));
         $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
