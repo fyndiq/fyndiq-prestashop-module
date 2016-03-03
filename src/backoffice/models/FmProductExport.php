@@ -173,12 +173,17 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($languageId, $productId, $descriptionType, $context, $groupId, $skuTypeId, $storeId = null)
+    public function getStoreProduct($languageId, $productId, $descriptionType, $context, $percentageDiscount, $priceDiscount, $groupId, $skuTypeId, $storeId = null)
     {
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
             return false;
         }
+
+        $price = $this->fmPrestashop->getPrice($product, $context, $groupId);
+        $fyndiqPrice = FyndiqUtils::getFyndiqPrice($price, $percentageDiscount, $priceDiscount);
+        FyndiqUtils::debug('$price', $price);
+        FyndiqUtils::debug('$fyndiqPrice', $fyndiqPrice);
 
         $result = array(
             'id' => $product->id,
@@ -187,7 +192,7 @@ class FmProductExport extends FmModel
             'reference' => $this->getProductSKU($skuTypeId, $product),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
-            'price' => $this->fmPrestashop->getPrice($product),
+            'price' => $fyndiqPrice,
             'oldprice' => $this->fmPrestashop->getBasePrice($product),
             'description' => $this->getProductDescription($descriptionType, $product),
             'minimal_quantity' => intval($product->minimal_quantity),
@@ -234,6 +239,9 @@ class FmProductExport extends FmModel
                 $attributes = array();
                 $id = $productAttribute[0]['id_product_attribute'];
 
+                $price = $this->fmPrestashop->getPrice($product, $context, $groupId, $id);
+                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($price, $percentageDiscount, $priceDiscount);
+
                 foreach ($productAttribute as $simpleAttr) {
                     $quantity = intval($simpleAttr['quantity']);
                     $minQuantity = intval($simpleAttr['minimal_quantity']);
@@ -246,7 +254,7 @@ class FmProductExport extends FmModel
                 $result['combinations'][$id] = array(
                     'id' => $id,
                     'reference' => $reference,
-                    'price' => $this->fmPrestashop->getPrice($product, $id),
+                    'price' => $fyndiqPrice,
                     'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
                     'quantity' => $quantity,
                     'minimal_quantity' => $minQuantity,
@@ -289,7 +297,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $priceDiscount, $descriptionType, $skuTypeId, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -309,7 +317,7 @@ class FmProductExport extends FmModel
         $context->customer = $customer;
 
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $groupId, $skuTypeId, $storeId);
+            $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $percentageDiscount, $priceDiscount, $groupId, $skuTypeId, $storeId);
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
                 // Product not found (maybe not in this store);
