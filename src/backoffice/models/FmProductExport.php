@@ -46,7 +46,7 @@ class FmProductExport extends FmModel
         $data = array(
             'fyndiq_price' => $fyndiqPrice,
             'name' => $name,
-            'description' => $description
+            'description' => $description,
         );
         return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
@@ -327,9 +327,9 @@ class FmProductExport extends FmModel
 
             $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
 
-            $exportProductTitle = $fmProduct['description'] ?: $storeProduct['name'];
-            $exportProductDescription = $fmProduct['description'] ?: $storeProduct['description'];
-            
+            $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
+            $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
+
             $exportProduct = array(
                 FyndiqFeedWriter::ID => $storeProduct['id'],
                 FyndiqFeedWriter::PRODUCT_CATEGORY_ID => $storeProduct['category_id'],

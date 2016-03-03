@@ -134,10 +134,13 @@ class FyndiqMerchant extends Module
     {
         return $this->fmPrestashop;
     }
-    
+
     public function hookDisplayBackOfficeHeader($params)
     {
-      $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js' );
+        if(Tools::getValue('controller') == 'AdminProducts')
+        {
+            $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js' );
+        }
     }
 
     public function hookDisplayAdminProductsExtra($params)
@@ -150,7 +153,15 @@ class FyndiqMerchant extends Module
             array(
                 'fyndiq_exported' => !empty($fynProduct),
                 'fyndiq_title' => $fynProduct['name'],
-                'fyndiq_description' => $fynProduct['description'] 
+                'fyndiq_title_label' => $this->__("Name"),
+                'fyndiq_title_tooltip' => $this->__("Title of the product as it will appear on Fyndiq"),
+                'fyndiq_title_minlength' => FyndiqFeedWriter::$minLength[FyndiqFeedWriter::PRODUCT_TITLE],
+                'fyndiq_title_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_TITLE],
+                'fyndiq_description' => $fynProduct['description'],
+                'fyndiq_description_label' => $this->__("Description"),
+                'fyndiq_description_tooltip' => $this->__("Description of the product as it will appear on Fyndiq"),
+                'fyndiq_description_minlength' => FyndiqFeedWriter::$minLength[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
+                'fyndiq_description_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
             )
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
