@@ -39,10 +39,10 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $fyndiqPrice, $storeId)
+    public function updateProduct($productId, $storeId)
     {
         $data = array(
-            'fyndiq_price' => $fyndiqPrice
+
         );
         return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
@@ -82,7 +82,6 @@ class FmProductExport extends FmModel
                     id int(20) unsigned primary key AUTO_INCREMENT,
                     store_id int(10) unsigned,
                     product_id int(10) unsigned,
-                    fyndiq_price int(10) unsigned,
                     name varchar(128) NOT NULL DEFAULT "",
                     description text NOT NULL DEFAULT ""
                 );';
