@@ -28,6 +28,7 @@ class FmUtils
     const SKU_SEPARATOR = '-';
 
     const DEFAULT_DISCOUNT_PERCENTAGE = 10;
+    const DEFAULT_PRICE_DISCOUNT = 0;
     const DEFAULT_ORDER_IMPORT_STATE = 3;
     const DEFAULT_ORDER_DONE_STATE = 4;
     const DEFAULT_CUSTOMER_GROUP_ID = 1;
@@ -54,6 +55,7 @@ class FmUtils
                 'disable_orders' => self::ORDERS_ENABLED,
                 'language' => $languageId,
                 'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
+                'price_discount' => self::DEFAULT_PRICE_DISCOUNT,
                 'stock_min' => 0,
                 'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
                 'description_type' => self::LONG_DESCRIPTION,
