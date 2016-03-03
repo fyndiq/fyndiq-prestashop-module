@@ -169,19 +169,19 @@ class FyndiqMerchant extends Module
 
     public function hookActionProductUpdate($params)
     {
-        $productId = (int)Tools::getValue('id_product');
+        $productId = (int)$this->fmPrestashop->toolsGetValue('id_product');
         $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $storeId = $this->fmPrestashop->getStoreId();
-        $exported = Tools::getValue('fyndiq_exported');
-        $title = Tools::getValue('fyndiq_title');
-        $description = Tools::getValue('fyndiq_description');
+        $exported = $this->fmPrestashop->toolsGetValue('fyndiq_exported');
+        $title = $this->fmPrestashop->toolsGetValue('fyndiq_title');
+        $description = $this->fmPrestashop->toolsGetValue('fyndiq_description');
 
         if($exported && !$productModel->productExists($productId, $storeId)) {
             $productModel->addProduct($productId, $storeId, $title, $description);
             return;
         }
         if($exported && $productModel->productExists($productId, $storeId)) {
-            $productModel->updateProduct($productId, $price, $storeId,  $title, $description);
+            $productModel->updateProduct($productId, $storeId,  $title, $description);
         }
         if(!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
