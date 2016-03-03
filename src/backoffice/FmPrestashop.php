@@ -389,6 +389,10 @@ class FmPrestashop
         return Tools::encrypt($string);
     }
 
+    public function toolsShopDomainSsl()
+    {
+        return Tools::getShopDomainSsl();
+    }
 
     // Configuration
     public function configurationDeleteByName($name)

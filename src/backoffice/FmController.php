@@ -72,7 +72,7 @@ class FmController
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
-        $postArr['is_active_cron_task'] = !$this->fmPrestashop->toolsGetValue('set_cronjobs') ?
+        $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjobs') ?
                                             intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
                                             : $this->fmConfig->get('is_active_cron_task', $storeId);
         $postArr['fm_interval'] = intval($this->fmPrestashop->toolsGetValue('fm_interval'));
@@ -138,7 +138,7 @@ class FmController
         $fieldsForms[] =  $this->getGeneralSettingsForm();
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
-        if (!$this->fmPrestashop->toolsGetValue('set_cronjobs')) {
+        if ($this->fmPrestashop->toolsGetValue('set_cronjobs')) {
             $fieldsForms[] = $this->getCronJobSettingsForm($storeId);
         }
         return $helper->generateForm($fieldsForms);
@@ -285,11 +285,18 @@ class FmController
      */
     private function getCronJobSettingsForm($storeId)
     {
+        if (!$this->fmConfig->get('CRONJOBS_EXECUTION_TOKEN', $storeId)) {
+            $token = $this->fmPrestashop->toolsEncrypt($this->fmPrestashop->toolsShopDomainSsl().time());
+            $this->fmConfig->set('CRONJOBS_EXECUTION_TOKEN', $token, $storeId);
+        } else {
+            $token = $this->fmConfig->get('CRONJOBS_EXECUTION_TOKEN', $storeId);
+        }
+        $cronUrl = $this->fmPrestashop->getBaseModuleUrl().'modules/fyndiqmerchant/backoffice/notification_service.php?event=cron_execute&store_id=' . $storeId.'&token='.$token;
         $interval = $this->getInterval();
         $isIntervalOptionDisable = true;
         $helpText = $this->module->__('To enable this feature, First of all select Yes and then set Interval. Make sure the curl library is installed on your server. To execute your cron tasks, please insert the following line in your cron tasks manager:');
         $helpText .= '</br></br><ul class="list-unstyled">
-                        <li><code>10 * * * * curl "http://prestashop.local/admin1234/index.php?controller=AdminCronJobs&amp;token=b15c0b2d02353f2280a5fec8529b1260"</code></li>
+                        <li><code>10 * * * * curl "'.$cronUrl.'"</code></li>
                     </ul>';
 
         if ($this->fmConfig->get('is_active_cron_task', $storeId)) {
