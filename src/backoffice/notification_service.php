@@ -145,10 +145,10 @@ class FmNotificationService
 
     private function debug($params, $storeId)
     {
-        /**$token = isset($params['token']) ? $params['token'] : null;
+        $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
-        }*/
+        }
 
         FyndiqUtils::debugStart();
         FyndiqUtils::debug('USER AGENT', $this->fmApiModel->getUserAgent());
