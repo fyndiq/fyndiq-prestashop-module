@@ -72,10 +72,10 @@ class FmController
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
-        $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjobs') ?
+        $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
                                             intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
                                             : $this->fmConfig->get('is_active_cron_task', $storeId);
-        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjobs') ? intval($this->fmPrestashop->toolsGetValue('fm_interval')) : $this->fmConfig->get('fm_interval', $storeId);
+        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ? intval($this->fmPrestashop->toolsGetValue('fm_interval')) : $this->fmConfig->get('fm_interval', $storeId);
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
@@ -138,7 +138,7 @@ class FmController
         $fieldsForms[] =  $this->getGeneralSettingsForm();
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
-        if ($this->fmPrestashop->toolsGetValue('set_cronjobs')) {
+        if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
             $fieldsForms[] = $this->getCronJobSettingsForm($storeId);
         }
         return $helper->generateForm($fieldsForms);
