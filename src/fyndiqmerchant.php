@@ -170,7 +170,10 @@ class FyndiqMerchant extends Module
 
     public function hookBackOfficeHeader()
     {
-        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant' && $this->fmPrestashop->toolsGetValue('set_cronjob')) {
+        if (
+            $this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant'
+            && $this->fmPrestashop->toolsGetValue('set_cronjob')
+        ) {
             $this->fmPrestashop->contextGetContext()->controller->addjs(
                 $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
             );
