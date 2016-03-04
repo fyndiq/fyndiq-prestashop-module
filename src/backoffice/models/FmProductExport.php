@@ -30,7 +30,7 @@ class FmProductExport extends FmModel
         return count($data) > 0;
     }
 
-    public function addProduct($productId, $storeId, $name, $description)
+    public function addProduct($productId, $storeId, $name = NULL, $description = NULL)
     {
         $data = array(
             'store_id' => $storeId,
@@ -41,7 +41,7 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $fyndiqPrice, $storeId, $name, $description)
+    public function updateProduct($productId, $fyndiqPrice, $storeId, $name = NULL, $description = NULL)
     {
         $data = array(
             'fyndiq_price' => $fyndiqPrice,
