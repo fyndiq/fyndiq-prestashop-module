@@ -285,11 +285,11 @@ class FmController
      */
     private function getCronJobSettingsForm($storeId)
     {
-        if (!$this->fmPrestashop->configurationGetGlobal('CRONJOBS_EXECUTION_TOKEN')) {
+        if (!$this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token')) {
             $token = $this->fmPrestashop->toolsEncrypt($this->fmPrestashop->toolsShopDomainSsl().time());
-            $this->fmPrestashop->configurationUpdateGlobalValue('CRONJOBS_EXECUTION_TOKEN', $token);
+            $this->fmPrestashop->configurationUpdateGlobalValue('cronjobs_execution_token', $token);
         } else {
-            $token = $this->fmPrestashop->configurationGetGlobal('CRONJOBS_EXECUTION_TOKEN');
+            $token = $this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token');
         }
         $cronUrl = $this->fmPrestashop->getBaseModuleUrl().'modules/fyndiqmerchant/backoffice/notification_service.php?event=cron_execute'.'&token='.$token;
         $interval = $this->getInterval();

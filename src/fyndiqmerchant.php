@@ -170,7 +170,9 @@ class FyndiqMerchant extends Module
 
     public function hookBackOfficeHeader()
     {
-        $this->context->controller->addjs($this->fmPrestashop->getModulePath('fyndiqmerchant').'backoffice/frontend/js/settings.js');
+        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant' && $this->fmPrestashop->toolsGetValue('set_cronjobs')) {
+            $this->context->controller->addjs($this->fmPrestashop->getModulePath('fyndiqmerchant').'backoffice/frontend/js/settings.js');
+        }
     }
 
     public function getModel($modelName, $storeId = -1)

@@ -129,7 +129,7 @@ class FmNotificationService
             return false;
         }
         $token = isset($params['token']) ? $params['token'] : null;
-        if (is_null($token) || $token != $this->fmPrestashop->configurationGetGlobal('CRONJOBS_EXECUTION_TOKEN')) {
+        if (is_null($token) || $token != $this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token')) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
         }
         $locked = false;
