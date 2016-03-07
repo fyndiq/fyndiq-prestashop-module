@@ -70,7 +70,7 @@ class FilePageController
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
                     $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                     $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $descriptionType, $skuTypeId, $storeId);
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $priceDiscount, $descriptionType, $skuTypeId, $storeId);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);
