@@ -113,30 +113,6 @@ class FmNotificationService
         }
         if (!$locked) {
             $this->fmConfig->set('ping_time', time(), $storeId);
-            $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
-            $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
-            $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-            try {
-                $file = fopen($tempFileName, 'w+');
-                $feedWriter = FmUtils::getFileWriter($file);
-                $languageId = $this->fmConfig->get('language', $storeId);
-                $stockMin = $this->fmConfig->get('stock_min', $storeId);
-                $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-                $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-                $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
-                $percentageDiscount = intval($this->fmConfig->get('price_percentage', $storeId));
-                $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
-                $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $priceDiscount, $descriptionType, $skuTypeId, $storeId);
-                fclose($file);
-                if ($result) {
-                    FyndiqUtils::moveFile($tempFileName, $fileName);
-                } else {
-                    FyndiqUtils::deleteFile($tempFileName);
-                }
-                return $this->updateProductInfo();
-            } catch (Exception $e) {
-                return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
-            }
             return $this->generateFeeds($storeId);
         }
     }
@@ -212,10 +188,10 @@ class FmNotificationService
 
     private function debug($params, $storeId)
     {
-        $token = isset($params['token']) ? $params['token'] : null;
+        /**$token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
-        }
+        }*/
 
         FyndiqUtils::debugStart();
         FyndiqUtils::debug('USER AGENT', $this->fmApiModel->getUserAgent());
