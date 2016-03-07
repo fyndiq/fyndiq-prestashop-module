@@ -192,22 +192,22 @@ class FmPrestashop
         $currencyId = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
 
         return Product::priceCalculation(
-                  $context->shop->id, // Store ID for which store
-                  $product->id, // product id
-                  $attributeId, // Product attribute id
-                  (int)$context->country->id, // Country Id
-                  0, // State id
-                  0, // Zipcode
-                  $currencyId, // Currency id
-                  $groupId, // Customer group ID
-                  1, // Quantity
-                  1, // Use Tax
-                  6, // Decimals
-                  false, // Only reduction
-                  true, // use reduction
-                  true, // with ecotax
-                  $specific_price_output,
-                  true // use group reduction
+            $context->shop->id, // Store ID for which store
+            $product->id, // product id
+            $attributeId, // Product attribute id
+            (int)$context->country->id, // Country Id
+            0, // State id
+            0, // Zipcode
+            $currencyId, // Currency id
+            $groupId, // Customer group ID
+            1, // Quantity
+            1, // Use Tax
+            6, // Decimals
+            false, // Only reduction
+            true, // use reduction
+            true, // with ecotax
+            $specific_price_output,
+            true // use group reduction
         );
     }
 
@@ -389,6 +389,10 @@ class FmPrestashop
         return Tools::encrypt($string);
     }
 
+    public function toolsShopDomainSsl()
+    {
+        return Tools::getShopDomainSsl();
+    }
 
     // Configuration
     public function configurationDeleteByName($name)
@@ -401,9 +405,19 @@ class FmPrestashop
         return Configuration::get($name);
     }
 
+    public function configurationGetGlobal($name)
+    {
+        return Configuration::getGlobalValue($name);
+    }
+
     public function configurationUpdateValue($name, $value)
     {
         return Configuration::updateValue($name, $value);
+    }
+
+    public function configurationUpdateGlobalValue($name, $value)
+    {
+        return Configuration::updateGlobalValue($name, $value);
     }
 
     // Category
@@ -713,5 +727,25 @@ class FmPrestashop
             $result[] = $row;
         }
         return $result;
+    }
+
+    /**
+     * isModuleInstalled checks whether module is installed or not
+     * @param  string  $moduleName module name lowercase
+     * @return boolean
+     */
+    public function isModuleInstalled($moduleName)
+    {
+        return Module::isInstalled($moduleName);
+    }
+
+    /**
+     * isModuleInstalled. To check whether module is enabled or not
+     * @param  string  $moduleName module name lowercase
+     * @return boolean
+     */
+    public function isModuleEnabled($moduleName)
+    {
+        return Module::isEnabled($moduleName);
     }
 }

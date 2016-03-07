@@ -70,6 +70,7 @@ class FyndiqMerchant extends Module
         $this->registerHook('displayAdminProductsExtra');
         $this->registerHook('displayBackOfficeHeader');
         $this->registerHook('actionProductUpdate');
+        $this->registerHook('backOfficeHeader');
 
         return $fmProductExport->install() && $fmOrder->install();
     }
@@ -183,8 +184,19 @@ class FyndiqMerchant extends Module
         if($exported && $productModel->productExists($productId, $storeId)) {
             $productModel->updateProduct($productId, $storeId,  $title, $description);
         }
-        if(!$exported && $productModel->productExists($productId, $storeId)) {
+        if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
+        }
+    }
+
+    public function hookBackOfficeHeader()
+    {
+        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant'
+            && $this->fmPrestashop->toolsGetValue('set_cronjob')
+        ) {
+            $this->fmPrestashop->contextGetContext()->controller->addjs(
+                $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
+            );
         }
     }
 
