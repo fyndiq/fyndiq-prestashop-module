@@ -161,7 +161,7 @@ class FmNotificationService
             $stockMin = $this->fmConfig->get('stock_min', $storeId);
             $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
             $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-            $percentageDiscount = intval($this->fmConfig->get('price_percentage', $storeId));
+            $percentageDiscount = floatval($this->fmConfig->get('price_percentage', $storeId));
             $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
             $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
             $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $priceDiscount, $descriptionType, $skuTypeId, $storeId);

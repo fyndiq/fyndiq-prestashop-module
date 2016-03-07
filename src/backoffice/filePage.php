@@ -52,10 +52,10 @@ class FilePageController
             $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
             FyndiqUtils::debug('$groupId', $groupId);
 
-            $percentageDiscount = $this->fmConfig->get('price_percentage', $storeId);
+            $percentageDiscount = floatval($this->fmConfig->get('price_percentage', $storeId));
             FyndiqUtils::debug('$percentageDiscount', $percentageDiscount);
 
-            $priceDiscount = $this->fmConfig->get('price_discount', $storeId);
+            $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
             FyndiqUtils::debug('$priceDiscount', $priceDiscount);
 
             if (!empty($username) && !empty($apiToken)) {
