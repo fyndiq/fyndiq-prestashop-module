@@ -68,7 +68,9 @@ class FyndiqMerchant extends Module
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
 
         $this->registerHook('displayAdminProductsExtra');
+        $this->registerHook('displayBackOfficeHeader');
         $this->registerHook('actionProductUpdate');
+        $this->registerHook('backOfficeHeader');
 
         return $fmProductExport->install() && $fmOrder->install();
     }
@@ -134,6 +136,14 @@ class FyndiqMerchant extends Module
         return $this->fmPrestashop;
     }
 
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        if(Tools::getValue('controller') === 'AdminProducts')
+        {
+            $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js' );
+        }
+    }
+
     public function hookDisplayAdminProductsExtra($params)
     {
         $productId = (int)Tools::getValue('id_product');
@@ -143,6 +153,16 @@ class FyndiqMerchant extends Module
         $this->smarty->assign(
             array(
                 'fyndiq_exported' => !empty($fynProduct),
+                'fyndiq_title' => $fynProduct['name'],
+                'fyndiq_title_label' => $this->__("Name"),
+                'fyndiq_title_tooltip' => $this->__("Title of the product as it will appear on Fyndiq"),
+                'fyndiq_title_minlength' => FyndiqFeedWriter::$minLength[FyndiqFeedWriter::PRODUCT_TITLE],
+                'fyndiq_title_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_TITLE],
+                'fyndiq_description' => $fynProduct['description'],
+                'fyndiq_description_label' => $this->__("Description"),
+                'fyndiq_description_tooltip' => $this->__("Description of the product as it will appear on Fyndiq"),
+                'fyndiq_description_minlength' => FyndiqFeedWriter::$minLength[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
+                'fyndiq_description_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
             )
         );
         return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
@@ -150,20 +170,33 @@ class FyndiqMerchant extends Module
 
     public function hookActionProductUpdate($params)
     {
-        $productId = (int)Tools::getValue('id_product');
+        $productId = (int)$this->fmPrestashop->toolsGetValue('id_product');
         $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $storeId = $this->fmPrestashop->getStoreId();
-        $exported = Tools::getValue('fyndiq_exported');
+        $exported = $this->fmPrestashop->toolsGetValue('fyndiq_exported');
+        $title = $this->fmPrestashop->toolsGetValue('fyndiq_title');
+        $description = $this->fmPrestashop->toolsGetValue('fyndiq_description');
 
         if($exported && !$productModel->productExists($productId, $storeId)) {
-            $productModel->addProduct($productId, $storeId);
+            $productModel->addProduct($productId, $storeId, $title, $description);
             return;
         }
         if($exported && $productModel->productExists($productId, $storeId)) {
-            $productModel->updateProduct($productId, $price, $storeId);
+            $productModel->updateProduct($productId, $storeId,  $title, $description);
         }
-        if(!$exported && $productModel->productExists($productId, $storeId)) {
+        if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
+        }
+    }
+
+    public function hookBackOfficeHeader()
+    {
+        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant'
+            && $this->fmPrestashop->toolsGetValue('set_cronjob')
+        ) {
+            $this->fmPrestashop->contextGetContext()->controller->addjs(
+                $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
+            );
         }
     }
 

@@ -30,19 +30,22 @@ class FmProductExport extends FmModel
         return count($data) > 0;
     }
 
-    public function addProduct($productId, $storeId)
+    public function addProduct($productId, $storeId, $name = NULL, $description = NULL)
     {
         $data = array(
             'store_id' => $storeId,
             'product_id' => $productId,
+            'name' => $name,
+            'description' => $description
         );
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $storeId)
+    public function updateProduct($productId, $storeId, $name = NULL, $description = NULL)
     {
         $data = array(
-
+            'name' => $name,
+            'description' => $description,
         );
         return (bool)$this->fmPrestashop->dbUpdate(
             $this->tableName,
@@ -330,6 +333,9 @@ class FmProductExport extends FmModel
 
             $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
 
+            $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
+            $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
+
             $exportProduct = array(
                 FyndiqFeedWriter::ID => $storeProduct['id'],
                 FyndiqFeedWriter::PRODUCT_CATEGORY_ID => $storeProduct['category_id'],
@@ -337,11 +343,11 @@ class FmProductExport extends FmModel
                     $this->fmPrestashop->getCategoryPath($storeProduct['category_id']),
                 FyndiqFeedWriter::PRODUCT_CURRENCY => $currentCurrency,
                 FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
-                FyndiqFeedWriter::PRODUCT_DESCRIPTION => $storeProduct['description'],
+                FyndiqFeedWriter::PRODUCT_DESCRIPTION => $exportProductDescription,
                 FyndiqFeedWriter::PRICE => $fyndiqPrice,
                 FyndiqFeedWriter::OLDPRICE => $storeProduct['oldprice'],
                 FyndiqFeedWriter::PRODUCT_BRAND_NAME => $storeProduct['manufacturer_name'],
-                FyndiqFeedWriter::PRODUCT_TITLE => $storeProduct['name'],
+                FyndiqFeedWriter::PRODUCT_TITLE => $exportProductTitle,
                 FyndiqFeedWriter::PRODUCT_VAT_PERCENT => $storeProduct['tax_rate'],
                 FyndiqFeedWriter::PRODUCT_MARKET => $market,
                 FyndiqFeedWriter::SKU => $storeProduct['reference'],
@@ -364,7 +370,7 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::PRICE => $fyndiqPrice,
                     FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
-                    FyndiqFeedWriter::ARTICLE_NAME => $storeProduct['name'],
+                    FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
                 );
                 $article[FyndiqFeedWriter::PROPERTIES] = array();
 

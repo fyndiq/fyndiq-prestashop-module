@@ -25,6 +25,12 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
+    const CRON_ACTIVE = 1;
+    const CRON_INACTIVE = 0;
+    const CRON_INTERVAL_10 = 10;
+    const CRON_INTERVAL_30 = 30;
+    const CRON_INTERVAL_60 = 60;
+
     const SKU_SEPARATOR = '-';
 
     const DEFAULT_DISCOUNT_PERCENTAGE = 10;
@@ -50,18 +56,20 @@ class FmUtils
     public static function getConfigKeys($languageId = '')
     {
         return array(
-                'username' => '',
-                'api_token' => '',
-                'disable_orders' => self::ORDERS_ENABLED,
-                'language' => $languageId,
-                'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
-                'price_discount' => self::DEFAULT_PRICE_DISCOUNT,
-                'stock_min' => 0,
-                'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
-                'description_type' => self::LONG_DESCRIPTION,
-                'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
-                'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
-                'ping_token' => ''
+            'username' => '',
+            'api_token' => '',
+            'disable_orders' => self::ORDERS_ENABLED,
+            'language' => $languageId,
+            'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
+            'price_discount' => self::DEFAULT_PRICE_DISCOUNT,
+            'stock_min' => 0,
+            'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
+            'description_type' => self::LONG_DESCRIPTION,
+            'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
+            'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
+            'ping_token' => '',
+            'is_active_cron_task' => self::CRON_INACTIVE,
+            'fm_interval' => self::CRON_INTERVAL_10
         );
     }
 }

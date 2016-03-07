@@ -47,6 +47,8 @@ class FmNotificationService
                     return $this->debug($params, $storeId);
                 case 'info':
                     return $this->info($params, $storeId);
+                case 'cron_execute':
+                    return $this->runTasksCrons($params, $storeId);
             }
         }
         return $this->fmOutput->showError(400, 'Bad Request', '400 Bad Request');
@@ -94,6 +96,9 @@ class FmNotificationService
      */
     private function ping($params, $storeId)
     {
+        if ($this->fmConfig->get('is_active_cron_task', $storeId)) {
+            return false;
+        }
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
@@ -118,6 +123,7 @@ class FmNotificationService
                 $stockMin = $this->fmConfig->get('stock_min', $storeId);
                 $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                 $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+                $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
                 $percentageDiscount = intval($this->fmConfig->get('price_percentage', $storeId));
                 $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
                 $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $priceDiscount, $descriptionType, $skuTypeId, $storeId);
@@ -131,6 +137,67 @@ class FmNotificationService
             } catch (Exception $e) {
                 return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
             }
+            return $this->generateFeeds($storeId);
+        }
+    }
+
+    /**
+     * runTasksCrons. Merchant own Cron task runner
+     * @param  array $params  pass token and storeId
+     * @param  int $storeId store ID
+     * @return string
+     */
+    private function runTasksCrons($params, $storeId)
+    {
+        if (!$this->fmConfig->get('is_active_cron_task', $storeId)) {
+            return false;
+        }
+        $token = isset($params['token']) ? $params['token'] : null;
+        if (is_null($token) || $token != $this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token')) {
+            return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
+        }
+        $locked = false;
+        $lastExecution = $this->fmConfig->get('last_execution_time', $storeId);
+        $getTimeInterval = $this->fmConfig->get('fm_interval', $storeId). ' minutes ago';
+        if ($lastExecution && $lastExecution > strtotime($getTimeInterval)) {
+            $locked = true;
+        }
+        if (!$locked) {
+            $this->fmConfig->set('last_execution_time', time(), $storeId);
+            return $this->generateFeeds($storeId);
+        }
+    }
+
+    /**
+     * generateFeeds Generate feeds
+     * @param  int $storeId Store Id
+     * @return string
+     */
+    private function generateFeeds($storeId)
+    {
+        $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
+        $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
+        try {
+            $file = fopen($tempFileName, 'w+');
+            $feedWriter = FmUtils::getFileWriter($file);
+            $languageId = $this->fmConfig->get('language', $storeId);
+            $stockMin = $this->fmConfig->get('stock_min', $storeId);
+            $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
+            $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+            $percentageDiscount = intval($this->fmConfig->get('price_percentage', $storeId));
+            $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
+            $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
+            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $percentageDiscount, $priceDiscount, $descriptionType, $skuTypeId, $storeId);
+            fclose($file);
+            if ($result) {
+                FyndiqUtils::moveFile($tempFileName, $fileName);
+            } else {
+                FyndiqUtils::deleteFile($tempFileName);
+            }
+            return $this->updateProductInfo();
+        } catch (Exception $e) {
+            return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
         }
     }
 
