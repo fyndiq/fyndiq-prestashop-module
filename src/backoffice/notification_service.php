@@ -161,7 +161,11 @@ class FmNotificationService
             $stockMin = $this->fmConfig->get('stock_min', $storeId);
             $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
             $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
+            $eanTypeId = $this->fmConfig->get('ean_type', $storeId);
+            $isbnTypeId = $this->fmConfig->get('isbn_type', $storeId);
+            $mpnTypeId = $this->fmConfig->get('mpn_type', $storeId);
+            $brandTypeId = $this->fmConfig->get('brand_type', $storeId);
+            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $eanTypeId, $isbnTypeId, $mpnTypeId, $brandTypeId, $storeId);
             fclose($file);
             if ($result) {
                 FyndiqUtils::moveFile($tempFileName, $fileName);
@@ -214,12 +218,16 @@ class FmNotificationService
 
         $stockMin = $this->fmConfig->get('stock_min', $storeId);
         $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
+        $eanTypeId = $this->fmConfig->get('ean_type', $storeId);
+        $isbnTypeId = $this->fmConfig->get('isbn_type', $storeId);
+        $mpnTypeId = $this->fmConfig->get('mpn_type', $storeId);
+        $brandTypeId = $this->fmConfig->get('brand_type', $storeId);
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
 
         $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
         FyndiqUtils::debug('$groupId', $groupId);
 
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId);
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $eanTypeId, $isbnTypeId, $mpnTypeId, $brandTypeId, $storeId);
 
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);

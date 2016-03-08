@@ -25,6 +25,11 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
+    const EAN_DEFAULT = 'ean13';
+    const ISBN_DEFAULT = 'ean13';
+    const MPN_DEFAULT = 'ean13';
+    const BRAND_DEFAULT = 'id_manufacturer';
+
     const CRON_ACTIVE = 1;
     const CRON_INACTIVE = 0;
     const CRON_INTERVAL_10 = 10;
@@ -63,6 +68,10 @@ class FmUtils
             'stock_min' => 0,
             'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
             'description_type' => self::LONG_DESCRIPTION,
+            'ean_type' => self::EAN_DEFAULT,
+            'isbn_type' => self::ISBN_DEFAULT,
+            'mpn_type' => self::MPN_DEFAULT,
+            'brand_type' => self::BRAND_DEFAULT,
             'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
             'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
             'ping_token' => '',

@@ -71,6 +71,10 @@ class FmController
         $postArr['stock_min'] = $postArr['stock_min'] < 0 ? 0 : $postArr['stock_min'];
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
         $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
+        $postArr['ean_type'] = $this->fmPrestashop->toolsGetValue('ean_type');
+        $postArr['isbn_type'] = $this->fmPrestashop->toolsGetValue('isbn_type');
+        $postArr['mpn_type'] = $this->fmPrestashop->toolsGetValue('mpn_type');
+        $postArr['brand_type'] = $this->fmPrestashop->toolsGetValue('brand_type');
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
         $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
                                             intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
@@ -251,13 +255,33 @@ class FmController
         );
     }
 
+    private function getAllFieldsKeys()
+    {
+        $product_fields = array_keys(Product::$definition['fields']);
+        $article_fields = array_keys( Combination::$definition['fields']);
+        $all_fields = array_unique(array_merge($product_fields, $article_fields));
+        asort($all_fields);
+
+        $result = array();
+        foreach($all_fields as $field)
+        {
+            $field_title = $this->module->l($this->module->__($field));
+            array_push($result, ['id' => $field, 'name' => $field_title]);
+        }
+        return $result;
+    }
+
     private function getGeneralSettingsForm()
     {
         $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->getOrderStates($languageId);
         $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
-        $desciotionsType = $this->getDescriptonTypes();
+        $descriptionsTypes = $this->getDescriptonTypes();
+        $eanTypes = $this->getAllFieldsKeys();
+        $isbnTypes = $this->getAllFieldsKeys();
+        $mpnTypes = $this->getAllFieldsKeys();
+        $brandTypes = $this->getAllFieldsKeys();
 
         $formSettings = new FmFormSetting();
         return $formSettings
@@ -272,7 +296,11 @@ class FmController
                                              if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
             ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
             ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
-            ->setSelect($this->module->__('Description to use'), 'description_type', '', $desciotionsType, 'id', 'name')
+            ->setSelect($this->module->__('Description to use'), 'description_type', '', $descriptionsTypes, 'id', 'name')
+            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $eanTypes, 'id', 'name')
+            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $isbnTypes, 'id', 'name')
+            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $mpnTypes, 'id', 'name')
+            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $brandTypes, 'id', 'name')
             ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
             ->setSubmit($this->module->__('Save'))

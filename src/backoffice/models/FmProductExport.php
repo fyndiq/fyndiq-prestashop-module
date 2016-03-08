@@ -287,6 +287,24 @@ class FmProductExport extends FmModel
     }
 
     /**
+     * getArticleFieldValue returns the specified field's value from a product's combination.
+     * If a field is not found on a combination, it returns a specified's field's value from a product.
+     *
+     * @param  object $fieldKey field to look for
+     * @param  Product $product product to search the field in
+     * @param  Combination $combination combination to search the field in
+     * @return object
+     */
+    protected function getArticleFieldValue($fieldKey, $product, $combination)
+    {
+        if(isset($combination[$fieldKey]))
+        {
+           return $combination[$fieldKey];
+        }
+        return $product[$fieldKey];
+    }
+
+    /**
      * saveFile saves the export feed to the provided feedWriter
      * @param  int $languageId
      * @param  object $feedWriter
@@ -294,7 +312,7 @@ class FmProductExport extends FmModel
      * @param  int $descriptionType
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $eanType, $isbnType, $mpnType, $brandType, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -340,7 +358,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::PRODUCT_DESCRIPTION => $exportProductDescription,
                 FyndiqFeedWriter::PRICE => $fyndiqPrice,
                 FyndiqFeedWriter::OLDPRICE => $storeProduct['oldprice'],
-                FyndiqFeedWriter::PRODUCT_BRAND_NAME => $storeProduct['manufacturer_name'],
+                FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->getArticleFieldValue($brandType, $storeProduct, $storeProduct['combinations'][0]),
                 FyndiqFeedWriter::PRODUCT_TITLE => $exportProductTitle,
                 FyndiqFeedWriter::PRODUCT_VAT_PERCENT => $storeProduct['tax_rate'],
                 FyndiqFeedWriter::PRODUCT_MARKET => $market,
@@ -365,6 +383,9 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
+                    FyndiqFeedWriter::ARTICLE_EAN => $this->getArticleFieldValue($eanType, $storeProduct, $combination),
+                    FyndiqFeedWriter::ARTICLE_ISBN => $this->getArticleFieldValue($isbnType, $storeProduct, $combination),
+                    FyndiqFeedWriter::ARTICLE_MPN => $this->getArticleFieldValue($mpnType, $storeProduct, $combination),
                 );
                 $article[FyndiqFeedWriter::PROPERTIES] = array();
 
