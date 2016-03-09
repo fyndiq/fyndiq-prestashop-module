@@ -159,13 +159,15 @@ class FmNotificationService
             $feedWriter = FmUtils::getFileWriter($file);
             $languageId = $this->fmConfig->get('language', $storeId);
             $stockMin = $this->fmConfig->get('stock_min', $storeId);
-            $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-            $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-            $eanTypeId = $this->fmConfig->get('ean_type', $storeId);
-            $isbnTypeId = $this->fmConfig->get('isbn_type', $storeId);
-            $mpnTypeId = $this->fmConfig->get('mpn_type', $storeId);
-            $brandTypeId = $this->fmConfig->get('brand_type', $storeId);
-            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $eanTypeId, $isbnTypeId, $mpnTypeId, $brandTypeId, $storeId);
+            $fields_mappings = array (
+                FyndiqFeedWriter::PRODUCT_DESCRIPTION => intval($this->fmConfig->get('description_type', $storeId)),
+                FyndiqFeedWriter::ARTICLE_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
+                FyndiqFeedWriter::ARTICLE_EAN => $this->fmConfig->get('ean_type', $storeId),
+                FyndiqFeedWriter::ARTICLE_ISBN => $this->fmConfig->get('isbn_type', $storeId),
+                FyndiqFeedWriter::ARTICLE_MPN => $this->fmConfig->get('mpn_type', $storeId),
+                FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->fmConfig->get('brand_type', $storeId),
+            );
+            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $fields_mappings, $storeId);
             fclose($file);
             if ($result) {
                 FyndiqUtils::moveFile($tempFileName, $fileName);
@@ -217,17 +219,20 @@ class FmNotificationService
         FyndiqUtils::debug('$languageId', $languageId);
 
         $stockMin = $this->fmConfig->get('stock_min', $storeId);
-        $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-        $eanTypeId = $this->fmConfig->get('ean_type', $storeId);
-        $isbnTypeId = $this->fmConfig->get('isbn_type', $storeId);
-        $mpnTypeId = $this->fmConfig->get('mpn_type', $storeId);
-        $brandTypeId = $this->fmConfig->get('brand_type', $storeId);
-        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+
+        $fields_mappings = array (
+            FyndiqFeedWriter::PRODUCT_DESCRIPTION => intval($this->fmConfig->get('description_type', $storeId)),
+            FyndiqFeedWriter::ARTICLE_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
+            FyndiqFeedWriter::ARTICLE_EAN => $this->fmConfig->get('ean_type', $storeId),
+            FyndiqFeedWriter::ARTICLE_ISBN => $this->fmConfig->get('isbn_type', $storeId),
+            FyndiqFeedWriter::ARTICLE_MPN => $this->fmConfig->get('mpn_type', $storeId),
+            FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->fmConfig->get('brand_type', $storeId),
+        );
 
         $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
         FyndiqUtils::debug('$groupId', $groupId);
 
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $eanTypeId, $isbnTypeId, $mpnTypeId, $brandTypeId, $storeId);
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $fields_mappings, $storeId);
 
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);

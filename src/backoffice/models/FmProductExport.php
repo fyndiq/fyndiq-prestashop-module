@@ -309,10 +309,10 @@ class FmProductExport extends FmModel
      * @param  int $languageId
      * @param  object $feedWriter
      * @param  int $stockMin
-     * @param  int $descriptionType
+     * @param  array $mappings
      * @return bool
      */
-    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $eanType, $isbnType, $mpnType, $brandType, $storeId)
+    public function saveFile($languageId, $feedWriter, $stockMin, $groupId, $mappings, $storeId)
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
@@ -330,6 +330,13 @@ class FmProductExport extends FmModel
         $context = Context::getContext()->cloneContext();
         $context->cart = new Cart();
         $context->customer = $customer;
+
+        $descriptionType = $mappings[FyndiqFeedWriter::PRODUCT_DESCRIPTION];
+        $skuTypeId = $mappings[FyndiqFeedWriter::ARTICLE_SKU];
+        $eanType = $mappings[FyndiqFeedWriter::ARTICLE_EAN];
+        $isbnType = $mappings[FyndiqFeedWriter::ARTICLE_ISBN];
+        $mpnType = $mappings[FyndiqFeedWriter::ARTICLE_MPN];
+        $brandType = $mappings[FyndiqFeedWriter::PRODUCT_BRAND_NAME];
 
         foreach ($fmProducts as $fmProduct) {
             $storeProduct = $this->getStoreProduct($languageId, $fmProduct['product_id'], $descriptionType, $context, $groupId, $skuTypeId, $storeId);

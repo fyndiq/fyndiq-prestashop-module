@@ -140,6 +140,7 @@ class FmController
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
         $fieldsForms[] =  $this->getGeneralSettingsForm();
+        $fieldsForms[] =  $this->getFieldsMappingsForm();
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
         if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
@@ -255,20 +256,20 @@ class FmController
         );
     }
 
-    private function getAllFieldsKeys()
+    private function getAllFieldsKeysAndNames()
     {
         $product_fields = array_keys(Product::$definition['fields']);
         $article_fields = array_keys( Combination::$definition['fields']);
-        $all_fields = array_unique(array_merge($product_fields, $article_fields));
-        asort($all_fields);
+        $article_and_product_fields = array_unique(array_merge($product_fields, $article_fields));
+        asort($article_and_product_fields);
 
-        $result = array();
-        foreach($all_fields as $field)
+        $fields_keys_and_names = array();
+        foreach($article_and_product_fields as $field_id)
         {
-            $field_title = $this->module->l($this->module->__($field));
-            array_push($result, ['id' => $field, 'name' => $field_title]);
+            $fields_keys_and_names[] = ['id' => $field_id, 'name' => $this->module->l($this->module->__($field_id))];
         }
-        return $result;
+
+        return $fields_keys_and_names;
     }
 
     private function getGeneralSettingsForm()
@@ -277,11 +278,6 @@ class FmController
         $orderStates = $this->getOrderStates($languageId);
         $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
-        $descriptionsTypes = $this->getDescriptonTypes();
-        $eanTypes = $this->getAllFieldsKeys();
-        $isbnTypes = $this->getAllFieldsKeys();
-        $mpnTypes = $this->getAllFieldsKeys();
-        $brandTypes = $this->getAllFieldsKeys();
 
         $formSettings = new FmFormSetting();
         return $formSettings
@@ -296,13 +292,25 @@ class FmController
                                              if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
             ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
             ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
-            ->setSelect($this->module->__('Description to use'), 'description_type', '', $descriptionsTypes, 'id', 'name')
-            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $eanTypes, 'id', 'name')
-            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $isbnTypes, 'id', 'name')
-            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $mpnTypes, 'id', 'name')
-            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $brandTypes, 'id', 'name')
             ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+            ->setSubmit($this->module->__('Save'))
+            ->getFormElementsSettings();
+    }
+
+    private function getFieldsMappingsForm()
+    {
+        $descriptionTypes = $this->getDescriptonTypes();
+        $all_types = $this->getAllFieldsKeysAndNames();
+
+        $formFieldsMappings = new FmFormSetting();
+        return $formFieldsMappings
+            ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
+            ->setSelect($this->module->__('Description to use'), 'description_type', '', $descriptionTypes, 'id', 'name')
+            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $all_types, 'id', 'name')
+            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $all_types, 'id', 'name')
+            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $all_types, 'id', 'name')
+            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $all_types, 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
