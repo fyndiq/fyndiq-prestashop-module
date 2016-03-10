@@ -7,8 +7,27 @@
 
 class FmFormSetting
 {
+    const MAPPING_TYPE_PRODUCT_FIELD = '1';
+    const MAPPING_TYPE_PRODUCT_FEATURE = '2';
+    const MAPPING_TYPE_MANUFACTURER_NAME = '3';
+
     /** @var array [form settings array] */
     protected $form;
+
+    public static function serializeProductMappingValue($productMappingType, $productMappingValue)
+    {
+        return $productMappingType . ';' . $productMappingValue;
+    }
+
+    public static function deserializeProductMappingValue($serializedProductMappingValue)
+    {
+        $productMapping = explode(';', $serializedProductMappingValue);
+        return [
+            'product_mapping_type' => $productMapping[0],
+            'product_mapping_key_id' => $productMapping[1],
+        ];
+    }
+
 
     /**
      * initialize the default form settings

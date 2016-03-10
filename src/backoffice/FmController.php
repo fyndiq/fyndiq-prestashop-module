@@ -139,6 +139,7 @@ class FmController
             );
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
+        $fieldsForms = array();
         $fieldsForms[] =  $this->getGeneralSettingsForm();
         $fieldsForms[] =  $this->getFieldsMappingsForm();
 
@@ -256,20 +257,47 @@ class FmController
         );
     }
 
-    private function getAllFieldsKeysAndNames()
+    private function getAllProductFeatures()
     {
-        $product_fields = array_keys(Product::$definition['fields']);
-        $article_fields = array_keys( Combination::$definition['fields']);
-        $article_and_product_fields = array_unique(array_merge($product_fields, $article_fields));
-        asort($article_and_product_fields);
-
-        $fields_keys_and_names = array();
-        foreach($article_and_product_fields as $field_id)
-        {
-            $fields_keys_and_names[] = ['id' => $field_id, 'name' => $this->module->l($this->module->__($field_id))];
+        $queryResults = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+				SELECT id_feature, name
+				FROM `'._DB_PREFIX_.'feature_lang');
+        $productFeatures = array();
+        foreach($queryResults as $queryResult) {
+            $productFeatures[] = array(
+                'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE, $queryResult['id_feature']),
+                'name' => $queryResult['name'],
+            );
         }
+        return $productFeatures;
+    }
 
-        return $fields_keys_and_names;
+    private function getAllEANTypes()
+    {
+        $allEanTypes = $this->getAllProductFeatures();
+        $allEanTypes[] = array('id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13'), 'name' => 'EAN');
+        return $allEanTypes;
+    }
+
+    private function getAllISBNTypes()
+    {
+        $allISBNTypes = $this->getAllProductFeatures();
+        $allISBNTypes[] = array('id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13'), 'name' => 'EAN');
+        return $allISBNTypes;
+    }
+
+    private function getAllMPNTypes()
+    {
+        return $this->getAllProductFeatures();
+    }
+
+    private function getAllBrandTypes()
+    {
+        $allBrandTypes = $this->getAllProductFeatures();
+        return array_merge($allBrandTypes, array(
+            array('id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13'), 'name' => 'EAN'),
+            array('id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME), 'name' => 'Manufacturer name'),
+        ));
     }
 
     private function getGeneralSettingsForm()
@@ -301,16 +329,15 @@ class FmController
     private function getFieldsMappingsForm()
     {
         $descriptionTypes = $this->getDescriptonTypes();
-        $all_types = $this->getAllFieldsKeysAndNames();
 
         $formFieldsMappings = new FmFormSetting();
         return $formFieldsMappings
             ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
             ->setSelect($this->module->__('Description to use'), 'description_type', '', $descriptionTypes, 'id', 'name')
-            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $all_types, 'id', 'name')
-            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $all_types, 'id', 'name')
-            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $all_types, 'id', 'name')
-            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $all_types, 'id', 'name')
+            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $this->getAllEANTypes(), 'id', 'name')
+            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getAllISBNTypes(), 'id', 'name')
+            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getAllMPNTypes(), 'id', 'name')
+            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getAllBrandTypes(), 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }

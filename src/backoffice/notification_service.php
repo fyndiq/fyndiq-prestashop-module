@@ -159,7 +159,7 @@ class FmNotificationService
             $feedWriter = FmUtils::getFileWriter($file);
             $languageId = $this->fmConfig->get('language', $storeId);
             $stockMin = $this->fmConfig->get('stock_min', $storeId);
-            $fields_mappings = array (
+            $fieldMappings = array (
                 FyndiqFeedWriter::PRODUCT_DESCRIPTION => intval($this->fmConfig->get('description_type', $storeId)),
                 FyndiqFeedWriter::ARTICLE_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
                 FyndiqFeedWriter::ARTICLE_EAN => $this->fmConfig->get('ean_type', $storeId),
@@ -167,7 +167,7 @@ class FmNotificationService
                 FyndiqFeedWriter::ARTICLE_MPN => $this->fmConfig->get('mpn_type', $storeId),
                 FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->fmConfig->get('brand_type', $storeId),
             );
-            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $fields_mappings, $storeId);
+            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $fieldMappings, $storeId);
             fclose($file);
             if ($result) {
                 FyndiqUtils::moveFile($tempFileName, $fileName);
@@ -220,7 +220,7 @@ class FmNotificationService
 
         $stockMin = $this->fmConfig->get('stock_min', $storeId);
 
-        $fields_mappings = array (
+        $fieldMappings = array (
             FyndiqFeedWriter::PRODUCT_DESCRIPTION => intval($this->fmConfig->get('description_type', $storeId)),
             FyndiqFeedWriter::ARTICLE_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
             FyndiqFeedWriter::ARTICLE_EAN => $this->fmConfig->get('ean_type', $storeId),
@@ -232,7 +232,7 @@ class FmNotificationService
         $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
         FyndiqUtils::debug('$groupId', $groupId);
 
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $fields_mappings, $storeId);
+        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $fieldMappings, $storeId);
 
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);

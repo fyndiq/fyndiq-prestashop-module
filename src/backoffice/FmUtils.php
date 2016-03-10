@@ -25,10 +25,10 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
-    const EAN_DEFAULT = 'ean13';
-    const ISBN_DEFAULT = 'ean13';
-    const MPN_DEFAULT = 'ean13';
-    const BRAND_DEFAULT = 'id_manufacturer';
+    public static $EAN_DEFAULT = '1;ean13';
+    public static $ISBN_DEFAULT = "1;ean13";
+    public static $MPN_DEFAULT = '1;ean13';
+    public static $BRAND_DEFAULT = '3;';
 
     const CRON_ACTIVE = 1;
     const CRON_INACTIVE = 0;
