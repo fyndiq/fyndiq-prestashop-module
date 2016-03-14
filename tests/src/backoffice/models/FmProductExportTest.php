@@ -24,14 +24,14 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->fmProductExport = new FMProductExport($this->fmPrestashop, null);
     }
 
-    public function testProductExist()
+    public function testProductExists()
     {
         $productId = 1;
 
         $this->db->method('ExecuteS')
             ->willReturn(1);
 
-        $result = $this->fmProductExport->productExist($productId, $this->storeId);
+        $result = $this->fmProductExport->productExists($productId, $this->storeId);
         $this->assertTrue($result);
     }
 
@@ -77,7 +77,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testDeleteProduct()
+    public function testRemoveProduct()
     {
         $productId = 1;
 
@@ -85,7 +85,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->method('dbDelete')
             ->willReturn(true);
 
-        $result = $this->fmProductExport->deleteProduct($productId, $this->storeId);
+        $result = $this->fmProductExport->removeProduct($productId, $this->storeId);
         $this->assertTrue($result);
     }
 
