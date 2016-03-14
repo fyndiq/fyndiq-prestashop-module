@@ -309,11 +309,14 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $idOrderState = 3;
+        $taxAddressType = 'id_address_delivery';
+        $skuTypeId = 0;
         $fmOrder->method('processFullOrderQueue')
             ->with(
-                $this->equalTo(3),
-                $this->equalTo('id_address_delivery'),
-                $this->equalTo(0)
+                $this->equalTo($idOrderState),
+                $this->equalTo($taxAddressType),
+                $this->equalTo($skuTypeId)
             )
             ->willReturn(true);
 
