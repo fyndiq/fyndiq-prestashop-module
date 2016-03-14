@@ -7,25 +7,28 @@
 
 class FmFormSetting
 {
-    const MAPPING_TYPE_PRODUCT_FIELD = '1';
-    const MAPPING_TYPE_PRODUCT_FEATURE = '2';
-    const MAPPING_TYPE_MANUFACTURER_NAME = '3';
+    const MAPPING_TYPE_NO_MAPPING = 0;
+    const MAPPING_TYPE_PRODUCT_FIELD = 1;
+    const MAPPING_TYPE_PRODUCT_FEATURE = 2;
+    const MAPPING_TYPE_MANUFACTURER_NAME = 3;
+    const MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION = 4;
+    private static $MAPPING_TYPE_DELMITER = ';';
 
     /** @var array [form settings array] */
     protected $form;
 
     public static function serializeProductMappingValue($productMappingType, $productMappingValue)
     {
-        return $productMappingType . ';' . $productMappingValue;
+        return $productMappingType . FmFormSetting::$MAPPING_TYPE_DELMITER . $productMappingValue;
     }
 
     public static function deserializeProductMappingValue($serializedProductMappingValue)
     {
-        $productMapping = explode(';', $serializedProductMappingValue);
-        return [
+        $productMapping = explode(FmFormSetting::$MAPPING_TYPE_DELMITER, $serializedProductMappingValue);
+        return array(
             'product_mapping_type' => $productMapping[0],
             'product_mapping_key_id' => $productMapping[1],
-        ];
+        );
     }
 
 

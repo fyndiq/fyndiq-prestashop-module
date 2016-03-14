@@ -63,8 +63,12 @@ class FilePageController
                     $languageId = $this->fmConfig->get('language', $storeId);
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
 
-                    $fieldMappings = array (
-                        FyndiqFeedWriter::PRODUCT_DESCRIPTION => intval($this->fmConfig->get('description_type', $storeId)),
+                    $settings = array (
+                        FyndiqFeedWriter::LANGUAGE_ID => $languageId,
+                        FyndiqFeedWriter::STOCK_MIN => $stockMin,
+                        FyndiqFeedWriter::GROUP_ID => $groupId,
+                        FyndiqFeedWriter::STORE_ID => $storeId,
+                        FyndiqFeedWriter::PRODUCT_DESCRIPTION => $this->fmConfig->get('description_type', $storeId),
                         FyndiqFeedWriter::ARTICLE_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
                         FyndiqFeedWriter::ARTICLE_EAN => $this->fmConfig->get('ean_type', $storeId),
                         FyndiqFeedWriter::ARTICLE_ISBN => $this->fmConfig->get('isbn_type', $storeId),
@@ -72,7 +76,7 @@ class FilePageController
                         FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->fmConfig->get('brand_type', $storeId),
                     );
 
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $fieldMappings, $storeId);
+                    $result = $this->fmProductExport->saveFile($feedWriter, $settings);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);

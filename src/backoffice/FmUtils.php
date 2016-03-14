@@ -25,10 +25,11 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
-    public static $EAN_DEFAULT = '1;ean13';
-    public static $ISBN_DEFAULT = "1;ean13";
-    public static $MPN_DEFAULT = '1;ean13';
-    public static $BRAND_DEFAULT = '3;';
+    const DESCRIPTION_DEFAULT = '1;description';
+    const EAN_DEFAULT = '1;ean13';
+    const ISBN_DEFAULT = "0;";
+    const MPN_DEFAULT = '0;';
+    const BRAND_DEFAULT = '3;';
 
     const CRON_ACTIVE = 1;
     const CRON_INACTIVE = 0;
@@ -67,7 +68,7 @@ class FmUtils
             'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
             'stock_min' => 0,
             'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
-            'description_type' => self::LONG_DESCRIPTION,
+            'description_type' => self::DESCRIPTION_DEFAULT,
             'ean_type' => self::EAN_DEFAULT,
             'isbn_type' => self::ISBN_DEFAULT,
             'mpn_type' => self::MPN_DEFAULT,
