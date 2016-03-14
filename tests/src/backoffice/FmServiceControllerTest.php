@@ -305,6 +305,24 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $expected = '21:21:18';
         $this->controller->method('getTime')->willReturn(12345678);
 
+        $fmOrder = $this->getMockBuilder('FmOrder')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $fmOrder->method('processFullOrderQueue')
+            ->with(
+                $this->equalTo(3),
+                $this->equalTo('id_address_delivery'),
+                $this->equalTo(0)
+            )
+            ->willReturn(true);
+
+        $this->controller->expects($this->once())
+            ->method('loadModel')
+            ->willReturn($fmOrder);
+
+        $this->fmPrestashop->method('getOrderStateName')->willReturn($doneState);
+
         $result = $this->controller->routeRequest(
             'import_orders',
             array()
