@@ -336,7 +336,6 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
 
     public function testExportProducts()
     {
-
         $fmProductExport = $this->getMockBuilder('FmProductExport')
             ->disableOriginalConstructor()
             ->getMock();

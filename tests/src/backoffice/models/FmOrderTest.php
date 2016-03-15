@@ -69,7 +69,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     private function getCart()
     {
         $cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts', 'delete'))
+            ->setMethods(array('add', 'updateQty', 'isVirtualCart', 'getOrderTotal', 'getProducts', 'delete', 'setOrderDetails'))
             ->getMock();
         $cart->id_customer = 10;
         $cart->id_address_invoice = 11;
@@ -583,6 +583,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     public function testGetProductBySKUProduct()
     {
         $sku = 'SKU';
+        $skuTypeId = 0;
         $productId = 66;
         $expected = array($productId, 0);
 
@@ -590,7 +591,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('getValue')
             ->willReturn($productId);
 
-        $result = $this->fmOrder->getProductBySKU($sku);
+        $result = $this->fmOrder->getProductBySKU($sku,$skuTypeId);
         $this->assertEquals($expected, $result);
     }
 
@@ -598,6 +599,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     public function testGetProductBySKUCombination()
     {
         $sku = 'SKU';
+        $skuTypeId = 0;
         $productId = 66;
         $combinationId = 77;
         $expected = array($productId, $combinationId);
@@ -613,7 +615,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 'id_product_attribute' => $combinationId
             ));
 
-        $result = $this->fmOrder->getProductBySKU($sku);
+        $result = $this->fmOrder->getProductBySKU($sku,$skuTypeId);
         $this->assertEquals($expected, $result);
     }
 
@@ -621,6 +623,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     public function testGetProductBySKUNone()
     {
         $sku = 'SKU';
+        $skuTypeId = 0;
         $this->db->expects($this->once())
             ->method('getValue')
             ->willReturn(false);
@@ -628,7 +631,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->db->expects($this->once())
             ->method('getRow')
             ->willReturn(false);
-        $result = $this->fmOrder->getProductBySKU($sku);
+        $result = $this->fmOrder->getProductBySKU($sku,$skuTypeId);
         $this->assertFalse($result);
     }
 }
