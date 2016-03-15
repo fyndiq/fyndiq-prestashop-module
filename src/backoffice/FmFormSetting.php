@@ -12,7 +12,7 @@ class FmFormSetting
     const MAPPING_TYPE_PRODUCT_FEATURE = 2;
     const MAPPING_TYPE_MANUFACTURER_NAME = 3;
     const MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION = 4;
-    private static $MAPPING_TYPE_DELMITER = ';';
+    const MAPPING_TYPE_DELMITER = ';';
 
     /** @var array [form settings array] */
     protected $form;

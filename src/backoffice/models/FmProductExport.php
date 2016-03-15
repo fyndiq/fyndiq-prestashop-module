@@ -320,7 +320,11 @@ class FmProductExport extends FmModel
         if($features === null) {
             $features = $this->getProductFeatures($languageId);
         }
-        return $features[$productId][$featureId];
+        if(isset($features[$productId]) && isset($features[$productId][$featureId]))
+        {
+            return $features[$productId][$featureId];
+        }
+        return '';
     }
 
     private function getMappedValue($languageId, $fieldKey, $product) {
@@ -335,12 +339,12 @@ class FmProductExport extends FmModel
             return $this->getArticleFieldValue($mappingId, $product);
         }
         if($mappingType == FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
-            return $product->{'manufacturer_name'};
+            return $product->manufacturer_name;
         }
         if($mappingType == FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
-            return $product->{'description'} . "\n\n" . $product->{'description_short'};
+            return $product->description . "\n\n" . $product->description_short;
         }
-        return "";
+        return '';
     }
 
     /**
@@ -421,8 +425,9 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($storeProduct['quantity']), $stockMin),
             );
 
-            if(isset($brandType))
+            if(isset($brandType)) {
                 $exportProduct[] = array(FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->getMappedValue($languageId, $brandType, $prestashopProduct));
+            }
 
             $articles = array();
             foreach ($storeProduct['combinations'] as $combination) {
@@ -441,12 +446,15 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
                 );
-                if(isset($eanType))
+                if(isset($eanType)) {
                     $article[] = array(FyndiqFeedWriter::ARTICLE_EAN => $this->getMappedValue($languageId, $eanType, $prestashopProduct));
-                if(isset($isbnType))
+                }
+                if(isset($isbnType)){
                     $article[] = array(FyndiqFeedWriter::ARTICLE_ISBN => $this->getMappedValue($languageId, $isbnType, $prestashopProduct));
-                if(isset($mpnType))
+                }
+                if(isset($mpnType)) {
                     $article[] = array(FyndiqFeedWriter::ARTICLE_MPN => $this->getMappedValue($languageId, $mpnType, $prestashopProduct));
+                }
                 $article[FyndiqFeedWriter::PROPERTIES] = array();
 
                 foreach ($combination['attributes'] as $attribute) {

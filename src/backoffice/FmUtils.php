@@ -25,11 +25,11 @@ class FmUtils
     const SKU_EAN = 1;
     const SKU_ID = 2;
 
-    const DESCRIPTION_DEFAULT = '1;description';
-    const EAN_DEFAULT = '1;ean13';
-    const ISBN_DEFAULT = "0;";
-    const MPN_DEFAULT = '0;';
-    const BRAND_DEFAULT = '3;';
+    const DESCRIPTION_DEFAULT = FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD . FmFormSetting::MAPPING_TYPE_DELMITER . 'description';
+    const EAN_DEFAULT = FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD . FmFormSetting::MAPPING_TYPE_DELMITER . 'ean13';
+    const ISBN_DEFAULT = FmFormSetting::MAPPING_TYPE_NO_MAPPING . FmFormSetting::MAPPING_TYPE_DELMITER;
+    const MPN_DEFAULT = FmFormSetting::MAPPING_TYPE_NO_MAPPING . FmFormSetting::MAPPING_TYPE_DELMITER;
+    const BRAND_DEFAULT = FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME . FmFormSetting::MAPPING_TYPE_DELMITER;
 
     const CRON_ACTIVE = 1;
     const CRON_INACTIVE = 0;

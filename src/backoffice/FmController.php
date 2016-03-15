@@ -246,7 +246,7 @@ class FmController
         foreach($allFieldsIds as $fieldId) {
             $fieldsIdsAndNames[] = array(
                 'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, $fieldId),
-                'name' => $this->module->l($this->module->__($fieldId))
+                'name' => $fieldId,
             );
         }
         return $fieldsIdsAndNames;
@@ -254,7 +254,8 @@ class FmController
 
     private function getAllProductFeatures()
     {
-        $getProductFeaturesQuery = 'SELECT DISTINCT id_feature, name FROM ' . _DB_PREFIX_ . 'feature_lang';
+        $languageId = $this->fmPrestashop->getLanguageId();
+        $getProductFeaturesQuery = 'SELECT DISTINCT id_feature, name FROM ' . _DB_PREFIX_ . 'feature_lang WHERE id_lang=' . $languageId;
         $queryResults = $this->fmPrestashop->dbGetInstance()->executeS($getProductFeaturesQuery);
         $productFeatures = array();
         foreach($queryResults as $queryResult) {
@@ -380,10 +381,6 @@ class FmController
 
     private function getFieldsMappingsForm()
     {
-        function other_test($var) {
-            return !in_array($var['id'], array('1;description_short', '1;description'));
-        }
-
         $formFieldsMappings = new FmFormSetting();
         return $formFieldsMappings
             ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
