@@ -302,6 +302,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
 
     public function testImportOrders()
     {
+        $doneState = 'test';
         $expected = '21:21:18';
         $this->controller->method('getTime')->willReturn(12345678);
 

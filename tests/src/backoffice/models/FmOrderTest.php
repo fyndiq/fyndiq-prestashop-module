@@ -266,7 +266,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $product2Id = 2;
         $product2Comb = 4;
         $totalWoTax = 122;
-
+        $skuTypeId = 0;
 
         $this->fmOrder = $this->getMockBuilder('fmOrder')
             ->setConstructorArgs(array($this->fmPrestashop, null))
@@ -330,7 +330,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('getProducts')
             ->willReturn(array());
 
-        $this->fmOrder->expects($this->once())
+       $this->fmOrder->expects($this->once())
             ->method('getCart')
             ->with(
                 $this->equalTo($fyndiqOrder),
@@ -338,6 +338,12 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo($countryId)
             )
             ->willReturn($cart);
+
+        $cart->method('setOrderDetails')
+            ->with(
+                $this->equalTo(array())
+            )
+            ->willReturn(true);
 
         $prestaOrder->expects($this->once())
             ->method('add')
@@ -381,7 +387,6 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(array($product2Id, $product2Comb));
 
-
         $this->fmOrder->expects($this->once())
             ->method('createPrestaOrder')
             ->willReturn($prestaOrder);
@@ -401,7 +406,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo($cart->getProducts())
             );
 
-        $result = $this->fmOrder->create($fyndiqOrder, 16, 'id_address_delivery');
+        $result = $this->fmOrder->create($fyndiqOrder, 16, 'id_address_delivery',$skuTypeId);
         $this->assertTrue($result);
     }
 
