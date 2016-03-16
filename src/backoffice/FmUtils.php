@@ -59,6 +59,7 @@ class FmUtils
             'api_token' => '',
             'disable_orders' => self::ORDERS_ENABLED,
             'language' => $languageId,
+            'currency' => '',
             'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
             'stock_min' => 0,
             'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,

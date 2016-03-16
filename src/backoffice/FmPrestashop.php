@@ -109,6 +109,10 @@ class FmPrestashop
     {
         return new Currency($currencyId);
     }
+    public function getCurrencies()
+    {
+        return Currency::getCurrencies();
+    }
 
     public function sleep($seconds)
     {
