@@ -220,7 +220,7 @@ class FyndiqMerchant extends Module
      */
     public function hookActionDispatcher($params)
     {
-        if ($params['controller_type'] == Dispatcher::FC_ADMIN &&
+        if ($params['controller_type'] === Dispatcher::FC_ADMIN &&
             in_array($params['controller_class'], $this->overridenControllers)
         ) {
             $this->uninstallOverrides();
