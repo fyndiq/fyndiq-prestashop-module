@@ -138,9 +138,8 @@ class FyndiqMerchant extends Module
 
     public function hookDisplayBackOfficeHeader($params)
     {
-        if(Tools::getValue('controller') === 'AdminProducts')
-        {
-            $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js' );
+        if (Tools::getValue('controller') === 'AdminProducts') {
+        $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js');
         }
     }
 
@@ -177,12 +176,12 @@ class FyndiqMerchant extends Module
         $title = $this->fmPrestashop->toolsGetValue('fyndiq_title');
         $description = $this->fmPrestashop->toolsGetValue('fyndiq_description');
 
-        if($exported && !$productModel->productExists($productId, $storeId)) {
+        if ($exported && !$productModel->productExists($productId, $storeId)) {
             $productModel->addProduct($productId, $storeId, $title, $description);
             return;
         }
-        if($exported && $productModel->productExists($productId, $storeId)) {
-            $productModel->updateProduct($productId, $storeId,  $title, $description);
+        if ($exported && $productModel->productExists($productId, $storeId)) {
+            $productModel->updateProduct($productId, $storeId, $title, $description);
         }
         if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
@@ -211,5 +210,31 @@ class FyndiqMerchant extends Module
     public function __($text)
     {
         return FyndiqTranslation::get($text);
+    }
+
+    /**
+     * Desactivate current module.
+     *
+     * @param bool $forceAll If true, disable module for all shop
+     */
+    public function disable($forceAll = false)
+    {
+        // Disable module for all shops
+        parent::disable($forceAll);
+        if (!$this->isEnabled()) {
+            parent::uninstallOverrides();
+        }
+    }
+
+    /**
+     * Activate current module.
+     *
+     * @param bool $forceAll If true, enable module for all shop
+     */
+    public function enable($forceAll = false)
+    {
+        if (parent::enable($forceAll)) {
+            parent::installOverrides();
+        }
     }
 }
