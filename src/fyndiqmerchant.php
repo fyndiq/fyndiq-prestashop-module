@@ -27,6 +27,15 @@ class FyndiqMerchant extends Module
     private $modules = array();
     private $storeId = null;
 
+    /**
+     * $overridenControllers contains a list of controllers which are overriden by the module
+     * @var array
+     */
+    private $overridenControllers = array(
+        'AdminProductsController',
+        'AdminOrdersController',
+    );
+
     public function __construct()
     {
         $this->config_name = 'FYNDIQMERCHANT';
@@ -71,6 +80,10 @@ class FyndiqMerchant extends Module
         $this->registerHook('displayBackOfficeHeader');
         $this->registerHook('actionProductUpdate');
         $this->registerHook('backOfficeHeader');
+
+        if (FyndiqUtils::isDebug()) {
+            $this->registerHook('actionDispatcher');
+        }
 
         return $fmProductExport->install() && $fmOrder->install();
     }
@@ -139,7 +152,7 @@ class FyndiqMerchant extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         if (Tools::getValue('controller') === 'AdminProducts') {
-        $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js');
+            $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js');
         }
     }
 
@@ -199,6 +212,18 @@ class FyndiqMerchant extends Module
         }
     }
 
+    public function hookActionDispatcher($params)
+    {
+        if ($params['controller_type'] == Dispatcher::FC_ADMIN &&
+            in_array($params['controller_class'], $this->overridenControllers)
+        ) {
+            $this->uninstallOverrides();
+            $this->installOverrides();
+        }
+    }
+
+
+
     public function getModel($modelName, $storeId = -1)
     {
         if (!isset($this->modules[$modelName])) {
@@ -210,31 +235,5 @@ class FyndiqMerchant extends Module
     public function __($text)
     {
         return FyndiqTranslation::get($text);
-    }
-
-    /**
-     * Desactivate current module.
-     *
-     * @param bool $forceAll If true, disable module for all shop
-     */
-    public function disable($forceAll = false)
-    {
-        // Disable module for all shops
-        parent::disable($forceAll);
-        if (!$this->isEnabled()) {
-            parent::uninstallOverrides();
-        }
-    }
-
-    /**
-     * Activate current module.
-     *
-     * @param bool $forceAll If true, enable module for all shop
-     */
-    public function enable($forceAll = false)
-    {
-        if (parent::enable($forceAll)) {
-            parent::installOverrides();
-        }
     }
 }
