@@ -194,7 +194,10 @@ class FmProductExport extends FmModel
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
             'price' => $this->fmPrestashop->getPrice($product),
             'oldprice' => $this->fmPrestashop->getBasePrice($product),
-            'description' => $product->description,
+            'description' => $this->getMappedValue($languageId,
+                $descriptionType,
+                $product
+            ),
             'description_short' => $product->description_short,
             'minimal_quantity' => intval($product->minimal_quantity),
             'manufacturer_name' => $this->fmPrestashop->manufacturerGetNameById(
@@ -301,12 +304,38 @@ class FmProductExport extends FmModel
         return $product->{$fieldKey};
     }
 
-    public function getProductFeatures($languageId)
+    protected function getProductFeatures($languageId, $fmProducts, $settings)
     {
-        $queryResults = DB::getInstance()->executeS('
+        $productIds = array();
+        foreach($fmProducts as $fmProduct)
+        {
+            $productIds[]= $fmProduct['product_id'];
+        }
+
+        $featureIds = array();
+        foreach(array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
+                    FmFormSetting::SETTINGS_MAPPING_SKU,
+                    FmFormSetting::SETTINGS_MAPPING_EAN,
+                    FmFormSetting::SETTINGS_MAPPING_ISBN,
+                    FmFormSetting::SETTINGS_MAPPING_MPN,
+                    FmFormSetting::SETTINGS_MAPPING_BRAND) as $mappingTarget)
+        {
+            $mapping = FmFormSetting::deserializeProductMappingValue($settings[$mappingTarget]);
+            $mappingType = intval($mapping['product_mapping_type']);
+            $mappingId = $mapping['product_mapping_key_id'];
+            if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE)
+            {
+                $featureIds[] = $mappingId;
+            }
+        }
+
+        $query = '
                 SELECT pl.value, p.id_feature, p.id_product
-                FROM ps_feature_product AS p
-                LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .')');
+                FROM ps_feature_product AS p WHERE p.id_product IN (' . implode(',', $productIds) . ')
+                AND p.id_feature IN (' . implode(',', $featureIds) . ')
+                LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .')';
+
+        $queryResults = $this->fmPrestashop->dbGetInstance()->ExecuteS($query);
         $features = array();
         foreach($queryResults as $featureQueryResult) {
             $features[$featureQueryResult['id_product']][$featureQueryResult['id_feature']] = $featureQueryResult['value'];
@@ -314,34 +343,33 @@ class FmProductExport extends FmModel
         return $features;
     }
 
-    public function getProductFeature($languageId, $productId, $featureId)
+    public function getProductFeature($languageId, $productId, $featureId, $fmProducts, $settings)
     {
         static $features = null;
         if($features === null) {
-            $features = $this->getProductFeatures($languageId);
+            $features = $this->getProductFeatures($languageId, $fmProducts, $settings);
         }
-        if(isset($features[$productId]) && isset($features[$productId][$featureId]))
-        {
+        if(isset($features[$productId]) && isset($features[$productId][$featureId])) {
             return $features[$productId][$featureId];
         }
         return '';
     }
 
-    private function getMappedValue($languageId, $fieldKey, $product) {
+    private function getMappedValue($languageId, $fieldKey, $product, $fmProducts, $settings) {
         $mappedKey = FmFormSetting::deserializeProductMappingValue($fieldKey);
-        $mappingType = $mappedKey['product_mapping_type'];
+        $mappingType = intval($mappedKey['product_mapping_type']);
         $mappingId = $mappedKey['product_mapping_key_id'];
 
-        if($mappingType == FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
-            return $this->getProductFeature($languageId, $product->id, $mappingId);
+        if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
+            return $this->getProductFeature($languageId, $product->id, $mappingId, $fmProducts, $settings);
         }
-        if($mappingType == FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
+        if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
             return $this->getArticleFieldValue($mappingId, $product);
         }
-        if($mappingType == FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
+        if($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
             return $product->manufacturer_name;
         }
-        if($mappingType == FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
+        if($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
             return $product->description . "\n\n" . $product->description_short;
         }
         return '';
@@ -361,10 +389,10 @@ class FmProductExport extends FmModel
         $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
         $market = $this->fmPrestashop->getCountryCode();
 
-        $languageId = $settings[FyndiqFeedWriter::LANGUAGE_ID];
-        $stockMin = $settings[FyndiqFeedWriter::STOCK_MIN];
-        $groupId = $settings[FyndiqFeedWriter::GROUP_ID];
-        $storeId = $settings[FyndiqFeedWriter::STORE_ID];
+        $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
+        $stockMin = $settings[FmFormSetting::SETTINGS_STOCK_MIN];
+        $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
+        $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
 
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
@@ -378,12 +406,12 @@ class FmProductExport extends FmModel
         $context->cart = new Cart();
         $context->customer = $customer;
 
-        $descriptionType = $settings[FyndiqFeedWriter::PRODUCT_DESCRIPTION];
-        $skuTypeId = $settings[FyndiqFeedWriter::ARTICLE_SKU];
-        $eanType = $settings[FyndiqFeedWriter::ARTICLE_EAN];
-        $isbnType = $settings[FyndiqFeedWriter::ARTICLE_ISBN];
-        $mpnType = $settings[FyndiqFeedWriter::ARTICLE_MPN];
-        $brandType = $settings[FyndiqFeedWriter::PRODUCT_BRAND_NAME];
+        $descriptionType = $settings[FmFormSetting::SETTINGS_MAPPING_DESCRIPTION];
+        $skuTypeId = $settings[FmFormSetting::SETTINGS_MAPPING_SKU];
+        $eanType = $settings[FmFormSetting::SETTINGS_MAPPING_EAN];
+        $isbnType = $settings[FmFormSetting::SETTINGS_MAPPING_ISBN];
+        $mpnType = $settings[FmFormSetting::SETTINGS_MAPPING_MPN];
+        $brandType = $settings[FmFormSetting::SETTINGS_MAPPING_BRAND];
 
         foreach ($fmProducts as $fmProduct) {
             $prestashopProduct = $this->fmPrestashop->productNew($fmProduct['product_id'], false, $languageId, $storeId);
@@ -402,10 +430,7 @@ class FmProductExport extends FmModel
             $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
 
             $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
-            $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $this->getMappedValue($languageId,
-                $descriptionType,
-                $prestashopProduct
-            );
+            $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
 
             $exportProduct = array(
                 FyndiqFeedWriter::ID => $storeProduct['id'],
@@ -425,8 +450,9 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($storeProduct['quantity']), $stockMin),
             );
 
-            if(isset($brandType)) {
-                $exportProduct[] = array(FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->getMappedValue($languageId, $brandType, $prestashopProduct));
+            $brand = $this->getMappedValue($languageId, $brandType, $prestashopProduct, $fmProducts, $settings);
+            if(!empty($brand)) {
+                $exportProduct[FyndiqFeedWriter::PRODUCT_BRAND_NAME] = $brand;
             }
 
             $articles = array();
@@ -446,14 +472,19 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
                 );
-                if(isset($eanType)) {
-                    $article[] = array(FyndiqFeedWriter::ARTICLE_EAN => $this->getMappedValue($languageId, $eanType, $prestashopProduct));
+
+                $ean = $this->getMappedValue($languageId, $eanType, $prestashopProduct, $fmProducts, $settings);
+                $isbn = $this->getMappedValue($languageId, $isbnType, $prestashopProduct, $fmProducts, $settings);
+                $mpn = $this->getMappedValue($languageId, $mpnType, $prestashopProduct, $fmProducts, $settings);
+
+                if(!empty($ean)) {
+                    $article[FyndiqFeedWriter::ARTICLE_EAN] = $ean;
                 }
-                if(isset($isbnType)){
-                    $article[] = array(FyndiqFeedWriter::ARTICLE_ISBN => $this->getMappedValue($languageId, $isbnType, $prestashopProduct));
+                if(!empty($ean)){
+                    $article[FyndiqFeedWriter::ARTICLE_ISBN] = $isbn;
                 }
-                if(isset($mpnType)) {
-                    $article[] = array(FyndiqFeedWriter::ARTICLE_MPN => $this->getMappedValue($languageId, $mpnType, $prestashopProduct));
+                if(!empty($ean)) {
+                    $article[FyndiqFeedWriter::ARTICLE_MPN] = $mpn;
                 }
                 $article[FyndiqFeedWriter::PROPERTIES] = array();
 

@@ -7,6 +7,13 @@
 
 class FmFormSetting
 {
+    const SKU_DEFAULT = 0;
+    const DESCRIPTION_DEFAULT = '1;description';
+    const EAN_DEFAULT = '1;ean13';
+    const ISBN_DEFAULT = '0;';
+    const MPN_DEFAULT = '0;';
+    const BRAND_DEFAULT = '3;';
+
     const MAPPING_TYPE_NO_MAPPING = 0;
     const MAPPING_TYPE_PRODUCT_FIELD = 1;
     const MAPPING_TYPE_PRODUCT_FEATURE = 2;
@@ -14,17 +21,49 @@ class FmFormSetting
     const MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION = 4;
     const MAPPING_TYPE_DELMITER = ';';
 
+    const SETTINGS_LANGUAGE_ID = 8;
+    const SETTINGS_STOCK_MIN = 16;
+    const SETTINGS_GROUP_ID = 32;
+    const SETTINGS_STORE_ID = 64;
+    const SETTINGS_MAPPING_DESCRIPTION = 128;
+    const SETTINGS_MAPPING_SKU = 256;
+    const SETTINGS_MAPPING_EAN = 512;
+    const SETTINGS_MAPPING_ISBN = 1024;
+    const SETTINGS_MAPPING_MPN = 2048;
+    const SETTINGS_MAPPING_BRAND = 4096;
+
     /** @var array [form settings array] */
     protected $form;
 
     public static function serializeProductMappingValue($productMappingType, $productMappingValue)
     {
-        return $productMappingType . FmFormSetting::$MAPPING_TYPE_DELMITER . $productMappingValue;
+        return $productMappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $productMappingValue;
     }
 
     public static function deserializeProductMappingValue($serializedProductMappingValue)
     {
-        $productMapping = explode(FmFormSetting::$MAPPING_TYPE_DELMITER, $serializedProductMappingValue);
+        if($serializedProductMappingValue == FmUtils::SHORT_DESCRIPTION)
+        {
+            return array(
+                'product_mapping_type' => MAPPING_TYPE_PRODUCT_FIELD,
+                'product_mapping_key_id' => 'description_short',
+            );
+        }
+        if($serializedProductMappingValue == FmUtils::LONG_DESCRIPTION)
+        {
+            return array(
+                'product_mapping_type' => MAPPING_TYPE_PRODUCT_FIELD,
+                'product_mapping_key_id' => 'description',
+            );
+        }
+        if($serializedProductMappingValue == FmUtils::SHORT_AND_LONG_DESCRIPTION)
+        {
+            return array(
+                'product_mapping_type' => MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
+                'product_mapping_key_id' => '',
+            );
+        }
+        $productMapping = explode(FmFormSetting::MAPPING_TYPE_DELMITER, $serializedProductMappingValue);
         return array(
             'product_mapping_type' => $productMapping[0],
             'product_mapping_key_id' => $productMapping[1],

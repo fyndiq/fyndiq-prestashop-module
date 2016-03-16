@@ -300,9 +300,9 @@ class FmController
             ->getFormElementsSettings();
     }
 
-    private function getDescriptionTypes()
+    private function getDescriptionTypes($allMappingOptions)
     {
-        $descriptionTypes = $this->getAllMappingOptions();
+        $descriptionTypes = $allMappingOptions;
 
         function filterOutDescriptions($var) {
             return !in_array($var['id'], array(
@@ -327,9 +327,9 @@ class FmController
        return array_merge(array($longDescription), array($shortDescription), array($shortAndLongDescription), $descriptionTypes);
     }
 
-    private function getEANTypes()
+    private function getEANTypes($allMappingOptions)
     {
-        $eanTypes = $this->getAllMappingOptions();
+        $eanTypes = $allMappingOptions;
         function filterOutEAN($var) {
             return $var['id'] != FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13');
         }
@@ -345,29 +345,29 @@ class FmController
         return array_merge(array($blankMappingOption), array($ean), $eanTypes);
     }
 
-    private function getISBNTypes()
+    private function getISBNTypes($allMappingOptions)
     {
-        $eanTypes = $this->getAllMappingOptions();
+        $isbnTypes = $allMappingOptions;
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
-        return array_merge(array($blankMappingOption), $eanTypes);
+        return array_merge(array($blankMappingOption), $isbnTypes);
     }
 
-    private function getMPNTypes()
+    private function getMPNTypes($allMappingOptions)
     {
-        $eanTypes = $this->getAllMappingOptions();
+        $mpnTypes = $allMappingOptions;
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
-        return array_merge(array($blankMappingOption), $eanTypes);
+        return array_merge(array($blankMappingOption), $mpnTypes);
     }
 
-    private function getBrandTypes()
+    private function getBrandTypes($allMappingOptions)
     {
-        $eanTypes = $this->getAllMappingOptions();
+        $brandTypes = $allMappingOptions;
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
@@ -376,19 +376,20 @@ class FmController
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME),
             'name' => 'Manufacturer name'
         );
-        return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $eanTypes);
+        return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $brandTypes);
     }
 
     private function getFieldsMappingsForm()
     {
+        $allPossibleMappings = $this->getAllMappingOptions();
         $formFieldsMappings = new FmFormSetting();
         return $formFieldsMappings
             ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
-            ->setSelect($this->module->__('Description to use'), 'description_type', '', $this->getDescriptionTypes(), 'id', 'name')
-            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $this->getEANTypes(), 'id', 'name')
-            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getISBNTypes(), 'id', 'name')
-            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getMPNTypes(), 'id', 'name')
-            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes(), 'id', 'name')
+            ->setSelect($this->module->__('Description to use'), 'description_type', '', $this->getDescriptionTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $this->getEANTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getISBNTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getMPNTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes($allPossibleMappings), 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }

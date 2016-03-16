@@ -514,7 +514,7 @@ class FmServiceController
         try {
             $fmProduct = $this->loadModel('FmProduct');
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
-            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmUtils::SKU_DEFAULT;
+            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmFormSetting::SKU_DEFAULT;
             $duplicates = $fmProduct->checkProducts($skuTypeId);
             foreach ($duplicates as $duplicate) {
                 if ($duplicate['parent']) {

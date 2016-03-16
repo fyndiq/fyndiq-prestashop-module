@@ -19,17 +19,9 @@ class FmUtils
     const ORDERS_ENABLED = 0;
     const ORDERS_DISABLED = 1;
 
-    const SKU_DEFAULT = 0;
-
     const SKU_REFERENCE = 0;
     const SKU_EAN = 1;
     const SKU_ID = 2;
-
-    const DESCRIPTION_DEFAULT = FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD . FmFormSetting::MAPPING_TYPE_DELMITER . 'description';
-    const EAN_DEFAULT = FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD . FmFormSetting::MAPPING_TYPE_DELMITER . 'ean13';
-    const ISBN_DEFAULT = FmFormSetting::MAPPING_TYPE_NO_MAPPING . FmFormSetting::MAPPING_TYPE_DELMITER;
-    const MPN_DEFAULT = FmFormSetting::MAPPING_TYPE_NO_MAPPING . FmFormSetting::MAPPING_TYPE_DELMITER;
-    const BRAND_DEFAULT = FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME . FmFormSetting::MAPPING_TYPE_DELMITER;
 
     const CRON_ACTIVE = 1;
     const CRON_INACTIVE = 0;
@@ -68,11 +60,11 @@ class FmUtils
             'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
             'stock_min' => 0,
             'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
-            'description_type' => self::DESCRIPTION_DEFAULT,
-            'ean_type' => self::EAN_DEFAULT,
-            'isbn_type' => self::ISBN_DEFAULT,
-            'mpn_type' => self::MPN_DEFAULT,
-            'brand_type' => self::BRAND_DEFAULT,
+            'description_type' => FmFormSetting::DESCRIPTION_DEFAULT,
+            'ean_type' => FmFormSetting::EAN_DEFAULT,
+            'isbn_type' => FmFormSetting::ISBN_DEFAULT,
+            'mpn_type' => FmFormSetting::MPN_DEFAULT,
+            'brand_type' => FmFormSetting::BRAND_DEFAULT,
             'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
             'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
             'ping_token' => '',

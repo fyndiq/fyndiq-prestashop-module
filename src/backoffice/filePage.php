@@ -64,16 +64,16 @@ class FilePageController
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
 
                     $settings = array (
-                        FyndiqFeedWriter::LANGUAGE_ID => $languageId,
-                        FyndiqFeedWriter::STOCK_MIN => $stockMin,
-                        FyndiqFeedWriter::GROUP_ID => $groupId,
-                        FyndiqFeedWriter::STORE_ID => $storeId,
-                        FyndiqFeedWriter::PRODUCT_DESCRIPTION => $this->fmConfig->get('description_type', $storeId),
-                        FyndiqFeedWriter::ARTICLE_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
-                        FyndiqFeedWriter::ARTICLE_EAN => $this->fmConfig->get('ean_type', $storeId),
-                        FyndiqFeedWriter::ARTICLE_ISBN => $this->fmConfig->get('isbn_type', $storeId),
-                        FyndiqFeedWriter::ARTICLE_MPN => $this->fmConfig->get('mpn_type', $storeId),
-                        FyndiqFeedWriter::PRODUCT_BRAND_NAME => $this->fmConfig->get('brand_type', $storeId),
+                        FmFormSetting::SETTINGS_LANGUAGE_ID => $languageId,
+                        FmFormSetting::SETTINGS_STOCK_MIN => $stockMin,
+                        FmFormSetting::SETTINGS_GROUP_ID => $groupId,
+                        FmFormSetting::SETTINGS_STORE_ID => $storeId,
+                        FmFormSetting::SETTINGS_MAPPING_DESCRIPTION => $this->fmConfig->get('description_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
+                        FmFormSetting::SETTINGS_MAPPING_EAN => $this->fmConfig->get('ean_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_ISBN => $this->fmConfig->get('isbn_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_MPN => $this->fmConfig->get('mpn_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_BRAND => $this->fmConfig->get('brand_type', $storeId),
                     );
 
                     $result = $this->fmProductExport->saveFile($feedWriter, $settings);
