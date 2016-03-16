@@ -28,7 +28,7 @@ class FyndiqMerchant extends Module
     private $storeId = null;
 
     /**
-     * $overridenControllers contains a list of controllers which are overriden by the module
+     * $overridenControllers contains a list of controllers which are overridden by the module
      * @var array
      */
     private $overridenControllers = array(
@@ -212,6 +212,12 @@ class FyndiqMerchant extends Module
         }
     }
 
+    /**
+     * hookActionDispatcher is registered only in debug mode and clears the overrides when one of
+     * the controllers, listed in $this->overridenControllers is opened
+     *
+     * @param array $params hook parmeters
+     */
     public function hookActionDispatcher($params)
     {
         if ($params['controller_type'] == Dispatcher::FC_ADMIN &&
@@ -221,8 +227,6 @@ class FyndiqMerchant extends Module
             $this->installOverrides();
         }
     }
-
-
 
     public function getModel($modelName, $storeId = -1)
     {
