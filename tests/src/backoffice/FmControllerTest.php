@@ -43,7 +43,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->markTestSkipped(
-            'This controller test has been skipped due to have incomplete test case'
+            'This controller test has been skipped due to incomplete test case'
         );
 
         $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig, $this->fmApiModel);

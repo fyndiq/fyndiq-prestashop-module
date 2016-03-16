@@ -53,7 +53,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $this->markTestIncomplete(
-            'This test needs to investigate'
+            'This test has to be investigated'
         );
         $result = $this->fmProductExport->addProduct($productId, $expPricePercentage, $this->storeId);
         $this->assertTrue($result);
@@ -76,7 +76,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
         $this->markTestIncomplete(
-            'This test needs to investigate'
+            'This test has to be investigated'
         );
         $result = $this->fmProductExport->updateProduct($productId, $expPricePercentage, $this->storeId);
         $this->assertTrue($result);
@@ -269,7 +269,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
 
         $result = $this->fmProductExport->getStoreProduct($languageId, $productId, $descriptionType, $context, $groupId, $skuTypeId);
         $this->markTestIncomplete(
-            'This test needs to investigate'
+            'This test has to be investigated'
         );
 
         $this->assertEquals($expected, $result);

@@ -258,7 +258,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
     public function testCreate()
     {
         $this->markTestIncomplete(
-            'This test has to rewrite'
+            'This test has to be rewritten'
         );
         $fyndiqOrder = $this->getFyndiqOrder();
         $countryId = 1;
@@ -630,7 +630,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('getRow')
             ->willReturn(false);
         $this->markTestIncomplete(
-            'This test has to rewrite'
+            'This test has to be rewritten'
         );
         $result = $this->fmOrder->getProductBySKU($sku, $skuTypeId);
         $this->assertFalse($result);

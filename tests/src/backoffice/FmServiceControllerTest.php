@@ -334,7 +334,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             array()
         );
         $this->markTestIncomplete(
-            'This test has to rewrite'
+            'This test has to be rewritten'
         );
         $this->assertEquals($expected, $result);
     }
@@ -390,7 +390,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
             )
         );
         $this->markTestIncomplete(
-            'This test has to rewrite'
+            'This test has to be rewritten'
         );
         $this->assertTrue($result);
     }
