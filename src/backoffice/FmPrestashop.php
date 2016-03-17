@@ -748,4 +748,18 @@ class FmPrestashop
     {
         return Module::isEnabled($moduleName);
     }
+
+    /**
+     * getValidLanguageId return valid language id given language id
+     * @param  int $languageId assumed-to-be-valid language id
+     * @return int
+     */
+    public function getValidLanguageId($languageId)
+    {
+        $language = new Language($languageId);
+        if (is_object($language)) {
+            return $language->id;
+        }
+        return $this->getLanguageId();
+    }
 }

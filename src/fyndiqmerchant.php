@@ -138,9 +138,10 @@ class FyndiqMerchant extends Module
 
     public function hookDisplayBackOfficeHeader($params)
     {
-        if(Tools::getValue('controller') === 'AdminProducts')
-        {
-            $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js' );
+        if (Tools::getValue('controller') === 'AdminProducts') {
+            $this->fmPrestashop->contextGetContext()->controller->addJS(
+                $this->_path . 'backoffice/frontend/templates/tab-fyndiq.js'
+            );
         }
     }
 
@@ -177,12 +178,12 @@ class FyndiqMerchant extends Module
         $title = $this->fmPrestashop->toolsGetValue('fyndiq_title');
         $description = $this->fmPrestashop->toolsGetValue('fyndiq_description');
 
-        if($exported && !$productModel->productExists($productId, $storeId)) {
+        if ($exported && !$productModel->productExists($productId, $storeId)) {
             $productModel->addProduct($productId, $storeId, $title, $description);
             return;
         }
-        if($exported && $productModel->productExists($productId, $storeId)) {
-            $productModel->updateProduct($productId, $storeId,  $title, $description);
+        if ($exported && $productModel->productExists($productId, $storeId)) {
+            $productModel->updateProduct($productId, $storeId, $title, $description);
         }
         if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
