@@ -158,7 +158,7 @@ class FmNotificationService
             $file = fopen($tempFileName, 'w+');
             $feedWriter = FmUtils::getFileWriter($file);
             $languageId = $this->fmPrestashop->getValidLanguageId(
-                $this->fmConfig->get('language', $storeId)
+                intval($this->fmConfig->get('language', $storeId))
             );
             $stockMin = $this->fmConfig->get('stock_min', $storeId);
             $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
@@ -212,7 +212,7 @@ class FmNotificationService
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
 
         $languageId = $this->fmPrestashop->getValidLanguageId(
-            $this->fmConfig->get('language', $storeId)
+            intval($this->fmConfig->get('language', $storeId))
         );
         FyndiqUtils::debug('$languageId', $languageId);
 

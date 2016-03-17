@@ -102,7 +102,7 @@ class FmPrestashop
 
     public function getLanguageId()
     {
-        return $this->contextGetContext()->language->id;
+        return intval($this->contextGetContext()->language->id);
     }
 
     public function getCurrency($currencyId)
@@ -758,7 +758,7 @@ class FmPrestashop
     {
         $language = new Language($languageId);
         if (is_object($language)) {
-            return $language->id;
+            return intval($language->id);
         }
         return $this->getLanguageId();
     }
