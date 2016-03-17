@@ -236,7 +236,6 @@ class FmPrestashop
         return $module->get('_path');
     }
 
-
     public function getTableName($moduleName, $tableSuffix, $prefix = false)
     {
         return ($prefix ? $this->globDbPrefix() : '') . $this->getModuleName() . $tableSuffix;
@@ -366,6 +365,15 @@ class FmPrestashop
     {
         $name = $name ? $name : $this->moduleName;
         return  Module::getInstanceByName($name);
+    }
+
+    /**
+     * getHelperForm prestashop html generator class
+     * @return Object
+     */
+    public function getHelperForm()
+    {
+        return new HelperForm();
     }
 
     // Tool
