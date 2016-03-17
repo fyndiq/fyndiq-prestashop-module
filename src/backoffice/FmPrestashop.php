@@ -102,7 +102,7 @@ class FmPrestashop
 
     public function getLanguageId()
     {
-        return $this->contextGetContext()->language->id;
+        return intval($this->contextGetContext()->language->id);
     }
 
     public function getCurrency($currencyId)
@@ -755,5 +755,19 @@ class FmPrestashop
     public function isModuleEnabled($moduleName)
     {
         return Module::isEnabled($moduleName);
+    }
+
+    /**
+     * getValidLanguageId return valid language id given language id
+     * @param  int $languageId assumed-to-be-valid language id
+     * @return int
+     */
+    public function getValidLanguageId($languageId)
+    {
+        $language = new Language($languageId);
+        if ($language->id) {
+            return intval($language->id);
+        }
+        return $this->getLanguageId();
     }
 }
