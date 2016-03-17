@@ -757,7 +757,7 @@ class FmPrestashop
     public function getValidLanguageId($languageId)
     {
         $language = new Language($languageId);
-        if (is_object($language)) {
+        if ($language->id) {
             return intval($language->id);
         }
         return $this->getLanguageId();
