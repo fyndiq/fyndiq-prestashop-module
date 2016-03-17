@@ -60,7 +60,9 @@ class FilePageController
                     // Write the file if it does not exist or is older than the interval
                     $file = fopen($tempFileName, 'w+');
                     $feedWriter = FmUtils::getFileWriter($file);
-                    $languageId = $this->fmConfig->get('language', $storeId);
+                    $languageId = $this->fmPrestashop->getValidLanguageId(
+                        intval($this->fmConfig->get('language', $storeId))
+                    );
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
                     $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
                     $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));

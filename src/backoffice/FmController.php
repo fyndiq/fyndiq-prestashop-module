@@ -19,6 +19,7 @@ class FmController
     public function handleRequest()
     {
         $storeId = $this->fmPrestashop->getStoreId();
+        $output = '';
         if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
             foreach ($postErrors as $err) {

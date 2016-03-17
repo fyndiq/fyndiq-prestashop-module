@@ -251,7 +251,7 @@ class FmProductExport extends FmModel
                 $result['combinations'][$id] = array(
                     'id' => $id,
                     'reference' => $reference,
-                    'price' => $this->fmPrestashop->getPrice($product, $id),
+                    'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
                     'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
                     'quantity' => $quantity,
                     'minimal_quantity' => $minQuantity,
@@ -307,7 +307,7 @@ class FmProductExport extends FmModel
 
         // Creating customer and add it to the context so we can set a
         // specific discount customer group to the price.
-        $customer = new Customer();
+        $customer = $this->fmPrestashop->newCustomer();
         $customer->id_default_group = $groupId;
         $customer->id_shop = $storeId;
         $context = Context::getContext()->cloneContext();

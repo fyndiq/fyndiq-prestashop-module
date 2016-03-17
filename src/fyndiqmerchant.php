@@ -27,6 +27,15 @@ class FyndiqMerchant extends Module
     private $modules = array();
     private $storeId = null;
 
+    /**
+     * $overridenControllers contains a list of controllers which are overridden by the module
+     * @var array
+     */
+    private $overridenControllers = array(
+        'AdminProductsController',
+        'AdminOrdersController',
+    );
+
     public function __construct()
     {
         $this->config_name = 'FYNDIQMERCHANT';
@@ -71,6 +80,10 @@ class FyndiqMerchant extends Module
         $this->registerHook('displayBackOfficeHeader');
         $this->registerHook('actionProductUpdate');
         $this->registerHook('backOfficeHeader');
+
+        if (FyndiqUtils::isDebug()) {
+            $this->registerHook('actionDispatcher');
+        }
 
         return $fmProductExport->install() && $fmOrder->install();
     }
@@ -139,7 +152,9 @@ class FyndiqMerchant extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         if (Tools::getValue('controller') === 'AdminProducts') {
-            $this->fmPrestashop->contextGetContext()->controller->addJS(($this->_path) . 'backoffice/frontend/templates/tab-fyndiq.js');
+            $this->fmPrestashop->contextGetContext()->controller->addJS(
+                $this->fmPrestashop->getModulePath() . 'backoffice/frontend/templates/tab-fyndiq.js'
+            );
         }
     }
 
@@ -196,6 +211,22 @@ class FyndiqMerchant extends Module
             $this->fmPrestashop->contextGetContext()->controller->addjs(
                 $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
             );
+        }
+    }
+
+    /**
+     * hookActionDispatcher is registered only in debug mode and clears the overrides when one of
+     * the controllers, listed in $this->overridenControllers is opened
+     *
+     * @param array $params hook parmeters
+     */
+    public function hookActionDispatcher($params)
+    {
+        if ($params['controller_type'] === Dispatcher::FC_ADMIN &&
+            in_array($params['controller_class'], $this->overridenControllers)
+        ) {
+            $this->uninstallOverrides();
+            $this->installOverrides();
         }
     }
 
