@@ -300,8 +300,7 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency
         $fyndiqCurrency = $this->fmConfig->get('currency', $storeId);
-        $fyndiqCurrency = $fyndiqCurrency ? $this->fmPrestashop->getCurrency($fyndiqCurrency) : false;
-        $currentCurrency = $fyndiqCurrency ? $fyndiqCurrency->iso_code : $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
+        $currentCurrency = $this->fmPrestashop->getFyndiqModuleCurrency($fyndiqCurrency);
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
@@ -316,7 +315,7 @@ class FmProductExport extends FmModel
         $context->customer = $customer;
 
         // set fyndiq custom currency based on the module settings
-        if (Validate::isLoadedObject($context->currency)) {
+        if ($this->fmPrestashop->isObjectLoaded($context->currency)) {
             $context->currency->id = $fyndiqCurrency ? $fyndiqCurrency->id : $this->fmPrestashop->currencyGetDefaultCurrency()->id;
         }
 
