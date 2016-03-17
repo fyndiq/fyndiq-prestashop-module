@@ -65,6 +65,7 @@ class FmController
         $postArr['api_token'] = $this->fmPrestashop->toolsGetValue('api_token');
         $postArr['disable_orders'] = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
         $postArr['language'] = intval($this->fmPrestashop->toolsGetValue('language'));
+        $postArr['currency'] = intval($this->fmPrestashop->toolsGetValue('currency'));
         $postArr['price_percentage'] = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
         $postArr['import_state'] = intval($this->fmPrestashop->toolsGetValue('import_state'));
         $postArr['done_state'] = intval($this->fmPrestashop->toolsGetValue('done_state'));
@@ -259,6 +260,7 @@ class FmController
         $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
         $desciotionsType = $this->getDescriptonTypes();
+        $currencies = $this->fmPrestashop->getCurrencies();
 
         $formSettings = new FmFormSetting();
         return $formSettings
@@ -269,6 +271,7 @@ class FmController
             ->setSelect($this->module->__('Language'), 'language', $this->module->__('In order to use this module, you have to select which language you will be using.
                                     The language, you select, will be used when exporting products to Fyndiq.
                                     Make sure you select a language that contains Swedish product info!'), $languages, 'id_lang', 'name')
+            ->setSelect($this->module->__('Currency'), 'currency', '', $currencies, 'id_currency', 'name')
             ->setTextField($this->module->__('Percentage in numbers only'), 'price_percentage', $this->module->__('This percentage is the percentage of the price that will be cut off your price,
                                              if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
             ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')

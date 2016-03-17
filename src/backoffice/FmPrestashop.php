@@ -110,6 +110,16 @@ class FmPrestashop
         return new Currency($currencyId);
     }
 
+
+    /**
+     * getCurrencies get list of currency
+     * @return array
+     */
+    public function getCurrencies()
+    {
+        return Currency::getCurrencies();
+    }
+
     public function sleep($seconds)
     {
         return sleep($seconds);
@@ -222,6 +232,16 @@ class FmPrestashop
             false,
             false
         );
+    }
+
+    /**
+     * isObjectLoaded checks whether object is laoded or not
+     * @param object $object
+     * @return boolean
+     */
+    public function isObjectLoaded($object)
+    {
+        return Validate::isLoadedObject($object);
     }
 
     public function getModuleName($moduleName = '')
@@ -438,6 +458,23 @@ class FmPrestashop
     public function currencyGetDefaultCurrency()
     {
         return Currency::getDefaultCurrency();
+    }
+
+    /**
+     * getSelectedCurrency get settings currency
+     * @param  int $currencyId
+     * @return string
+     */
+    public function getSelectedCurrency($currencyId)
+    {
+        if (!$currencyId) {
+            return $this->currencyGetDefaultCurrency()->iso_code;
+        }
+        $fyndiqCurrency = $this->getCurrency($currencyId);
+        if (!$fyndiqCurrency->id) {
+            return $this->currencyGetDefaultCurrency()->iso_code;
+        }
+        return $fyndiqCurrency->iso_code;
     }
 
     // OrderState
