@@ -153,7 +153,7 @@ class FyndiqMerchant extends Module
     {
         if (Tools::getValue('controller') === 'AdminProducts') {
             $this->fmPrestashop->contextGetContext()->controller->addJS(
-                $this->_path . 'backoffice/frontend/templates/tab-fyndiq.js'
+                $this->fmPrestashop->getModulePath() . 'backoffice/frontend/templates/tab-fyndiq.js'
             );
         }
     }
