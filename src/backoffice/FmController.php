@@ -255,7 +255,7 @@ class FmController
     private function getAllProductFeatures()
     {
         $languageId = $this->fmPrestashop->getLanguageId();
-        $getProductFeaturesQuery = 'SELECT DISTINCT id_feature, name FROM ' . _DB_PREFIX_ . 'feature_lang WHERE id_lang=' . $languageId;
+        $getProductFeaturesQuery = 'SELECT id_feature, name FROM ' . _DB_PREFIX_ . 'feature_lang WHERE id_lang=' . $languageId;
         $queryResults = $this->fmPrestashop->dbGetInstance()->executeS($getProductFeaturesQuery);
         $productFeatures = array();
         foreach($queryResults as $queryResult) {
@@ -302,15 +302,13 @@ class FmController
 
     private function getDescriptionTypes($allMappingOptions)
     {
-        $descriptionTypes = $allMappingOptions;
-
         function filterOutDescriptions($var) {
             return !in_array($var['id'], array(
                 FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
                 FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description')
             ));
         }
-        $descriptionTypes = array_filter($descriptionTypes, 'filterOutDescriptions');
+        $descriptionTypes = array_filter($allMappingOptions, 'filterOutDescriptions');
 
         $longDescription = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description'),
@@ -329,11 +327,10 @@ class FmController
 
     private function getEANTypes($allMappingOptions)
     {
-        $eanTypes = $allMappingOptions;
         function filterOutEAN($var) {
             return $var['id'] != FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13');
         }
-        $eanTypes = array_filter($eanTypes, 'filterOutEAN');
+        $eanTypes = array_filter($allMappingOptions, 'filterOutEAN');
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
@@ -347,27 +344,24 @@ class FmController
 
     private function getISBNTypes($allMappingOptions)
     {
-        $isbnTypes = $allMappingOptions;
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
-        return array_merge(array($blankMappingOption), $isbnTypes);
+        return array_merge(array($blankMappingOption), $allMappingOptions);
     }
 
     private function getMPNTypes($allMappingOptions)
     {
-        $mpnTypes = $allMappingOptions;
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
-        return array_merge(array($blankMappingOption), $mpnTypes);
+        return array_merge(array($blankMappingOption), $allMappingOptions);
     }
 
     private function getBrandTypes($allMappingOptions)
     {
-        $brandTypes = $allMappingOptions;
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
@@ -376,7 +370,7 @@ class FmController
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME),
             'name' => 'Manufacturer name'
         );
-        return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $brandTypes);
+        return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $allMappingOptions);
     }
 
     private function getFieldsMappingsForm()
