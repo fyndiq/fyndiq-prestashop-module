@@ -300,7 +300,7 @@ class FmProductExport extends FmModel
         FyndiqUtils::debug('$fmProducts', $fmProducts);
         // get current currency
         $fyndiqCurrency = $this->fmConfig->get('currency', $storeId);
-        $currentCurrency = $this->fmPrestashop->getFyndiqModuleCurrency($fyndiqCurrency);
+        $currentCurrency = $this->fmPrestashop->getSelectedCurrency($fyndiqCurrency);
         $market = $this->fmPrestashop->getCountryCode();
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);

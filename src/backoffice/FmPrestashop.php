@@ -110,6 +110,11 @@ class FmPrestashop
         return new Currency($currencyId);
     }
 
+
+    /**
+     * getCurrencies get list of currency
+     * @return array
+     */
     public function getCurrencies()
     {
         return Currency::getCurrencies();
@@ -229,6 +234,11 @@ class FmPrestashop
         );
     }
 
+    /**
+     * isObjectLoaded checks whether object is laoded or not
+     * @param object $object
+     * @return boolean
+     */
     public function isObjectLoaded($object)
     {
         return Validate::isLoadedObject($object);
@@ -442,8 +452,12 @@ class FmPrestashop
         return Currency::getDefaultCurrency();
     }
 
-    // Fyndiq Currency
-    public function getFyndiqModuleCurrency($currencyId)
+    /**
+     * getSelectedCurrency get settings currency
+     * @param  int $currencyId
+     * @return string
+     */
+    public function getSelectedCurrency($currencyId)
     {
         if (!$currencyId) {
             return $this->currencyGetDefaultCurrency()->iso_code;
