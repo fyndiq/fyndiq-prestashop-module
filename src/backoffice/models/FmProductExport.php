@@ -190,10 +190,12 @@ class FmProductExport extends FmModel
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
+        echo "HERE 1|";
         if (empty($product->id) || !$product->active) {
+            echo "returning false";
             return false;
         }
-
+        echo "HERE 10|";
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
@@ -216,6 +218,7 @@ class FmProductExport extends FmModel
             'mpn' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_MPN], $product, $allProductIds, $settings),
         );
 
+        echo "HERE 2|";
         // get the medium image type
         $imageType = $this->fmPrestashop->getImageType();
 
@@ -234,6 +237,7 @@ class FmProductExport extends FmModel
             );
         }
 
+        echo "HERE 3|";
         // handle combinations
         $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
         $productAttributesFixed = array();
@@ -284,6 +288,7 @@ class FmProductExport extends FmModel
                 }
             }
         }
+        echo "HERE 4|";
         return $result;
     }
 
@@ -343,17 +348,18 @@ class FmProductExport extends FmModel
                 LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .')';
 
         $queryResults = $this->fmPrestashop->dbGetInstance()->ExecuteS($query);
+
         foreach($queryResults as $featureQueryResult) {
             $features[$featureQueryResult['id_product']][$featureQueryResult['id_feature']] = $featureQueryResult['value'];
         }
         return $features;
     }
 
-    public function getProductFeature($languageId, $productId, $featureId, $productsIds, $settings)
+    public function getProductFeature($productId, $featureId, $productsIds, $settings)
     {
         static $features = null;
         if($features === null) {
-            $features = $this->getProductFeatures($languageId, $productsIds, $settings);
+            $features = $this->getProductFeatures($settings[FmFormSetting::SETTINGS_LANGUAGE_ID], $productsIds, $settings);
         }
         if(isset($features[$productId]) && isset($features[$productId][$featureId])) {
             return $features[$productId][$featureId];
@@ -373,7 +379,9 @@ class FmProductExport extends FmModel
             return $this->getArticleFieldValue($mappingId, $product);
         }
         if($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
-            return $product->manufacturer_name;
+            return $this->fmPrestashop->manufacturerGetNameById(
+                (int)$product->id
+            );
         }
         if($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
             return $product->description . "\n\n" . $product->description_short;
