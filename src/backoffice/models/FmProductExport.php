@@ -119,6 +119,11 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbGetInstance()->executeS($sql);
     }
 
+    public function getContext()
+    {
+        return Context::getContext()->cloneContext();
+    }
+
     /**
      * Returns the first category_id the product belongs to
      *
@@ -180,6 +185,7 @@ class FmProductExport extends FmModel
      */
     public function getStoreProduct($productId, $allProductIds, $settings)
     {
+        $context = $this->getContext();
         $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
@@ -187,13 +193,12 @@ class FmProductExport extends FmModel
         if (empty($product->id) || !$product->active) {
             return false;
         }
-        $context = Context::getContext()->cloneContext();
 
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
             'category_id' => $this->getCategoryId($product),
-            'reference' => $this->getProductSKU($settings[FmFormSetting::SETTINGS_LANGUAGE_ID], $product),
+            'reference' => $this->getProductSKU($languageId, $product),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
             'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
@@ -311,6 +316,7 @@ class FmProductExport extends FmModel
 
     protected function getProductFeatures($languageId, $productIds, $settings)
     {
+        $features = array();
         $featureIds = array();
         foreach(array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
                     FmFormSetting::SETTINGS_MAPPING_SKU,
@@ -327,7 +333,7 @@ class FmProductExport extends FmModel
         }
 
         if(empty($featureIds) || empty($productIds)) {
-            return '';
+            return $features;
         }
 
         $query = '
@@ -337,7 +343,6 @@ class FmProductExport extends FmModel
                 LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .')';
 
         $queryResults = $this->fmPrestashop->dbGetInstance()->ExecuteS($query);
-        $features = array();
         foreach($queryResults as $featureQueryResult) {
             $features[$featureQueryResult['id_product']][$featureQueryResult['id_feature']] = $featureQueryResult['value'];
         }
@@ -404,7 +409,7 @@ class FmProductExport extends FmModel
         $customer = $this->fmPrestashop->newCustomer();
         $customer->id_default_group = $groupId;
         $customer->id_shop = $storeId;
-        $context = Context::getContext()->cloneContext();
+        $context = $this->getContext();
         $context->cart = new Cart();
         $context->customer = $customer;
 
@@ -415,7 +420,7 @@ class FmProductExport extends FmModel
 
         $allProductIds = array_map(create_function('$p', 'return $p[\'product_id\'];'), $fmProducts);
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct( $fmProduct['product_id'], $allProductIds, $settings, $storeId);
+            $storeProduct = $this->getStoreProduct($fmProduct['product_id'], $allProductIds, $settings, $storeId);
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
