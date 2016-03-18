@@ -146,9 +146,12 @@ class FmNotificationService
 
     private function getSaveFileSettings($storeId, $groupId)
     {
+        $languageId = $this->fmPrestashop->getValidLanguageId(
+            intval($this->fmConfig->get('language', $storeId))
+        );
         return
             $settings = array (
-                FmFormSetting::SETTINGS_LANGUAGE_ID => $this->fmConfig->get('language', $storeId),
+                FmFormSetting::SETTINGS_LANGUAGE_ID => $languageId,
                 FmFormSetting::SETTINGS_STOCK_MIN => $this->fmConfig->get('stock_min', $storeId),
                 FmFormSetting::SETTINGS_GROUP_ID => $groupId,
                 FmFormSetting::SETTINGS_STORE_ID => $storeId,

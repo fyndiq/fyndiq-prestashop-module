@@ -112,7 +112,9 @@ class FmServiceController
         $fmProduct = $this->loadModel('FmProduct');
         $fmProductExport = $this->loadModel('FmProductExport');
         // get currency
-        $currentCurrency = $this->fmPrestashop->getDefaultCurrency();
+        $fyndiqCurrency = $this->fmConfig->get('currency', $storeId);
+        $fyndiqCurrency = $fyndiqCurrency ? $this->fmPrestashop->getCurrency($fyndiqCurrency) : false;
+        $currentCurrency = $fyndiqCurrency ? $fyndiqCurrency->iso_code : $this->fmPrestashop->getDefaultCurrency();
 
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);

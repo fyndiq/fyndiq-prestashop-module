@@ -30,7 +30,7 @@ class FmProductExport extends FmModel
         return count($data) > 0;
     }
 
-    public function addProduct($productId, $storeId, $name = NULL, $description = NULL)
+    public function addProduct($productId, $storeId, $name = null, $description = null)
     {
         $data = array(
             'store_id' => $storeId,
@@ -41,7 +41,7 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $fyndiqPrice, $storeId, $name = NULL, $description = NULL)
+    public function updateProduct($productId, $fyndiqPrice, $storeId, $name = null, $description = null)
     {
         $data = array(
             'fyndiq_price' => $fyndiqPrice,
@@ -178,13 +178,16 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($productId, $allProductIds, $settings, $storeId = null)
+    public function getStoreProduct($productId, $allProductIds, $settings)
     {
+        $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
+        $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
             return false;
         }
+        $context = Context::getContext()->cloneContext();
 
         $result = array(
             'id' => $product->id,
@@ -193,7 +196,7 @@ class FmProductExport extends FmModel
             'reference' => $this->getProductSKU($settings[FmFormSetting::SETTINGS_LANGUAGE_ID], $product),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
-            'price' => $this->fmPrestashop->getPrice($product),
+            'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
             'oldprice' => $this->fmPrestashop->getBasePrice($product),
             'description' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_DESCRIPTION], $product, $allProductIds, $settings),
             'description_short' => $product->description_short,
@@ -257,7 +260,7 @@ class FmProductExport extends FmModel
                 $result['combinations'][$id] = array(
                     'id' => $id,
                     'reference' => $reference,
-                    'price' => $this->fmPrestashop->getPrice($product, $id),
+                    'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
                     'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
                     'quantity' => $quantity,
                     'minimal_quantity' => $minQuantity,
@@ -383,26 +386,32 @@ class FmProductExport extends FmModel
     {
         $fmProducts = $this->getFyndiqProducts();
         FyndiqUtils::debug('$fmProducts', $fmProducts);
+
+        $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         // get current currency
-        $currentCurrency = $this->fmPrestashop->currencyGetDefaultCurrency()->iso_code;
+        $fyndiqCurrency = $this->fmConfig->get('currency', $storeId);
+        $currentCurrency = $this->fmPrestashop->getSelectedCurrency($fyndiqCurrency);
         $market = $this->fmPrestashop->getCountryCode();
 
-        $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
         $stockMin = $settings[FmFormSetting::SETTINGS_STOCK_MIN];
         $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
-        $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
 
         FyndiqUtils::debug('$currentCurrency', $currentCurrency);
         FyndiqUtils::debug('$stockMin', $stockMin);
 
         // Creating customer and add it to the context so we can set a
         // specific discount customer group to the price.
-        $customer = new Customer();
+        $customer = $this->fmPrestashop->newCustomer();
         $customer->id_default_group = $groupId;
         $customer->id_shop = $storeId;
         $context = Context::getContext()->cloneContext();
         $context->cart = new Cart();
         $context->customer = $customer;
+
+        // set fyndiq custom currency based on the module settings
+        if ($this->fmPrestashop->isObjectLoaded($context->currency)) {
+            $context->currency->id = $fyndiqCurrency ? $fyndiqCurrency->id : $this->fmPrestashop->currencyGetDefaultCurrency()->id;
+        }
 
         $allProductIds = array_map(create_function('$p', 'return $p[\'product_id\'];'), $fmProducts);
         foreach ($fmProducts as $fmProduct) {
