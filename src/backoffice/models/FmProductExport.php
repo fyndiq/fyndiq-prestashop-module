@@ -187,18 +187,16 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($productId, $allProductIds, $settings, $context)
+    public function getStoreProduct($productId, $allProductIds, $settings)
     {
+        $context = $this->getContext();
         $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
-        echo "HERE 1|";
         if (empty($product->id) || !$product->active) {
-            echo "returning false";
             return false;
         }
-        echo "HERE 10|";
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
@@ -221,7 +219,6 @@ class FmProductExport extends FmModel
             'mpn' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_MPN], $product, $allProductIds, $settings),
         );
 
-        echo "HERE 2|";
         // get the medium image type
         $imageType = $this->fmPrestashop->getImageType();
 
@@ -240,7 +237,6 @@ class FmProductExport extends FmModel
             );
         }
 
-        echo "HERE 3|";
         // handle combinations
         $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
         $productAttributesFixed = array();
