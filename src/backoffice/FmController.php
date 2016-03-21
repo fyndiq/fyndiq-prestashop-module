@@ -141,15 +141,16 @@ class FmController
             );
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
-        $fieldsForms = array();
-        $fieldsForms[] =  $this->getGeneralSettingsForm();
-        $fieldsForms[] =  $this->getFieldsMappingsForm();
+        $fieldForms = array(
+            $this->getGeneralSettingsForm(),
+            $this->getFieldsMappingsForm(),
+        );
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
         if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
-            $fieldsForms[] = $this->getCronJobSettingsForm($storeId);
+            $fieldForms[] = $this->getCronJobSettingsForm($storeId);
         }
-        return $helper->generateForm($fieldsForms);
+        return $helper->generateForm($fieldForms);
     }
 
     public function getConfigFieldsValues($storeId)
