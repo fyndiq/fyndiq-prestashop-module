@@ -19,6 +19,7 @@ class FmFormSetting
     const MAPPING_TYPE_PRODUCT_FEATURE = 2;
     const MAPPING_TYPE_MANUFACTURER_NAME = 3;
     const MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION = 4;
+
     const MAPPING_TYPE_DELMITER = ';';
 
     const SETTINGS_LANGUAGE_ID = 8;
@@ -32,38 +33,53 @@ class FmFormSetting
     const SETTINGS_MAPPING_MPN = 2048;
     const SETTINGS_MAPPING_BRAND = 4096;
 
-    /** @var array [form settings array] */
+    /**
+     * form settings array
+     * @var array
+     */
     protected $form;
 
-    public static function serializeMappingValue($productMappingType, $productMappingValue)
+    /**
+     * serializeMappingValue serializing field mapping pair
+     * @param  int $mappingType Mapping type
+     * @param  string $mappingValue mapping value
+     * @return string
+     */
+    public static function serializeMappingValue($mappingType, $mappingValue)
     {
         return $productMappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $productMappingValue;
     }
 
-    public static function deserializeMappingValue($serializedProductMappingValue)
+
+    /**
+     * deserializeMappingValue de-serializes mapping value
+     * @param  string $serializedMappingValue serialized mapping value
+     * @return array
+     */
+    public static function deserializeMappingValue($serializedMappingValue)
     {
-        if ($serializedProductMappingValue === FmUtils::SHORT_DESCRIPTION) {
+        if ($serializedMappingValue === FmUtils::SHORT_DESCRIPTION) {
             return array(
-                'product_mapping_type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                'product_mapping_key_id' => 'description_short',
+                'type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                'id' => 'description_short',
             );
         }
-        if ($serializedProductMappingValue === FmUtils::LONG_DESCRIPTION) {
+        if ($serializedMappingValue === FmUtils::LONG_DESCRIPTION) {
             return array(
-                'product_mapping_type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                'product_mapping_key_id' => 'description',
+                'type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                'id' => 'description',
             );
         }
-        if ($serializedProductMappingValue === FmUtils::SHORT_AND_LONG_DESCRIPTION) {
+        if ($serializedMappingValue === FmUtils::SHORT_AND_LONG_DESCRIPTION) {
             return array(
-                'product_mapping_type' => FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
-                'product_mapping_key_id' => '',
+                'type' => FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
+                'id' => '',
             );
         }
-        $productMapping = explode(FmFormSetting::MAPPING_TYPE_DELMITER, $serializedProductMappingValue);
+        $productMapping = explode(FmFormSetting::MAPPING_TYPE_DELMITER, $serializedMappingValue);
         return array(
-            'product_mapping_type' => $productMapping[0],
-            'product_mapping_key_id' => $productMapping[1],
+            'type' => $productMapping[0],
+            'id' => $productMapping[1],
         );
     }
 
@@ -122,11 +138,11 @@ class FmFormSetting
     public function setTextField($label, $name, $description, $class)
     {
         $this->form['form']['input'][] = array(
-                        'type' => 'text',
-                        'label'=> $label,
-                        'name' => $name,
-                        'class' => $class,
-                        'desc' => $description ? $description : '',
+            'type' => 'text',
+            'label'=> $label,
+            'name' => $name,
+            'class' => $class,
+            'desc' => $description ? $description : '',
         );
         return $this;
     }
@@ -144,48 +160,48 @@ class FmFormSetting
     public function setSelect($label, $name, $description, $dataSource, $key, $text, $disabled = false)
     {
         $this->form['form']['input'][] = array(
-                        'type' => 'select',
-                        'label' => $label,
-                        'name' => $name,
-                        'desc' => $description? $description : '',
-                        'options' => array(
-                            'query' => $dataSource,
-                            'id' => $key,
-                            'name' => $text
-                        ),
-                        'disabled' => $disabled,
+            'type' => 'select',
+            'label' => $label,
+            'name' => $name,
+            'desc' => $description? $description : '',
+            'options' => array(
+                'query' => $dataSource,
+                'id' => $key,
+                'name' => $text
+            ),
+            'disabled' => $disabled,
         );
         return $this;
     }
 
     /**
      * setSwitch, add radio button elements to the form as a switch
-     * @param string $label         set switch lebel
-     * @param string $name          set switch name
-     * @param String $description   set switch description
-     * @return FmFormSetting        return class object
+     * @param string $label set switch lebel
+     * @param string $name set switch name
+     * @param String $description set switch description
+     * @return FmFormSetting return class object
      */
     public function setSwitch($label, $name, $description, $disabled = false)
     {
         $this->form['form']['input'][] = array(
-                        'type' => 'switch',
-                        'label'=> $label,
-                        'name' => $name,
-                        'is_bool'=> true,
-                        'desc' => $description? $description : '',
-                        'values'=> array(
-                                array(
-                                    'id' => 'active_on',
-                                    'value' => 1,
-                                    'label' => 'Enabled'
-                                ),
-                                array(
-                                    'id' => 'active_off',
-                                    'value' => 0,
-                                    'label' => 'Disabled'
-                                )
-                            ),
-                        'disabled' => $disabled,
+            'type' => 'switch',
+            'label'=> $label,
+            'name' => $name,
+            'is_bool'=> true,
+            'desc' => $description? $description : '',
+            'values'=> array(
+                array(
+                    'id' => 'active_on',
+                    'value' => 1,
+                    'label' => 'Enabled'
+                ),
+                array(
+                    'id' => 'active_off',
+                    'value' => 0,
+                    'label' => 'Disabled'
+                )
+            ),
+            'disabled' => $disabled,
         );
         return $this;
     }
@@ -198,14 +214,14 @@ class FmFormSetting
     public function setSubmit($title)
     {
         $this->form['form']['submit'] = array(
-                    'title' => $title
+            'title' => $title
         );
         return $this;
     }
 
     /**
      * getFormElementsSettings, generates form settings
-     * @return array return entire form configs
+     * @return array return entire form configuration
      */
     public function getFormElementsSettings()
     {
