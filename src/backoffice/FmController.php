@@ -234,15 +234,15 @@ class FmController
         return array(
             array(
                 'id' => FmUtils::CRON_INTERVAL_10,
-                'name' => $this->module->__('10 Minutes'),
+                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_10),
             ),
             array(
                 'id' => FmUtils::CRON_INTERVAL_30,
-                'name' => $this->module->__('30 Minutes'),
+                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_30),
             ),
             array(
                 'id' => FmUtils::CRON_INTERVAL_60,
-                'name' => $this->module->__('60 Minutes'),
+                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_60),
             ),
         );
     }
