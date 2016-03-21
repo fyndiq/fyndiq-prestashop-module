@@ -30,7 +30,7 @@ class FmController
                 $output .= $this->postProcess($storeId);
             }
         }
-        $output .= $this->displayForm($storeId, $languageId);
+        $output .= $this->renderForm($storeId, $languageId);
         return $output;
     }
 
@@ -119,7 +119,13 @@ class FmController
         return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
     }
 
-    public function displayForm($storeId, $languageId)
+    /**
+     * renderForm renders the module settings form
+     * @param  int $storeId StoreId
+     * @param  int $languageId LanguageId
+     * @return string
+     */
+    public function renderForm($storeId, $languageId)
     {
         $helper = new HelperForm();
 
@@ -180,6 +186,10 @@ class FmController
         return $states;
     }
 
+    /**
+     * getSKUTypes returns the SKU types available
+     * @return array
+     */
     protected function getSKUTypes()
     {
         return array(
@@ -229,6 +239,10 @@ class FmController
         return json_encode($probes);
     }
 
+    /**
+     * getInterval returns the cron running intervals array
+     * @return array
+     */
     protected function getInterval()
     {
         return array(
@@ -247,6 +261,10 @@ class FmController
         );
     }
 
+    /**
+     * getAllProductAndCombinationsFields return all fields defined for products and combinations
+     * @return array
+     */
     private function getAllProductAndCombinationsFields()
     {
         $allFieldsIds = array_unique(
@@ -269,6 +287,11 @@ class FmController
         return $fieldsIdsAndNames;
     }
 
+    /**
+     * getAllProductFeatures returns array containing all product features
+     * @param  int $languageId Language id
+     * @return array
+     */
     private function getAllProductFeatures($languageId)
     {
         $query = 'SELECT id_feature, name
@@ -288,6 +311,11 @@ class FmController
         return $productFeatures;
     }
 
+    /**
+     * [getAllMappingOptions returns all fields and features
+     * @param  int $languageId Language id
+     * @return array
+     */
     private function getAllMappingOptions($languageId)
     {
         return array_merge(
@@ -296,6 +324,11 @@ class FmController
         );
     }
 
+    /**
+     * getGeneralSettingsForm returns the general settings form
+     * @param  int $languageId LanguageId
+     * @return FmFormSetting
+     */
     private function getGeneralSettingsForm($languageId)
     {
         $orderStates = $this->getOrderStates($languageId);
@@ -323,51 +356,94 @@ class FmController
             ->getFormElementsSettings();
     }
 
-    private function getDescriptionTypes($allMappingOptions)
+    /**
+     * getDescriptionTypes return the description type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    protected function getDescriptionTypes($mappingOptions)
     {
         function filterOutDescriptions($var)
         {
             return !in_array($var['id'], array(
-                FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
-                FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description')
+                FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'description_short'
+                ),
+                FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'description'
+                )
             ));
         }
-        $descriptionTypes = array_filter($allMappingOptions, 'filterOutDescriptions');
+        $descriptionTypes = array_filter($mappingOptions, 'filterOutDescriptions');
 
-        $longDescription = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description'),
-            'name' => $this->module->__('Description')
+        $extraDescriptionTypes = array(
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'description'
+                ),
+                'name' => $this->module->__('Description')
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'description_short'
+                ),
+                'name' => $this->module->__('Short description')
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
+                    ''
+                ),
+                'name' => $this->module->__('Short and long description')
+            )
         );
-        $shortDescription = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
-            'name' => $this->module->__('Short description')
-        );
-        $shortAndLongDescription = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION),
-            'name' => $this->module->__('Short and long description')
-        );
-        return array_merge(array($longDescription), array($shortDescription), array($shortAndLongDescription), $descriptionTypes);
+        return array_merge($extraDescriptionTypes, $descriptionTypes);
     }
 
-    private function getEANTypes($allMappingOptions)
+    /**
+     * getEANTypes returns the EAN type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getEANTypes($mappingOptions)
     {
         function filterOutEAN($var)
         {
-            return $var['id'] != FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13');
+            return $var['id'] !== FmFormSetting::serializeMappingValue(
+                FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                'ean13'
+            );
         }
-        $eanTypes = array_filter($allMappingOptions, 'filterOutEAN');
-        $blankMappingOption = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
-            'name' => ''
+        $eanTypes = array_filter($mappingOptions, 'filterOutEAN');
+        $extraEanTypes = array(
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_NO_MAPPING,
+                    ''
+                ),
+                'name' => ''
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'ean13'
+                ),
+                'name' => $this->module->__('EAN')
+            ),
         );
-        $ean = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13'),
-            'name' => $this->module->__('EAN')
-        );
-        return array_merge(array($blankMappingOption), array($ean), $eanTypes);
+        return array_merge($extraEanTypes, $eanTypes);
     }
 
-    private function getISBNTypes($allMappingOptions)
+    /**
+     * getISBNTypes returns the ISBN type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getISBNTypes($mappingOptions)
     {
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
@@ -376,7 +452,12 @@ class FmController
         return array_merge(array($blankMappingOption), $allMappingOptions);
     }
 
-    private function getMPNTypes($allMappingOptions)
+    /**
+     * getMPNTypes returns the MPN type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getMPNTypes($mappingOptions)
     {
         $blankMappingOption = array(
             'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
@@ -385,17 +466,30 @@ class FmController
         return array_merge(array($blankMappingOption), $allMappingOptions);
     }
 
-    private function getBrandTypes($allMappingOptions)
+    /**
+     * getBrandTypes returns the Brand type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getBrandTypes($mappingOptions)
     {
-        $blankMappingOption = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
-            'name' => ''
+        $extraBrandOptions = array(
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_NO_MAPPING,
+                    ''
+                ),
+                'name' => ''
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME,
+                    ''
+                ),
+                'name' => 'Manufacturer name'
+            ),
         );
-        $manufacturerMappingOption = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME),
-            'name' => 'Manufacturer name'
-        );
-        return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $allMappingOptions);
+        return array_merge($extraBrandOptions, $allMappingOptions);
     }
 
     private function getFieldsMappingsForm($languageId)
