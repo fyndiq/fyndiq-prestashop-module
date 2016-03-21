@@ -209,22 +209,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
             ->setConstructorArgs(array($this->fmPrestashop, null))
             ->getMock();
 
-        $expectedQuery = '
-                SELECT pl.value, p.id_feature, p.id_product
-                FROM ps_feature_product AS p WHERE p.id_product IN (1,2)
-                AND p.id_feature IN (custom_feature)
-                LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = 0)';
-        $this->db->method('ExecuteS')
-            ->with($expectedQuery)
-            ->willReturn(array(array(
-                'value' => 'FeatureValue',
-                'id_feature' => 'custom_feature',
-                'id_product' => 1
-            )));
-
         $result = $this->fmProductExport->getStoreProduct(
             1,
-            array(1, 2),
             array(
                 FmFormSetting::SETTINGS_GROUP_ID => 0,
                 FmFormSetting::SETTINGS_STORE_ID => 0,
@@ -240,7 +226,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals($result['brand'], '');
         $this->assertEquals($result['description'], $product->ean13);
-        $this->assertEquals($result['ean'], 'FeatureValue');
+        $this->assertEquals($result['ean'], '');
         $this->assertEquals($result['isbn'], 'manufacturer_name');
         $this->assertEquals($result['mpn'], $product->description . "\n\n" . $product->description_short);
     }

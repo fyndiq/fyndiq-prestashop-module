@@ -6,6 +6,8 @@ class FmProductExport extends FmModel
     const PENDING = 'PENDING';
     const FOR_SALE = 'FOR_SALE';
 
+    private $productFeatures = array();
+
     public function __construct($fmPrestashop, $fmConfig)
     {
         parent::__construct($fmPrestashop, $fmConfig);
@@ -180,43 +182,60 @@ class FmProductExport extends FmModel
     }
 
     /**
-     * Returns single product with combinations or false if product is not active/found
-     *
-     * @param $languageId
-     * @param $productId
-     * @param $descriptionType
+     * getStoreProduct returns single product with combinations
+     * or false if product is not active/found
+     * @param  int $productId ProductId
+     * @param  array $settings  Settings array
+     * @param  Context $context Context object
      * @return array|bool
      */
-    public function getStoreProduct($productId, $allProductIds, $settings)
+    public function getStoreProduct($productId, $settings, $context)
     {
-        $context = $this->getContext();
         $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
-            return false;
+            return array();
         }
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
             'category_id' => $this->getCategoryId($product),
-            'reference' => $this->getProductSKU($languageId, $product),
+            'reference' => $this->getProductSKU(
+                $settings[FmFormSetting::SETTINGS_MAPPING_SKU],
+                $product
+            ),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
             'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
             'oldprice' => $this->fmPrestashop->getBasePrice($product),
-            'description' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_DESCRIPTION], $product, $allProductIds, $settings),
             'description_short' => $product->description_short,
             'minimal_quantity' => intval($product->minimal_quantity),
             'manufacturer_name' => $this->fmPrestashop->manufacturerGetNameById(
                 (int)$product->id_manufacturer
             ),
             'combinations' => array(),
-            'brand' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_BRAND], $product, $allProductIds, $settings),
-            'ean' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_EAN], $product, $allProductIds, $settings),
-            'isbn' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_ISBN], $product, $allProductIds, $settings),
-            'mpn' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_MPN], $product, $allProductIds, $settings),
+            'description' => $this->getMappedValue(
+                $settings[FmFormSetting::SETTINGS_MAPPING_DESCRIPTION],
+                $product
+            ),
+            'brand' => $this->getMappedValue(
+                $settings[FmFormSetting::SETTINGS_MAPPING_BRAND],
+                $product
+            ),
+            'ean' => $this->getMappedValue(
+                $settings[FmFormSetting::SETTINGS_MAPPING_EAN],
+                $product
+            ),
+            'isbn' => $this->getMappedValue(
+                $settings[FmFormSetting::SETTINGS_MAPPING_ISBN],
+                $product
+            ),
+            'mpn' => $this->getMappedValue(
+                $settings[FmFormSetting::SETTINGS_MAPPING_MPN],
+                $product
+            ),
         );
 
         // get the medium image type
@@ -243,7 +262,11 @@ class FmProductExport extends FmModel
         if ($productAttributes) {
             $combinationImages = $product->getCombinationImages($languageId);
             foreach ($productAttributes as $fixingAttribute) {
-                $reference = $this->getProductSKU($settings[FmFormSetting::SETTINGS_MAPPING_SKU], $product, $fixingAttribute);
+                $reference = $this->getProductSKU(
+                    $settings[FmFormSetting::SETTINGS_MAPPING_SKU],
+                    $product,
+                    $fixingAttribute
+                );
                 if (!isset($productAttributesFixed[$reference])) {
                     $productAttributesFixed[$reference] = array();
                 }
@@ -304,29 +327,36 @@ class FmProductExport extends FmModel
     }
 
     /**
-     * getArticleFieldValue returns the specified field's value from a product's combination.
-     * If a field is not found on a combination, it returns a specified's field's value from a product.
-     *
-     * @param  $fieldKey field to look for
-     * @param  Product $product product to search the field in
-     * @param  Combination $combination combination to search the field in
-     * @return object
+     * getArticleFieldValue returns the specified field's value from a product
+     * @param string $fieldKey Property name
+     * @param Product $product Product object
+     * @return mixed
      */
     protected function getArticleFieldValue($fieldKey, $product)
     {
         return $product->{$fieldKey};
     }
 
-    protected function getProductFeatures($languageId, $productIds, $settings)
+
+    /**
+     * getProductFeatures Returns an array of all used product features for exported products
+     * @param  array $settings Settings
+     * @param  array $productIds list of exported product id-s
+     * @return array
+     */
+    protected function getProductFeatures($settings, $productIds)
     {
         $features = array();
         $featureIds = array();
-        foreach (array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
-                    FmFormSetting::SETTINGS_MAPPING_SKU,
-                    FmFormSetting::SETTINGS_MAPPING_EAN,
-                    FmFormSetting::SETTINGS_MAPPING_ISBN,
-                    FmFormSetting::SETTINGS_MAPPING_MPN,
-                    FmFormSetting::SETTINGS_MAPPING_BRAND) as $mappingTarget) {
+        foreach (array(
+                FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
+                FmFormSetting::SETTINGS_MAPPING_SKU,
+                FmFormSetting::SETTINGS_MAPPING_EAN,
+                FmFormSetting::SETTINGS_MAPPING_ISBN,
+                FmFormSetting::SETTINGS_MAPPING_MPN,
+                FmFormSetting::SETTINGS_MAPPING_BRAND
+            ) as $mappingTarget
+        ) {
             $mapping = FmFormSetting::deserializeMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['type']);
             $mappingId = $mapping['id'];
@@ -339,40 +369,62 @@ class FmProductExport extends FmModel
             return $features;
         }
 
-        $query = '
-                SELECT pl.value, p.id_feature, p.id_product
-                FROM ps_feature_product AS p WHERE p.id_product IN (' . implode(',', $productIds) . ')
-                AND p.id_feature IN (' . implode(',', $featureIds) . ')
-                LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .')';
+        $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
 
-        $queryResults = $this->fmPrestashop->dbGetInstance()->ExecuteS($query);
+        // Note: There is a limit for query size in MySQL so this may hit it eventually
+        $sql = 'SELECT pl.value, p.id_feature, p.id_product
+            FROM ' . $this->fmPrestashop->globDbPrefix(). 'feature_product AS p
+            LEFT JOIN ' . $this->fmPrestashop->globDbPrefix() . '_feature_value_lang AS pl ON
+            p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .'
+            WHERE p.id_product IN (' . implode(',', $productIds) . ')
+            AND p.id_feature IN (' . implode(',', $featureIds) . ')';
 
-        foreach($queryResults as $featureQueryResult) {
-            $features[$featureQueryResult['id_product']][$featureQueryResult['id_feature']] = $featureQueryResult['value'];
+        $query = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+
+        foreach($query as $row) {
+            $productId = intval($row['id_product']);
+            $featureId = intval($row['id_feature']);
+            if (!isset($features[$productId])) {
+                $features[$productId] = array();
+            }
+            if (!isset($features[$productId][$featureId])) {
+                $features[$productId][$featureId] = array();
+            }
+            $features[$productId][$featureId] = $row['value'];
         }
         return $features;
     }
 
-    public function getProductFeature($productId, $featureId, $productsIds, $settings)
+    /**
+     * getProductFeature returns product feature value if it is set
+     * @param  int $productId ProductId
+     * @param  int $featureId FeatureId
+     * @return string
+     */
+    public function getProductFeature($productId, $featureId)
     {
-        static $features = null;
-        if($features === null) {
-            $features = $this->getProductFeatures($settings[FmFormSetting::SETTINGS_LANGUAGE_ID], $productsIds, $settings);
-        }
-        if (isset($features[$productId]) && isset($features[$productId][$featureId])) {
+        if (isset($this->productFeatures[$productId]) &&
+            isset($this->productFeatures[$productId][$featureId])
+        ) {
             return $features[$productId][$featureId];
         }
         return '';
     }
 
-    private function getMappedValue($fieldKey, $product, $allProductIds, $settings)
+    /**
+     * getMappedValue returns mapped value for product
+     * @param  string $fieldKey Field key
+     * @param  Product $product Product object
+     * @return string
+     */
+    private function getMappedValue($fieldKey, $product)
     {
         $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
         $mappingType = intval($mappedKey['type']);
         $mappingId = $mappedKey['id'];
 
         if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
-            return $this->getProductFeature($product->id, $mappingId, $allProductIds, $settings);
+            return $this->getProductFeature($product->id, $mappingId);
         }
         if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
             return $this->getArticleFieldValue($mappingId, $product);
@@ -420,14 +472,24 @@ class FmProductExport extends FmModel
         $context->cart = new Cart();
         $context->customer = $customer;
 
-        // set fyndiq custom currency based on the module settings
+        // set Fyndiq custom currency based on the module settings
         if ($this->fmPrestashop->isObjectLoaded($context->currency)) {
             $context->currency->id = $fyndiqCurrency ? $fyndiqCurrency->id : $this->fmPrestashop->currencyGetDefaultCurrency()->id;
         }
 
-        $allProductIds = array_map(create_function('$p', 'return $p[\'product_id\'];'), $fmProducts);
+        $allProductIds = array();
+        foreach ($fmProducts as $row) {
+            $allProductIds = intval($row['product_id']);
+        }
+
+        $this->productFeatures = $this->getProductFeatures($settings, $allProductIds);
+
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($fmProduct['product_id'], $allProductIds, $settings, $context);
+            $storeProduct = $this->getStoreProduct(
+                intval($fmProduct['product_id']),
+                $settings,
+                $context
+            );
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
