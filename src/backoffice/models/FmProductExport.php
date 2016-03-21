@@ -119,9 +119,13 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbGetInstance()->executeS($sql);
     }
 
+    /**
+     * getContext returns cloned context
+     * @return Context
+     */
     public function getContext()
     {
-        return Context::getContext()->cloneContext();
+        return $this->fmPrestashop->contextGetContext()->cloneContext();
     }
 
     /**
@@ -190,12 +194,9 @@ class FmProductExport extends FmModel
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
-        echo "HERE 1|";
         if (empty($product->id) || !$product->active) {
-            echo "returning false";
             return false;
         }
-        echo "HERE 10|";
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
@@ -218,7 +219,6 @@ class FmProductExport extends FmModel
             'mpn' => $this->getMappedValue($settings[FmFormSetting::SETTINGS_MAPPING_MPN], $product, $allProductIds, $settings),
         );
 
-        echo "HERE 2|";
         // get the medium image type
         $imageType = $this->fmPrestashop->getImageType();
 
@@ -237,7 +237,6 @@ class FmProductExport extends FmModel
             );
         }
 
-        echo "HERE 3|";
         // handle combinations
         $productAttributes = $this->fmPrestashop->getProductAttributes($product, $languageId);
         $productAttributesFixed = array();
@@ -323,21 +322,21 @@ class FmProductExport extends FmModel
     {
         $features = array();
         $featureIds = array();
-        foreach(array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
+        foreach (array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
                     FmFormSetting::SETTINGS_MAPPING_SKU,
                     FmFormSetting::SETTINGS_MAPPING_EAN,
                     FmFormSetting::SETTINGS_MAPPING_ISBN,
                     FmFormSetting::SETTINGS_MAPPING_MPN,
                     FmFormSetting::SETTINGS_MAPPING_BRAND) as $mappingTarget) {
-            $mapping = FmFormSetting::deserializeProductMappingValue($settings[$mappingTarget]);
+            $mapping = FmFormSetting::deserializeMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['product_mapping_type']);
             $mappingId = $mapping['product_mapping_key_id'];
-            if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
                 $featureIds[] = $mappingId;
             }
         }
 
-        if(empty($featureIds) || empty($productIds)) {
+        if (empty($featureIds) || empty($productIds)) {
             return $features;
         }
 
@@ -361,21 +360,22 @@ class FmProductExport extends FmModel
         if($features === null) {
             $features = $this->getProductFeatures($settings[FmFormSetting::SETTINGS_LANGUAGE_ID], $productsIds, $settings);
         }
-        if(isset($features[$productId]) && isset($features[$productId][$featureId])) {
+        if (isset($features[$productId]) && isset($features[$productId][$featureId])) {
             return $features[$productId][$featureId];
         }
         return '';
     }
 
-    private function getMappedValue($fieldKey, $product, $allProductIds, $settings) {
-        $mappedKey = FmFormSetting::deserializeProductMappingValue($fieldKey);
+    private function getMappedValue($fieldKey, $product, $allProductIds, $settings)
+    {
+        $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
         $mappingType = intval($mappedKey['product_mapping_type']);
         $mappingId = $mappedKey['product_mapping_key_id'];
 
-        if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
             return $this->getProductFeature($product->id, $mappingId, $allProductIds, $settings);
         }
-        if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
             return $this->getArticleFieldValue($mappingId, $product);
         }
         if($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
@@ -383,7 +383,7 @@ class FmProductExport extends FmModel
                 (int)$product->id
             );
         }
-        if($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
             return $product->description . "\n\n" . $product->description_short;
         }
         return '';
@@ -428,7 +428,7 @@ class FmProductExport extends FmModel
 
         $allProductIds = array_map(create_function('$p', 'return $p[\'product_id\'];'), $fmProducts);
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($fmProduct['product_id'], $allProductIds, $settings, $storeId);
+            $storeProduct = $this->getStoreProduct($fmProduct['product_id'], $allProductIds, $settings, $context);
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
