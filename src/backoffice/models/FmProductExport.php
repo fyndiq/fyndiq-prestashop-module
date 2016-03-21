@@ -119,9 +119,13 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbGetInstance()->executeS($sql);
     }
 
+    /**
+     * getContext returns cloned context
+     * @return Context
+     */
     public function getContext()
     {
-        return Context::getContext()->cloneContext();
+        return $this->fmPrestashop->contextGetContext()->cloneContext();
     }
 
     /**
@@ -183,9 +187,8 @@ class FmProductExport extends FmModel
      * @param $descriptionType
      * @return array|bool
      */
-    public function getStoreProduct($productId, $allProductIds, $settings)
+    public function getStoreProduct($productId, $allProductIds, $settings, $context)
     {
-        $context = $this->getContext();
         $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
@@ -420,7 +423,7 @@ class FmProductExport extends FmModel
 
         $allProductIds = array_map(create_function('$p', 'return $p[\'product_id\'];'), $fmProducts);
         foreach ($fmProducts as $fmProduct) {
-            $storeProduct = $this->getStoreProduct($fmProduct['product_id'], $allProductIds, $settings, $storeId);
+            $storeProduct = $this->getStoreProduct($fmProduct['product_id'], $allProductIds, $settings, $context);
 
             FyndiqUtils::debug('$storeProduct', $storeProduct);
             if (!$storeProduct) {
