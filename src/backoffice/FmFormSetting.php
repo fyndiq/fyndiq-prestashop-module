@@ -35,26 +35,26 @@ class FmFormSetting
     /** @var array [form settings array] */
     protected $form;
 
-    public static function serializeProductMappingValue($productMappingType, $productMappingValue)
+    public static function serializeMappingValue($productMappingType, $productMappingValue)
     {
         return $productMappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $productMappingValue;
     }
 
-    public static function deserializeProductMappingValue($serializedProductMappingValue)
+    public static function deserializeMappingValue($serializedProductMappingValue)
     {
-        if($serializedProductMappingValue === FmUtils::SHORT_DESCRIPTION) {
+        if ($serializedProductMappingValue === FmUtils::SHORT_DESCRIPTION) {
             return array(
                 'product_mapping_type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
                 'product_mapping_key_id' => 'description_short',
             );
         }
-        if($serializedProductMappingValue === FmUtils::LONG_DESCRIPTION) {
+        if ($serializedProductMappingValue === FmUtils::LONG_DESCRIPTION) {
             return array(
                 'product_mapping_type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
                 'product_mapping_key_id' => 'description',
             );
         }
-        if($serializedProductMappingValue === FmUtils::SHORT_AND_LONG_DESCRIPTION) {
+        if ($serializedProductMappingValue === FmUtils::SHORT_AND_LONG_DESCRIPTION) {
             return array(
                 'product_mapping_type' => FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
                 'product_mapping_key_id' => '',
