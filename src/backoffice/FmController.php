@@ -147,7 +147,7 @@ class FmController
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
         $fieldForms = array(
-            $this->getGeneralSettingsForm(),
+            $this->getGeneralSettingsForm($languageId),
             $this->getFieldsMappingsForm($languageId),
         );
 
@@ -296,9 +296,8 @@ class FmController
         );
     }
 
-    private function getGeneralSettingsForm()
+    private function getGeneralSettingsForm($languageId)
     {
-        $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->getOrderStates($languageId);
         $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
