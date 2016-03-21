@@ -244,7 +244,14 @@ class FmController
 
     private function getAllProductAndCombinationsFields()
     {
-        $allFieldsIds = array_unique(array_merge(array_keys(Product::$definition['fields']), array_keys(Combination::$definition['fields'])));
+        $allFieldsIds = array_unique(
+            array_merge(
+                array_keys(
+                    Product::$definition['fields']
+                ),
+                array_keys(Combination::$definition['fields'])
+            )
+        );
         $fieldsIdsAndNames = array();
         foreach ($allFieldsIds as $fieldId) {
             $fieldsIdsAndNames[] = array(
