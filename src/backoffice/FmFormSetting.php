@@ -35,12 +35,12 @@ class FmFormSetting
     /** @var array [form settings array] */
     protected $form;
 
-    public static function serializeProductMappingValue($productMappingType, $productMappingValue)
+    public static function serializeMappingValue($productMappingType, $productMappingValue)
     {
         return $productMappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $productMappingValue;
     }
 
-    public static function deserializeProductMappingValue($serializedProductMappingValue)
+    public static function deserializeMappingValue($serializedProductMappingValue)
     {
         if ($serializedProductMappingValue === FmUtils::SHORT_DESCRIPTION) {
             return array(

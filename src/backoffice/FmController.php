@@ -79,16 +79,20 @@ class FmController
         $postArr['brand_type'] = $this->fmPrestashop->toolsGetValue('brand_type');
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
         $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
-                                            intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
-                                            : $this->fmConfig->get('is_active_cron_task', $storeId);
-        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ? intval($this->fmPrestashop->toolsGetValue('fm_interval')) : $this->fmConfig->get('fm_interval', $storeId);
+            intval($this->fmPrestashop->toolsGetValue('is_active_cron_task')) :
+            $this->fmConfig->get('is_active_cron_task', $storeId);
+        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
+            intval($this->fmPrestashop->toolsGetValue('fm_interval')) :
+            $this->fmConfig->get('fm_interval', $storeId);
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $postArr['ping_token'],
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' .
+                    $storeId . '&token=' . $postArr['ping_token'],
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $postArr['ping_token'] . '&store_id=' . $storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' .
+                    $postArr['ping_token'] . '&store_id=' . $storeId,
         );
         if (!$postArr['disable_orders']) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
@@ -255,7 +259,7 @@ class FmController
         $fieldsIdsAndNames = array();
         foreach ($allFieldsIds as $fieldId) {
             $fieldsIdsAndNames[] = array(
-                'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, $fieldId),
+                'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, $fieldId),
                 'name' => $fieldId,
             );
         }
@@ -270,7 +274,10 @@ class FmController
         $productFeatures = array();
         foreach ($queryResults as $queryResult) {
             $productFeatures[] = array(
-                'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE, $queryResult['id_feature']),
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE,
+                    $queryResult['id_feature']
+                ),
                 'name' => $queryResult['name'],
             );
         }
@@ -317,22 +324,22 @@ class FmController
         function filterOutDescriptions($var)
         {
             return !in_array($var['id'], array(
-                FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
-                FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description')
+                FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
+                FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description')
             ));
         }
         $descriptionTypes = array_filter($allMappingOptions, 'filterOutDescriptions');
 
         $longDescription = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description'),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description'),
             'name' => $this->module->__('Description')
         );
         $shortDescription = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
             'name' => $this->module->__('Short description')
         );
         $shortAndLongDescription = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION),
             'name' => $this->module->__('Short and long description')
         );
         return array_merge(array($longDescription), array($shortDescription), array($shortAndLongDescription), $descriptionTypes);
@@ -342,15 +349,15 @@ class FmController
     {
         function filterOutEAN($var)
         {
-            return $var['id'] != FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13');
+            return $var['id'] != FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13');
         }
         $eanTypes = array_filter($allMappingOptions, 'filterOutEAN');
         $blankMappingOption = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
         $ean = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13'),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13'),
             'name' => $this->module->__('EAN')
         );
         return array_merge(array($blankMappingOption), array($ean), $eanTypes);
@@ -359,7 +366,7 @@ class FmController
     private function getISBNTypes($allMappingOptions)
     {
         $blankMappingOption = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
         return array_merge(array($blankMappingOption), $allMappingOptions);
@@ -368,7 +375,7 @@ class FmController
     private function getMPNTypes($allMappingOptions)
     {
         $blankMappingOption = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
         return array_merge(array($blankMappingOption), $allMappingOptions);
@@ -377,11 +384,11 @@ class FmController
     private function getBrandTypes($allMappingOptions)
     {
         $blankMappingOption = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING),
             'name' => ''
         );
         $manufacturerMappingOption = array(
-            'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME),
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME),
             'name' => 'Manufacturer name'
         );
         return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $allMappingOptions);

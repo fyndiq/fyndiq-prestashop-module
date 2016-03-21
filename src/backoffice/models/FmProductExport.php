@@ -327,7 +327,7 @@ class FmProductExport extends FmModel
                     FmFormSetting::SETTINGS_MAPPING_ISBN,
                     FmFormSetting::SETTINGS_MAPPING_MPN,
                     FmFormSetting::SETTINGS_MAPPING_BRAND) as $mappingTarget) {
-            $mapping = FmFormSetting::deserializeProductMappingValue($settings[$mappingTarget]);
+            $mapping = FmFormSetting::deserializeMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['product_mapping_type']);
             $mappingId = $mapping['product_mapping_key_id'];
             if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
@@ -366,7 +366,7 @@ class FmProductExport extends FmModel
 
     private function getMappedValue($fieldKey, $product, $allProductIds, $settings)
     {
-        $mappedKey = FmFormSetting::deserializeProductMappingValue($fieldKey);
+        $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
         $mappingType = intval($mappedKey['product_mapping_type']);
         $mappingId = $mappedKey['product_mapping_key_id'];
 
