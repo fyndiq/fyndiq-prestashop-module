@@ -312,7 +312,7 @@ class FmController
     }
 
     /**
-     * [getAllMappingOptions returns all fields and features
+     * getAllMappingOptions returns all fields and features
      * @param  int $languageId Language id
      * @return array
      */
@@ -492,6 +492,11 @@ class FmController
         return array_merge($extraBrandOptions, $allMappingOptions);
     }
 
+    /**
+     * getFieldsMappingsForm generates the field mapping form
+     * @param  int $languageId LanguageId
+     * @return FmFormSetting
+     */
     private function getFieldsMappingsForm($languageId)
     {
         $allPossibleMappings = $this->getAllMappingOptions($languageId);
