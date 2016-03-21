@@ -144,24 +144,36 @@ class FmNotificationService
         }
     }
 
-    private function getSaveFileSettings($storeId, $groupId)
+    /**
+     * getSaveFileSettings returns the settings array
+     * @param int $storeId [description]
+     * @return array
+     */
+    private function getSaveFileSettings($storeId)
     {
-        $languageId = $this->fmPrestashop->getValidLanguageId(
-            intval($this->fmConfig->get('language', $storeId))
+        return array (
+            FmFormSetting::SETTINGS_STORE_ID => $storeId,
+            FmFormSetting::SETTINGS_LANGUAGE_ID =>
+                $this->fmPrestashop->getValidLanguageId(
+                    intval($this->fmConfig->get('language', $storeId))
+                ),
+            FmFormSetting::SETTINGS_STOCK_MIN =>
+                $this->fmConfig->get('stock_min', $storeId),
+            FmFormSetting::SETTINGS_GROUP_ID =>
+                $this->fmConfig->get('customerGroup_id', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_DESCRIPTION =>
+                $this->fmConfig->get('description_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_SKU =>
+                intval($this->fmConfig->get('sku_type_id', $storeId)),
+            FmFormSetting::SETTINGS_MAPPING_EAN =>
+                $this->fmConfig->get('ean_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_ISBN =>
+                $this->fmConfig->get('isbn_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_MPN =>
+                $this->fmConfig->get('mpn_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_BRAND =>
+                $this->fmConfig->get('brand_type', $storeId),
         );
-        return
-            $settings = array (
-                FmFormSetting::SETTINGS_LANGUAGE_ID => $languageId,
-                FmFormSetting::SETTINGS_STOCK_MIN => $this->fmConfig->get('stock_min', $storeId),
-                FmFormSetting::SETTINGS_GROUP_ID => $groupId,
-                FmFormSetting::SETTINGS_STORE_ID => $storeId,
-                FmFormSetting::SETTINGS_MAPPING_DESCRIPTION => $this->fmConfig->get('description_type', $storeId),
-                FmFormSetting::SETTINGS_MAPPING_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
-                FmFormSetting::SETTINGS_MAPPING_EAN => $this->fmConfig->get('ean_type', $storeId),
-                FmFormSetting::SETTINGS_MAPPING_ISBN => $this->fmConfig->get('isbn_type', $storeId),
-                FmFormSetting::SETTINGS_MAPPING_MPN => $this->fmConfig->get('mpn_type', $storeId),
-                FmFormSetting::SETTINGS_MAPPING_BRAND => $this->fmConfig->get('brand_type', $storeId),
-            );
     }
 
     /**
@@ -228,7 +240,7 @@ class FmNotificationService
         $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
         FyndiqUtils::debug('$groupId', $groupId);
 
-        $fmProductExport->saveFile($feedWriter, $this->getSaveFileSettings($storeId, $groupId));
+        $fmProductExport->saveFile($feedWriter, $this->getSaveFileSettings($storeId));
 
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);
