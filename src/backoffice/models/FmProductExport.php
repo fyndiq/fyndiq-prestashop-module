@@ -287,7 +287,6 @@ class FmProductExport extends FmModel
                 }
             }
         }
-        echo "HERE 4|";
         return $result;
     }
 

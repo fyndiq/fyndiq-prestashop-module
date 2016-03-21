@@ -222,17 +222,22 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 'id_product' => 1
             )));
 
-        $result = $this->fmProductExport->getStoreProduct(1, array(1, 2), array(
-            FmFormSetting::SETTINGS_GROUP_ID => 0,
-            FmFormSetting::SETTINGS_STORE_ID => 0,
-            FmFormSetting::SETTINGS_LANGUAGE_ID => 0,
-            FmFormSetting::SETTINGS_MAPPING_SKU => FmUtils::SKU_ID,
-            FmFormSetting::SETTINGS_MAPPING_BRAND => '0;',
-            FmFormSetting::SETTINGS_MAPPING_DESCRIPTION => '1;ean13',
-            FmFormSetting::SETTINGS_MAPPING_EAN => '2;custom_feature',
-            FmFormSetting::SETTINGS_MAPPING_ISBN => '3;',
-            FmFormSetting::SETTINGS_MAPPING_MPN => '4;',
-        ));
+        $result = $this->fmProductExport->getStoreProduct(
+            1,
+            array(1, 2),
+            array(
+                FmFormSetting::SETTINGS_GROUP_ID => 0,
+                FmFormSetting::SETTINGS_STORE_ID => 0,
+                FmFormSetting::SETTINGS_LANGUAGE_ID => 0,
+                FmFormSetting::SETTINGS_MAPPING_SKU => FmUtils::SKU_ID,
+                FmFormSetting::SETTINGS_MAPPING_BRAND => '0;',
+                FmFormSetting::SETTINGS_MAPPING_DESCRIPTION => '1;ean13',
+                FmFormSetting::SETTINGS_MAPPING_EAN => '2;custom_feature',
+                FmFormSetting::SETTINGS_MAPPING_ISBN => '3;',
+                FmFormSetting::SETTINGS_MAPPING_MPN => '4;',
+            ),
+            new stdClass()
+        );
         $this->assertEquals($result['brand'], '');
         $this->assertEquals($result['description'], $product->ean13);
         $this->assertEquals($result['ean'], 'FeatureValue');
@@ -609,15 +614,6 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
            FyndiqFeedWriter::STORE_ID => 1));
 
         $result = $this->fmProductExport->saveFile($languageId, $feedWriter, 0, $groupId, $descriptionType, $skuTypeId, 1);
-        $this->assertTrue($result);
-    }
-
-    public function testGetFyndiqProducts()
-    {
-        $this->db->method('ExecuteS')
-            ->willReturn(true);
-
-        $result = $this->fmProductExport->getFyndiqProducts();
         $this->assertTrue($result);
     }
 
