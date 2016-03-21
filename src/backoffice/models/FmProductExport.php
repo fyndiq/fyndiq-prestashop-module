@@ -321,7 +321,7 @@ class FmProductExport extends FmModel
     {
         $features = array();
         $featureIds = array();
-        foreach(array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
+        foreach (array(FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
                     FmFormSetting::SETTINGS_MAPPING_SKU,
                     FmFormSetting::SETTINGS_MAPPING_EAN,
                     FmFormSetting::SETTINGS_MAPPING_ISBN,
@@ -330,12 +330,12 @@ class FmProductExport extends FmModel
             $mapping = FmFormSetting::deserializeProductMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['product_mapping_type']);
             $mappingId = $mapping['product_mapping_key_id'];
-            if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
                 $featureIds[] = $mappingId;
             }
         }
 
-        if(empty($featureIds) || empty($productIds)) {
+        if (empty($featureIds) || empty($productIds)) {
             return $features;
         }
 
@@ -346,7 +346,7 @@ class FmProductExport extends FmModel
                 LEFT JOIN ps_feature_value_lang AS pl ON (p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .')';
 
         $queryResults = $this->fmPrestashop->dbGetInstance()->ExecuteS($query);
-        foreach($queryResults as $featureQueryResult) {
+        foreach ($queryResults as $featureQueryResult) {
             $features[$featureQueryResult['id_product']][$featureQueryResult['id_feature']] = $featureQueryResult['value'];
         }
         return $features;
@@ -355,30 +355,31 @@ class FmProductExport extends FmModel
     public function getProductFeature($languageId, $productId, $featureId, $productsIds, $settings)
     {
         static $features = null;
-        if($features === null) {
+        if ($features === null) {
             $features = $this->getProductFeatures($languageId, $productsIds, $settings);
         }
-        if(isset($features[$productId]) && isset($features[$productId][$featureId])) {
+        if (isset($features[$productId]) && isset($features[$productId][$featureId])) {
             return $features[$productId][$featureId];
         }
         return '';
     }
 
-    private function getMappedValue($fieldKey, $product, $allProductIds, $settings) {
+    private function getMappedValue($fieldKey, $product, $allProductIds, $settings)
+    {
         $mappedKey = FmFormSetting::deserializeProductMappingValue($fieldKey);
         $mappingType = intval($mappedKey['product_mapping_type']);
         $mappingId = $mappedKey['product_mapping_key_id'];
 
-        if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
             return $this->getProductFeature($product->id, $mappingId, $allProductIds, $settings);
         }
-        if($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
             return $this->getArticleFieldValue($mappingId, $product);
         }
-        if($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
             return $product->manufacturer_name;
         }
-        if($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
             return $product->description . "\n\n" . $product->description_short;
         }
         return '';

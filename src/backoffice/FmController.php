@@ -245,7 +245,7 @@ class FmController
     {
         $allFieldsIds = array_unique(array_merge(array_keys(Product::$definition['fields']), array_keys(Combination::$definition['fields'])));
         $fieldsIdsAndNames = array();
-        foreach($allFieldsIds as $fieldId) {
+        foreach ($allFieldsIds as $fieldId) {
             $fieldsIdsAndNames[] = array(
                 'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, $fieldId),
                 'name' => $fieldId,
@@ -260,7 +260,7 @@ class FmController
         $getProductFeaturesQuery = 'SELECT id_feature, name FROM ' . _DB_PREFIX_ . 'feature_lang WHERE id_lang=' . $languageId;
         $queryResults = $this->fmPrestashop->dbGetInstance()->executeS($getProductFeaturesQuery);
         $productFeatures = array();
-        foreach($queryResults as $queryResult) {
+        foreach ($queryResults as $queryResult) {
             $productFeatures[] = array(
                 'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE, $queryResult['id_feature']),
                 'name' => $queryResult['name'],
@@ -306,7 +306,8 @@ class FmController
 
     private function getDescriptionTypes($allMappingOptions)
     {
-        function filterOutDescriptions($var) {
+        function filterOutDescriptions($var)
+        {
             return !in_array($var['id'], array(
                 FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description_short'),
                 FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'description')
@@ -326,12 +327,13 @@ class FmController
             'id' => FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION),
             'name' => $this->module->__('Short and long description')
         );
-       return array_merge(array($longDescription), array($shortDescription), array($shortAndLongDescription), $descriptionTypes);
+        return array_merge(array($longDescription), array($shortDescription), array($shortAndLongDescription), $descriptionTypes);
     }
 
     private function getEANTypes($allMappingOptions)
     {
-        function filterOutEAN($var) {
+        function filterOutEAN($var)
+        {
             return $var['id'] != FmFormSetting::serializeProductMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, 'ean13');
         }
         $eanTypes = array_filter($allMappingOptions, 'filterOutEAN');
