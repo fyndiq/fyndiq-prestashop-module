@@ -18,7 +18,8 @@ class FmController
 
     public function handleRequest()
     {
-        $storeId = $this->fmPrestashop->getStoreId();
+        $storeId = intval($this->fmPrestashop->getStoreId());
+        $languageId = intval($this->fmPrestashop->getLanguageId());
         $output = '';
         if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
@@ -29,7 +30,7 @@ class FmController
                 $output .= $this->postProcess($storeId);
             }
         }
-        $output .= $this->displayForm($storeId);
+        $output .= $this->displayForm($storeId, $languageId);
         return $output;
     }
 
@@ -118,7 +119,7 @@ class FmController
         return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
     }
 
-    public function displayForm($storeId)
+    public function displayForm($storeId, $languageId)
     {
         $helper = new HelperForm();
 
@@ -147,7 +148,7 @@ class FmController
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
         $fieldForms = array(
             $this->getGeneralSettingsForm(),
-            $this->getFieldsMappingsForm(),
+            $this->getFieldsMappingsForm($languageId),
         );
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
@@ -253,7 +254,9 @@ class FmController
                 array_keys(
                     Product::$definition['fields']
                 ),
-                array_keys(Combination::$definition['fields'])
+                array_keys(
+                    Combination::$definition['fields']
+                )
             )
         );
         $fieldsIdsAndNames = array();
@@ -266,11 +269,12 @@ class FmController
         return $fieldsIdsAndNames;
     }
 
-    private function getAllProductFeatures()
+    private function getAllProductFeatures($languageId)
     {
-        $languageId = $this->fmPrestashop->getLanguageId();
-        $getProductFeaturesQuery = 'SELECT id_feature, name FROM ' . _DB_PREFIX_ . 'feature_lang WHERE id_lang=' . $languageId;
-        $queryResults = $this->fmPrestashop->dbGetInstance()->executeS($getProductFeaturesQuery);
+        $query = 'SELECT id_feature, name
+                FROM ' . _DB_PREFIX_ . 'feature_lang
+                WHERE id_lang=' . $languageId;
+        $queryResults = $this->fmPrestashop->dbGetInstance()->executeS($query);
         $productFeatures = array();
         foreach ($queryResults as $queryResult) {
             $productFeatures[] = array(
@@ -284,11 +288,12 @@ class FmController
         return $productFeatures;
     }
 
-    private function getAllMappingOptions()
+    private function getAllMappingOptions($languageId)
     {
-        $allProductFeatures = $this->getAllProductFeatures();
-        $allProductFields = $this->getAllProductAndCombinationsFields();
-        return array_merge($allProductFeatures, $allProductFields);
+        return array_merge(
+            $this->getAllProductFeatures($languageId),
+            $this->getAllProductAndCombinationsFields()
+        );
     }
 
     private function getGeneralSettingsForm()
@@ -394,9 +399,9 @@ class FmController
         return array_merge(array($blankMappingOption), array($manufacturerMappingOption), $allMappingOptions);
     }
 
-    private function getFieldsMappingsForm()
+    private function getFieldsMappingsForm($languageId)
     {
-        $allPossibleMappings = $this->getAllMappingOptions();
+        $allPossibleMappings = $this->getAllMappingOptions($languageId);
         $formFieldsMappings = new FmFormSetting();
         return $formFieldsMappings
             ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
