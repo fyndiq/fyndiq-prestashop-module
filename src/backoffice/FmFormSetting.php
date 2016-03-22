@@ -95,7 +95,6 @@ class FmFormSetting
         );
     }
 
-
     /**
      * initialize the default form settings
      */
