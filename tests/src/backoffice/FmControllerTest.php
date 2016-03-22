@@ -12,12 +12,47 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+
+        $this->helperForm = $this->getMockBuilder('stdClass')
+            ->setMethods(array('generateForm'))
+            ->getMock();
+
+        $this->helperForm->method('generateForm')
+            ->willReturn('<form>');
+
         $this->fmPrestashop->method('getCurrency')->willReturn('ZWL');
         $this->fmPrestashop->method('getModuleUrl')->willReturn('http://localhost/module');
+        $this->fmPrestashop->method('productGetFields')->willReturn(array('a', 'b', 'c'));
+        $this->fmPrestashop->method('combinationGetFields')->willReturn(array('d', 'e', 'f'));
+        $this->fmPrestashop->method('getHelperForm')->willReturn($this->helperForm);
+        $this->fmPrestashop->method('languageGetLanguages')
+            ->willReturn(array(
+                array(
+                    'id_lang' => '1',
+                    'iso_code' => 'en',
+                    'name' => 'English',
+                ),
+            ));
+        $this->fmPrestashop->method('orderStateGetOrderStates')
+            ->willReturn(array(
+                array(
+                    'id_order_state' => 1,
+                )
+            ));
+        $this->fmPrestashop->method('fetureGetAllForLanguage')
+            ->willReturn(array(
+                array(
+                    'id_feature' => 1,
+                    'name' => 'Feature name',
+                )
+            ));
 
         $this->module = $this->getMockBuilder('stdClass')
             ->setMethods(array('__'))
             ->getMock();
+
+        $this->module->name = 'fyndiqmerchant';
+        $this->module->displayName = 'Fyndiq';
 
         $this->fmPrestashop->method('moduleGetInstanceByName')->willReturn($this->module);
 
@@ -39,14 +74,15 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
                 $this->fmConfig,
                 $this->fmApiModel
             ))
-            ->setMethods(array('displayForm', 'postProcess'))
+            ->setMethods(array('renderForm', 'postProcess'))
             ->getMock();
 
-        $this->markTestSkipped(
-            'This controller test has been skipped due to incomplete test case'
+        $this->controller = new FmController(
+            $this->fmPrestashop,
+            $this->fmOutput,
+            $this->fmConfig,
+            $this->fmApiModel
         );
-
-        $this->controller = new FmController($this->fmPrestashop, $this->fmOutput, $this->fmConfig, $this->fmApiModel);
     }
 
     /**
@@ -55,26 +91,28 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
      */
     public function testHandleRequestWithoutPost()
     {
+        $expected = '<f>';
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(false);
         $this->fmPrestashop->method('getHelperForm')->willReturn($this->module);
 
         $this->mockController->expects($this->once())
-            ->method('displayForm')
+            ->method('renderForm')
             ->with(
-                $this->equalTo($this->module),
-                $this->equalTo(1)
+                $this->equalTo(0),
+                $this->equalTo(0)
             )
-            ->willReturn();
+            ->willReturn($expected);
 
-        $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $result = $this->mockController->handleRequest();
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestWithPost()
     {
+        $expected = '<form>';
         $this->fmPrestashop->method('toolsIsSubmit')->willReturn(true);
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestAuthenticateSaveSuccess()
@@ -114,7 +152,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestSettings()
@@ -170,7 +209,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestSettingsSaveSuccess()
@@ -183,7 +223,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestSettingsSaveFail()
@@ -224,7 +265,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestDisconnect()
@@ -237,7 +279,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestDisconnectNotSuccessful()
@@ -249,7 +292,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestBadAction()
@@ -264,7 +308,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             ->willReturn(true);
 
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestServiceUnauthorized()
@@ -292,7 +337,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
     }
 
     public function testHandleRequestServiceNotOperational()
@@ -322,6 +368,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
         $result = $this->controller->handleRequest();
-        $this->assertTrue($result);
+        $expected = '<form>';
+        $this->assertEquals($expected, $result);
+
     }
 }

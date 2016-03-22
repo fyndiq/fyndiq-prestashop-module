@@ -154,9 +154,7 @@ class FmNotificationService
         return array (
             FmFormSetting::SETTINGS_STORE_ID => $storeId,
             FmFormSetting::SETTINGS_LANGUAGE_ID =>
-                $this->fmPrestashop->getValidLanguageId(
-                    intval($this->fmConfig->get('language', $storeId))
-                ),
+                $this->fmPrestashop->getValidLanguageId(intval($this->fmConfig->get('language', $storeId))),
             FmFormSetting::SETTINGS_STOCK_MIN =>
                 $this->fmConfig->get('stock_min', $storeId),
             FmFormSetting::SETTINGS_GROUP_ID =>

@@ -592,7 +592,7 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('getCategoryPath')
             ->willReturn('category / path');
 
-       $result = $this->fmProductExport->saveFile($feedWriter, array(
+        $result = $this->fmProductExport->saveFile($feedWriter, array(
            FyndiqFeedWriter::PRODUCT_DESCRIPTION => $descriptionType,
            FyndiqFeedWriter::LANGUAGE_ID => $languageId,
            FyndiqFeedWriter::STOCK_MIN => 0,

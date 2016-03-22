@@ -47,7 +47,7 @@ class FmFormSetting
      */
     public static function serializeMappingValue($mappingType, $mappingValue)
     {
-        return $productMappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $productMappingValue;
+        return $mappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $mappingValue;
     }
 
 
