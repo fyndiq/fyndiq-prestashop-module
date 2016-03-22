@@ -55,7 +55,6 @@ class FmFormSetting
         return $mappingType . FmFormSetting::MAPPING_TYPE_DELMITER . $mappingValue;
     }
 
-
     /**
      * deserializeMappingValue de-serializes mapping value
      * @param  string $serializedMappingValue serialized mapping value
