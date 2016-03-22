@@ -56,30 +56,38 @@ class FmFormSetting
      * @param  string $serializedMappingValue serialized mapping value
      * @return array
      */
-    public static function deserializeMappingValue($serializedMappingValue)
+    public static function deserializeMappingValue($value)
     {
-        if ($serializedMappingValue === FmUtils::SHORT_DESCRIPTION) {
+        if (strpos($value, FmFormSetting::MAPPING_TYPE_DELMITER) !== false) {
+            $productMapping = explode(FmFormSetting::MAPPING_TYPE_DELMITER, $value);
+            if (count($productMapping) > 1) {
+                return array(
+                    'type' => intval($productMapping[0]),
+                    'id' => $productMapping[1],
+                );
+            }
+        }
+        if ($value == FmUtils::SHORT_DESCRIPTION) {
             return array(
                 'type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
                 'id' => 'description_short',
             );
         }
-        if ($serializedMappingValue === FmUtils::LONG_DESCRIPTION) {
+        if ($value == FmUtils::LONG_DESCRIPTION) {
             return array(
                 'type' => FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
                 'id' => 'description',
             );
         }
-        if ($serializedMappingValue === FmUtils::SHORT_AND_LONG_DESCRIPTION) {
+        if ($value == FmUtils::SHORT_AND_LONG_DESCRIPTION) {
             return array(
                 'type' => FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
                 'id' => '',
             );
         }
-        $productMapping = explode(FmFormSetting::MAPPING_TYPE_DELMITER, $serializedMappingValue);
         return array(
-            'type' => $productMapping[0],
-            'id' => $productMapping[1],
+           'type' => FmFormSetting::MAPPING_TYPE_NO_MAPPING,
+           'id' => '',
         );
     }
 
