@@ -148,18 +148,6 @@ class FmProductExport extends FmModel
         return 0;
     }
 
-    protected function getProductDescription($descriptionType, $product)
-    {
-        switch ($descriptionType) {
-            case FmUtils::SHORT_DESCRIPTION:
-                return $product->description_short;
-            case FmUtils::SHORT_AND_LONG_DESCRIPTION:
-                return $product->description_short . "\n\n" . $product->description;
-            default:
-                return $product->description;
-        }
-    }
-
     public function getProductSKU($skuTypeId, $product, $article = false)
     {
         switch ($skuTypeId) {

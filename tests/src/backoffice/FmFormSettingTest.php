@@ -35,6 +35,20 @@ class FmformSettingTest extends PHPUnit_Framework_TestCase
                     'id' => '3'
                 )
             ),
+            array(
+                FmUtils::SHORT_DESCRIPTION,
+                array(
+                    'type' => 1,
+                    'id' => 'description_short',
+                )
+            ),
+            array(
+                FmUtils::SHORT_AND_LONG_DESCRIPTION,
+                array(
+                    'type' => 4,
+                    'id' => '',
+                )
+            ),
         );
     }
 
