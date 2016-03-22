@@ -8,10 +8,15 @@
 class FmFormSetting
 {
     const SKU_DEFAULT = 0;
+    // Default long desccription
     const DESCRIPTION_DEFAULT = '1;description';
+    // Default ean13
     const EAN_DEFAULT = '1;ean13';
+    // Default empty
     const ISBN_DEFAULT = '0;';
+    // Default empty
     const MPN_DEFAULT = '0;';
+    // Default Manufacturer
     const BRAND_DEFAULT = '3;';
 
     const MAPPING_TYPE_NO_MAPPING = 0;
