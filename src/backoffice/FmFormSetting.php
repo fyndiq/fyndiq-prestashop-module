@@ -153,16 +153,16 @@ class FmFormSetting
             'label'=> $label,
             'name' => $name,
             'class' => $class,
-            'desc' => $description ? $description : '',
+            'desc' => $description,
         );
         return $this;
     }
 
     /**
      * setSelect, add select elements to the form
-     * @param String $label         set select lebel
+     * @param string $label         set select lebel
      * @param string $name          set select name
-     * @param String $description   set select description
+     * @param string $description   set select description
      * @param array $dataSource     set the select option datasource
      * @param string $key           set the key of the option
      * @param string $text          set the value of the option
@@ -174,7 +174,7 @@ class FmFormSetting
             'type' => 'select',
             'label' => $label,
             'name' => $name,
-            'desc' => $description? $description : '',
+            'desc' => $description,
             'options' => array(
                 'query' => $dataSource,
                 'id' => $key,
@@ -189,7 +189,7 @@ class FmFormSetting
      * setSwitch, add radio button elements to the form as a switch
      * @param string $label set switch lebel
      * @param string $name set switch name
-     * @param String $description set switch description
+     * @param string $description set switch description
      * @return FmFormSetting return class object
      */
     public function setSwitch($label, $name, $description, $disabled = false)
@@ -199,7 +199,7 @@ class FmFormSetting
             'label'=> $label,
             'name' => $name,
             'is_bool'=> true,
-            'desc' => $description? $description : '',
+            'desc' => $description,
             'values'=> array(
                 array(
                     'id' => 'active_on',
