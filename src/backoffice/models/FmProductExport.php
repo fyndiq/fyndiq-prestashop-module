@@ -467,13 +467,14 @@ class FmProductExport extends FmModel
         $customer = $this->fmPrestashop->newCustomer();
         $customer->id_default_group = $groupId;
         $customer->id_shop = $storeId;
+
         $context = $this->getContext();
         $context->cart = new Cart();
         $context->customer = $customer;
 
         // set Fyndiq custom currency based on the module settings
         if ($this->fmPrestashop->isObjectLoaded($context->currency)) {
-            $context->currency->id = $fyndiqCurrency ? $fyndiqCurrency->id : $this->fmPrestashop->currencyGetDefaultCurrency()->id;
+            $context->currency->id = $fyndiqCurrency ? $fyndiqCurrency : $this->fmPrestashop->currencyGetDefaultCurrency()->id;
         }
 
         $allProductIds = array();
