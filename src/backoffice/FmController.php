@@ -270,10 +270,10 @@ class FmController
         $allFieldsIds = array_unique(
             array_merge(
                 array_keys(
-                    Product::$definition['fields']
+                    $this->fmPrestashop->productGetFields()
                 ),
                 array_keys(
-                    Combination::$definition['fields']
+                    $this->fmPrestashop->combinationGetFields(),
                 )
             )
         );

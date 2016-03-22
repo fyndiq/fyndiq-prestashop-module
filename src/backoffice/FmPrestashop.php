@@ -807,4 +807,14 @@ class FmPrestashop
         }
         return $this->getLanguageId();
     }
+
+    public function productGetFields()
+    {
+        return Product::$definition['fields'];
+    }
+
+    public function combinationGetFields()
+    {
+        return Combination::$definition['fields'];
+    }
 }

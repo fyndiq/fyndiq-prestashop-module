@@ -355,8 +355,7 @@ class FmProductExport extends FmModel
                 FmFormSetting::SETTINGS_MAPPING_ISBN,
                 FmFormSetting::SETTINGS_MAPPING_MPN,
                 FmFormSetting::SETTINGS_MAPPING_BRAND
-            ) as $mappingTarget
-        ) {
+            ) as $mappingTarget) {
             $mapping = FmFormSetting::deserializeMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['type']);
             $mappingId = $mapping['id'];
@@ -381,7 +380,7 @@ class FmProductExport extends FmModel
 
         $query = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
 
-        foreach($query as $row) {
+        foreach ($query as $row) {
             $productId = intval($row['id_product']);
             $featureId = intval($row['id_feature']);
             if (!isset($features[$productId])) {
@@ -429,7 +428,7 @@ class FmProductExport extends FmModel
         if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
             return $this->getArticleFieldValue($mappingId, $product);
         }
-        if($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
+        if ($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
             return $this->fmPrestashop->manufacturerGetNameById(
                 (int)$product->id
             );
