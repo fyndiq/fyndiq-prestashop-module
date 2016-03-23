@@ -398,7 +398,7 @@ class FmProductExport extends FmModel
         if (isset($this->productFeatures[$productId]) &&
             isset($this->productFeatures[$productId][$featureId])
         ) {
-            return $features[$productId][$featureId];
+            return $this->productFeatures[$productId][$featureId];
         }
         return '';
     }
