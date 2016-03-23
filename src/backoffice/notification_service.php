@@ -1,7 +1,7 @@
 <?php
-/*
-This file handles incoming requests from the automated notification system at Fyndiq.
-*/
+/**
+ * This file handles incoming requests from the automated notification system at Fyndiq.
+ */
 
 require_once('./service_init.php');
 require_once('./FmConfig.php');
@@ -156,7 +156,7 @@ class FmNotificationService
             FmFormSetting::SETTINGS_LANGUAGE_ID =>
                 $this->fmPrestashop->getValidLanguageId(intval($this->fmConfig->get('language', $storeId))),
             FmFormSetting::SETTINGS_STOCK_MIN =>
-                $this->fmConfig->get('stock_min', $storeId),
+                intval($this->fmConfig->get('stock_min', $storeId)),
             FmFormSetting::SETTINGS_GROUP_ID =>
                 $this->fmConfig->get('customerGroup_id', $storeId),
             FmFormSetting::SETTINGS_MAPPING_DESCRIPTION =>
