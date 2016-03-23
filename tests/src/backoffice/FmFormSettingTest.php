@@ -3,7 +3,6 @@
 class FmformSettingTest extends PHPUnit_Framework_TestCase
 {
 
-
     public function testDeserializeMappingValueProvider()
     {
         return array(
@@ -74,9 +73,6 @@ class FmformSettingTest extends PHPUnit_Framework_TestCase
     /**
      * testSerializeMappingValue
      * @dataProvider testSerializeMappingValueProvider
-     * @param  [type] $value    [description]
-     * @param  [type] $expected [description]
-     * @return [type]           [description]
      */
     public function testSerializeMappingValue($type, $value, $expected)
     {
