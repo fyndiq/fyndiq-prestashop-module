@@ -1,7 +1,7 @@
 <?php
-/*
-This file handles incoming requests from the automated notification system at Fyndiq.
-*/
+/**
+ * This file handles incoming requests from the automated notification system at Fyndiq.
+ */
 
 require_once('./service_init.php');
 require_once('./FmConfig.php');
@@ -134,7 +134,7 @@ class FmNotificationService
         }
         $locked = false;
         $lastExecution = $this->fmConfig->get('last_execution_time', $storeId);
-        $getTimeInterval = $this->fmConfig->get('fm_interval', $storeId). ' minutes ago';
+        $getTimeInterval = $this->fmConfig->get('fm_interval', $storeId) . ' minutes ago';
         if ($lastExecution && $lastExecution > strtotime($getTimeInterval)) {
             $locked = true;
         }
@@ -142,6 +142,36 @@ class FmNotificationService
             $this->fmConfig->set('last_execution_time', time(), $storeId);
             return $this->generateFeeds($storeId);
         }
+    }
+
+    /**
+     * getSaveFileSettings returns the settings array
+     * @param int $storeId [description]
+     * @return array
+     */
+    private function getSaveFileSettings($storeId)
+    {
+        return array (
+            FmFormSetting::SETTINGS_STORE_ID => $storeId,
+            FmFormSetting::SETTINGS_LANGUAGE_ID =>
+                $this->fmPrestashop->getValidLanguageId(intval($this->fmConfig->get('language', $storeId))),
+            FmFormSetting::SETTINGS_STOCK_MIN =>
+                intval($this->fmConfig->get('stock_min', $storeId)),
+            FmFormSetting::SETTINGS_GROUP_ID =>
+                $this->fmConfig->get('customerGroup_id', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_DESCRIPTION =>
+                $this->fmConfig->get('description_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_SKU =>
+                intval($this->fmConfig->get('sku_type_id', $storeId)),
+            FmFormSetting::SETTINGS_MAPPING_EAN =>
+                $this->fmConfig->get('ean_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_ISBN =>
+                $this->fmConfig->get('isbn_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_MPN =>
+                $this->fmConfig->get('mpn_type', $storeId),
+            FmFormSetting::SETTINGS_MAPPING_BRAND =>
+                $this->fmConfig->get('brand_type', $storeId),
+        );
     }
 
     /**
@@ -157,13 +187,7 @@ class FmNotificationService
         try {
             $file = fopen($tempFileName, 'w+');
             $feedWriter = FmUtils::getFileWriter($file);
-            $languageId = $this->fmPrestashop->getValidLanguageId(
-                intval($this->fmConfig->get('language', $storeId))
-            );
-            $stockMin = $this->fmConfig->get('stock_min', $storeId);
-            $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-            $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-            $result = $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
+            $result = $fmProductExport->saveFile($feedWriter, $this->getSaveFileSettings($storeId, null));
             fclose($file);
             if ($result) {
                 FyndiqUtils::moveFile($tempFileName, $fileName);
@@ -211,19 +235,10 @@ class FmNotificationService
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
 
-        $languageId = $this->fmPrestashop->getValidLanguageId(
-            intval($this->fmConfig->get('language', $storeId))
-        );
-        FyndiqUtils::debug('$languageId', $languageId);
-
-        $stockMin = $this->fmConfig->get('stock_min', $storeId);
-        $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-
         $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
         FyndiqUtils::debug('$groupId', $groupId);
 
-        $fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId);
+        $fmProductExport->saveFile($feedWriter, $this->getSaveFileSettings($storeId));
 
         $fcloseResult = fclose($file);
         FyndiqUtils::debug('$fcloseResult', $fcloseResult);

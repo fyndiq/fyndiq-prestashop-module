@@ -807,4 +807,35 @@ class FmPrestashop
         }
         return $this->getLanguageId();
     }
+
+    /**
+     * productGetFields returns Product fields
+     * @return array
+     */
+    public function productGetFields()
+    {
+        return Product::$definition['fields'];
+    }
+
+    /**
+     * combinationGetFields returns Combination fields
+     * @return array
+     */
+    public function combinationGetFields()
+    {
+        return Combination::$definition['fields'];
+    }
+
+    /**
+     * fetureGetAllForLanguage return all features for language
+     * @param  int $languageId LanguageId
+     * @return array
+     */
+    public function fetureGetAllForLanguage($languageId)
+    {
+        $sql = 'SELECT id_feature, name
+                FROM ' . $this->globDbPrefix() . 'feature_lang
+                WHERE id_lang=' . $languageId;
+        return $this->dbGetInstance()->executeS($sql);
+    }
 }

@@ -121,7 +121,7 @@ class FmServiceController
 
         $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage', $storeId);
         $languageId = $this->fmConfig->get('language', $storeId);
-        $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
+        $descriptionType = $this->fmConfig->get('description_type', $storeId);
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
         foreach ($rows as $row) {
             $discountPercentage = $fyndiqDiscountPercentage;
@@ -516,7 +516,7 @@ class FmServiceController
         try {
             $fmProduct = $this->loadModel('FmProduct');
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
-            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmUtils::SKU_DEFAULT;
+            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmFormSetting::SKU_DEFAULT;
             $duplicates = $fmProduct->checkProducts($skuTypeId);
             foreach ($duplicates as $duplicate) {
                 if ($duplicate['parent']) {

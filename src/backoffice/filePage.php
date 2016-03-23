@@ -64,9 +64,21 @@ class FilePageController
                         intval($this->fmConfig->get('language', $storeId))
                     );
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
-                    $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
-                    $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
-                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $groupId, $descriptionType, $skuTypeId, $storeId);
+
+                    $settings = array (
+                        FmFormSetting::SETTINGS_LANGUAGE_ID => $languageId,
+                        FmFormSetting::SETTINGS_STOCK_MIN => $stockMin,
+                        FmFormSetting::SETTINGS_GROUP_ID => $groupId,
+                        FmFormSetting::SETTINGS_STORE_ID => $storeId,
+                        FmFormSetting::SETTINGS_MAPPING_DESCRIPTION => $this->fmConfig->get('description_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
+                        FmFormSetting::SETTINGS_MAPPING_EAN => $this->fmConfig->get('ean_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_ISBN => $this->fmConfig->get('isbn_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_MPN => $this->fmConfig->get('mpn_type', $storeId),
+                        FmFormSetting::SETTINGS_MAPPING_BRAND => $this->fmConfig->get('brand_type', $storeId),
+                    );
+
+                    $result = $this->fmProductExport->saveFile($feedWriter, $settings);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);

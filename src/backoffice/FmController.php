@@ -18,7 +18,8 @@ class FmController
 
     public function handleRequest()
     {
-        $storeId = $this->fmPrestashop->getStoreId();
+        $storeId = intval($this->fmPrestashop->getStoreId());
+        $languageId = intval($this->fmPrestashop->getLanguageId());
         $output = '';
         if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
@@ -29,7 +30,7 @@ class FmController
                 $output .= $this->postProcess($storeId);
             }
         }
-        $output .= $this->displayForm($storeId);
+        $output .= $this->renderForm($storeId, $languageId);
         return $output;
     }
 
@@ -72,19 +73,27 @@ class FmController
         $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
         $postArr['stock_min'] = $postArr['stock_min'] < 0 ? 0 : $postArr['stock_min'];
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
-        $postArr['description_type'] = intval($this->fmPrestashop->toolsGetValue('description_type'));
+        $postArr['description_type'] = $this->fmPrestashop->toolsGetValue('description_type');
+        $postArr['ean_type'] = $this->fmPrestashop->toolsGetValue('ean_type');
+        $postArr['isbn_type'] = $this->fmPrestashop->toolsGetValue('isbn_type');
+        $postArr['mpn_type'] = $this->fmPrestashop->toolsGetValue('mpn_type');
+        $postArr['brand_type'] = $this->fmPrestashop->toolsGetValue('brand_type');
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
         $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
-                                            intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'))
-                                            : $this->fmConfig->get('is_active_cron_task', $storeId);
-        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ? intval($this->fmPrestashop->toolsGetValue('fm_interval')) : $this->fmConfig->get('fm_interval', $storeId);
+            intval($this->fmPrestashop->toolsGetValue('is_active_cron_task')) :
+            $this->fmConfig->get('is_active_cron_task', $storeId);
+        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
+            intval($this->fmPrestashop->toolsGetValue('fm_interval')) :
+            $this->fmConfig->get('fm_interval', $storeId);
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $storeId . '&token=' . $postArr['ping_token'],
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' .
+                    $storeId . '&token=' . $postArr['ping_token'],
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $postArr['ping_token'] . '&store_id=' . $storeId,
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' .
+                    $postArr['ping_token'] . '&store_id=' . $storeId,
         );
         if (!$postArr['disable_orders']) {
             $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
@@ -110,9 +119,15 @@ class FmController
         return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
     }
 
-    public function displayForm($storeId)
+    /**
+     * renderForm renders the module settings form
+     * @param  int $storeId StoreId
+     * @param  int $languageId LanguageId
+     * @return string
+     */
+    public function renderForm($storeId, $languageId)
     {
-        $helper = new HelperForm();
+        $helper = $this->fmPrestashop->getHelperForm();
 
         // Module and token
         $helper->module = $this->module;
@@ -137,13 +152,16 @@ class FmController
             );
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
-        $fieldsForms[] =  $this->getGeneralSettingsForm();
+        $fieldForms = array(
+            $this->getGeneralSettingsForm($languageId),
+            $this->getFieldsMappingsForm($languageId),
+        );
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
         if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
-            $fieldsForms[] = $this->getCronJobSettingsForm($storeId);
+            $fieldForms[] = $this->getCronJobSettingsForm($storeId);
         }
-        return $helper->generateForm($fieldsForms);
+        return $helper->generateForm($fieldForms);
     }
 
     public function getConfigFieldsValues($storeId)
@@ -154,24 +172,6 @@ class FmController
             $result[$key] = $this->fmPrestashop->toolsGetValue($key, $configVal !==false ? $configVal : $value);
         }
         return $result;
-    }
-
-    protected function getDescriptonTypes()
-    {
-        return array(
-            array(
-                'id' => FmUtils::LONG_DESCRIPTION,
-                'name' => $this->module->__('Description'),
-            ),
-            array(
-                'id' => FmUtils::SHORT_DESCRIPTION,
-                'name' => $this->module->__('Short description'),
-            ),
-            array(
-                'id' => FmUtils::SHORT_AND_LONG_DESCRIPTION,
-                'name' => $this->module->__('Short and long description'),
-            ),
-        );
     }
 
     protected function getOrderStates($languageId)
@@ -186,6 +186,10 @@ class FmController
         return $states;
     }
 
+    /**
+     * getSKUTypes returns the SKU types available
+     * @return array
+     */
     protected function getSKUTypes()
     {
         return array(
@@ -235,31 +239,98 @@ class FmController
         return json_encode($probes);
     }
 
+    /**
+     * getInterval returns the cron running intervals array
+     * @return array
+     */
     protected function getInterval()
     {
         return array(
             array(
                 'id' => FmUtils::CRON_INTERVAL_10,
-                'name' => $this->module->__('10 Minutes'),
+                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_10),
             ),
             array(
                 'id' => FmUtils::CRON_INTERVAL_30,
-                'name' => $this->module->__('30 Minutes'),
+                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_30),
             ),
             array(
                 'id' => FmUtils::CRON_INTERVAL_60,
-                'name' => $this->module->__('60 Minutes'),
+                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_60),
             ),
         );
     }
 
-    private function getGeneralSettingsForm()
+    /**
+     * getAllFields return all fields defined for products and combinations
+     * @return array
+     */
+    protected function getAllFields()
     {
-        $languageId = $this->fmPrestashop->getLanguageId();
+        $allFieldsIds = array_unique(
+            array_merge(
+                array_keys(
+                    $this->fmPrestashop->productGetFields()
+                ),
+                array_keys(
+                    $this->fmPrestashop->combinationGetFields()
+                )
+            )
+        );
+        $fieldsIdsAndNames = array();
+        foreach ($allFieldsIds as $fieldId) {
+            $fieldsIdsAndNames[] = array(
+                'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, $fieldId),
+                'name' => $fieldId,
+            );
+        }
+        return $fieldsIdsAndNames;
+    }
+
+    /**
+     * getAllProductFeatures returns array containing all product features
+     * @param  int $languageId Language id
+     * @return array
+     */
+    private function getAllProductFeatures($languageId)
+    {
+        $features = array();
+        $query = $this->fmPrestashop->fetureGetAllForLanguage($languageId);
+        foreach ($query as $row) {
+            $features[] = array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE,
+                    $row['id_feature']
+                ),
+                'name' => $row['name'],
+            );
+        }
+        return $features;
+    }
+
+    /**
+     * getAllMappingOptions returns all fields and features
+     * @param  int $languageId Language id
+     * @return array
+     */
+    protected function getAllMappingOptions($languageId)
+    {
+        return array_merge(
+            $this->getAllProductFeatures($languageId),
+            $this->getAllFields()
+        );
+    }
+
+    /**
+     * getGeneralSettingsForm returns the general settings form
+     * @param  int $languageId LanguageId
+     * @return FmFormSetting
+     */
+    private function getGeneralSettingsForm($languageId)
+    {
         $orderStates = $this->getOrderStates($languageId);
         $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
-        $desciotionsType = $this->getDescriptonTypes();
         $currencies = $this->fmPrestashop->getCurrencies();
 
         $formSettings = new FmFormSetting();
@@ -276,9 +347,165 @@ class FmController
                                              if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
             ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
             ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
-            ->setSelect($this->module->__('Description to use'), 'description_type', '', $desciotionsType, 'id', 'name')
             ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+            ->setSubmit($this->module->__('Save'))
+            ->getFormElementsSettings();
+    }
+
+    /**
+     * getDescriptionTypes return the description type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    protected function getDescriptionTypes($mappingOptions)
+    {
+        $descriptionTypes = array(
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'description'
+                ),
+                'name' => $this->module->__('Description')
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'description_short'
+                ),
+                'name' => $this->module->__('Short description')
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
+                    ''
+                ),
+                'name' => $this->module->__('Short and long description')
+            )
+        );
+        $checkArray = array(
+            FmFormSetting::serializeMappingValue(
+                FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                'description_short'
+            ),
+            FmFormSetting::serializeMappingValue(
+                FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                'description'
+            ),
+        );
+        foreach ($mappingOptions as $row) {
+            if (!in_array($row['id'], $checkArray)) {
+                $descriptionTypes[] = $row;
+            }
+        }
+        return $descriptionTypes;
+    }
+
+    /**
+     * getEANTypes returns the EAN type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getEANTypes($mappingOptions)
+    {
+        $eanTypes = array(
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_NO_MAPPING,
+                    ''
+                ),
+                'name' => ''
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+                    'ean13'
+                ),
+                'name' => $this->module->__('EAN')
+            ),
+        );
+        $exclude = FmFormSetting::serializeMappingValue(
+            FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
+            'ean13'
+        );
+        foreach ($mappingOptions as $row) {
+            if ($row['id'] !== $exclude) {
+                $eanTypes[] = $row;
+            }
+        }
+        return $eanTypes;
+    }
+
+    /**
+     * getISBNTypes returns the ISBN type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getISBNTypes($mappingOptions)
+    {
+        $blankMappingOption = array(
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING, ''),
+            'name' => ''
+        );
+        return array_merge(array($blankMappingOption), $mappingOptions);
+    }
+
+    /**
+     * getMPNTypes returns the MPN type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getMPNTypes($mappingOptions)
+    {
+        $blankMappingOption = array(
+            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING, ''),
+            'name' => ''
+        );
+        return array_merge(array($blankMappingOption), $mappingOptions);
+    }
+
+    /**
+     * getBrandTypes returns the Brand type options
+     * @param  array $mappingOptions available mapping options
+     * @return array
+     */
+    private function getBrandTypes($mappingOptions)
+    {
+        $extraBrandOptions = array(
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_NO_MAPPING,
+                    ''
+                ),
+                'name' => ''
+            ),
+            array(
+                'id' => FmFormSetting::serializeMappingValue(
+                    FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME,
+                    ''
+                ),
+                'name' => 'Manufacturer name'
+            ),
+        );
+        return array_merge($extraBrandOptions, $mappingOptions);
+    }
+
+    /**
+     * getFieldsMappingsForm generates the field mapping form
+     * @param  int $languageId LanguageId
+     * @return FmFormSetting
+     */
+    private function getFieldsMappingsForm($languageId)
+    {
+        $allPossibleMappings = $this->getAllMappingOptions($languageId);
+        $formFieldsMappings = new FmFormSetting();
+        return $formFieldsMappings
+            ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
+            ->setSelect($this->module->__('Description to use'), 'description_type', '', $this->getDescriptionTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $this->getEANTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getISBNTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getMPNTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes($allPossibleMappings), 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
