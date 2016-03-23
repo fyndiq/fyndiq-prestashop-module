@@ -503,7 +503,7 @@ class FmProductExport extends FmModel
                 continue;
             }
 
-            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
+            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
 
             $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
             $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
@@ -533,7 +533,7 @@ class FmProductExport extends FmModel
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;
                 }
-                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($combination['price'], $fmProduct['exported_price_percentage']);
+                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($combination['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
 
                 $article = array(
                     FyndiqFeedWriter::ID => $combination['id'],

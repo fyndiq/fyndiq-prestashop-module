@@ -221,6 +221,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
                 FmFormSetting::SETTINGS_MAPPING_EAN => '2;custom_feature',
                 FmFormSetting::SETTINGS_MAPPING_ISBN => '3;',
                 FmFormSetting::SETTINGS_MAPPING_MPN => '4;',
+                FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT => 33.00,
+                FmFormSetting::SETTINGS_PRICE_DISCOUNT => 30.00,
             ),
             new stdClass()
         );
