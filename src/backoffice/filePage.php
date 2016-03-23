@@ -82,8 +82,8 @@ class FilePageController
                         FmFormSetting::SETTINGS_MAPPING_ISBN => $this->fmConfig->get('isbn_type', $storeId),
                         FmFormSetting::SETTINGS_MAPPING_MPN => $this->fmConfig->get('mpn_type', $storeId),
                         FmFormSetting::SETTINGS_MAPPING_BRAND => $this->fmConfig->get('brand_type', $storeId),
-                        FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT => $this->fmConfig->get('price_percentage', $storeId),
-                        FmFormSetting::SETTINGS_PRICE_DISCOUNT => $this->fmConfig->get('price_discount', $storeId)
+                        FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT => $percentageDiscount,
+                        FmFormSetting::SETTINGS_PRICE_DISCOUNT => $priceDiscount
                     );
 
                     $result = $this->fmProductExport->saveFile($feedWriter, $settings);
