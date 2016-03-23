@@ -334,6 +334,10 @@ class FmProductExport extends FmModel
     protected function getProductFeatures($settings, $productIds)
     {
         $features = array();
+        if (empty($productIds)) {
+            return $features;
+        }
+
         $featureIds = array();
         $mappings = array(
             FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
@@ -343,6 +347,7 @@ class FmProductExport extends FmModel
             FmFormSetting::SETTINGS_MAPPING_MPN,
             FmFormSetting::SETTINGS_MAPPING_BRAND,
         );
+
         foreach ($mappings as $mappingTarget) {
             $mapping = FmFormSetting::deserializeMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['type']);
@@ -352,7 +357,7 @@ class FmProductExport extends FmModel
             }
         }
 
-        if (empty($featureIds) || empty($productIds)) {
+        if (empty($featureIds)) {
             return $features;
         }
 
