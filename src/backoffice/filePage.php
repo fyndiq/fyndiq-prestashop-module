@@ -52,6 +52,12 @@ class FilePageController
             $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
             FyndiqUtils::debug('$groupId', $groupId);
 
+            $percentageDiscount = floatval($this->fmConfig->get('price_percentage', $storeId));
+            FyndiqUtils::debug('$percentageDiscount', $percentageDiscount);
+
+            $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
+            FyndiqUtils::debug('$priceDiscount', $priceDiscount);
+
             if (!empty($username) && !empty($apiToken)) {
                 $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
                 $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
@@ -76,9 +82,12 @@ class FilePageController
                         FmFormSetting::SETTINGS_MAPPING_ISBN => $this->fmConfig->get('isbn_type', $storeId),
                         FmFormSetting::SETTINGS_MAPPING_MPN => $this->fmConfig->get('mpn_type', $storeId),
                         FmFormSetting::SETTINGS_MAPPING_BRAND => $this->fmConfig->get('brand_type', $storeId),
+                        FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT => $percentageDiscount,
+                        FmFormSetting::SETTINGS_PRICE_DISCOUNT => $priceDiscount
                     );
 
                     $result = $this->fmProductExport->saveFile($feedWriter, $settings);
+
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);

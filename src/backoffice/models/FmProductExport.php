@@ -43,10 +43,9 @@ class FmProductExport extends FmModel
         return $this->fmPrestashop->dbInsert($this->tableName, $data);
     }
 
-    public function updateProduct($productId, $fyndiqPrice, $storeId, $name = null, $description = null)
+    public function updateProduct($productId, $storeId, $name = null, $description = null)
     {
         $data = array(
-            'fyndiq_price' => $fyndiqPrice,
             'name' => $name,
             'description' => $description,
         );
@@ -88,7 +87,6 @@ class FmProductExport extends FmModel
                     id int(20) unsigned primary key AUTO_INCREMENT,
                     store_id int(10) unsigned,
                     product_id int(10) unsigned,
-                    fyndiq_price int(10) unsigned,
                     name varchar(128) NOT NULL DEFAULT "",
                     description text NOT NULL DEFAULT ""
                 );';
@@ -182,10 +180,18 @@ class FmProductExport extends FmModel
         $groupId = $settings[FmFormSetting::SETTINGS_GROUP_ID];
         $storeId = $settings[FmFormSetting::SETTINGS_STORE_ID];
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
+        $percentageDiscount = $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT];
+        $priceDiscount = $settings[FmFormSetting::SETTINGS_PRICE_DISCOUNT];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) || !$product->active) {
             return array();
         }
+
+        $price = $this->fmPrestashop->getPrice($product, $context, $groupId);
+        $fyndiqPrice = FyndiqUtils::getFyndiqPrice($price, $percentageDiscount, $priceDiscount);
+        FyndiqUtils::debug('$price', $price);
+        FyndiqUtils::debug('$fyndiqPrice', $fyndiqPrice);
+
         $result = array(
             'id' => $product->id,
             'name' => $product->name,
@@ -196,7 +202,7 @@ class FmProductExport extends FmModel
             ),
             'tax_rate' => $this->fmPrestashop->productGetTaxRate($product),
             'quantity' => $this->fmPrestashop->productGetQuantity($product->id),
-            'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
+            'price' => $fyndiqPrice,
             'oldprice' => $this->fmPrestashop->getBasePrice($product),
             'description_short' => $product->description_short,
             'minimal_quantity' => intval($product->minimal_quantity),
@@ -267,6 +273,9 @@ class FmProductExport extends FmModel
                 $attributes = array();
                 $id = $productAttribute[0]['id_product_attribute'];
 
+                $price = $this->fmPrestashop->getPrice($product, $context, $groupId, $id);
+                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($price, $percentageDiscount, $priceDiscount);
+
                 foreach ($productAttribute as $simpleAttr) {
                     $quantity = intval($simpleAttr['quantity']);
                     $minQuantity = intval($simpleAttr['minimal_quantity']);
@@ -279,7 +288,7 @@ class FmProductExport extends FmModel
                 $result['combinations'][$id] = array(
                     'id' => $id,
                     'reference' => $reference,
-                    'price' => $this->fmPrestashop->getPrice($product, $context, $groupId),
+                    'price' => $fyndiqPrice,
                     'oldprice' => $this->fmPrestashop->getBasePrice($product, $id),
                     'quantity' => $quantity,
                     'minimal_quantity' => $minQuantity,

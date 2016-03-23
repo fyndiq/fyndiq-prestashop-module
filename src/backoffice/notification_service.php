@@ -171,6 +171,10 @@ class FmNotificationService
                 $this->fmConfig->get('mpn_type', $storeId),
             FmFormSetting::SETTINGS_MAPPING_BRAND =>
                 $this->fmConfig->get('brand_type', $storeId),
+            FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT =>
+                $this->fmConfig->get('price_percentage', $storeId),
+            FmFormSetting::SETTINGS_PRICE_DISCOUNT =>
+                $this->fmConfig->get('price_discount', $storeId)
         );
     }
 
@@ -235,8 +239,8 @@ class FmNotificationService
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
 
-        $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
-        FyndiqUtils::debug('$groupId', $groupId);
+        $settings = $this->getSaveFileSettings($storeId);
+        FyndiqUtils::debug('$settings', $settings);
 
         $fmProductExport->saveFile($feedWriter, $this->getSaveFileSettings($storeId));
 

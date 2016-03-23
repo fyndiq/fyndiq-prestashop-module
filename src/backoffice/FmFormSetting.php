@@ -37,6 +37,8 @@ class FmFormSetting
     const SETTINGS_MAPPING_ISBN = 1024;
     const SETTINGS_MAPPING_MPN = 2048;
     const SETTINGS_MAPPING_BRAND = 4096;
+    const SETTINGS_PERCENTAGE_DISCOUNT = 8192;
+    const SETTINGS_PRICE_DISCOUNT = 16384;
 
     /**
      * form settings array
