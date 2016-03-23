@@ -325,7 +325,6 @@ class FmProductExport extends FmModel
         return $product->{$fieldKey};
     }
 
-
     /**
      * getProductFeatures Returns an array of all used product features for exported products
      * @param  array $settings Settings
@@ -336,14 +335,15 @@ class FmProductExport extends FmModel
     {
         $features = array();
         $featureIds = array();
-        foreach (array(
-                FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
-                FmFormSetting::SETTINGS_MAPPING_SKU,
-                FmFormSetting::SETTINGS_MAPPING_EAN,
-                FmFormSetting::SETTINGS_MAPPING_ISBN,
-                FmFormSetting::SETTINGS_MAPPING_MPN,
-                FmFormSetting::SETTINGS_MAPPING_BRAND
-            ) as $mappingTarget) {
+        $mappings = array(
+            FmFormSetting::SETTINGS_MAPPING_DESCRIPTION,
+            FmFormSetting::SETTINGS_MAPPING_SKU,
+            FmFormSetting::SETTINGS_MAPPING_EAN,
+            FmFormSetting::SETTINGS_MAPPING_ISBN,
+            FmFormSetting::SETTINGS_MAPPING_MPN,
+            FmFormSetting::SETTINGS_MAPPING_BRAND,
+        );
+        foreach ($mappings as $mappingTarget) {
             $mapping = FmFormSetting::deserializeMappingValue($settings[$mappingTarget]);
             $mappingType = intval($mapping['type']);
             $mappingId = $mapping['id'];
