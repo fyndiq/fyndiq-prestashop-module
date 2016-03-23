@@ -96,8 +96,7 @@ class FyndiqMerchant extends Module
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-
-        return $fmProductExport->uninstall() && $fmOrder->uninstall();
+        return $fmProductExport->uninstall();
     }
 
     private function deleteConfig()

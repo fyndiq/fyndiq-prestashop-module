@@ -287,6 +287,15 @@ class FmPrestashop
         return new OrderState($state);
     }
 
+    /**
+     * getCancelOrderStateId get cancel order state Id.
+     * @return int return cancel order state id
+     */
+    public function getCancelOrderStateId()
+    {
+        return Configuration::get('PS_OS_CANCELED');
+    }
+
     public function getOrderStateName($state)
     {
         $currentState = $this->getOrderState($state);

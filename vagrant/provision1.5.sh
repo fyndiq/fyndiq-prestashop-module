@@ -7,11 +7,19 @@ ADMIN_EMAIL=admin@example.com
 ADMIN_PASS=password123123
 COUNTRY=se
 
+##We're not doing any installs interactively
+export DEBIAN_FRONTEND=noninteractive
+
 apt-get update
-apt-get install -y build-essential vim-nox curl
+apt-get install -y git
+apt-get install -y curl
+apt-get install -y build-essential vim-nox
 apt-get install -y unzip
 
 ## Setup locales
+export LANGUAGE=en_GB.UTF-8
+export LANG=en_GB.UTF-8
+export LC_ALL=en_GB.UTF-8
 locale-gen en_GB.UTF-8
 dpkg-reconfigure locales
 
@@ -20,6 +28,8 @@ echo "mysql-server-5.5 mysql-server/root_password password 123" | sudo debconf-s
 echo "mysql-server-5.5 mysql-server/root_password_again password 123" | sudo debconf-set-selections
 apt-get install -y mysql-server
 apt-get install -y apache2 php5 php5-mysql php5-gd php5-mcrypt php5-curl
+
+echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
 # Install scss
 sudo gem install sass
@@ -50,6 +60,10 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     mv prestashop /var/www/html/
 
     ## Setup virtual host
+    echo 'xdebug.remote_enable=on
+    xdebug.remote_connect_back=on
+    xdebug.idekey="PHPSTORM"
+    xdebug.extended_info=1' >> /etc/php5/mods-available/xdebug.ini
     ln -s /vagrant/assets/001-prestashop.conf /etc/apache2/sites-enabled/001-prestashop.conf
     service apache2 restart
 

@@ -556,19 +556,6 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testUninstall()
-    {
-        $this->fmPrestashop->expects($this->once())
-            ->method('getTableName')
-            ->willReturn('table_name');
-        $this->db->expects($this->once())
-            ->method('Execute')
-            ->willReturn(true);
-
-        $result = $this->fmOrder->uninstall();
-        $this->assertTrue($result);
-    }
-
     public function testMarkOrderAsDone()
     {
         $this->fmPrestashop->expects($this->once())
