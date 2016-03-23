@@ -102,12 +102,22 @@ class FmPrestashop
 
     public function getLanguageId()
     {
-        return $this->contextGetContext()->language->id;
+        return intval($this->contextGetContext()->language->id);
     }
 
     public function getCurrency($currencyId)
     {
         return new Currency($currencyId);
+    }
+
+
+    /**
+     * getCurrencies get list of currency
+     * @return array
+     */
+    public function getCurrencies()
+    {
+        return Currency::getCurrencies();
     }
 
     public function sleep($seconds)
@@ -224,6 +234,16 @@ class FmPrestashop
         );
     }
 
+    /**
+     * isObjectLoaded checks whether object is laoded or not
+     * @param object $object
+     * @return boolean
+     */
+    public function isObjectLoaded($object)
+    {
+        return Validate::isLoadedObject($object);
+    }
+
     public function getModuleName($moduleName = '')
     {
         $module = $this->moduleGetInstanceByName($moduleName);
@@ -235,7 +255,6 @@ class FmPrestashop
         $module = $this->moduleGetInstanceByName($moduleName);
         return $module->get('_path');
     }
-
 
     public function getTableName($moduleName, $tableSuffix, $prefix = false)
     {
@@ -368,6 +387,15 @@ class FmPrestashop
         return  Module::getInstanceByName($name);
     }
 
+    /**
+     * getHelperForm prestashop html generator class
+     * @return Object
+     */
+    public function getHelperForm()
+    {
+        return new HelperForm();
+    }
+
     // Tool
     public function toolsIsSubmit($name)
     {
@@ -430,6 +458,23 @@ class FmPrestashop
     public function currencyGetDefaultCurrency()
     {
         return Currency::getDefaultCurrency();
+    }
+
+    /**
+     * getSelectedCurrency get settings currency
+     * @param  int $currencyId
+     * @return string
+     */
+    public function getSelectedCurrency($currencyId)
+    {
+        if (!$currencyId) {
+            return $this->currencyGetDefaultCurrency()->iso_code;
+        }
+        $fyndiqCurrency = $this->getCurrency($currencyId);
+        if (!$fyndiqCurrency->id) {
+            return $this->currencyGetDefaultCurrency()->iso_code;
+        }
+        return $fyndiqCurrency->iso_code;
     }
 
     // OrderState
@@ -747,5 +792,50 @@ class FmPrestashop
     public function isModuleEnabled($moduleName)
     {
         return Module::isEnabled($moduleName);
+    }
+
+    /**
+     * getValidLanguageId return valid language id given language id
+     * @param  int $languageId assumed-to-be-valid language id
+     * @return int
+     */
+    public function getValidLanguageId($languageId)
+    {
+        $language = new Language($languageId);
+        if ($language->id) {
+            return intval($language->id);
+        }
+        return $this->getLanguageId();
+    }
+
+    /**
+     * productGetFields returns Product fields
+     * @return array
+     */
+    public function productGetFields()
+    {
+        return Product::$definition['fields'];
+    }
+
+    /**
+     * combinationGetFields returns Combination fields
+     * @return array
+     */
+    public function combinationGetFields()
+    {
+        return Combination::$definition['fields'];
+    }
+
+    /**
+     * fetureGetAllForLanguage return all features for language
+     * @param  int $languageId LanguageId
+     * @return array
+     */
+    public function fetureGetAllForLanguage($languageId)
+    {
+        $sql = 'SELECT id_feature, name
+                FROM ' . $this->globDbPrefix() . 'feature_lang
+                WHERE id_lang=' . $languageId;
+        return $this->dbGetInstance()->executeS($sql);
     }
 }

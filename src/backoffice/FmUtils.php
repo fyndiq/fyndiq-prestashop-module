@@ -19,8 +19,6 @@ class FmUtils
     const ORDERS_ENABLED = 0;
     const ORDERS_DISABLED = 1;
 
-    const SKU_DEFAULT = 0;
-
     const SKU_REFERENCE = 0;
     const SKU_EAN = 1;
     const SKU_ID = 2;
@@ -60,11 +58,16 @@ class FmUtils
             'api_token' => '',
             'disable_orders' => self::ORDERS_ENABLED,
             'language' => $languageId,
+            'currency' => '',
             'price_percentage' => self::DEFAULT_DISCOUNT_PERCENTAGE,
             'price_discount' => self::DEFAULT_PRICE_DISCOUNT,
             'stock_min' => 0,
             'customerGroup_id' => self::DEFAULT_CUSTOMER_GROUP_ID,
-            'description_type' => self::LONG_DESCRIPTION,
+            'description_type' => FmFormSetting::DESCRIPTION_DEFAULT,
+            'ean_type' => FmFormSetting::EAN_DEFAULT,
+            'isbn_type' => FmFormSetting::ISBN_DEFAULT,
+            'mpn_type' => FmFormSetting::MPN_DEFAULT,
+            'brand_type' => FmFormSetting::BRAND_DEFAULT,
             'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
             'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
             'ping_token' => '',
