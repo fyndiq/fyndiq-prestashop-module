@@ -503,7 +503,7 @@ class FmProductExport extends FmModel
                 continue;
             }
 
-            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $fmProduct['exported_price_percentage']);
+            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
 
             $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
             $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
