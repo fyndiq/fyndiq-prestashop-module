@@ -239,14 +239,8 @@ class FmNotificationService
         $feedWriter = FmUtils::getFileWriter($file);
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
 
-        $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
-        FyndiqUtils::debug('$groupId', $groupId);
-
-        $percentageDiscount = $this->fmConfig->get('price_percentage', $storeId);
-        FyndiqUtils::debug('$percentageDiscount', $percentageDiscount);
-
-        $priceDiscount = $this->fmConfig->get('price_discount', $storeId);
-        FyndiqUtils::debug('$priceDiscount', $priceDiscount);
+        $settings = $this->getSaveFileSettings($storeId);
+        FyndiqUtils::debug('$settings', $settings);
 
         $fmProductExport->saveFile($feedWriter, $this->getSaveFileSettings($storeId));
 
