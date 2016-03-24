@@ -575,6 +575,24 @@ class FmOrder extends FmModel
         return count($orders) > 0;
     }
 
+
+    /**
+     * check if the Fyndiq order exists.
+     *
+     * @param $order_id
+     * @return Array
+     */
+    public function getFyndiqOrders($orderIds)
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+        $orders = $this->fmPrestashop->dbGetInstance()->ExecuteS(
+            'SELECT * FROM ' . $tableName . '
+            WHERE order_id IN ('. implode(', ', $orderIds).' );'
+        );
+        return $orders;
+    }
+
+
     /**
      * Add the order to database. (to check what orders have already been added.
      *
@@ -766,7 +784,7 @@ class FmOrder extends FmModel
                 }
             }
             if ($errors) {
-                throw new Exception(implode('\n', $errors));
+                throw new Exception(implode("\n", $errors));
             }
         }
         return true;

@@ -43,10 +43,6 @@ if ($fmPrestashop->isPs1516()) {
 $storeId = $fmPrestashop->getStoreId();
 $fmOutput = new FmOutput($fmPrestashop, null, null);
 $fmConfig = new FmConfig($fmPrestashop);
-$fmApiModel = new FmApiModel(
-    $fmConfig->get('username', $storeId),
-    $fmConfig->get('api_token', $storeId),
-    $fmPrestashop->globalGetVersion()
-);
+$fmApiModel = new FmApiModel($fmPrestashop, $fmConfig, $storeId);
 $ajaxService = new FmServiceController($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
 $ajaxService->handleRequest($_POST);
