@@ -429,14 +429,13 @@ class FmProductExport extends FmModel
      */
     private function getMappedValue($fieldKey, $product)
     {
-        $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
-        $mappingType = intval($mappedKey['type']);
-        $mappingId = $mappedKey['id'];
-
-        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
-            return $this->getArticleFieldValue($mappingId, $product);
-        }
         if ($product) {
+            $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
+            $mappingType = intval($mappedKey['type']);
+            $mappingId = $mappedKey['id'];
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
+                return $this->getArticleFieldValue($mappingId, $product);
+            }
             if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
                 return $this->getProductFeature($product->id, $mappingId);
             }
