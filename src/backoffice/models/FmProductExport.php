@@ -572,12 +572,17 @@ class FmProductExport extends FmModel
                 $articles[] = $article;
             }
             FyndiqUtils::debug('$exportProduct, $articles', $exportProduct, $articles);
-            if ($storeProduct['combinations'] && !$articles) {
-                FyndiqUtils::debug('NO VALID ARTCLES FOR PRODUCT', $exportProduct, $articles);
-                continue;
+            if (count($articles) === 0) {
+                if (count($storeProduct['combinations']) > 0) {
+                    FyndiqUtils::debug('NO VALID ARTCLES FOR PRODUCT', $exportProduct, $articles);
+                    continue;
+                }
+                $articles = false;
             }
-            $feedWriter->addCompleteProduct($exportProduct, $articles);
-            FyndiqUtils::debug('Any Validation Errors', $feedWriter->getLastProductErrors());
+            $result = $feedWriter->addCompleteProduct($exportProduct, $articles);
+            if (!$result) {
+                FyndiqUtils::debug('Any Validation Errors', $feedWriter->getLastProductErrors());
+            }
         }
         FyndiqUtils::debug('$feedWriter->getProductCount()', $feedWriter->getProductCount());
         FyndiqUtils::debug('$feedWriter->getArticleCount()', $feedWriter->getArticleCount());
