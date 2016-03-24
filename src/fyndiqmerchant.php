@@ -224,8 +224,12 @@ class FyndiqMerchant extends Module
         if ($params['controller_type'] === Dispatcher::FC_ADMIN &&
             in_array($params['controller_class'], $this->overridenControllers)
         ) {
-            $this->uninstallOverrides();
-            $this->installOverrides();
+            try {
+                $this->uninstallOverrides();
+                $this->installOverrides();
+            } catch (Exception $e) {
+                error_log($e->getMessage());
+            }
         }
     }
 

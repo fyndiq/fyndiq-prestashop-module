@@ -292,6 +292,18 @@ class FmProductExport extends FmModel
                     'minimal_quantity' => $minQuantity,
                     'attributes' => $attributes,
                     'images' => array(),
+                    'ean' => $this->getMappedValue(
+                        $settings[FmFormSetting::SETTINGS_MAPPING_EAN],
+                        null
+                    ),
+                    'isbn' => $this->getMappedValue(
+                        $settings[FmFormSetting::SETTINGS_MAPPING_ISBN],
+                        null
+                    ),
+                    'mpn' => $this->getMappedValue(
+                        $settings[FmFormSetting::SETTINGS_MAPPING_MPN],
+                        null
+                    ),
                 );
                 if ($combinationImages && isset($combinationImages[$id])) {
                     foreach ($combinationImages[$id] as $combinationImage) {
@@ -371,13 +383,12 @@ class FmProductExport extends FmModel
         $languageId = $settings[FmFormSetting::SETTINGS_LANGUAGE_ID];
 
         // Note: There is a limit for query size in MySQL so this may hit it eventually
-        $sql = 'SELECT pl.value, p.id_feature, p.id_product
+        $sql = 'SELECT p.id_product, p.id_feature, pl.value
             FROM ' . $this->fmPrestashop->globDbPrefix(). 'feature_product AS p
-            LEFT JOIN ' . $this->fmPrestashop->globDbPrefix() . '_feature_value_lang AS pl ON
+            LEFT JOIN ' . $this->fmPrestashop->globDbPrefix() . 'feature_value_lang AS pl ON
             p.id_feature_value = pl.id_feature_value AND pl.id_lang = '. $languageId .'
             WHERE p.id_product IN (' . implode(',', $productIds) . ')
             AND p.id_feature IN (' . implode(',', $featureIds) . ')';
-
         $query = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
 
         foreach ($query as $row) {
@@ -418,23 +429,24 @@ class FmProductExport extends FmModel
      */
     private function getMappedValue($fieldKey, $product)
     {
-        $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
-        $mappingType = intval($mappedKey['type']);
-        $mappingId = $mappedKey['id'];
-
-        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
-            return $this->getProductFeature($product->id, $mappingId);
-        }
-        if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
-            return $this->getArticleFieldValue($mappingId, $product);
-        }
-        if ($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
-            return $this->fmPrestashop->manufacturerGetNameById(
-                (int)$product->id
-            );
-        }
-        if ($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
-            return $product->description . "\n\n" . $product->description_short;
+        if ($product) {
+            $mappedKey = FmFormSetting::deserializeMappingValue($fieldKey);
+            $mappingType = intval($mappedKey['type']);
+            $mappingId = $mappedKey['id'];
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD) {
+                return $this->getArticleFieldValue($mappingId, $product);
+            }
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
+                return $this->getProductFeature(intval($product->id), $mappingId);
+            }
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
+                return $this->fmPrestashop->manufacturerGetNameById(
+                    intval($product->id)
+                );
+            }
+            if ($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
+                return $product->description . "\n\n" . $product->description_short;
+            }
         }
         return '';
     }
@@ -479,7 +491,7 @@ class FmProductExport extends FmModel
 
         $allProductIds = array();
         foreach ($fmProducts as $row) {
-            $allProductIds = intval($row['product_id']);
+            $allProductIds[] = intval($row['product_id']);
         }
 
         $this->productFeatures = $this->getProductFeatures($settings, $allProductIds);
@@ -523,6 +535,9 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::IMAGES => $storeProduct['images'],
                 FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($storeProduct['quantity']), $stockMin),
                 FyndiqFeedWriter::PRODUCT_BRAND_NAME => $storeProduct['brand'],
+                FyndiqFeedWriter::ARTICLE_EAN => $storeProduct['ean'],
+                FyndiqFeedWriter::ARTICLE_ISBN => $storeProduct['isbn'],
+                FyndiqFeedWriter::ARTICLE_MPN => $storeProduct['mpn'],
             );
 
             $articles = array();
@@ -541,9 +556,9 @@ class FmProductExport extends FmModel
                     FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
-                    FyndiqFeedWriter::ARTICLE_EAN => $storeProduct['ean'],
-                    FyndiqFeedWriter::ARTICLE_ISBN => $storeProduct['isbn'],
-                    FyndiqFeedWriter::ARTICLE_MPN => $storeProduct['mpn'],
+                    FyndiqFeedWriter::ARTICLE_EAN => $combination['ean'],
+                    FyndiqFeedWriter::ARTICLE_ISBN => $combination['isbn'],
+                    FyndiqFeedWriter::ARTICLE_MPN => $combination['mpn'],
                 );
 
                 $article[FyndiqFeedWriter::PROPERTIES] = array();
@@ -556,12 +571,17 @@ class FmProductExport extends FmModel
                 $articles[] = $article;
             }
             FyndiqUtils::debug('$exportProduct, $articles', $exportProduct, $articles);
-            if ($storeProduct['combinations'] && !$articles) {
-                FyndiqUtils::debug('NO VALID ARTCLES FOR PRODUCT', $exportProduct, $articles);
-                continue;
+            if (count($articles) === 0) {
+                if (count($storeProduct['combinations']) > 0) {
+                    FyndiqUtils::debug('NO VALID ARTCLES FOR PRODUCT', $exportProduct, $articles);
+                    continue;
+                }
+                $articles = false;
             }
-            $feedWriter->addCompleteProduct($exportProduct, $articles);
-            FyndiqUtils::debug('Any Validation Errors', $feedWriter->getLastProductErrors());
+            $result = $feedWriter->addCompleteProduct($exportProduct, $articles);
+            if (!$result) {
+                FyndiqUtils::debug('Any Validation Errors', $feedWriter->getLastProductErrors());
+            }
         }
         FyndiqUtils::debug('$feedWriter->getProductCount()', $feedWriter->getProductCount());
         FyndiqUtils::debug('$feedWriter->getArticleCount()', $feedWriter->getArticleCount());
