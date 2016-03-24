@@ -81,9 +81,9 @@ class FyndiqMerchant extends Module
         $this->registerHook('actionProductUpdate');
         $this->registerHook('backOfficeHeader');
 
-        // if (FyndiqUtils::isDebug()) {
-        //     $this->registerHook('actionDispatcher');
-        // }
+        if (FyndiqUtils::isDebug()) {
+            $this->registerHook('actionDispatcher');
+        }
 
         return $fmProductExport->install() && $fmOrder->install();
     }
