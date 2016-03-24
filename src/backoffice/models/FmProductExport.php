@@ -437,11 +437,11 @@ class FmProductExport extends FmModel
                 return $this->getArticleFieldValue($mappingId, $product);
             }
             if ($mappingType === FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE) {
-                return $this->getProductFeature($product->id, $mappingId);
+                return $this->getProductFeature(intval($product->id), $mappingId);
             }
             if ($mappingType === FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME) {
                 return $this->fmPrestashop->manufacturerGetNameById(
-                    (int)$product->id
+                    intval($product->id)
                 );
             }
             if ($mappingType === FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION) {
