@@ -62,6 +62,8 @@ class FmController
     {
         /** Array index name must be same as param's name */
         $postArr = array();
+
+        // general settings
         $postArr['username'] = $this->fmPrestashop->toolsGetValue('username');
         $postArr['api_token'] = $this->fmPrestashop->toolsGetValue('api_token');
         $postArr['disable_orders'] = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
@@ -74,11 +76,18 @@ class FmController
         $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
         $postArr['stock_min'] = $postArr['stock_min'] < 0 ? 0 : $postArr['stock_min'];
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
+
+        // Field mapping settigs
         $postArr['description_type'] = $this->fmPrestashop->toolsGetValue('description_type');
         $postArr['ean_type'] = $this->fmPrestashop->toolsGetValue('ean_type');
         $postArr['isbn_type'] = $this->fmPrestashop->toolsGetValue('isbn_type');
         $postArr['mpn_type'] = $this->fmPrestashop->toolsGetValue('mpn_type');
         $postArr['brand_type'] = $this->fmPrestashop->toolsGetValue('brand_type');
+
+        //Troubleshoot settings
+        $postArr['is_debugger_activated'] = intval($this->fmPrestashop->toolsGetValue('is_debugger_activated'));
+
+        //Feed Generator settings
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
         $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
             intval($this->fmPrestashop->toolsGetValue('is_active_cron_task')) :
@@ -156,6 +165,7 @@ class FmController
         $fieldForms = array(
             $this->getGeneralSettingsForm($languageId),
             $this->getFieldsMappingsForm($languageId),
+            $this->getTroubleshootingSettingsForm(),
         );
 
         /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
@@ -508,6 +518,20 @@ class FmController
             ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getISBNTypes($allPossibleMappings), 'id', 'name')
             ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getMPNTypes($allPossibleMappings), 'id', 'name')
             ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes($allPossibleMappings), 'id', 'name')
+            ->setSubmit($this->module->__('Save'))
+            ->getFormElementsSettings();
+    }
+
+    /**
+     * getTroubleshootingForm get Troubleshooting form fields
+     * @return FmFormSetting
+     */
+    private function getTroubleshootingSettingsForm()
+    {
+        $formFields = new FmFormSetting();
+        return $formFields
+            ->setLegend($this->module->__('Troubleshoot Settings'), 'icon-cogs')
+            ->setSwitch($this->module->__('Enable Debug'), 'is_debugger_activated', $this->module->__('To be Added'))
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
