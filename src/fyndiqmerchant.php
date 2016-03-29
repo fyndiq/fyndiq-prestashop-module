@@ -79,7 +79,6 @@ class FyndiqMerchant extends Module
         $this->registerHook('displayAdminProductsExtra');
         $this->registerHook('displayBackOfficeHeader');
         $this->registerHook('actionProductUpdate');
-        $this->registerHook('backOfficeHeader');
 
         if (FyndiqUtils::isDebug()) {
             $this->registerHook('actionDispatcher');
@@ -155,6 +154,14 @@ class FyndiqMerchant extends Module
                 $this->fmPrestashop->getModulePath() . 'backoffice/frontend/templates/tab-fyndiq.js'
             );
         }
+
+        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant'
+            && $this->fmPrestashop->toolsGetValue('set_cronjob')
+        ) {
+            $this->fmPrestashop->contextGetContext()->controller->addjs(
+                $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
+            );
+        }
     }
 
     public function hookDisplayAdminProductsExtra($params)
@@ -199,17 +206,6 @@ class FyndiqMerchant extends Module
         }
         if (!$exported && $productModel->productExists($productId, $storeId)) {
             $productModel->removeProduct($productId, $storeId);
-        }
-    }
-
-    public function hookBackOfficeHeader()
-    {
-        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant'
-            && $this->fmPrestashop->toolsGetValue('set_cronjob')
-        ) {
-            $this->fmPrestashop->contextGetContext()->controller->addjs(
-                $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
-            );
         }
     }
 
