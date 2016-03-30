@@ -322,20 +322,6 @@ class FmController
         );
     }
 
-    private function getSwitchValue()
-    {
-        return array(
-            array(
-                'id' => FmUtils::CRON_INTERVAL_10,
-                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_10),
-            ),
-            array(
-                'id' => FmUtils::CRON_INTERVAL_30,
-                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_30),
-            ),
-        );
-    }
-
     /**
      * getGeneralSettingsForm returns the general settings form
      * @param  int $languageId LanguageId
@@ -573,7 +559,6 @@ class FmController
         return $formSettings
             ->setLegend($this->module->__('Feed Generator'), 'icon-cogs')
             ->setDescriptions($helpText)
-            //->setSwitch($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'))
             ->setSelect($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'), $cronDropdown, 'id', 'name')
             ->setSelect($this->module->__('Interval'), 'fm_interval', '', $interval, 'id', 'name', $isIntervalOptionDisable)
             ->setSubmit($this->module->__('Save'))
