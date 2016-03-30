@@ -530,11 +530,11 @@ class FmController
     {
         $debugDropdown = array(
             array(
-                'id' => FmUtils::DEBUGGER_ACTIVATE,
+                'id' => FmUtils::DEBUG_ENABLED,
                 'name' => $this->module->__('Yes'),
             ),
             array(
-                'id' => FmUtils::DEBUGGER_DEACTIVATE,
+                'id' => FmUtils::DEBUG_DISABLED,
                 'name' => $this->module->__('No'),
             ),
         );

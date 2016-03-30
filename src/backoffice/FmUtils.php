@@ -29,8 +29,8 @@ class FmUtils
     const CRON_INTERVAL_30 = 30;
     const CRON_INTERVAL_60 = 60;
 
-    const DEBUGGER_ACTIVATE = 1;
-    const DEBUGGER_DEACTIVATE = 0;
+    const DEBUG_ENABLED = 1;
+    const DEBUG_DISABLED = 0;
 
     const SKU_SEPARATOR = '-';
 
