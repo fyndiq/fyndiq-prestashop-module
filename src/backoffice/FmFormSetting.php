@@ -172,7 +172,7 @@ class FmFormSetting
      */
     public function setSelect($label, $name, $description, $dataSource, $key, $text, $disabled = false)
     {
-        $this->form['form']['input'][] = array(
+        $select =  array(
             'type' => 'select',
             'label' => $label,
             'name' => $name,
@@ -182,8 +182,11 @@ class FmFormSetting
                 'id' => $key,
                 'name' => $text
             ),
-            'disabled' => $disabled,
         );
+        if ($disabled) {
+            $select['disabled'] = $disabled;
+        }
+        $this->form['form']['input'][] = $select;
         return $this;
     }
 
