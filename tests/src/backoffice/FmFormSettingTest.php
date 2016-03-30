@@ -3,6 +3,12 @@
 class FmformSettingTest extends PHPUnit_Framework_TestCase
 {
 
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->fmFormSettings = new FmFormSetting();
+    }
+
     public function testDeserializeMappingValueProvider()
     {
         return array(
@@ -78,5 +84,84 @@ class FmformSettingTest extends PHPUnit_Framework_TestCase
     {
         $result = FmFormSetting::serializeMappingValue($type, $value);
         $this->assertEquals($expected, $result);
+    }
+
+    public function testSetSelectProvider()
+    {
+        return array(
+            array(
+                '$label',
+                '$name',
+                '$description',
+                '$dataSource',
+                '$key',
+                '$text',
+                true,
+                array(
+                    'form' => array(
+                        'legend' => array(),
+                        'description' =>'',
+                        'input' => array(
+                            array(
+                                'type' => 'select',
+                                'label' => '$label',
+                                'name' => '$name',
+                                'desc' => '$description',
+                                'options' => array(
+                                    'query' => '$dataSource',
+                                    'id' => '$key',
+                                    'name' => '$text',
+                                ),
+                                'disabled' => true,
+                            )
+                        ),
+                        'submit' => array(
+                            'title' => ''
+                        )
+                    )
+                ),
+            ),
+            array(
+                '$label',
+                '$name',
+                '$description',
+                '$dataSource',
+                '$key',
+                '$text',
+                false,
+                array(
+                    'form' => array(
+                        'legend' => array(),
+                        'description' =>'',
+                        'input' => array(
+                            array(
+                                'type' => 'select',
+                                'label' => '$label',
+                                'name' => '$name',
+                                'desc' => '$description',
+                                'options' => array(
+                                    'query' => '$dataSource',
+                                    'id' => '$key',
+                                    'name' => '$text',
+                                ),
+                            )
+                        ),
+                        'submit' => array(
+                            'title' => ''
+                        )
+                    )
+                ),
+            ),
+        );
+    }
+
+    /**
+     * testSetSelect
+     * @dataProvider testSetSelectProvider
+     */
+    public function testSetSelect($label, $name, $description, $dataSource, $key, $text, $disabled, $expected)
+    {
+        $result = $this->fmFormSettings->setSelect($label, $name, $description, $dataSource, $key, $text, $disabled);
+        $this->assertEquals($result->getFormElementsSettings(), $expected);
     }
 }
