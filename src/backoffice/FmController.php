@@ -528,10 +528,20 @@ class FmController
      */
     private function getTroubleshootingSettingsForm()
     {
+        $debugDropdown = array(
+            array(
+                'id' => FmUtils::DEBUGGER_ACTIVATE,
+                'name' => $this->module->__('Yes'),
+            ),
+            array(
+                'id' => FmUtils::DEBUGGER_DEACTIVATE,
+                'name' => $this->module->__('No'),
+            ),
+        );
         $formFields = new FmFormSetting();
         return $formFields
             ->setLegend($this->module->__('Troubleshoot Settings'), 'icon-cogs')
-            ->setSwitch($this->module->__('Enable Debug'), 'is_debugger_activated', $this->module->__('To be Added'))
+            ->setSelect($this->module->__('Enable Debug'), 'is_debugger_activated', $this->module->__('To be Added'), $debugDropdown, 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
