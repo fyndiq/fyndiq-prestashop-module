@@ -540,7 +540,7 @@ class FmController
         );
         $formFields = new FmFormSetting();
         return $formFields
-            ->setLegend($this->module->__('Troubleshoot Settings'), 'icon-cogs')
+            ->setLegend($this->module->__('Troubleshooting'), 'icon-cogs')
             ->setSelect($this->module->__('Enable Debug'), 'is_debugger_activated', $this->module->__('To be Added'), $debugDropdown, 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
