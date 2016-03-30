@@ -333,13 +333,23 @@ class FmController
         $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
         $languages = $this->fmPrestashop->languageGetLanguages();
         $currencies = $this->fmPrestashop->getCurrencies();
+        $orderDropdown = array(
+            array(
+                'id' => FmUtils::ORDERS_ENABLED,
+                'name' => $this->module->__('Yes'),
+            ),
+            array(
+                'id' => FmUtils::ORDERS_DISABLED,
+                'name' => $this->module->__('No'),
+            ),
+        );
 
         $formSettings = new FmFormSetting();
         return $formSettings
             ->setLegend($this->module->__('Settings'), 'icon-cogs')
             ->setTextField($this->module->__('Username'), 'username', $this->module->__('Enter here your fyndiq username'), '')
             ->setTextField($this->module->__('API Token'), 'api_token', $this->module->__('Enter here your fyndiq API Token.'), '')
-            ->setSwitch($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'))
+            ->setSelect($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'), $orderDropdown, 'id', 'name')
             ->setSelect($this->module->__('Language'), 'language', $this->module->__('In order to use this module, you have to select which language you will be using.
                                     The language, you select, will be used when exporting products to Fyndiq.
                                     Make sure you select a language that contains Swedish product info!'), $languages, 'id_lang', 'name')
@@ -524,6 +534,16 @@ class FmController
         } else {
             $token = $this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token');
         }
+        $cronDropdown = array(
+            array(
+                'id' => FmUtils::CRON_ACTIVE,
+                'name' => $this->module->__('Yes'),
+            ),
+            array(
+                'id' => FmUtils::CRON_INACTIVE,
+                'name' => $this->module->__('No'),
+            ),
+        );
         $cronUrl = $this->fmPrestashop->getBaseModuleUrl().'modules/fyndiqmerchant/backoffice/notification_service.php?event=cron_execute'.'&token='.$token;
         $interval = $this->getInterval();
         $isIntervalOptionDisable = true;
@@ -539,7 +559,7 @@ class FmController
         return $formSettings
             ->setLegend($this->module->__('Feed Generator'), 'icon-cogs')
             ->setDescriptions($helpText)
-            ->setSwitch($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'))
+            ->setSelect($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'), $cronDropdown, 'id', 'name')
             ->setSelect($this->module->__('Interval'), 'fm_interval', '', $interval, 'id', 'name', $isIntervalOptionDisable)
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
