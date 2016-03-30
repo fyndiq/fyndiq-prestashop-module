@@ -76,7 +76,7 @@ class FmUtils
             'ping_token' => '',
             'is_active_cron_task' => self::CRON_INACTIVE,
             'fm_interval' => self::CRON_INTERVAL_10,
-            'is_debugger_activated' => self::DEBUGGER_DEACTIVATE,
+            'is_debugger_activated' => self::DEBUG_ENABLED,
         );
     }
 }
