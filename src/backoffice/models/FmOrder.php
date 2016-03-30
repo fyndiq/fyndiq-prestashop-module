@@ -109,6 +109,28 @@ class FmOrder extends FmModel
         return $cart;
     }
 
+    /**
+     * [getCustomer description]
+     * @return [type] [description]
+     */
+    private function getCustomerId()
+    {
+        $customer = $this->fmPrestashop->newCustomer();
+        $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
+
+        if (is_null($customer->firstname)) {
+            // Create a customer.
+            $customer->firstname = self::FYNDIQ_ORDERS_NAME_FIRST;
+            $customer->lastname = self::FYNDIQ_ORDERS_NAME_LAST;
+            $customer->email = self::FYNDIQ_ORDERS_EMAIL;
+            $customer->passwd = md5(uniqid(rand(), true));
+
+            // Add it to the database.
+            $customer->add();
+        }
+        return $customer->id;
+    }
+
     protected function getSecureKey()
     {
         return md5(uniqid(rand(), true));
@@ -765,7 +787,7 @@ class FmOrder extends FmModel
         }
         $rawOrder = array_pop($rawOrders);
         $fyndiqOrder = unserialize($rawOrder['body']);
-        $this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
+        //$this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
         return $this->removeFromQueue($fyndiqOrderId);
     }
 

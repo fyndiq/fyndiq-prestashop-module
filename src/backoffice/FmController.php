@@ -346,11 +346,11 @@ class FmController
         $orderDropdown = array(
             array(
                 'id' => FmUtils::ORDERS_ENABLED,
-                'name' => $this->module->__('Yes'),
+                'name' => $this->module->__('NO'),
             ),
             array(
                 'id' => FmUtils::ORDERS_DISABLED,
-                'name' => $this->module->__('No'),
+                'name' => $this->module->__('Yes'),
             ),
         );
 
