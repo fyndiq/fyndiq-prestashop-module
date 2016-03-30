@@ -96,6 +96,9 @@ class FmNotificationService
      */
     private function ping($params, $storeId)
     {
+        if (!intval($this->fmConfig->get('is_debugger_activated', $storeId))) {
+            return $this->fmOutput->showError(401, 'Unauthorized', 'Unauthorized');
+        }
         if ($this->fmConfig->get('is_active_cron_task', $storeId)) {
             return false;
         }
@@ -215,6 +218,9 @@ class FmNotificationService
 
     private function debug($params, $storeId)
     {
+        if (!intval($this->fmConfig->get('is_debugger_activated', $storeId))) {
+            return $this->fmOutput->showError(401, 'Unauthorized', 'Unauthorized');
+        }
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
             return $this->fmOutput->showError(400, 'Bad Request', 'Invalid token');
@@ -253,6 +259,9 @@ class FmNotificationService
 
     private function info($params, $storeId)
     {
+        if (!intval($this->fmConfig->get('is_debugger_activated', $storeId))) {
+            return $this->fmOutput->showError(401, 'Unauthorized', 'Unauthorized');
+        }
         return $this->fmOutput->outputJSON(
             FyndiqUtils::getInfo(
                 FmApiModel::PLATFORM_NAME,
