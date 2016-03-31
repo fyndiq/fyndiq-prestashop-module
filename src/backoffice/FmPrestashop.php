@@ -405,6 +405,15 @@ class FmPrestashop
         return new HelperForm();
     }
 
+    /**
+     * getCurrentUrlIndex get current URL
+     * @return string return URL
+     */
+    public function getCurrentUrlIndex()
+    {
+        return AdminController::$currentIndex;
+    }
+
     // Tool
     public function toolsIsSubmit($name)
     {

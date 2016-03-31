@@ -143,6 +143,7 @@ class FmController
         $helper->module = $this->module;
         $helper->name_controller = $this->module->name;
         $helper->token = $this->fmPrestashop->getAdminTokenLite('AdminModules');
+        $helper->currentIndex = $this->fmPrestashop->getCurrentUrlIndex().'&configure='.$this->module->name;
 
         // Language
         $defaultLang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
