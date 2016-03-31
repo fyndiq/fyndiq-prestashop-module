@@ -85,7 +85,7 @@ class FmController
         $postArr['brand_type'] = $this->fmPrestashop->toolsGetValue('brand_type');
 
         //Troubleshoot settings
-        $postArr['is_debugger_activated'] = intval($this->fmPrestashop->toolsGetValue('is_debugger_activated'));
+        $postArr['debug_enabled'] = intval($this->fmPrestashop->toolsGetValue('debug_enabled'));
 
         //Feed Generator settings
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
@@ -351,11 +351,11 @@ class FmController
         $orderDropdown = array(
             array(
                 'id' => FmUtils::ORDERS_ENABLED,
-                'name' => $this->module->__('Yes'),
+                'name' => $this->module->__('No'),
             ),
             array(
                 'id' => FmUtils::ORDERS_DISABLED,
-                'name' => $this->module->__('No'),
+                'name' => $this->module->__('Yes'),
             ),
         );
 
@@ -567,7 +567,7 @@ class FmController
         $formFields = new FmFormSetting();
         return $formFields
             ->setLegend($this->module->__('Troubleshooting'), 'icon-cogs')
-            ->setSelect($this->module->__('Enable Debug'), 'is_debugger_activated', $this->module->__('To be Added'), $debugDropdown, 'id', 'name')
+            ->setSelect($this->module->__('Enable Debug'), 'debug_enabled', $this->module->__('To be Added'), $debugDropdown, 'id', 'name')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }

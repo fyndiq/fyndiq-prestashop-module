@@ -215,7 +215,7 @@ class FmNotificationService
 
     private function debug($params, $storeId)
     {
-        if (!intval($this->fmConfig->get('is_debugger_activated', $storeId))) {
+        if (!intval($this->fmConfig->get('debug_enabled', $storeId))) {
             return $this->fmOutput->showError(401, 'Unauthorized', 'Unauthorized');
         }
         $token = isset($params['token']) ? $params['token'] : null;
