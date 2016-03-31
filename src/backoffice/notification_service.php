@@ -77,7 +77,7 @@ class FmNotificationService
                     $fmOrder->addToQueue($order);
                     $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
                     $idOrderState = $this->fmConfig->get('import_state', $storeId);
-                    $skuTypeId = $this->fmConfig->get('sku_type_id', $storeId);
+                    $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
                     $taxAddressType = $this->fmPrestashop->getTaxAddressType();
                     $fmOrder->processOrderQueueItem(intval($order->id), $idOrderState, $taxAddressType, $skuTypeId);
                 }

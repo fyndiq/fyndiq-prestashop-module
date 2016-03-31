@@ -77,6 +77,7 @@ class FmUtils
             'is_active_cron_task' => self::CRON_INACTIVE,
             'fm_interval' => self::CRON_INTERVAL_10,
             'is_debugger_activated' => self::DEBUG_ENABLED,
+            'sku_type_id' => FmUtils::SKU_REFERENCE,
         );
     }
 }

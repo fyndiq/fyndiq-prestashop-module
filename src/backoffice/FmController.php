@@ -89,12 +89,14 @@ class FmController
 
         //Feed Generator settings
         $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
-        $postArr['is_active_cron_task'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
-            intval($this->fmPrestashop->toolsGetValue('is_active_cron_task')) :
-            $this->fmConfig->get('is_active_cron_task', $storeId);
-        $postArr['fm_interval'] = $this->fmPrestashop->toolsGetValue('set_cronjob') ?
-            intval($this->fmPrestashop->toolsGetValue('fm_interval')) :
-            $this->fmConfig->get('fm_interval', $storeId);
+        if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
+            $postArr['is_active_cron_task'] = intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'));
+            $postArr['fm_interval'] = intval($this->fmPrestashop->toolsGetValue('fm_interval'));
+        }
+
+        if ($this->fmPrestashop->toolsGetValue('set_sku')) {
+            $postArr['sku_type_id'] = intval($this->fmPrestashop->toolsGetValue('sku_type_id'));
+        }
 
         $base = $this->fmPrestashop->getBaseModuleUrl();
         $updateData = array(
@@ -122,8 +124,10 @@ class FmController
         }
 
         foreach (FmUtils::getConfigKeys() as $key => $value) {
-            if (!$this->fmConfig->set($key, $postArr[$key], $storeId)) {
-                return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
+            if (isset($postArr[$key])) {
+                if (!$this->fmConfig->set($key, $postArr[$key], $storeId)) {
+                    return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
+                }
             }
         }
         return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
@@ -162,9 +166,10 @@ class FmController
             );
         }
         $helper->fields_value = $this->getConfigFieldsValues($storeId);
+        $showSKUSelect = intval($this->fmPrestashop->toolsGetValue('set_sku')) === 1;
         $fieldForms = array(
             $this->getGeneralSettingsForm($languageId),
-            $this->getFieldsMappingsForm($languageId),
+            $this->getFieldsMappingsForm($languageId, $showSKUSelect),
             $this->getTroubleshootingSettingsForm(),
         );
 
@@ -517,17 +522,28 @@ class FmController
      * @param  int $languageId LanguageId
      * @return FmFormSetting
      */
-    private function getFieldsMappingsForm($languageId)
+    private function getFieldsMappingsForm($languageId, $showSKUSelect)
     {
         $allPossibleMappings = $this->getAllMappingOptions($languageId);
         $formFieldsMappings = new FmFormSetting();
-        return $formFieldsMappings
+        $formFieldsMappings
             ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
-            ->setSelect($this->module->__('Description to use'), 'description_type', '', $this->getDescriptionTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect(
+            $this->module->__('Description to use'),
+                'description_type',
+                '',
+                $this->getDescriptionTypes($allPossibleMappings),
+                'id',
+                'name'
+            )
             ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $this->getEANTypes($allPossibleMappings), 'id', 'name')
             ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getISBNTypes($allPossibleMappings), 'id', 'name')
             ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getMPNTypes($allPossibleMappings), 'id', 'name')
-            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes($allPossibleMappings), 'id', 'name')
+            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes($allPossibleMappings), 'id', 'name');
+        if ($showSKUSelect) {
+            $formFieldsMappings->setSelect($this->module->__('SKU Field'), 'sku_type_id', '', $this->getSKUTypes(), 'id', 'name');
+        }
+        return $formFieldsMappings
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
