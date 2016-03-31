@@ -29,8 +29,8 @@ class FmUtils
     const CRON_INTERVAL_30 = 30;
     const CRON_INTERVAL_60 = 60;
 
-    const DEBUG_ENABLED = 1;
     const DEBUG_DISABLED = 0;
+    const DEBUG_ENABLED = 1;
 
     const SKU_SEPARATOR = '-';
 
@@ -76,7 +76,7 @@ class FmUtils
             'ping_token' => '',
             'is_active_cron_task' => self::CRON_INACTIVE,
             'fm_interval' => self::CRON_INTERVAL_10,
-            'is_debugger_activated' => self::DEBUG_DISABLED,
+            'debug_enabled' => self::DEBUG_DISABLED,
         );
     }
 }
