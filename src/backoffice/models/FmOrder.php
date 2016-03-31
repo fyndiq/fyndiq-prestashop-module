@@ -131,6 +131,112 @@ class FmOrder extends FmModel
         return $customer->id;
     }
 
+    public function getAddressId($fyndiqOrder, $customerId, $countryId, $alias)
+    {
+        // Create address
+        $address = $this->fmPrestashop->newAddress();
+        $address->firstname = $fyndiqOrder->delivery_firstname;
+        $address->lastname = $fyndiqOrder->delivery_lastname;
+        $address->phone = $fyndiqOrder->delivery_phone;
+        $address->phone_mobile = $fyndiqOrder->delivery_phone;
+        $address->address1 = $fyndiqOrder->delivery_address;
+        $address->postcode = $fyndiqOrder->delivery_postalcode;
+        $address->city = $fyndiqOrder->delivery_city;
+        $address->company = $fyndiqOrder->delivery_co;
+        $address->id_country = $countryId;
+        $address->id_customer = $customerId;
+        $address->alias = $alias;
+        $address->add();
+        return $address->id;
+    }
+
+    private function iniCart($fyndiqOrder)
+    {
+        $context = $this->fmPrestashop->contextGetContext();
+        $id_customer = (int)$this->getCustomerId();
+        $customer = new Customer((int)$id_customer);
+        $context->customer = $customer;
+        $id_cart = 0;
+        if (!$id_cart) {
+            $id_cart = $customer->getLastCart(false);
+        }
+        $context->cart = new Cart((int)$id_cart);
+
+        if (!$context->cart->id) {
+            $context->cart->recyclable = 0;
+            $context->cart->gift = 0;
+        }
+
+        if (!$context->cart->id_customer) {
+            $context->cart->id_customer = $id_customer;
+        }
+        if (Validate::isLoadedObject($context->cart) && $context->cart->OrderExists()) {
+            return;
+        }
+        if (!$context->cart->secure_key) {
+            $context->cart->secure_key = $context->customer->secure_key;
+        }
+        if (!$context->cart->id_shop) {
+            $context->cart->id_shop = (int)$context->shop->id;
+        }
+        if (!$context->cart->id_lang) {
+            $context->cart->id_lang = (($id_lang = (int)$context->language) ? $id_lang : Configuration::get('PS_LANG_DEFAULT'));
+        }
+        if (!$context->cart->id_currency) {
+            $context->cart->id_currency = (($id_currency = (int)$context->currency->id) ? $id_currency : Configuration::get('PS_CURRENCY_DEFAULT'));
+        }
+
+        $addresses = $customer->getAddresses((int)$context->cart->id_lang);
+        if (!$context->cart->id_address_invoice && isset($addresses[0])) {
+            $context->cart->id_address_invoice = (int)$addresses[0]['id_address'];
+        } else {
+            $id_address_invoice = $this->getAddressId(
+                $fyndiqOrder,
+                $customer->id,
+                $context->country->id,
+                self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
+            );
+            $context->cart->id_address_invoice = (int)$id_address_invoice;
+        }
+        if (!$context->cart->id_address_delivery && isset($addresses[0])) {
+            $context->cart->id_address_delivery = $addresses[0]['id_address'];
+        } else {
+            $id_address_delivery = $this->getAddressId(
+                $fyndiqOrder,
+                $customer->id,
+                $context->country->id,
+                self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
+            );
+            $context->cart->id_address_delivery = (int)$id_address_delivery;
+        }
+        $context->cart->setNoMultishipping();
+        $context->cart->save();
+        $currency = new Currency((int)$context->cart->id_currency);
+        $context->currency = $currency;
+
+        return $context;
+    }
+
+    public function addProductToCart($context, $productId)
+    {
+        $errors = array();
+        if (!$context->cart->id) {
+            return false;
+        }
+        if ($context->cart->OrderExists()) {
+            $errors[] = 'An order has already been placed with this cart.';
+        } elseif (!($id_product = (int)$productId) || !($product = new Product((int)$id_product, true, $context->language->id))) {
+            $errors[] = Tools::displayError('Invalid product');
+        } elseif (!($qty = Tools::getValue('qty')) || $qty == 0) {
+            $errors[] = Tools::displayError('Invalid quantity');
+        }
+    }
+
+    public function updateCustomProductPrice()
+    {
+
+    }
+
     protected function getSecureKey()
     {
         return md5(uniqid(rand(), true));
@@ -787,6 +893,9 @@ class FmOrder extends FmModel
         }
         $rawOrder = array_pop($rawOrders);
         $fyndiqOrder = unserialize($rawOrder['body']);
+            echo '<pre>';
+            print_r($fyndiqOrder);
+            exit();
         //$this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
         return $this->removeFromQueue($fyndiqOrderId);
     }
