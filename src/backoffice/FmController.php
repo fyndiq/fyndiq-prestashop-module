@@ -530,7 +530,7 @@ class FmController
         $formFieldsMappings
             ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
             ->setSelect(
-            $this->module->__('Description to use'),
+                $this->module->__('Description to use'),
                 'description_type',
                 '',
                 $this->getDescriptionTypes($allPossibleMappings),
