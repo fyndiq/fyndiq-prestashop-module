@@ -546,13 +546,12 @@ class FmProductExport extends FmModel
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;
                 }
-                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($combination['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
 
                 $article = array(
                     FyndiqFeedWriter::ID => $combination['id'],
                     FyndiqFeedWriter::SKU => $combination['reference'],
                     FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($combination['quantity']), $stockMin),
-                    FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                    FyndiqFeedWriter::PRICE => $combination['price'],
                     FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
