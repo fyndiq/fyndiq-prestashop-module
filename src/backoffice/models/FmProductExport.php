@@ -513,8 +513,6 @@ class FmProductExport extends FmModel
                 continue;
             }
 
-            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
-
             $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
             $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
 
@@ -526,7 +524,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::PRODUCT_CURRENCY => $currentCurrency,
                 FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
                 FyndiqFeedWriter::PRODUCT_DESCRIPTION => $exportProductDescription,
-                FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                FyndiqFeedWriter::PRICE => $storeProduct['price'],
                 FyndiqFeedWriter::OLDPRICE => $storeProduct['oldprice'],
                 FyndiqFeedWriter::PRODUCT_TITLE => $exportProductTitle,
                 FyndiqFeedWriter::PRODUCT_VAT_PERCENT => $storeProduct['tax_rate'],
@@ -546,13 +544,12 @@ class FmProductExport extends FmModel
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;
                 }
-                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($combination['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
 
                 $article = array(
                     FyndiqFeedWriter::ID => $combination['id'],
                     FyndiqFeedWriter::SKU => $combination['reference'],
                     FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($combination['quantity']), $stockMin),
-                    FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                    FyndiqFeedWriter::PRICE => $combination['price'],
                     FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,
