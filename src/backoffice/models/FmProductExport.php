@@ -183,7 +183,7 @@ class FmProductExport extends FmModel
         $percentageDiscount = $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT];
         $priceDiscount = $settings[FmFormSetting::SETTINGS_PRICE_DISCOUNT];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
-        if (empty($product->id) || !$product->active) {
+        if (empty($product->id) || !$product->active || $product->is_virtual) {
             return array();
         }
 
