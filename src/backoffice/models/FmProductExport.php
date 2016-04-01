@@ -16,7 +16,7 @@ class FmProductExport extends FmModel
 
     public function exportProduct($productId, $storeId)
     {
-        if (!$this->productExists($productId, $storeId)) {
+        if (!$this->productExists($productId, $storeId) && !$this->isProductVirtual($productId)) {
             return $this->addProduct($productId, $storeId);
         }
     }
@@ -30,6 +30,12 @@ class FmProductExport extends FmModel
                 LIMIT 1';
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
+    }
+
+    public function isProductVirtual($productId)
+    {
+        $product = $this->fmPrestashop->productNew($productId);
+        return $product->is_virtual;
     }
 
     public function addProduct($productId, $storeId, $name = null, $description = null)
