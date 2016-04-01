@@ -181,7 +181,7 @@ class FmOrder extends FmModel
             $context->cart->id_shop = (int)$context->shop->id;
         }
         if (!$context->cart->id_lang) {
-            $context->cart->id_lang = (($id_lang = (int)$context->language) ? $id_lang : Configuration::get('PS_LANG_DEFAULT'));
+            $context->cart->id_lang = (($id_lang = (int)$context->language->id) ? $id_lang : Configuration::get('PS_LANG_DEFAULT'));
         }
         if (!$context->cart->id_currency) {
             $context->cart->id_currency = (($id_currency = (int)$context->currency->id) ? $id_currency : Configuration::get('PS_CURRENCY_DEFAULT'));
@@ -218,7 +218,7 @@ class FmOrder extends FmModel
         return $context;
     }
 
-    public function addProductToCart($context, $productId,$attributeId,$quantity)
+    public function addProductToCart($context, $productId, $attributeId, $quantity)
     {
         $response = array();
         if (!$context->cart->id) {
@@ -227,8 +227,8 @@ class FmOrder extends FmModel
         if ($context->cart->OrderExists()) {
             return $response['error'] = "An order has already been placed with this cart.";
         }
-        if(!($id_product = (int)$productId) || !($product = new Product((int)$id_product, true, $context->language->id))) {
-           return $response['error'] = "Invalid Product";
+        if (!($id_product = (int)$productId) || !($product = new Product((int)$id_product, true, $context->language->id))) {
+            return $response['error'] = "Invalid Product";
         }
         if (!($qty = $quantity) || $qty == 0) {
             return $response['error'] = "Invalid Quantity";
@@ -251,7 +251,7 @@ class FmOrder extends FmModel
         } else {
             $operator = 'up';
         }
-        if (!($qty_upd = $this->context->cart->updateQty($qty, $id_product, (int)$id_product_attribute, (int)$id_customization, $operator))) {
+        if (!($qty_upd = $context->cart->updateQty($qty, $id_product, (int)$id_product_attribute, (int)$id_customization, $operator))) {
             return $response['error'] = "You already have the maximum quantity available for this product.";
         }
         if ($qty_upd < 0) {
@@ -264,12 +264,29 @@ class FmOrder extends FmModel
         return $response;
     }
 
-    public function updateCustomProductPrice()
+    public function updateCustomProductPrice($context, $productId, $attributeId, $price)
     {
-
+        SpecificPrice::deleteByIdCart((int)$context->cart->id, (int)$productId, (int)$attributeId);
+        $specific_price = new SpecificPrice();
+        $specific_price->id_cart = (int)$context->cart->id;
+        $specific_price->id_shop = 0;
+        $specific_price->id_shop_group = 0;
+        $specific_price->id_currency = 0;
+        $specific_price->id_country = 0;
+        $specific_price->id_group = 0;
+        $specific_price->id_customer = (int)$context->customer->id;
+        $specific_price->id_product = (int)$productId;
+        $specific_price->id_product_attribute = (int)$attributeId;
+        $specific_price->price = (float)$price;
+        $specific_price->from_quantity = 1;
+        $specific_price->reduction = 0;
+        $specific_price->reduction_type = 'amount';
+        $specific_price->from = '0000-00-00 00:00:00';
+        $specific_price->to = '0000-00-00 00:00:00';
+        $specific_price->add();
     }
 
-    private function prepareOrder($fyndiqOrder, $importState, $taxAddressType, $skuTypeId)
+    private function processOrder($fyndiqOrder, $importState, $taxAddressType, $skuTypeId)
     {
         $fyndiqOrderRows = $fyndiqOrder->order_rows;
         foreach ($fyndiqOrderRows as $key => $row) {
@@ -292,8 +309,8 @@ class FmOrder extends FmModel
 
         // add Product to a cart
         foreach ($fyndiqOrderRows as $key => $row) {
-            $result = $this->addProductToCart($context,$row->productId,$row->combinationId);
-            if(!$result['error']){
+            $result = $this->addProductToCart($context, $row->productId, $row->combinationId, $row->quantity);
+            if ($result['error']) {
                 throw new FyndiqProductSKUNotFound(sprintf(
                     FyndiqTranslation::get($result['error']),
                     $row->sku,
@@ -301,17 +318,17 @@ class FmOrder extends FmModel
                 ));
             }
             $context = $result['context'];
+            $this->updateCustomProductPrice($result['context'], $row->productId, $row->combinationId, $row->unit_price_amount);
         }
+        $this->createOrder($context->cart->id, $importState);
     }
 
-    private function createOrder($id_cart,$id_order_state)
+    private function createOrder($id_cart, $id_order_state)
     {
         if (!$id_cart && !$id_order_state) {
             return false;
         }
-
-        //$payment_module = new BoOrder();
-
+        $payment_module = new FmPaymentModule();
         $cart = new Cart((int)$id_cart);
         Context::getContext()->currency = new Currency((int)$cart->id_currency);
         Context::getContext()->customer = new Customer((int)$cart->id_customer);
@@ -326,10 +343,17 @@ class FmOrder extends FmModel
             }
         } else {
             $employee = new Employee((int)Context::getContext()->cookie->id_employee);
-            PaymentModule::validateOrder(
-                (int)$cart->id, (int)$id_order_state,
-                $cart->getOrderTotal(true, Cart::BOTH), self::FYNDIQ_PAYMENT_METHOD,'Manual order -- Employee:'.' '.
-                substr($employee->firstname, 0, 1).'. '.$employee->lastname, array(), null, false, $cart->secure_key
+            $payment_module->validateOrder(
+                (int)$cart->id,
+                (int)$id_order_state,
+                $cart->getOrderTotal(true, Cart::BOTH),
+                $payment_module->displayName,
+                'Manual order -- Employee:'.' '.
+                substr($employee->firstname, 0, 1).'. '.$employee->lastname,
+                array(),
+                null,
+                false,
+                $cart->secure_key
             );
         }
     }
@@ -993,7 +1017,8 @@ class FmOrder extends FmModel
         }
         $rawOrder = array_pop($rawOrders);
         $fyndiqOrder = unserialize($rawOrder['body']);
-        $this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
+        $this->processOrder($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
+        //$this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
         return $this->removeFromQueue($fyndiqOrderId);
     }
 
