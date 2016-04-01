@@ -4,6 +4,7 @@
  *
  * handles orders
  */
+
 class FmOrder extends FmModel
 {
     const FYNDIQ_ORDERS_EMAIL = 'orders_no_reply@fyndiq.com';
@@ -217,24 +218,120 @@ class FmOrder extends FmModel
         return $context;
     }
 
-    public function addProductToCart($context, $productId)
+    public function addProductToCart($context, $productId,$attributeId,$quantity)
     {
-        $errors = array();
+        $response = array();
         if (!$context->cart->id) {
-            return false;
+            return $response['error'] = "Cart not found";
         }
         if ($context->cart->OrderExists()) {
-            $errors[] = 'An order has already been placed with this cart.';
-        } elseif (!($id_product = (int)$productId) || !($product = new Product((int)$id_product, true, $context->language->id))) {
-            $errors[] = Tools::displayError('Invalid product');
-        } elseif (!($qty = Tools::getValue('qty')) || $qty == 0) {
-            $errors[] = Tools::displayError('Invalid quantity');
+            return $response['error'] = "An order has already been placed with this cart.";
         }
+        if(!($id_product = (int)$productId) || !($product = new Product((int)$id_product, true, $context->language->id))) {
+           return $response['error'] = "Invalid Product";
+        }
+        if (!($qty = $quantity) || $qty == 0) {
+            return $response['error'] = "Invalid Quantity";
+        }
+
+        $id_customization = 0;
+        if (($id_product_attribute = $attributeId) != 0) {
+            if (!Product::isAvailableWhenOutOfStock($product->out_of_stock) && !Attribute::checkAttributeQty((int)$id_product_attribute, (int)$qty)) {
+                return $response['error'] = "There is not enough product in stock.";
+            }
+        }
+        if (!$product->checkQty((int)$qty)) {
+            return $response['error'] = "There is not enough product in stock.";
+        }
+        $context->cart->save();
+
+        if ((int)$qty < 0) {
+            $qty = str_replace('-', '', $qty);
+            $operator = 'down';
+        } else {
+            $operator = 'up';
+        }
+        if (!($qty_upd = $this->context->cart->updateQty($qty, $id_product, (int)$id_product_attribute, (int)$id_customization, $operator))) {
+            return $response['error'] = "You already have the maximum quantity available for this product.";
+        }
+        if ($qty_upd < 0) {
+            $minimal_qty = $id_product_attribute ? Attribute::getAttributeMinimalQty((int)$id_product_attribute) : $product->minimal_quantity;
+            return $response['error'] = sprintf('You must add a minimum quantity of %d', $minimal_qty);
+        }
+
+        $response['error'] = false;
+        $response['context'] = $context;
+        return $response;
     }
 
     public function updateCustomProductPrice()
     {
 
+    }
+
+    private function prepareOrder($fyndiqOrder, $importState, $taxAddressType, $skuTypeId)
+    {
+        $fyndiqOrderRows = $fyndiqOrder->order_rows;
+        foreach ($fyndiqOrderRows as $key => $row) {
+            list($productId, $combinationId) = $this->getProductBySKU($row->sku, $skuTypeId);
+            if (!$productId) {
+                throw new FyndiqProductSKUNotFound(sprintf(
+                    FyndiqTranslation::get('error-import-product-not-found'),
+                    $row->sku,
+                    $fyndiqOrder->id
+                ));
+
+                return false;
+            }
+            $row->productId = $productId;
+            $row->combinationId = $combinationId;
+            $fyndiqOrderRows[$key] = $row;
+        }
+        // Initilize the cart
+        $context = $this->iniCart($fyndiqOrder);
+
+        // add Product to a cart
+        foreach ($fyndiqOrderRows as $key => $row) {
+            $result = $this->addProductToCart($context,$row->productId,$row->combinationId);
+            if(!$result['error']){
+                throw new FyndiqProductSKUNotFound(sprintf(
+                    FyndiqTranslation::get($result['error']),
+                    $row->sku,
+                    $fyndiqOrder->id
+                ));
+            }
+            $context = $result['context'];
+        }
+    }
+
+    private function createOrder($id_cart,$id_order_state)
+    {
+        if (!$id_cart && !$id_order_state) {
+            return false;
+        }
+
+        //$payment_module = new BoOrder();
+
+        $cart = new Cart((int)$id_cart);
+        Context::getContext()->currency = new Currency((int)$cart->id_currency);
+        Context::getContext()->customer = new Customer((int)$cart->id_customer);
+
+        $bad_delivery = false;
+        if (($bad_delivery = (bool)!Address::isCountryActiveById((int)$cart->id_address_delivery))
+            || !Address::isCountryActiveById((int)$cart->id_address_invoice)) {
+            if ($bad_delivery) {
+                 throw new PrestaShopException(FyndiqTranslation::get('error-delivery-country-not-active'));
+            } else {
+                throw new PrestaShopException(FyndiqTranslation::get('error-invoice-country-not-active'));
+            }
+        } else {
+            $employee = new Employee((int)Context::getContext()->cookie->id_employee);
+            PaymentModule::validateOrder(
+                (int)$cart->id, (int)$id_order_state,
+                $cart->getOrderTotal(true, Cart::BOTH), self::FYNDIQ_PAYMENT_METHOD,'Manual order -- Employee:'.' '.
+                substr($employee->firstname, 0, 1).'. '.$employee->lastname, array(), null, false, $cart->secure_key
+            );
+        }
     }
 
     protected function getSecureKey()
@@ -366,6 +463,9 @@ class FmOrder extends FmModel
             $row->combinationId = $combinationId;
             $fyndiqOrderRows[$key] = $row;
         }
+
+        // Initilize the cart
+        $context = $this->iniCart($fyndiqOrder);
 
         $cart = $this->getCart($fyndiqOrder, $context->currency->id, $context->country->id);
         $cart->setOrderDetails($fyndiqOrderRows);
@@ -893,10 +993,7 @@ class FmOrder extends FmModel
         }
         $rawOrder = array_pop($rawOrders);
         $fyndiqOrder = unserialize($rawOrder['body']);
-            echo '<pre>';
-            print_r($fyndiqOrder);
-            exit();
-        //$this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
+        $this->create($fyndiqOrder, $idOrderState, $taxAddressType, $skuTypeId);
         return $this->removeFromQueue($fyndiqOrderId);
     }
 
