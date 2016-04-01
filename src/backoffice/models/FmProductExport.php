@@ -16,7 +16,6 @@ class FmProductExport extends FmModel
 
     public function exportProduct($productId, $storeId)
     {
-        ;
         if (!$this->productExists($productId, $storeId) &&
             !$this->isProductVirtual($productId) &&
             !$this->isProductPackedType($productId)
