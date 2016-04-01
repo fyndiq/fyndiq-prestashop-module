@@ -32,6 +32,11 @@ class FmProductExport extends FmModel
         return count($data) > 0;
     }
 
+    /**
+     * isProductVirtual checks if product is virtual
+     * @param  int  $productId
+     * @return boolean
+     */
     public function isProductVirtual($productId)
     {
         $product = $this->fmPrestashop->productNew($productId);
