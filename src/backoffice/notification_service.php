@@ -216,7 +216,7 @@ class FmNotificationService
     private function debug($params, $storeId)
     {
         if (!intval($this->fmConfig->get('debug_enabled', $storeId))) {
-            return $this->fmOutput->showError(401, 'Unauthorized', 'Unauthorized');
+            return $this->fmOutput->showError(403, 'Forbidden', 'Forbidden');
         }
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {
