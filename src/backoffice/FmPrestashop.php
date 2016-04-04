@@ -658,9 +658,9 @@ class FmPrestashop
     }
 
     // Cart
-    public function newCart()
+    public function newCart($id)
     {
-        return new FmCart();
+        return new Cart($id);
     }
 
     public function cartOnlyProducts()

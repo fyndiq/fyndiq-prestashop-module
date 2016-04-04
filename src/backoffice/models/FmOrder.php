@@ -114,7 +114,7 @@ class FmOrder extends FmModel
      * [getCustomer description]
      * @return [type] [description]
      */
-    private function getCustomerId()
+    private function getCustomer()
     {
         $customer = $this->fmPrestashop->newCustomer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
@@ -129,7 +129,7 @@ class FmOrder extends FmModel
             // Add it to the database.
             $customer->add();
         }
-        return $customer->id;
+        return $customer;
     }
 
     public function getAddressId($fyndiqOrder, $customerId, $countryId, $alias)
@@ -154,14 +154,14 @@ class FmOrder extends FmModel
     private function iniCart($fyndiqOrder)
     {
         $context = $this->fmPrestashop->contextGetContext();
-        $id_customer = (int)$this->getCustomerId();
-        $customer = new Customer((int)$id_customer);
+        $customer = $this->getCustomer();
+        $id_customer = $customer->id;
         $context->customer = $customer;
         $id_cart = 0;
         if (!$id_cart) {
             $id_cart = $customer->getLastCart(false);
         }
-        $context->cart = new Cart((int)$id_cart);
+        $context->cart = $this->fmPrestashop->newCart((int)$id_cart);
 
         if (!$context->cart->id) {
             $context->cart->recyclable = 0;
@@ -171,7 +171,7 @@ class FmOrder extends FmModel
         if (!$context->cart->id_customer) {
             $context->cart->id_customer = $id_customer;
         }
-        if (Validate::isLoadedObject($context->cart) && $context->cart->OrderExists()) {
+        if ($this->fmPrestashop->isObjectLoaded($context->cart) && $context->cart->OrderExists()) {
             return;
         }
         if (!$context->cart->secure_key) {
@@ -212,7 +212,7 @@ class FmOrder extends FmModel
         }
         $context->cart->setNoMultishipping();
         $context->cart->save();
-        $currency = new Currency((int)$context->cart->id_currency);
+        $currency = $this->fmPrestashop->getCurrency((int)$context->cart->id_currency);
         $context->currency = $currency;
 
         return $context;
