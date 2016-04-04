@@ -222,26 +222,32 @@ class FmOrder extends FmModel
     {
         $response = array();
         if (!$context->cart->id) {
-            return $response['error'] = "Cart not found";
+            $response['error'] = 'Cart not found';
+            return $response;
         }
         if ($context->cart->OrderExists()) {
-            return $response['error'] = "An order has already been placed with this cart.";
+            $response['error'] = 'An order has already been placed with this cart.';
+            return $response;
         }
         if (!($id_product = (int)$productId) || !($product = new Product((int)$id_product, true, $context->language->id))) {
-            return $response['error'] = "Invalid Product";
+            $response['error'] = 'Invalid Product';
+            return $response;
         }
         if (!($qty = $quantity) || $qty == 0) {
-            return $response['error'] = "Invalid Quantity";
+            $response['error'] = 'Invalid Quantity';
+            return $response;
         }
 
         $id_customization = 0;
         if (($id_product_attribute = $attributeId) != 0) {
             if (!Product::isAvailableWhenOutOfStock($product->out_of_stock) && !Attribute::checkAttributeQty((int)$id_product_attribute, (int)$qty)) {
-                return $response['error'] = "There is not enough product in stock.";
+                $response['error'] = 'There is not enough product in stock.';
+                return $response;
             }
         }
         if (!$product->checkQty((int)$qty)) {
-            return $response['error'] = "There is not enough product in stock.";
+            $response['error'] = 'There is not enough product in stock.';
+            return $response;
         }
         $context->cart->save();
 
@@ -252,11 +258,13 @@ class FmOrder extends FmModel
             $operator = 'up';
         }
         if (!($qty_upd = $context->cart->updateQty($qty, $id_product, (int)$id_product_attribute, (int)$id_customization, $operator))) {
-            return $response['error'] = "You already have the maximum quantity available for this product.";
+            $response['error'] = 'You already have the maximum quantity available for this product.';
+            return $response;
         }
         if ($qty_upd < 0) {
             $minimal_qty = $id_product_attribute ? Attribute::getAttributeMinimalQty((int)$id_product_attribute) : $product->minimal_quantity;
-            return $response['error'] = sprintf('You must add a minimum quantity of %d', $minimal_qty);
+            $response['error'] = sprintf('You must add a minimum quantity of %d', $minimal_qty);
+            return $response;
         }
 
         $response['error'] = false;
@@ -316,14 +324,15 @@ class FmOrder extends FmModel
                     $row->sku,
                     $fyndiqOrder->id
                 ));
+                return false;
             }
             $context = $result['context'];
             $this->updateCustomProductPrice($result['context'], $row->productId, $row->combinationId, $row->unit_price_amount);
         }
-        $this->createOrder($context->cart->id, $importState);
+        $this->createOrder($context->cart->id, $importState, $fyndiqOrder);
     }
 
-    private function createOrder($id_cart, $id_order_state)
+    private function createOrder($id_cart, $id_order_state, $fyndiqOrder)
     {
         if (!$id_cart && !$id_order_state) {
             return false;
@@ -342,20 +351,30 @@ class FmOrder extends FmModel
                 throw new PrestaShopException(FyndiqTranslation::get('error-invoice-country-not-active'));
             }
         } else {
-            $employee = new Employee((int)Context::getContext()->cookie->id_employee);
             $payment_module->validateOrder(
                 (int)$cart->id,
                 (int)$id_order_state,
                 $cart->getOrderTotal(true, Cart::BOTH),
                 $payment_module->displayName,
-                'Manual order -- Employee:'.' '.
-                substr($employee->firstname, 0, 1).'. '.$employee->lastname,
+                $this->getOrderMessage($fyndiqOrder->id, $fyndiqOrder->delivery_note),
                 array(),
                 null,
                 false,
                 $cart->secure_key
             );
         }
+    }
+
+    private function getOrderMessage($fyndiqOrderId, $fyndiqDeliveryNote)
+    {
+        $message = sprintf(FyndiqTranslation::get('Fyndiq order id: %s'), $fyndiqOrderId);
+        $message .= PHP_EOL;
+        $message .= sprintf(FyndiqTranslation::get('Fyndiq delivery note: %s'), $fyndiqDeliveryNote);
+        $message .= PHP_EOL;
+        $message .= FyndiqTranslation::get(
+            'Copy the URL and paste it in the browser to download the delivery note.'
+        );
+        return $message;
     }
 
     protected function getSecureKey()
