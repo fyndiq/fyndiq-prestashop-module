@@ -7,7 +7,6 @@ if (!defined('_PS_VERSION_')) {
 require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once('backoffice/includes/shared/src/init.php');
 require_once('backoffice/FmUtils.php');
-require_once('backoffice/FmCart.php');
 require_once('backoffice/FmConfig.php');
 require_once('backoffice/FmOutput.php');
 require_once('backoffice/FmPrestashop.php');

@@ -7,7 +7,6 @@ require_once('./service_init.php');
 require_once('./FmConfig.php');
 require_once('./includes/shared/src/FyndiqOutput.php');
 require_once('./FmOutput.php');
-require_once('./FmCart.php');
 require_once('./FmPaymentModule.php');
 require_once('./models/FmModel.php');
 require_once('./models/FmApiModel.php');
