@@ -297,7 +297,7 @@ class FmOrder extends FmModel
             $row->combinationId = $combinationId;
             $fyndiqOrderRows[$key] = $row;
         }
-        // Initilize the cart
+        // initialize the cart
         $context = $this->iniCart($fyndiqOrder);
 
         // add Product to a cart
