@@ -48,8 +48,8 @@ sniff:
 	$(BIN_DIR)/phpcs --standard=PSR2 --extensions=php --ignore=shared,templates,api --colors $(SRC_DIR)
 
 sniff-fix:
-	$(BIN_DIR)/phpcbf --standard=PSR2 --extensions=php --ignore=shared,templates,api $(SRC_DIR)
-	$(BIN_DIR)/phpcbf --standard=PSR2 --extensions=php $(TESTS_DIR)
+	$(BIN_DIR)/php-cs-fixer fix --config-file=$(BASE)/.php_cs
+	$(BIN_DIR)/php-cs-fixer fix $(TESTS_DIR) --level=psr2
 
 compatinfo:
 	$(BIN_DIR)/phpcompatinfo analyser:run $(SRC_DIR)
