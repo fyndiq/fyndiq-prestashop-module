@@ -17,8 +17,7 @@ class FmProductExport extends FmModel
     public function exportProduct($productId, $storeId)
     {
         if (!$this->productExists($productId, $storeId) &&
-            !$this->isProductVirtual($productId) &&
-            !$this->isProductPackedType($productId)
+            $this->isProductExportable($productId)
             ) {
             return $this->addProduct($productId, $storeId);
         }
@@ -36,25 +35,15 @@ class FmProductExport extends FmModel
     }
 
     /**
-     * isProductVirtual checks if product is virtual
-     * @param  int  $productId
+     * isProductExportable Product validate
+     * @param  int  $productId  Product Id
      * @return boolean
      */
-    public function isProductVirtual($productId)
+    public function isProductExportable($productId)
     {
+        // checks if product is virtual or packtype
         $product = $this->fmPrestashop->productNew($productId);
-        return $product->is_virtual;
-    }
-
-    /**
-     * isProductPack checks if product is pack of existing
-     * @param  int  $productId
-     * @return boolean
-     */
-    public function isProductPackedType($productId)
-    {
-        $product = $this->fmPrestashop->productNew($productId);
-        return $product->cache_is_pack;
+        return !$product->is_virtual && !$product->cache_is_pack;
     }
 
     public function addProduct($productId, $storeId, $name = null, $description = null)
