@@ -116,8 +116,8 @@ class FmOrder extends FmModel
             $context->cart->recyclable = 0;
             $context->cart->gift = 0;
         }
-        if (!$context->cart->customerId) {
-            $context->cart->customerId = $customerId;
+        if (!$context->cart->id_customer) {
+            $context->cart->id_customer = $customerId;
         }
         if ($this->fmPrestashop->isObjectLoaded($context->cart) && $context->cart->OrderExists()) {
             throw new Exception(sprintf(
