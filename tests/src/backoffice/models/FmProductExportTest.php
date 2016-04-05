@@ -633,7 +633,6 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
 
     public function testUninstall()
     {
-
         $this->db->method('Execute')
             ->willReturn(true);
 
