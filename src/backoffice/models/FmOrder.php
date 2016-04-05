@@ -98,7 +98,7 @@ class FmOrder extends FmModel
     }
 
     /**
-     * iniCart initializing the cart
+     * iniContext initializing the cart
      * @param  object $fyndiqOrder Fyndiq order object
      * @return Context
      */
@@ -298,7 +298,7 @@ class FmOrder extends FmModel
             $fyndiqOrderRows[$key] = $row;
         }
         // initialize the cart
-        $context = $this->iniCart($fyndiqOrder);
+        $context = $this->iniContext($fyndiqOrder);
 
         // add Product to a cart
         foreach ($fyndiqOrderRows as $key => $row) {
@@ -328,11 +328,11 @@ class FmOrder extends FmModel
         $bad_delivery = false;
         if (($bad_delivery = (bool)!Address::isCountryActiveById((int)$cart->id_address_delivery))
             || !Address::isCountryActiveById((int)$cart->id_address_invoice)) {
-            throw new Exception(FyndiqTranslation::get('error-delivery-country-not-active'));
-        } else {
+            if($bad_delivery){
+                throw new Exception(FyndiqTranslation::get('error-delivery-country-not-active'));
+            }
             throw new Exception(FyndiqTranslation::get('error-invoice-country-not-active'));
         }
-
         $payment_module->validateOrder(
             (int)$cart->id,
             (int)$id_order_state,
