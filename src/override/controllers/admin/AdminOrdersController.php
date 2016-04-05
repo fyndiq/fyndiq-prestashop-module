@@ -129,7 +129,7 @@ class AdminOrdersController extends AdminOrdersControllerCore
     public function validateOrderInput()
     {
         if (!is_array($this->boxes) || !$this->boxes) {
-             return $this->module->__('Please, pick at least one order');
+            return $this->module->__('Please, pick at least one order');
         }
         if (Shop::getContext() != Shop::CONTEXT_SHOP) {
             return $this->module->__('Please select store context');
