@@ -268,7 +268,7 @@ class FmOrder extends FmModel
         $specific_price->reduction_type = 'amount';
         $specific_price->from = '0000-00-00 00:00:00';
         $specific_price->to = '0000-00-00 00:00:00';
-        $specific_price->add();
+        return $specific_price->add();
     }
 
     /**
