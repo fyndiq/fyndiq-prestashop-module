@@ -98,15 +98,14 @@ class FmOrder extends FmModel
     }
 
     /**
-     * iniContext initializing the cart
+     * initContext initializing the cart
      * @param  object $fyndiqOrder Fyndiq order object
      * @return Context
      */
-    private function iniContext($fyndiqOrder)
+    private function initContext($fyndiqOrder)
     {
         $context = $this->fmPrestashop->contextGetContext();
         $customer = $this->getCustomer();
-        $customerId = $customer->id;
         $context->customer = $customer;
 
         $cartId = $customer->getLastCart(false);
@@ -117,7 +116,7 @@ class FmOrder extends FmModel
             $context->cart->gift = 0;
         }
         if (!$context->cart->id_customer) {
-            $context->cart->id_customer = $customerId;
+            $context->cart->id_customer = $customer->id;
         }
         if ($this->fmPrestashop->isObjectLoaded($context->cart) && $context->cart->OrderExists()) {
             throw new Exception(sprintf(
@@ -298,7 +297,7 @@ class FmOrder extends FmModel
             $fyndiqOrderRows[$key] = $row;
         }
         // initialize the cart
-        $context = $this->iniContext($fyndiqOrder);
+        $context = $this->initContext($fyndiqOrder);
 
         // add Product to a cart
         foreach ($fyndiqOrderRows as $key => $row) {
@@ -328,7 +327,7 @@ class FmOrder extends FmModel
         $bad_delivery = false;
         if (($bad_delivery = (bool)!Address::isCountryActiveById((int)$cart->id_address_delivery))
             || !Address::isCountryActiveById((int)$cart->id_address_invoice)) {
-            if($bad_delivery){
+            if ($bad_delivery) {
                 throw new Exception(FyndiqTranslation::get('error-delivery-country-not-active'));
             }
             throw new Exception(FyndiqTranslation::get('error-invoice-country-not-active'));
