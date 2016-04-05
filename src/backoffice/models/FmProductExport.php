@@ -16,7 +16,7 @@ class FmProductExport extends FmModel
 
     public function exportProduct($productId, $storeId)
     {
-        if (!$this->productExists($productId, $storeId)) {
+        if (!$this->productExists($productId, $storeId) && !$this->isProductVirtual($productId)) {
             return $this->addProduct($productId, $storeId);
         }
     }
@@ -30,6 +30,17 @@ class FmProductExport extends FmModel
                 LIMIT 1';
         $data = $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
         return count($data) > 0;
+    }
+
+    /**
+     * isProductVirtual checks if product is virtual
+     * @param  int  $productId
+     * @return boolean
+     */
+    public function isProductVirtual($productId)
+    {
+        $product = $this->fmPrestashop->productNew($productId);
+        return $product->is_virtual;
     }
 
     public function addProduct($productId, $storeId, $name = null, $description = null)
@@ -183,7 +194,7 @@ class FmProductExport extends FmModel
         $percentageDiscount = $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT];
         $priceDiscount = $settings[FmFormSetting::SETTINGS_PRICE_DISCOUNT];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
-        if (empty($product->id) || !$product->active) {
+        if (empty($product->id) || !$product->active || $product->is_virtual) {
             return array();
         }
 
@@ -513,8 +524,6 @@ class FmProductExport extends FmModel
                 continue;
             }
 
-            $fyndiqPrice = FyndiqUtils::getFyndiqPrice($storeProduct['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
-
             $exportProductTitle = $fmProduct['name'] ? $fmProduct['name'] : $storeProduct['name'];
             $exportProductDescription = $fmProduct['description'] ? $fmProduct['description'] : $storeProduct['description'];
 
@@ -526,7 +535,7 @@ class FmProductExport extends FmModel
                 FyndiqFeedWriter::PRODUCT_CURRENCY => $currentCurrency,
                 FyndiqFeedWriter::QUANTITY => $storeProduct['quantity'],
                 FyndiqFeedWriter::PRODUCT_DESCRIPTION => $exportProductDescription,
-                FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                FyndiqFeedWriter::PRICE => $storeProduct['price'],
                 FyndiqFeedWriter::OLDPRICE => $storeProduct['oldprice'],
                 FyndiqFeedWriter::PRODUCT_TITLE => $exportProductTitle,
                 FyndiqFeedWriter::PRODUCT_VAT_PERCENT => $storeProduct['tax_rate'],
@@ -546,13 +555,12 @@ class FmProductExport extends FmModel
                     FyndiqUtils::debug('minimal_quantity > 1 SKIPPING ARTICLE', $combination['minimal_quantity']);
                     continue;
                 }
-                $fyndiqPrice = FyndiqUtils::getFyndiqPrice($combination['price'], $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT]);
 
                 $article = array(
                     FyndiqFeedWriter::ID => $combination['id'],
                     FyndiqFeedWriter::SKU => $combination['reference'],
                     FyndiqFeedWriter::QUANTITY => $this->getExportQty(intval($combination['quantity']), $stockMin),
-                    FyndiqFeedWriter::PRICE => $fyndiqPrice,
+                    FyndiqFeedWriter::PRICE => $combination['price'],
                     FyndiqFeedWriter::OLDPRICE => $combination['oldprice'],
                     FyndiqFeedWriter::IMAGES => $combination['images'],
                     FyndiqFeedWriter::ARTICLE_NAME => $exportProductTitle,

@@ -18,7 +18,7 @@ require_once('backoffice/models/FmOrder.php');
 require_once('backoffice/FmOrderFetch.php');
 require_once('backoffice/FmFormSetting.php');
 
-class FyndiqMerchant extends Module
+class fyndiqmerchant extends Module
 {
 
     private $fmPrestashop = null;

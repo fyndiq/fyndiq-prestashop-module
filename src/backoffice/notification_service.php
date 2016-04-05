@@ -77,7 +77,7 @@ class FmNotificationService
                     $fmOrder->addToQueue($order);
                     $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
                     $idOrderState = $this->fmConfig->get('import_state', $storeId);
-                    $skuTypeId = $this->fmConfig->get('sku_type_id', $storeId);
+                    $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
                     $taxAddressType = $this->fmPrestashop->getTaxAddressType();
                     $fmOrder->processOrderQueueItem(intval($order->id), $idOrderState, $taxAddressType, $skuTypeId);
                 }
@@ -151,7 +151,7 @@ class FmNotificationService
      */
     private function getSaveFileSettings($storeId)
     {
-        return array (
+        return array(
             FmFormSetting::SETTINGS_STORE_ID => $storeId,
             FmFormSetting::SETTINGS_LANGUAGE_ID =>
                 $this->fmPrestashop->getValidLanguageId(intval($this->fmConfig->get('language', $storeId))),
@@ -215,8 +215,8 @@ class FmNotificationService
 
     private function debug($params, $storeId)
     {
-        if (!intval($this->fmConfig->get('is_debugger_activated', $storeId))) {
-            return $this->fmOutput->showError(401, 'Unauthorized', 'Unauthorized');
+        if (!intval($this->fmConfig->get('debug_enabled', $storeId))) {
+            return $this->fmOutput->showError(403, 'Forbidden', 'Forbidden');
         }
         $token = isset($params['token']) ? $params['token'] : null;
         if (is_null($token) || $token != $this->fmConfig->get('ping_token', $storeId)) {

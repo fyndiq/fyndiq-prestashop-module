@@ -1,6 +1,6 @@
 <?php
 
-class FmformSettingTest extends PHPUnit_Framework_TestCase
+class FmFormSettingTest extends PHPUnit_Framework_TestCase
 {
 
     protected function setUp()

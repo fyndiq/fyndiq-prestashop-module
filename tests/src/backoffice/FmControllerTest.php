@@ -22,6 +22,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
 
         $this->fmPrestashop->method('getCurrency')->willReturn('ZWL');
         $this->fmPrestashop->method('getModuleUrl')->willReturn('http://localhost/module');
+        $this->fmPrestashop->method('getCurrentUrlIndex')->willReturn('index.php?controller=AdminModules');
         $this->fmPrestashop->method('productGetFields')->willReturn(array('a', 'b', 'c'));
         $this->fmPrestashop->method('combinationGetFields')->willReturn(array('d', 'e', 'f'));
         $this->fmPrestashop->method('getHelperForm')->willReturn($this->helperForm);

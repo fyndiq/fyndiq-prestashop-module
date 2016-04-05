@@ -43,7 +43,6 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
 
     public function testRouteRequestGetCategories()
     {
-
         $expected = array(
             'category_id' => 3
         );
@@ -296,7 +295,7 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->controller->routeRequest(
             'update_order_status',
             array(
-                'orders' => array(1,2)
+                'orders' => array(1, 2)
             )
         );
         $this->assertEquals($doneState, $result);
@@ -397,7 +396,6 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
 
     public function testDeleteExportedProducts()
     {
-
         $fmProductExport = $this->getMockBuilder('FmProductExport')
             ->disableOriginalConstructor()
             ->getMock();

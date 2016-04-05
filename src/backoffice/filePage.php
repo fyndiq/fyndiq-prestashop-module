@@ -71,7 +71,7 @@ class FilePageController
                     );
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
 
-                    $settings = array (
+                    $settings = array(
                         FmFormSetting::SETTINGS_LANGUAGE_ID => $languageId,
                         FmFormSetting::SETTINGS_STOCK_MIN => $stockMin,
                         FmFormSetting::SETTINGS_GROUP_ID => $groupId,

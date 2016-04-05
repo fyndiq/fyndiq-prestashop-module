@@ -1,5 +1,6 @@
 <?php
-class FmApiModel extends FmModel {
+class FmApiModel extends FmModel
+{
 
     const PLATFORM_NAME = 'Prestashop';
     const MODULE_NAME = 'module';
