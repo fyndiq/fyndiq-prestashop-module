@@ -7,6 +7,6 @@ class FmPaymentModule extends PaymentModule
 
     public function __construct()
     {
-        $this->displayName = 'Fyndiq';
+        $this->displayName = FyndiqTranslation::get('Fyndiq');
     }
 }
