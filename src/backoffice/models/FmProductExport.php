@@ -199,8 +199,7 @@ class FmProductExport extends FmModel
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
         if (empty($product->id) ||
             !$product->active ||
-            $product->is_virtual ||
-            $product->cache_is_pack
+            !$this->isProductExportable($productId)
             ) {
             return array();
         }
