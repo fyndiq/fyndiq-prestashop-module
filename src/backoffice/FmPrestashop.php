@@ -244,6 +244,19 @@ class FmPrestashop
         return Validate::isLoadedObject($object);
     }
 
+    /**
+     * newSpecificPrice New specific Price for updating custom price
+     * @param  int $cartId      Cart Id
+     * @param  int $productId   Product Id
+     * @param  int $attributeId Combination Id
+     * @return SpecificPrice    Return SpecificPrice Object
+     */
+    public function newSpecificPrice($cartId, $productId, $attributeId)
+    {
+        SpecificPrice::deleteByIdCart((int)$cartId, (int)$productId, (int)$attributeId);
+        return new SpecificPrice();
+    }
+
     public function getModuleName($moduleName = '')
     {
         $module = $this->moduleGetInstanceByName($moduleName);
