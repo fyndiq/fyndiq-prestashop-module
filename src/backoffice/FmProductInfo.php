@@ -3,19 +3,19 @@
 class FmProductInfo extends FyndiqPaginatedFetch
 {
 
-    function __construct($fmProduct, $fmApiModel, $tableName)
+    public function __construct($fmProduct, $fmApiModel, $tableName)
     {
         $this->fmProduct = $fmProduct;
         $this->fmApiModel = $fmApiModel;
         $this->tableName = $tableName;
     }
 
-    function getInitialPath()
+    public function getInitialPath()
     {
         return 'product_info/';
     }
 
-    function getSleepIntervalSeconds()
+    public function getSleepIntervalSeconds()
     {
         return 1 / self::THROTTLE_PRODUCT_INFO_RPS;
     }
