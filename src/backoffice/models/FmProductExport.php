@@ -16,7 +16,9 @@ class FmProductExport extends FmModel
 
     public function exportProduct($productId, $storeId)
     {
-        if (!$this->productExists($productId, $storeId) && !$this->isProductVirtual($productId)) {
+        if (!$this->productExists($productId, $storeId) &&
+            $this->isProductExportable($productId)
+            ) {
             return $this->addProduct($productId, $storeId);
         }
     }
@@ -33,14 +35,15 @@ class FmProductExport extends FmModel
     }
 
     /**
-     * isProductVirtual checks if product is virtual
-     * @param  int  $productId
+     * isProductExportable Product validate
+     * @param  int  $productId  Product Id
      * @return boolean
      */
-    public function isProductVirtual($productId)
+    public function isProductExportable($productId)
     {
+        // checks if product is virtual or packtype
         $product = $this->fmPrestashop->productNew($productId);
-        return $product->is_virtual;
+        return !$product->is_virtual && !$product->cache_is_pack;
     }
 
     public function addProduct($productId, $storeId, $name = null, $description = null)
@@ -194,7 +197,10 @@ class FmProductExport extends FmModel
         $percentageDiscount = $settings[FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT];
         $priceDiscount = $settings[FmFormSetting::SETTINGS_PRICE_DISCOUNT];
         $product = $this->fmPrestashop->productNew($productId, false, $languageId, $storeId);
-        if (empty($product->id) || !$product->active || $product->is_virtual) {
+        if (empty($product->id) ||
+            !$product->active ||
+            !$this->isProductExportable($productId)
+            ) {
             return array();
         }
 
