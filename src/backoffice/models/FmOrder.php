@@ -71,14 +71,14 @@ class FmOrder extends FmModel
     }
 
     /**
-     * getAddressId description
+     * createAddress description
      * @param  int  $fyndiqOrder Fyndiq Order Id
      * @param  int  $customerId  customer Id
      * @param  int  $countryId   Country Id
      * @param  string $alias
-     * @return int             Address ID
+     * @return Address     Address Object
      */
-    public function getAddressId($fyndiqOrder, $customerId, $countryId, $alias)
+    public function createAddress($fyndiqOrder, $customerId, $countryId, $alias)
     {
         // Create address
         $address = $this->fmPrestashop->newAddress();
@@ -94,7 +94,7 @@ class FmOrder extends FmModel
         $address->id_customer = $customerId;
         $address->alias = $alias;
         $address->add();
-        return $address->id;
+        return $address;
     }
 
     /**
@@ -141,24 +141,24 @@ class FmOrder extends FmModel
         if (!$context->cart->id_address_invoice && isset($addresses[0])) {
             $context->cart->id_address_invoice = (int)$addresses[0]['id_address'];
         } else {
-            $invoiceAddressId = $this->getAddressId(
+            $invoiceAddressId = $this->createAddress(
                 $fyndiqOrder,
                 $customer->id,
                 $context->country->id,
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
             );
-            $context->cart->id_address_invoice = (int)$invoiceAddressId;
+            $context->cart->id_address_invoice = (int)$invoiceAddressId->id;
         }
         if (!$context->cart->id_address_delivery && isset($addresses[0])) {
             $context->cart->id_address_delivery = $addresses[0]['id_address'];
         } else {
-            $id_address_delivery = $this->getAddressId(
+            $id_address_delivery = $this->createAddress(
                 $fyndiqOrder,
                 $customer->id,
                 $context->country->id,
                 self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
             );
-            $context->cart->id_address_delivery = (int)$id_address_delivery;
+            $context->cart->id_address_delivery = (int)$id_address_delivery->id;
         }
         $context->cart->setNoMultishipping();
         $context->cart->save();

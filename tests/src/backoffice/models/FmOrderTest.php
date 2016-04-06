@@ -133,7 +133,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testFillAddress()
+    public function testgetAddress()
     {
         $customerId = 1;
         $countryId = 2;
@@ -154,11 +154,15 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $expected->alias = $alias;
         $expected->phone_mobile = $fyndiqOrder->delivery_phone;
 
+        $address = $this->getAddress();
+        $address->id = 4;
+        $address->method('add')->willReturn(true);
+
         $this->fmPrestashop->expects($this->once())
             ->method('newAddress')
             ->willReturn(new stdClass());
 
-        $result = $this->fmOrder->fillAddress($fyndiqOrder, $customerId, $countryId, $alias);
+        $result = $this->fmOrder->getAddressId($fyndiqOrder, $customerId, $countryId, $alias);
         $this->assertEquals($expected, $result);
     }
 
@@ -201,33 +205,14 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testGetCartNewCustomer()
+    public function testGetNewCustomer()
     {
-        $currencyId = 1;
-        $countryId = 2;
-
         $expected = new stdClass();
-        $expected->id_currency = 1;
-        $expected->id_lang = 1;
-        $expected->id_customer = 3;
-        $expected->id_address_invoice = 4;
-        $expected->id_address_delivery = 4;
-
-        $address = $this->getMockBuilder('stdClass')
-            ->setMethods(array('add'))
-            ->getMock();
-
-        $address->id = 4;
-        $address->method('add')->willReturn(true);
-
-        $this->fmPrestashop->method('newCart')
-            ->willReturn(new stdClass());
-
-        $this->fmPrestashop->method('newAddress')
-            ->willReturn($address);
+        $expected->id = 3;
+        $expected->firstname = 'firstname';
 
         $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getByEmail', 'add', 'getAddresses'))
+            ->setMethods(array('getByEmail', 'add'))
             ->getMock();
 
         $customer->firstname = 'firstname';
@@ -237,8 +222,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->fmPrestashop->method('newCustomer')
             ->willReturn($customer);
 
-        $fyndiqOrder = $this->getFyndiqOrder();
-        $result = $this->fmOrder->getCart($fyndiqOrder, $currencyId, $countryId);
+        $result = $this->fmOrder->getCustomer();
         $this->assertEquals($expected, $result);
     }
 
