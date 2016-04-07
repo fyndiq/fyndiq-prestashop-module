@@ -98,16 +98,14 @@ class FmOrder extends FmModel
     }
 
     /**
-     * initContext initializing the cart
-     * @param  object $fyndiqOrder Fyndiq order object
+     * setCart setup cart
+     * @param Customer $customer Customer Object
+     * @param Context $context  Context Object
      * @return Context
      */
-    public function initContext($fyndiqOrder)
+    public function setCart($customer, $context)
     {
-        $context = $this->fmPrestashop->contextGetContext();
-        $customer = $this->getCustomer();
         $context->customer = $customer;
-
         $cartId = $customer->getLastCart(false);
         $context->cart = $this->fmPrestashop->newCart((int)$cartId);
 
@@ -136,7 +134,17 @@ class FmOrder extends FmModel
         if (!$context->cart->id_currency) {
             $context->cart->id_currency = (($id_currency = (int)$context->currency->id) ? $id_currency : $this->fmPrestashop->configurationGet('PS_CURRENCY_DEFAULT'));
         }
+        return $context;
+    }
 
+    /**
+     * setAddressToCart Setup Address to cart
+     * @param Csutomer $customer
+     * @param Context $context
+     * @return Context
+     */
+    public function setAddressToCart($customer, $context)
+    {
         $addresses = $customer->getAddresses((int)$context->cart->id_lang);
         if (!$context->cart->id_address_invoice && isset($addresses[0])) {
             $context->cart->id_address_invoice = (int)$addresses[0]['id_address'];
@@ -160,6 +168,21 @@ class FmOrder extends FmModel
             );
             $context->cart->id_address_delivery = (int)$id_address_delivery->id;
         }
+        return $context;
+    }
+
+    /**
+     * initContext initializing the cart
+     * @param  object $fyndiqOrder Fyndiq order object
+     * @return Context
+     */
+    public function initContext($fyndiqOrder)
+    {
+        $context = $this->fmPrestashop->contextGetContext();
+        $customer = $this->getCustomer();
+        $context = $this->setCart($customer, $context);
+        $context = $this->setAddressToCart($customer, $context);
+
         $context->cart->setNoMultishipping();
         $context->cart->save();
         $currency = $this->fmPrestashop->getCurrency((int)$context->cart->id_currency);
