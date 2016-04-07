@@ -52,7 +52,7 @@ class FmOrder extends FmModel
      * getCustomer description
      * @return Customer return customer object
      */
-    private function getCustomer()
+    public function getCustomer()
     {
         $customer = $this->fmPrestashop->newCustomer();
         $customer->getByEmail(self::FYNDIQ_ORDERS_EMAIL);
@@ -102,7 +102,7 @@ class FmOrder extends FmModel
      * @param  object $fyndiqOrder Fyndiq order object
      * @return Context
      */
-    private function initContext($fyndiqOrder)
+    public function initContext($fyndiqOrder)
     {
         $context = $this->fmPrestashop->contextGetContext();
         $customer = $this->getCustomer();
