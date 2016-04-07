@@ -257,6 +257,14 @@ class FmPrestashop
         return new SpecificPrice();
     }
 
+    /**
+     * newPaymentModule Create Fyndiq Payment Module
+     * @return FmPaymentModule  object
+     */
+    public function newPaymentModule()
+    {
+        return new FmPaymentModule();
+    }
     public function getModuleName($moduleName = '')
     {
         $module = $this->moduleGetInstanceByName($moduleName);
@@ -300,6 +308,10 @@ class FmPrestashop
         return new OrderState($state);
     }
 
+    public function getContextObject()
+    {
+        return  Context::getContext();
+    }
     /**
      * getCancelOrderStateId get cancel order state Id.
      * @return int return cancel order state id
@@ -696,9 +708,15 @@ class FmPrestashop
     }
 
     // Customer
-    public function newCustomer()
+    public function newCustomer($id = 0)
     {
-        return new Customer();
+        return new Customer($id);
+    }
+
+    public function isValidAddress($idDelivery, $idInvoice)
+    {
+        return (bool)!Address::isCountryActiveById((int)$idDelivery)
+            || !Address::isCountryActiveById((int)$idInvoice);
     }
 
     // DbQuery
@@ -711,6 +729,12 @@ class FmPrestashop
     public function newOrderHistory()
     {
         return new OrderHistory();
+    }
+
+    public function isProductValidWhenAttribute($stock, $attributeId, $qty)
+    {
+        return !Product::isAvailableWhenOutOfStock($stock) &&
+         !Attribute::checkAttributeQty($attributeId, $qty);
     }
 
     // Message
