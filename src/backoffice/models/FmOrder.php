@@ -289,6 +289,9 @@ class FmOrder extends FmModel
      */
     public function updateCustomProductPrice($context, $productId, $attributeId, $price)
     {
+        $product = $this->fmPrestashop->productNew($productId, true, $context->language->id);
+        $tax = (float)$product->tax_rate;
+        $calculateTax = (float)($tax * $price)/100;
         $specific_price = $this->fmPrestashop->newSpecificPrice($context->cart->id, $productId, $attributeId);
         $specific_price->id_cart = (int)$context->cart->id;
         $specific_price->id_shop = 0;
@@ -297,11 +300,11 @@ class FmOrder extends FmModel
         $specific_price->id_country = 0;
         $specific_price->id_group = 0;
         $specific_price->id_customer = (int)$context->customer->id;
-        $specific_price->id_product = (int)$productId;
-        $specific_price->id_product_attribute = (int)$attributeId;
-        $specific_price->price = (float)$price;
+        $specific_price->id_product = $productId;
+        $specific_price->id_product_attribute = $attributeId;
+        $specific_price->price = $price;
         $specific_price->from_quantity = 1;
-        $specific_price->reduction = 0;
+        $specific_price->reduction = $calculateTax;
         $specific_price->reduction_type = 'amount';
         $specific_price->from = '0000-00-00 00:00:00';
         $specific_price->to = '0000-00-00 00:00:00';
@@ -340,7 +343,7 @@ class FmOrder extends FmModel
 
         foreach ($fyndiqOrderRows as $key => $row) {
             $this->addProductToCart($context, (int)$row->productId, (int)$row->combinationId, (int)$row->quantity, $row->sku);
-            $this->updateCustomProductPrice($context, $row->productId, $row->combinationId, $row->unit_price_amount);
+            $this->updateCustomProductPrice($context, (int) $row->productId, (int) $row->combinationId, (float)$row->unit_price_amount);
         }
         return $this->createOrder((int)$context->cart->id, (int)$importState, $fyndiqOrder);
     }
