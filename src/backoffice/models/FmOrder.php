@@ -149,24 +149,24 @@ class FmOrder extends FmModel
         if (!$context->cart->id_address_invoice && isset($addresses[0])) {
             $context->cart->id_address_invoice = (int)$addresses[0]['id_address'];
         } else {
-            $invoiceAddressId = $this->createAddress(
+            $invoiceAddress = $this->createAddress(
                 $fyndiqOrder,
                 $customer->id,
                 $context->country->id,
                 self::FYNDIQ_ORDERS_INVOICE_ADDRESS_ALIAS
             );
-            $context->cart->id_address_invoice = (int)$invoiceAddressId->id;
+            $context->cart->id_address_invoice = (int)$invoiceAddress->id;
         }
         if (!$context->cart->id_address_delivery && isset($addresses[0])) {
             $context->cart->id_address_delivery = $addresses[0]['id_address'];
         } else {
-            $id_address_delivery = $this->createAddress(
+            $deliveryAddress = $this->createAddress(
                 $fyndiqOrder,
                 $customer->id,
                 $context->country->id,
                 self::FYNDIQ_ORDERS_DELIVERY_ADDRESS_ALIAS
             );
-            $context->cart->id_address_delivery = (int)$id_address_delivery->id;
+            $context->cart->id_address_delivery = (int)$deliveryAddress->id;
         }
         return $context;
     }
@@ -255,25 +255,25 @@ class FmOrder extends FmModel
     {
         $context = $this->validateProduct($context, $productId, $attributeId, $qty, $sku);
         $context->cart->save();
-        $product = $this->fmPrestashop->productNew((int)$productId, true, $context->language->id);
+        $product = $this->fmPrestashop->productNew($productId, true, $context->language->id);
         $idCustomization   = 0;
-        if ((int)$qty < 0) {
+        if ($qty < 0) {
             $qty = str_replace('-', '', $qty);
             $operator = 'down';
         } else {
             $operator = 'up';
         }
-        if (!($qty_upd = $context->cart->updateQty((int)$qty, $productId, (int)$attributeId, (int)$idCustomization, $operator))) {
+        if (!($qtyUpd = $context->cart->updateQty($qty, $productId, $attributeId, $idCustomization, $operator))) {
             throw new Exception(sprintf(
                 FyndiqTranslation::get('You already have the maximum quantity available for this product, Product Sku = `%s`'),
                 $sku
             ));
         }
-        if ($qty_upd < 0) {
-            $minimal_qty = $attributeId ? Attribute::getAttributeMinimalQty((int)$attributeId) : $product->minimal_quantity;
+        if ($qtyUpd < 0) {
+            $minimalQty = $attributeId ? Attribute::getAttributeMinimalQty($attributeId) : $product->minimal_quantity;
             throw new Exception(sprintf(
                 FyndiqTranslation::get('You must add a minimum quantity of %d, Product Sku = `%s`'),
-                $minimal_qty,
+                $minimalQty,
                 $sku
             ));
         }
@@ -339,10 +339,10 @@ class FmOrder extends FmModel
         // add Product to a cart
 
         foreach ($fyndiqOrderRows as $key => $row) {
-            $this->addProductToCart($context, $row->productId, $row->combinationId, $row->quantity, $row->sku);
+            $this->addProductToCart($context, (int)$row->productId, (int)$row->combinationId, (int)$row->quantity, $row->sku);
             $this->updateCustomProductPrice($context, $row->productId, $row->combinationId, $row->unit_price_amount);
         }
-        return $this->createOrder($context->cart->id, $importState, $fyndiqOrder);
+        return $this->createOrder((int)$context->cart->id, (int)$importState, $fyndiqOrder);
     }
 
     /**
@@ -352,28 +352,25 @@ class FmOrder extends FmModel
      * @param  Object $fyndiqOrder      Fyndiq order Object
      * @return boolean
      */
-    public function createOrder($id_cart, $id_order_state, $fyndiqOrder)
+    public function createOrder($idCart, $idOrderState, $fyndiqOrder)
     {
-        if (!$id_cart && !$id_order_state) {
+        if (!$idCart && !$idOrderState) {
             return false;
         }
-        $payment_module = $this->fmPrestashop->newPaymentModule();
-        $cart = $this->fmPrestashop->newCart((int)$id_cart);
+
+        $paymentModule = $this->newFmPaymentModule();
+        $cart = $this->fmPrestashop->newCart($idCart);
         $this->fmPrestashop->getContextObject()->currency = $this->fmPrestashop->getCurrency((int)$cart->id_currency);
         $this->fmPrestashop->getContextObject()->customer = $this->fmPrestashop->newCustomer((int)$cart->id_customer);
 
-        $bad_delivery = false;
-        if ($bad_delivery = $this->fmPrestashop->isValidAddress($cart->id_address_delivery, $cart->id_address_invoice)) {
-            if ($bad_delivery) {
-                throw new Exception(FyndiqTranslation::get('error-delivery-country-not-active'));
-            }
-            throw new Exception(FyndiqTranslation::get('error-invoice-country-not-active'));
+        if (!$this->fmPrestashop->isValidAddress($cart->id_address_delivery, $cart->id_address_invoice)) {
+            throw new Exception(FyndiqTranslation::get('error-country-not-active'));
         }
-        $payment_module->validateOrder(
-            (int)$cart->id,
-            (int)$id_order_state,
+        $paymentModule->validateOrder(
+            $cart->id,
+            $idOrderState,
             $cart->getOrderTotal(true, $this->fmPrestashop->cartBoth()),
-            $payment_module->displayName,
+            $paymentModule->displayName,
             $this->getOrderMessage($fyndiqOrder->id, $fyndiqOrder->delivery_note),
             array(),
             null,
@@ -381,11 +378,11 @@ class FmOrder extends FmModel
             $cart->secure_key
         );
         //Update Order Id to Fyndiq order table
-        $this->addOrderLog($payment_module->currentOrder, $fyndiqOrder->id);
+        $this->addOrderLog($paymentModule->currentOrder, $fyndiqOrder->id);
         return true;
     }
 
-    private function getOrderMessage($fyndiqOrderId, $fyndiqDeliveryNote)
+    public function getOrderMessage($fyndiqOrderId, $fyndiqDeliveryNote)
     {
         $message = sprintf(FyndiqTranslation::get('Fyndiq order id: %s'), $fyndiqOrderId);
         $message .= PHP_EOL;
@@ -465,6 +462,15 @@ class FmOrder extends FmModel
         $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
         $sql = 'SELECT count(id) as amount FROM ' . $tableName .' WHERE order_id > 0';
         return $this->fmPrestashop->dbGetInstance()->getValue($sql);
+    }
+
+  /**
+     * newFmPaymentModule Create Fyndiq Payment Module
+     * @return FmPaymentModule  object
+     */
+    public function newFmPaymentModule()
+    {
+        return new FmPaymentModule();
     }
 
     /**

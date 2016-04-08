@@ -135,7 +135,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $context->cart->id_currency = 1;
         $context->cart->id_address_invoice = 4;
         $context->cart->id_address_delivery = 4;
-        $context;
+        return $context;
     }
     public function testInstall()
     {
@@ -194,6 +194,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $context = $this->getMockBuilder('stdClass')
             ->getMock();
+
         $this->fmPrestashop->method('contextGetContext')
             ->willReturn($context);
 
@@ -249,6 +250,109 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $result = $this->fmOrder->initContext($fyndiqOrder);
         foreach ($result->cart as $property => $value) {
             $this->assertEquals($expected->{$property}, $value);
+        }
+    }
+
+
+
+    public function testsetCart()
+    {
+        $expected = new stdClass();
+        $expected->id_currency = 1;
+        $expected->id_lang = 1;
+        $expected->id_customer = 3;
+        $expected->id_address_invoice = 4;
+        $expected->id_address_delivery = 4;
+
+        $fyndiqOrder = $this->getFyndiqOrder();
+
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save','OrderExists','setNoMultishipping'))
+            ->getMock();
+
+        $context->cart->id_customer = 3;
+        $context->cart->id_lang = 1;
+        $context->cart->id = 1;
+        $context->cart->id_currency = 1;
+        $context->cart->id_address_invoice = 4;
+        $context->cart->id_address_delivery = 4;
+        $context->cart->secure_key = 5;
+        $context->cart->id_shop = 1;
+
+        $customer = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getLastCart'))
+            ->getMock();
+        $customer->method('getLastCart')->willReturn(1);
+        $customer->id = 3;
+        $this->fmPrestashop->method('newCart')
+               ->with(
+                $this->equalTo(1)
+            )
+            ->willReturn($context->cart);
+
+        $result = $this->fmOrder->setCart($customer, $context, $fyndiqOrder);
+        foreach ($expected as $property => $value) {
+            $this->assertEquals($result->cart->{$property}, $value);
+        }
+    }
+
+    public function testsetAddressToCart()
+    {
+        $expected = new stdClass();
+        $expected->id_lang = 1;
+        $expected->id_address_invoice = 4;
+        $expected->id_address_delivery = 4;
+
+        $fyndiqOrder = $this->getFyndiqOrder();
+
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $context->country = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $address = $this->getMockBuilder('stdClass')
+            ->getMock();
+        $address->id = 4;
+
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save','OrderExists','setNoMultishipping'))
+            ->getMock();
+
+        $context->cart->id_lang = 1;
+        $context->cart->id_address_invoice = 4;
+        $context->cart->id_address_delivery = 4;
+        $context->country->id = 1;
+
+        $customer = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getAddresses'))
+            ->getMock();
+
+        $customer->method('getAddresses')->willReturn(array());
+        $customer->id = 3;
+
+        $this->fmOrder = $this->getMockBuilder('fmOrder')
+            ->setConstructorArgs(array($this->fmPrestashop, null))
+            ->setMethods(array(
+                'createAddress'
+            ))
+            ->getMock();
+
+        $this->fmOrder->method('createAddress')
+            ->willReturn($address);
+
+        $result = $this->fmOrder->setAddressToCart($customer, $context, $fyndiqOrder);
+        foreach ($expected as $property => $value) {
+            $this->assertEquals($result->cart->{$property}, $value);
         }
     }
 
@@ -449,6 +553,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $result = $this->fmOrder->processOrder($fyndiqOrder,$importState, $taxAddressType, $skuTypeId);
         $this->assertTrue($result);
     }
+
     public function testOrderExists()
     {
         $this->fmPrestashop->expects($this->once())
@@ -472,7 +577,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->setConstructorArgs(array($this->fmPrestashop, null))
             ->setMethods(array(
                 'getOrderMessage',
-                'addOrderLog'
+                'addOrderLog',
+                'newFmPaymentModule'
             ))
             ->getMock();
 
@@ -489,12 +595,12 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $cart->id= 1;
         $cart->id_address_delivery = 1;
-        $cart->id_address_invoice = 2;
+        $cart->id_address_invoice = 1;
         $cart->secure_key = 5;
         $cart->id_currency = 1;
         $cart->id_customer = 2;
 
-        $this->fmPrestashop->method('newPaymentModule')
+        $this->fmOrder->method('newFmPaymentModule')
             ->willReturn($paymentModule);
 
         $context = $this->getMockBuilder('stdClass')
@@ -530,7 +636,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
       $this->fmPrestashop->method('isValidAddress')
                ->with(
                 $this->equalTo(1),
-                $this->equalTo(2)
+                $this->equalTo(1)
             )
             ->willReturn(true);
 
@@ -539,16 +645,16 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(true),
                 $this->equalTo($cartBoth)
             )
-            ->willReturn(true);
+            ->willReturn(500);
 
 
         $this->fmOrder
             ->method('getOrderMessage')
             ->with(
-                $this->equalTo(666),
-                $this->equalTo('http://example.com/delivery_note.pdf')
+                $this->equalTo($fyndiqOrder->id),
+                $this->equalTo($fyndiqOrder->delivery_note)
             )
-            ->willReturn("hi");
+            ->willReturn("sampleMessage");
 
         $paymentModule->method('validateOrder')
             ->with(
@@ -556,7 +662,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
                 $this->equalTo(1),
                 $this->equalTo(500),
                 $this->equalTo('Fyndiq'),
-                $this->equalTo('hi'),
+                $this->equalTo('sampleMessage'),
                 $this->equalTo(array()),
                 $this->equalTo(null),
                 $this->equalTo(false),
@@ -568,7 +674,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->method('addOrderLog')
             ->with(
                 $this->equalTo(1),
-                $this->equalTo(555)
+                $this->equalTo($fyndiqOrder->id)
             )
             ->willReturn(true);
 

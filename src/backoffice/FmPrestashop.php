@@ -257,14 +257,6 @@ class FmPrestashop
         return new SpecificPrice();
     }
 
-    /**
-     * newPaymentModule Create Fyndiq Payment Module
-     * @return FmPaymentModule  object
-     */
-    public function newPaymentModule()
-    {
-        return new FmPaymentModule();
-    }
     public function getModuleName($moduleName = '')
     {
         $module = $this->moduleGetInstanceByName($moduleName);
@@ -708,15 +700,15 @@ class FmPrestashop
     }
 
     // Customer
-    public function newCustomer($id = 0)
+    public function newCustomer($id = null)
     {
         return new Customer($id);
     }
 
     public function isValidAddress($idDelivery, $idInvoice)
     {
-        return (bool)!Address::isCountryActiveById((int)$idDelivery)
-            || !Address::isCountryActiveById((int)$idInvoice);
+        return (bool)Address::isCountryActiveById((int)$idDelivery)
+            || Address::isCountryActiveById((int)$idInvoice);
     }
 
     // DbQuery
