@@ -131,6 +131,8 @@ class FmProductExportTest extends PHPUnit_Framework_TestCase
         $product->id_manufacturer = $manufacturerId;
         $product->link_rewrite = true;
         $product->minimal_quantity = 1;
+        $product->is_virtual = 0;
+        $product->cache_is_pack = 0;
 
         $product->method('getCategories')->willReturn(array(9, 10, 11));
         $product->method('getTaxesRate')->willReturn(12);

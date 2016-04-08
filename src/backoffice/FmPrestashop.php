@@ -695,10 +695,26 @@ class FmPrestashop
         return Cart::BOTH;
     }
 
-    // Customer
-    public function newCustomer()
+    /**
+     * newCustomer description]
+     * @param  int $id  Id
+     * @return Customer Customer Object
+     */
+    public function newCustomer($id = null)
     {
-        return new Customer();
+        return new Customer($id);
+    }
+
+    /**
+     * isValidAddress description
+     * @param  int  $idDelivery Delivery Address Id
+     * @param  int  $idInvoice  Invoice Address Id
+     * @return boolean
+     */
+    public function isValidAddress($idDelivery, $idInvoice)
+    {
+        return (bool)Address::isCountryActiveById((int)$idDelivery)
+            || Address::isCountryActiveById((int)$idInvoice);
     }
 
     // DbQuery
@@ -711,6 +727,19 @@ class FmPrestashop
     public function newOrderHistory()
     {
         return new OrderHistory();
+    }
+
+    /**
+     * isProductValidWhenAttribute checks product has variation
+     * @param  int  $stock       Stock
+     * @param  int $attributeId Combination Id
+     * @param  int  $qty         Quantity
+     * @return boolean
+     */
+    public function isProductValidWhenAttribute($stock, $attributeId, $qty)
+    {
+        return !Product::isAvailableWhenOutOfStock($stock) &&
+         !Attribute::checkAttributeQty($attributeId, $qty);
     }
 
     // Message

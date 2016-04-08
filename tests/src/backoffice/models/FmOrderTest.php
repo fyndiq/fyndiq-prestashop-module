@@ -40,10 +40,12 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             (object)array(
                 'sku' => 1,
                 'quantity' => 3,
+                'unit_price_amount' => 3,
             ),
             (object)array(
                 'sku' => 2,
                 'quantity' => 4,
+                'unit_price_amount' => 3,
             )
         );
         return $fyndiqOrder;
@@ -117,6 +119,25 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         return $country;
     }
 
+    private function getContext()
+    {
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
+            ->getMock();
+
+        $context->cart->id_customer = 3;
+        $context->cart->id_lang = 1;
+        $context->cart->id_currency = 1;
+        $context->cart->id_address_invoice = 4;
+        $context->cart->id_address_delivery = 4;
+        return $context;
+    }
+
     public function testInstall()
     {
         $this->fmPrestashop->method('getTableName')
@@ -133,7 +154,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testFillAddress()
+    public function testCreateAddress()
     {
         $customerId = 1;
         $countryId = 2;
@@ -154,19 +175,17 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $expected->alias = $alias;
         $expected->phone_mobile = $fyndiqOrder->delivery_phone;
 
-        $this->fmPrestashop->expects($this->once())
-            ->method('newAddress')
-            ->willReturn(new stdClass());
+        $address = $this->getAddress();
+        $this->fmPrestashop->method('newAddress')->willReturn($address);
 
-        $result = $this->fmOrder->fillAddress($fyndiqOrder, $customerId, $countryId, $alias);
-        $this->assertEquals($expected, $result);
+        $result = $this->fmOrder->createAddress($fyndiqOrder, $customerId, $countryId, $alias);
+        foreach ($result as $property => $value) {
+            $this->assertEquals($expected->{$property}, $value);
+        }
     }
 
-    public function testGetCart()
+    public function testInitContext()
     {
-        $currencyId = 1;
-        $countryId = 2;
-
         $expected = new stdClass();
         $expected->id_currency = 1;
         $expected->id_lang = 1;
@@ -174,201 +193,312 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $expected->id_address_invoice = 4;
         $expected->id_address_delivery = 4;
 
-        $address = $this->getAddress();
-
-        $address->id = 4;
-        $address->method('add')->willReturn(true);
-
-        $this->fmPrestashop->method('newCart')
-            ->willReturn(new stdClass());
-
-        $this->fmPrestashop->method('newAddress')
-            ->willReturn($address);
-
-        $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getByEmail', 'add', ))
+        $context = $this->getMockBuilder('stdClass')
             ->getMock();
 
-        $customer->firstname = null;
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
+            ->getMock();
+
+        $context->cart->id_customer = 3;
+        $context->cart->id_lang = 1;
+        $context->cart->id_currency = 1;
+        $context->cart->id_address_invoice = 4;
+        $context->cart->id_address_delivery = 4;
+
+        $customer = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getLastCart', 'getAddresses', 'getByEmail'))
+            ->getMock();
+        $customer->method('getLastCart')->willReturn(1);
+        $customer->method('getAddresses')->willReturn(array());
+        $customer->method('getByEmail')->willReturn(true);
         $customer->id = 3;
 
-        $customer->expects($this->once())->method('getByEmail')->willReturn(false);
-        $this->fmPrestashop->method('newCustomer')
+        $this->fmOrder = $this->getMockBuilder('fmOrder')
+            ->setConstructorArgs(array($this->fmPrestashop, null))
+            ->setMethods(array(
+                'getCustomer',
+                'createAddress',
+                'setCart',
+                'setAddressToCart',
+            ))
+            ->getMock();
+        $fyndiqOrder = $this->getFyndiqOrder();
+        $this->fmOrder->method('getCustomer')
             ->willReturn($customer);
 
-        $fyndiqOrder = $this->getFyndiqOrder();
-        $result = $this->fmOrder->getCart($fyndiqOrder, $currencyId, $countryId);
-        $this->assertEquals($expected, $result);
+        $this->fmOrder->method('setCart')
+             ->with(
+                 $this->equalTo($customer),
+                 $this->equalTo($context),
+                 $this->equalTo($fyndiqOrder)
+             )
+            ->willReturn($context);
+
+        $this->fmOrder->method('setAddressToCart')
+            ->with(
+                $this->equalTo($customer),
+                $this->equalTo($context),
+                $this->equalTo($fyndiqOrder)
+            )
+            ->willReturn($context);
+        $this->fmPrestashop->method('getCurrency')
+            ->willReturn(true);
+
+        $result = $this->fmOrder->initContext($fyndiqOrder);
+        foreach ($result->cart as $property => $value) {
+            $this->assertEquals($expected->{$property}, $value);
+        }
     }
 
-    public function testGetCartNewCustomer()
-    {
-        $currencyId = 1;
-        $countryId = 2;
 
+
+    public function testsetCart()
+    {
         $expected = new stdClass();
         $expected->id_currency = 1;
         $expected->id_lang = 1;
         $expected->id_customer = 3;
         $expected->id_address_invoice = 4;
         $expected->id_address_delivery = 4;
+
+        $fyndiqOrder = $this->getFyndiqOrder();
+
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
+            ->getMock();
+
+        $context->cart->id_customer = 3;
+        $context->cart->id_lang = 1;
+        $context->cart->id = 1;
+        $context->cart->id_currency = 1;
+        $context->cart->id_address_invoice = 4;
+        $context->cart->id_address_delivery = 4;
+        $context->cart->secure_key = 5;
+        $context->cart->id_shop = 1;
+
+        $customer = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getLastCart'))
+            ->getMock();
+        $customer->method('getLastCart')->willReturn(1);
+        $customer->id = 3;
+        $this->fmPrestashop->method('newCart')
+               ->with(
+                   $this->equalTo(1)
+               )
+            ->willReturn($context->cart);
+
+        $result = $this->fmOrder->setCart($customer, $context, $fyndiqOrder);
+        foreach ($expected as $property => $value) {
+            $this->assertEquals($result->cart->{$property}, $value);
+        }
+    }
+
+    public function testsetAddressToCart()
+    {
+        $expected = new stdClass();
+        $expected->id_lang = 1;
+        $expected->id_address_invoice = 4;
+        $expected->id_address_delivery = 4;
+
+        $fyndiqOrder = $this->getFyndiqOrder();
+
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $context->country = $this->getMockBuilder('stdClass')
+            ->getMock();
 
         $address = $this->getMockBuilder('stdClass')
-            ->setMethods(array('add'))
+            ->getMock();
+        $address->id = 4;
+
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
             ->getMock();
 
-        $address->id = 4;
-        $address->method('add')->willReturn(true);
-
-        $this->fmPrestashop->method('newCart')
-            ->willReturn(new stdClass());
-
-        $this->fmPrestashop->method('newAddress')
-            ->willReturn($address);
+        $context->cart->id_lang = 1;
+        $context->cart->id_address_invoice = 4;
+        $context->cart->id_address_delivery = 4;
+        $context->country->id = 1;
 
         $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getByEmail', 'add', 'getAddresses'))
+            ->setMethods(array('getAddresses'))
             ->getMock();
 
-        $customer->firstname = 'firstname';
+        $customer->method('getAddresses')->willReturn(array());
         $customer->id = 3;
+
+        $this->fmOrder = $this->getMockBuilder('fmOrder')
+            ->setConstructorArgs(array($this->fmPrestashop, null))
+            ->setMethods(array(
+                'createAddress'
+            ))
+            ->getMock();
+
+        $this->fmOrder->method('createAddress')
+            ->willReturn($address);
+
+        $result = $this->fmOrder->setAddressToCart($customer, $context, $fyndiqOrder);
+        foreach ($expected as $property => $value) {
+            $this->assertEquals($result->cart->{$property}, $value);
+        }
+    }
+
+    public function testGetNewCustomer()
+    {
+        $expected = new stdClass();
+        $expected->firstname = 'Fyndiq';
+        $expected->lastname = 'Orders';
+        $expected->email = 'orders_no_reply@fyndiq.com';
+
+        $customer = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getByEmail', 'add'))
+            ->getMock();
+
+        $customer->firstname = 'Fyndiq';
+        $customer->lastname = 'Orders';
+        $customer->email = 'orders_no_reply@fyndiq.com';
 
         $customer->expects($this->once())->method('getByEmail')->willReturn(false);
         $this->fmPrestashop->method('newCustomer')
             ->willReturn($customer);
 
-        $fyndiqOrder = $this->getFyndiqOrder();
-        $result = $this->fmOrder->getCart($fyndiqOrder, $currencyId, $countryId);
-        $this->assertEquals($expected, $result);
+        $result = $this->fmOrder->getCustomer();
+        foreach ($expected as $property => $value) {
+            $this->assertEquals($result->{$property}, $value);
+        }
     }
 
-    public function testOrderExists()
+    public function testaddProductToCart()
     {
-        $this->fmPrestashop->expects($this->once())
-            ->method('getTableName')
-            ->willReturn('table');
+        $productId = 1;
+        $attributeId = 0;
+        $qty = 1;
+        $sku = 'Sku123';
+        $operator = 'up';
+        $idCustomization = 0;
 
-        $this->db->expects($this->once())
-            ->method('ExecuteS')
+        $expected = new stdClass();
+        $expected->id_customer = 3;
+        $expected->id_lang = 1;
+        $expected->id_currency = 1;
+
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping', 'updateQty'))
+            ->getMock();
+
+        $context->language = $this->getMockBuilder('stdClass')
+            ->getMock();
+        $context->cart->id_customer = 3;
+        $context->cart->id_lang = 1;
+        $context->cart->id_currency = 1;
+        $context->language->id = 1;
+
+        $this->fmOrder = $this->getMockBuilder('fmOrder')
+            ->setConstructorArgs(array($this->fmPrestashop, null))
+            ->setMethods(array(
+                'validateProduct'
+            ))
+            ->getMock();
+
+        $this->fmPrestashop->method('isProductValidWhenAttribute')
+             ->with(
+                 $this->equalTo($productId),
+                 $this->equalTo(true),
+                 $this->equalTo($qty),
+                 $this->equalTo(1)
+             )
             ->willReturn(true);
-        $result = $this->fmOrder->orderExists(3);
-        $this->assertTrue($result);
+
+        $this->fmOrder->method('validateProduct')
+            ->with(
+                $this->equalTo($context),
+                $this->equalTo($productId),
+                $this->equalTo($attributeId),
+                $this->equalTo($qty),
+                $this->equalTo($sku)
+            )
+            ->willReturn($context);
+
+        $context->cart->method('updateQty')
+            ->with(
+                $this->equalTo($qty),
+                $this->equalTo($productId),
+                $this->equalTo($attributeId),
+                $this->equalTo($idCustomization),
+                $this->equalTo($operator)
+            )
+            ->willReturn(true);
+
+        $this->fmPrestashop->method('productNew')
+             ->with(
+                 $this->equalTo($productId),
+                 $this->equalTo(true),
+                 $this->equalTo(1)
+             )
+            ->willReturn(true);
+
+        $result = $this->fmOrder->addProductToCart($context, $productId, $attributeId, $qty, $sku);
+        foreach ($expected as $property => $value) {
+            $this->assertEquals($result->cart->{$property}, $value);
+        }
     }
 
-    public function testCreate()
+
+    public function testProcessOrder()
     {
-        $this->markTestIncomplete(
-            'This test has to be rewritten'
-        );
         $fyndiqOrder = $this->getFyndiqOrder();
-        $countryId = 1;
-        $currencyId = 2;
-        $secureKey = 'secure_key';
+        $importState = 1;
+        $taxAddressType = '';
+        $skuTypeId = 2;
         $product1Id = 1;
         $product1Comb = 3;
         $product2Id = 2;
         $product2Comb = 4;
-        $totalWoTax = 122;
-        $skuTypeId = 0;
 
         $this->fmOrder = $this->getMockBuilder('fmOrder')
             ->setConstructorArgs(array($this->fmPrestashop, null))
             ->setMethods(array(
                 'getProductBySKU',
-                'getCart',
-                'createPrestaOrder',
-                'insertOrderDetail',
-                'addOrderToHistory',
-                'addOrderMessage',
-                'addOrderLog',
-                'updateProductsPrices',
+                'initContext',
+                'addProductToCart',
+                'updateCustomProductPrice',
+                'createOrder'
             ))
             ->getMock();
 
-        $this->fmPrestashop->expects($this->once())
-            ->method('contextGetContext')
-            ->willReturn((object)array(
-                'country' => (object)array(
-                    'id' => $countryId
-                ),
-                'currency' => (object)array(
-                    'id' => $currencyId,
-                    'conversion_rate' => 1.2
-                ),
-                'shop' => (object)array(
-                    'id' => 3,
-                    'id_shop_group' => 4,
-                )
-            ));
-
-        $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getByEmail'))
+        $context = $this->getMockBuilder('stdClass')
             ->getMock();
 
-        $customer->method('getByEmail')
-            ->with(
-                $this->equalTo(FmOrder::FYNDIQ_ORDERS_EMAIL)
-            );
+        $context->cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping', 'updateQty'))
+            ->getMock();
 
-        $prestaOrder = $this->getPrestaOrder();
-        $prestaOrder->total_products_wt = $totalWoTax;
-
-        $country = $this->getCountry();
-
-        $cart = $this->getCart();
-
-        $cart->expects($this->at(2))
-            ->method('updateQty')
-            ->with(
-                $this->equalTo($fyndiqOrder->order_rows[0]->quantity),
-                $this->equalTo($product1Id),
-                $this->equalTo($product1Comb)
-            );
-
-        $cart->expects($this->at(3))
-            ->method('updateQty')
-            ->willReturn(true);
-
-        $cart->expects($this->any())
-            ->method('getProducts')
-            ->willReturn(array());
-
-        $this->fmOrder->expects($this->once())
-            ->method('getCart')
-            ->with(
-                $this->equalTo($fyndiqOrder),
-                $this->equalTo($currencyId),
-                $this->equalTo($countryId)
-            )
-            ->willReturn($cart);
-
-        $prestaOrder->expects($this->once())
-            ->method('add')
-            ->willReturn(true);
-
-        $this->fmPrestashop->method('isPs1516')
-            ->willReturn(true);
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('newCustomer')
-            ->willReturn($customer);
-
-        $address = $this->getAddress();
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('newAddress')
-            ->with(
-                $this->equalTo($cart->id_address_delivery)
-            )
-            ->willReturn($address);
-
-        $this->fmPrestashop->expects($this->once())
-            ->method('newCountry')
-            ->with(
-                $this->equalTo($address->id_country),
-                $this->equalTo($cart->id_lang)
-            )
-            ->willReturn($country);
+        $context->language = $this->getMockBuilder('stdClass')
+            ->getMock();
+        $context->cart->id_customer = 3;
+        $context->cart->id_lang = 1;
+        $context->cart->id_currency = 1;
+        $context->language->id = 1;
+        $context->cart->id = 1;
 
         $this->fmOrder->expects($this->at(0))
             ->method('getProductBySKU')
@@ -385,145 +515,171 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn(array($product2Id, $product2Comb));
 
         $this->fmOrder->expects($this->once())
-            ->method('createPrestaOrder')
-            ->willReturn($prestaOrder);
-
-        $this->fmOrder->expects($this->once())
-            ->method('addOrderLog')
+            ->method('initContext')
             ->with(
+                $this->equalTo($fyndiqOrder)
+            )
+            ->willReturn($context);
+
+        $this->fmOrder->expects($this->at(3))
+            ->method('addProductToCart')
+            ->with(
+                $this->equalTo($context),
                 $this->equalTo(1),
-                $this->equalTo(666)
+                $this->equalTo(3),
+                $this->equalTo(3),
+                $this->equalTo(1)
+            )
+            ->willReturn(true);
+
+        $this->fmOrder->expects($this->at(4))
+            ->method('updateCustomProductPrice')
+            ->with(
+                $this->equalTo($context),
+                $this->equalTo(1),
+                $this->equalTo(3),
+                $this->equalTo(3)
             )
             ->willReturn(true);
 
         $this->fmOrder->expects($this->once())
-            ->method('updateProductsPrices')
+            ->method('createOrder')
             ->with(
-                $this->equalTo($fyndiqOrder->order_rows),
-                $this->equalTo($cart->getProducts())
-            );
+                $this->equalTo(1),
+                $this->equalTo($importState),
+                $this->equalTo($fyndiqOrder)
+            )
+            ->willReturn(true);
 
-        $result = $this->fmOrder->create($fyndiqOrder, 16, 'id_address_delivery', $skuTypeId);
-
+        $result = $this->fmOrder->processOrder($fyndiqOrder, $importState, $taxAddressType, $skuTypeId);
         $this->assertTrue($result);
     }
 
-
-    public function testCreatePrestaOrder()
+    public function testOrderExists()
     {
-        $countryId = 1;
-        $currencyId = 2;
-        $importState = 3;
-        $secureKey = 'secret_key';
+        $this->fmPrestashop->expects($this->once())
+            ->method('getTableName')
+            ->willReturn('table');
 
-        $expected = (object)array(
-            'id_carrier' => FmOrder::ID_CARRIER,
-            'id_customer' => 10,
-            'id_address_invoice' => 11,
-            'id_address_delivery' => 12,
-            'id_currency' => 13,
-            'id_lang' => 14,
-            'id_cart' => 15,
-            'id_shop' => 3,
-            'id_shop_group' => 4,
-            'secure_key' => 'secret_key',
-            'payment' => 'Fyndiq',
-            'module' => FmUtils::MODULE_NAME,
-            'recyclable' => true,
-            'current_state' => 3,
-            'gift' => 0,
-            'gift_message' => 'gift_message',
-            'mobile_theme' => false,
-            'conversion_rate' => 1.2,
-            'total_products' => 0.0,
-            'total_products_wt' => 0.0,
-            'total_discounts_tax_excl' => 0.0,
-            'total_discounts_tax_incl' => 0.0,
-            'total_discounts' => 0.0,
-            'total_shipping' => 0.0,
-            'total_wrapping_tax_excl' => 0,
-            'total_wrapping_tax_incl' => 0,
-            'total_wrapping' => 0,
-            'total_paid_tax_excl' => 0,
-            'total_paid_tax_incl' => null,
-            'total_paid_real' => 0.0,
-            'total_paid' => 0.0,
-            'total_shipping_tax_excl' => 0.0,
-            'total_shipping_tax_incl' => 0.0,
-            'invoice_date' => '2000-01-02 03:04:05',
-            'delivery_date' => '2001-02-03 04:05:06'
-        );
+        $this->db->expects($this->once())
+            ->method('ExecuteS')
+            ->willReturn(true);
+        $result = $this->fmOrder->orderExists(3);
+        $this->assertTrue($result);
+    }
 
-        $context = (object)array(
-            'country' => (object)array(
-                'id' => $countryId
-            ),
-            'currency' => (object)array(
-                'id' => $currencyId,
-                'conversion_rate' => 1.2
-            ),
-            'shop' => (object)array(
-                'id' => 3,
-                'id_shop_group' => 4,
-            )
-        );
-        $createdDate = strtotime('2000-01-02 03:04:05');
-
-        $cartProducts = array();
-
-        $prestaOrder = new stdClass();
-        $this->fmPrestashop->method('newPrestashopOrder')
-            ->willReturn($prestaOrder);
-
-        $cart = $this->getCart();
+    public function testCreateOrder()
+    {
+        $fyndiqOrder = $this->getFyndiqOrder();
+        $importState = 1;
+        $idCart = 1;
 
         $this->fmOrder = $this->getMockBuilder('fmOrder')
             ->setConstructorArgs(array($this->fmPrestashop, null))
-            ->setMethods(array('getSecureKey'))
+            ->setMethods(array(
+                'getOrderMessage',
+                'addOrderLog',
+                'newFmPaymentModule'
+            ))
             ->getMock();
-        $this->fmOrder->expects($this->once())
-            ->method('getSecureKey')
-            ->willReturn($secureKey);
 
-        $this->fmPrestashop->method('isPs1516')
+        $paymentModule = $this->getMockBuilder('stdClass')
+            ->setMethods(array('validateOrder'))
+            ->getMock();
+
+        $paymentModule->displayName = 'Fyndiq';
+        $paymentModule->currentOrder = 1;
+
+        $cart = $this->getMockBuilder('stdClass')
+            ->setMethods(array('getOrderTotal'))
+            ->getMock();
+
+        $cart->id= 1;
+        $cart->id_address_delivery = 1;
+        $cart->id_address_invoice = 1;
+        $cart->secure_key = 5;
+        $cart->id_currency = 1;
+        $cart->id_customer = 2;
+
+        $this->fmOrder->method('newFmPaymentModule')
+            ->willReturn($paymentModule);
+
+        $context = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $cartBoth = $this->getMockBuilder('stdClass')
+            ->getMock();
+
+        $this->fmPrestashop->method('contextGetContext')
+            ->willReturn($context);
+
+        $this->fmPrestashop->method('cartBoth')
+            ->willReturn($cartBoth);
+
+        $this->fmPrestashop->method('newCart')
+               ->with(
+                   $this->equalTo($idCart)
+               )
+            ->willReturn($cart);
+
+        $this->fmPrestashop->method('getCurrency')
+               ->with(
+                   $this->equalTo(1)
+               )
             ->willReturn(true);
 
-        $this->fmPrestashop->expects($this->once())
-            ->method('time')
-            ->willReturn(strtotime('2001-02-03 04:05:06'));
-
-        $result = $this->fmOrder->createPrestaOrder($cart, $context, $cartProducts, $createdDate, $importState);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testAddOrderToHistory()
-    {
-        $orderHistory = $this->getOrderHistory();
-        $orderHistory->expects($this->once())
-            ->method('add')
+        $this->fmPrestashop->method('newCustomer')
+               ->with(
+                   $this->equalTo(2)
+               )
             ->willReturn(true);
 
-        $this->fmPrestashop->expects($this->once())
-            ->method('newOrderHistory')
-            ->willReturn($orderHistory);
-
-        $result = $this->fmOrder->addOrderToHistory(1, 2);
-        $this->assertTrue($result);
-    }
-
-    public function testAddOrderMessage()
-    {
-        $message = $this->getMessage();
-
-        $message->expects($this->once())
-            ->method('add')
+        $this->fmPrestashop->method('isValidAddress')
+               ->with(
+                   $this->equalTo(1),
+                   $this->equalTo(1)
+               )
             ->willReturn(true);
 
-        $this->fmPrestashop->expects($this->once())
-            ->method('newMessage')
-            ->willReturn($message);
+        $cart->method('getOrderTotal')
+            ->with(
+                $this->equalTo(true),
+                $this->equalTo($cartBoth)
+            )
+            ->willReturn(500);
 
-        $result = $this->fmOrder->addOrderMessage(1, 2, 3);
+
+        $this->fmOrder
+            ->method('getOrderMessage')
+            ->with(
+                $this->equalTo($fyndiqOrder->id),
+                $this->equalTo($fyndiqOrder->delivery_note)
+            )
+            ->willReturn("sampleMessage");
+
+        $paymentModule->method('validateOrder')
+            ->with(
+                $this->equalTo(1),
+                $this->equalTo(1),
+                $this->equalTo(500),
+                $this->equalTo('Fyndiq'),
+                $this->equalTo('sampleMessage'),
+                $this->equalTo(array()),
+                $this->equalTo(null),
+                $this->equalTo(false),
+                $this->equalTo(5)
+            )
+            ->willReturn(true);
+
+        $this->fmOrder
+            ->method('addOrderLog')
+            ->with(
+                $this->equalTo(1),
+                $this->equalTo($fyndiqOrder->id)
+            )
+            ->willReturn(true);
+
+        $result = $this->fmOrder->createOrder($idCart, $importState, $fyndiqOrder);
         $this->assertTrue($result);
     }
 
