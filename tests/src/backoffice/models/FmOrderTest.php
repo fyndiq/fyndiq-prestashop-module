@@ -121,13 +121,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
     private function getContext()
     {
-       $context = $this->getMockBuilder('stdClass')
+        $context = $this->getMockBuilder('stdClass')
             ->getMock();
         $this->fmPrestashop->method('contextGetContext')
             ->willReturn($context);
 
         $context->cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('save','OrderExists','setNoMultishipping'))
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
             ->getMock();
 
         $context->cart->id_customer = 3;
@@ -137,6 +137,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $context->cart->id_address_delivery = 4;
         return $context;
     }
+
     public function testInstall()
     {
         $this->fmPrestashop->method('getTableName')
@@ -199,7 +200,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($context);
 
         $context->cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('save','OrderExists','setNoMultishipping'))
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
             ->getMock();
 
         $context->cart->id_customer = 3;
@@ -209,7 +210,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $context->cart->id_address_delivery = 4;
 
         $customer = $this->getMockBuilder('stdClass')
-            ->setMethods(array('getLastCart','getAddresses','getByEmail'))
+            ->setMethods(array('getLastCart', 'getAddresses', 'getByEmail'))
             ->getMock();
         $customer->method('getLastCart')->willReturn(1);
         $customer->method('getAddresses')->willReturn(array());
@@ -273,7 +274,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($context);
 
         $context->cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('save','OrderExists','setNoMultishipping'))
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
             ->getMock();
 
         $context->cart->id_customer = 3;
@@ -292,8 +293,8 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $customer->id = 3;
         $this->fmPrestashop->method('newCart')
                ->with(
-                $this->equalTo(1)
-            )
+                   $this->equalTo(1)
+               )
             ->willReturn($context->cart);
 
         $result = $this->fmOrder->setCart($customer, $context, $fyndiqOrder);
@@ -325,7 +326,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($context);
 
         $context->cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('save','OrderExists','setNoMultishipping'))
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping'))
             ->getMock();
 
         $context->cart->id_lang = 1;
@@ -401,7 +402,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->willReturn($context);
 
         $context->cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('save','OrderExists','setNoMultishipping','updateQty'))
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping', 'updateQty'))
             ->getMock();
 
         $context->language = $this->getMockBuilder('stdClass')
@@ -418,13 +419,13 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ))
             ->getMock();
 
-         $this->fmPrestashop->method('isProductValidWhenAttribute')
+        $this->fmPrestashop->method('isProductValidWhenAttribute')
              ->with(
-                $this->equalTo($productId),
-                $this->equalTo(true),
-                $this->equalTo($qty),
-                $this->equalTo(1)
-            )
+                 $this->equalTo($productId),
+                 $this->equalTo(true),
+                 $this->equalTo($qty),
+                 $this->equalTo(1)
+             )
             ->willReturn(true);
 
         $this->fmOrder->method('validateProduct')
@@ -437,7 +438,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn($context);
 
-          $context->cart->method('updateQty')
+        $context->cart->method('updateQty')
             ->with(
                 $this->equalTo($qty),
                 $this->equalTo($productId),
@@ -447,15 +448,15 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-         $this->fmPrestashop->method('productNew')
+        $this->fmPrestashop->method('productNew')
              ->with(
-                $this->equalTo($productId),
-                $this->equalTo(true),
-                $this->equalTo(1)
-            )
+                 $this->equalTo($productId),
+                 $this->equalTo(true),
+                 $this->equalTo(1)
+             )
             ->willReturn(true);
 
-        $result = $this->fmOrder->addProductToCart($context,$productId, $attributeId, $qty, $sku);
+        $result = $this->fmOrder->addProductToCart($context, $productId, $attributeId, $qty, $sku);
         foreach ($expected as $property => $value) {
             $this->assertEquals($result->cart->{$property}, $value);
         }
@@ -488,7 +489,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $context->cart = $this->getMockBuilder('stdClass')
-            ->setMethods(array('save','OrderExists','setNoMultishipping','updateQty'))
+            ->setMethods(array('save', 'OrderExists', 'setNoMultishipping', 'updateQty'))
             ->getMock();
 
         $context->language = $this->getMockBuilder('stdClass')
@@ -499,7 +500,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $context->language->id = 1;
         $context->cart->id = 1;
 
-       $this->fmOrder->expects($this->at(0))
+        $this->fmOrder->expects($this->at(0))
             ->method('getProductBySKU')
             ->with(
                 $this->equalTo($fyndiqOrder->order_rows[0]->sku)
@@ -531,7 +532,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-       $this->fmOrder->expects($this->at(4))
+        $this->fmOrder->expects($this->at(4))
             ->method('updateCustomProductPrice')
             ->with(
                 $this->equalTo($context),
@@ -550,7 +551,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
             )
             ->willReturn(true);
 
-        $result = $this->fmOrder->processOrder($fyndiqOrder,$importState, $taxAddressType, $skuTypeId);
+        $result = $this->fmOrder->processOrder($fyndiqOrder, $importState, $taxAddressType, $skuTypeId);
         $this->assertTrue($result);
     }
 
@@ -573,7 +574,7 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $importState = 1;
         $idCart = 1;
 
-       $this->fmOrder = $this->getMockBuilder('fmOrder')
+        $this->fmOrder = $this->getMockBuilder('fmOrder')
             ->setConstructorArgs(array($this->fmPrestashop, null))
             ->setMethods(array(
                 'getOrderMessage',
@@ -606,10 +607,10 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
         $context = $this->getMockBuilder('stdClass')
             ->getMock();
 
-       $cartBoth = $this->getMockBuilder('stdClass')
+        $cartBoth = $this->getMockBuilder('stdClass')
             ->getMock();
 
-        $this->fmPrestashop->method('getContextObject')
+        $this->fmPrestashop->method('contextGetContext')
             ->willReturn($context);
 
         $this->fmPrestashop->method('cartBoth')
@@ -617,27 +618,27 @@ class FmOrderTest extends PHPUnit_Framework_TestCase
 
         $this->fmPrestashop->method('newCart')
                ->with(
-                $this->equalTo($idCart)
-            )
+                   $this->equalTo($idCart)
+               )
             ->willReturn($cart);
 
         $this->fmPrestashop->method('getCurrency')
                ->with(
-                $this->equalTo(1)
-            )
+                   $this->equalTo(1)
+               )
             ->willReturn(true);
 
         $this->fmPrestashop->method('newCustomer')
                ->with(
-                $this->equalTo(2)
-            )
+                   $this->equalTo(2)
+               )
             ->willReturn(true);
 
-      $this->fmPrestashop->method('isValidAddress')
+        $this->fmPrestashop->method('isValidAddress')
                ->with(
-                $this->equalTo(1),
-                $this->equalTo(1)
-            )
+                   $this->equalTo(1),
+                   $this->equalTo(1)
+               )
             ->willReturn(true);
 
         $cart->method('getOrderTotal')

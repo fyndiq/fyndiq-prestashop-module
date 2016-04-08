@@ -300,10 +300,6 @@ class FmPrestashop
         return new OrderState($state);
     }
 
-    public function getContextObject()
-    {
-        return  Context::getContext();
-    }
     /**
      * getCancelOrderStateId get cancel order state Id.
      * @return int return cancel order state id
@@ -699,12 +695,22 @@ class FmPrestashop
         return Cart::BOTH;
     }
 
-    // Customer
+    /**
+     * newCustomer description]
+     * @param  int $id  Id
+     * @return Customer Customer Object
+     */
     public function newCustomer($id = null)
     {
         return new Customer($id);
     }
 
+    /**
+     * isValidAddress description
+     * @param  int  $idDelivery Delivery Address Id
+     * @param  int  $idInvoice  Invoice Address Id
+     * @return boolean
+     */
     public function isValidAddress($idDelivery, $idInvoice)
     {
         return (bool)Address::isCountryActiveById((int)$idDelivery)

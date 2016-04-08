@@ -215,27 +215,27 @@ class FmOrder extends FmModel
         if (!($id_product = (int)$productId) ||
             !($product = $this->fmPrestashop->productNew((int)$id_product, true, $context->language->id))) {
             throw new Exception(sprintf(
-                FyndiqTranslation::get('Invalid Product, Product Sku = `%s`'),
+                FyndiqTranslation::get('Invalid Product, product SKU = `%s`'),
                 $sku
             ));
         }
         if (empty($qty)) {
             throw new Exception(sprintf(
-                FyndiqTranslation::get('Invalid Quantity, Product Sku = `%s`'),
+                FyndiqTranslation::get('Invalid Quantity, product SKU = `%s`'),
                 $sku
             ));
         }
-        if (($id_product_attribute = $attributeId) != 0) {
-            if ($this->fmPrestashop->isProductValidWhenAttribute($product->out_of_stock, (int)$id_product_attribute, (int)$qty)) {
+        if ($attributeId != 0) {
+            if ($this->fmPrestashop->isProductValidWhenAttribute($product->out_of_stock, $attributeId, $qty)) {
                 throw new Exception(sprintf(
-                    FyndiqTranslation::get('There is not enough product in stock, Product Sku = `%s`'),
+                    FyndiqTranslation::get('There is not enough product in stock, product SKU = `%s`'),
                     $sku
                 ));
             }
         }
         if (!$product->checkQty((int)$qty)) {
             throw new Exception(sprintf(
-                FyndiqTranslation::get('There is not enough product in stock, Product Sku = `%s`'),
+                FyndiqTranslation::get('There is not enough product in stock, product SKU = `%s`'),
                 $sku
             ));
         }
@@ -256,7 +256,7 @@ class FmOrder extends FmModel
         $context = $this->validateProduct($context, $productId, $attributeId, $qty, $sku);
         $context->cart->save();
         $product = $this->fmPrestashop->productNew($productId, true, $context->language->id);
-        $idCustomization   = 0;
+        $idCustomization = 0;
         if ($qty < 0) {
             $qty = str_replace('-', '', $qty);
             $operator = 'down';
@@ -357,15 +357,15 @@ class FmOrder extends FmModel
         if (!$idCart && !$idOrderState) {
             return false;
         }
-
-        $paymentModule = $this->newFmPaymentModule();
         $cart = $this->fmPrestashop->newCart($idCart);
-        $this->fmPrestashop->getContextObject()->currency = $this->fmPrestashop->getCurrency((int)$cart->id_currency);
-        $this->fmPrestashop->getContextObject()->customer = $this->fmPrestashop->newCustomer((int)$cart->id_customer);
+        $context = $this->fmPrestashop->contextGetContext();
+        $context->currency = $this->fmPrestashop->getCurrency((int)$cart->id_currency);
+        $context->customer = $this->fmPrestashop->newCustomer((int)$cart->id_customer);
 
         if (!$this->fmPrestashop->isValidAddress($cart->id_address_delivery, $cart->id_address_invoice)) {
             throw new Exception(FyndiqTranslation::get('error-country-not-active'));
         }
+        $paymentModule = $this->newFmPaymentModule();
         $paymentModule->validateOrder(
             $cart->id,
             $idOrderState,
