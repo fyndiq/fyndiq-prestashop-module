@@ -729,6 +729,13 @@ class FmPrestashop
         return new OrderHistory();
     }
 
+    /**
+     * isProductValidWhenAttribute checks product has variation
+     * @param  int  $stock       Stock
+     * @param  int $attributeId Combination Id
+     * @param  int  $qty         Quantity
+     * @return boolean
+     */
     public function isProductValidWhenAttribute($stock, $attributeId, $qty)
     {
         return !Product::isAvailableWhenOutOfStock($stock) &&
