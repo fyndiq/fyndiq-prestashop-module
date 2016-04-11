@@ -12,7 +12,6 @@ require_once('./FmConfig.php');
 require_once('./models/FmOrder.php');
 require_once('./FmOrderFetch.php');
 require_once('./FmServiceController.php');
-require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
 
 // TODO: Fix security for 1.4
