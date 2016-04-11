@@ -289,9 +289,12 @@ class FmOrder extends FmModel
      */
     public function updateCustomProductPrice($context, $productId, $attributeId, $price)
     {
-        $product = $this->fmPrestashop->productNew($productId, true, $context->language->id);
-        $tax = (float)$product->tax_rate;
-        $calculateTax = (float)($tax * $price)/100;
+        $calculateTax = 0;
+        if ($this->fmPrestashop->configurationGet('PS_TAX')) {
+            $product = $this->fmPrestashop->productNew($productId, true, $context->language->id);
+            $tax = (float)$product->tax_rate;
+            $calculateTax = (float)($tax * $price)/100;
+        }
         $specific_price = $this->fmPrestashop->newSpecificPrice($context->cart->id, $productId, $attributeId);
         $specific_price->id_cart = (int)$context->cart->id;
         $specific_price->id_shop = 0;
