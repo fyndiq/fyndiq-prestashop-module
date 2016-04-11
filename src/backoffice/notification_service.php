@@ -13,7 +13,6 @@ require_once('./models/FmApiModel.php');
 require_once('./models/FmOrder.php');
 require_once('./models/FmProduct.php');
 require_once('./models/FmProductExport.php');
-require_once('./FmProductInfo.php');
 require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
 class FmNotificationService
@@ -198,19 +197,10 @@ class FmNotificationService
             } else {
                 FyndiqUtils::deleteFile($tempFileName);
             }
-            return $this->updateProductInfo();
+            return true;
         } catch (Exception $e) {
             return $this->fmOutput->showError(500, 'Internal Server Error', $e->getMessage());
         }
-    }
-
-    private function updateProductInfo()
-    {
-        $module = $this->fmPrestashop->moduleGetInstanceByName(FmUtils::MODULE_NAME);
-        $tableName = $module->config_name . '_products';
-        $fmProduct = new FmProduct($this->fmPrestashop, $this->fmConfig);
-        $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
-        return $productInfo->getAll();
     }
 
     private function debug($params, $storeId)
