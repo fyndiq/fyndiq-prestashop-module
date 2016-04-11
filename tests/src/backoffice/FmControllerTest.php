@@ -216,6 +216,8 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+
     public function testHandleRequestSettingsSaveSuccess()
     {
         $this->markTestSkipped('This test has to be redone');
@@ -248,19 +250,30 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
-    public function testHandleRequestDisconnect()
+    public function testProcessDisconnect()
     {
-        $this->markTestSkipped('Disconnect was removed and has to be reimplemented');
-        $this->fmPrestashop->method('toolsGetValue')->willReturn('disconnect');
+        $storeId = 1;
+        $this->fmConfig->method('get')->willReturn('authenticate');
+
+        $this->fmApiModel->expects($this->once())
+            ->method('callApi')
+            ->with(
+                $this->equalTo('PATCH'),
+                $this->equalTo('settings/'),
+                $this->equalTo(array()),
+                $this->equalTo('authenticate'),
+                $this->equalTo('authenticate')
+            )
+            ->willReturn('authenticate');
+
         $this->fmConfig->method('delete')->willReturn(true);
 
         $this->fmOutput->expects($this->once())
-            ->method('redirect')
+            ->method('showModuleSuccess')
             ->willReturn(true);
 
-        $result = $this->controller->handleRequest();
-        $expected = '<form>';
-        $this->assertEquals($expected, $result);
+        $result = $this->controller->processDisconnect($storeId);
+        $this->assertTrue($result);
     }
 
     public function testHandleRequestDisconnectNotSuccessful()

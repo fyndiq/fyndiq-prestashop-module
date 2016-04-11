@@ -143,7 +143,6 @@ class FmController
      */
     public function processDisconnect($storeId)
     {
-        $base = $this->fmPrestashop->getBaseModuleUrl();
         $userName = $this->fmConfig->get('username', $storeId);
         $apiToken = $this->fmConfig->get('api_token', $storeId);
         $updateData = array();
@@ -161,6 +160,7 @@ class FmController
             }
             return $this->fmOutput->showModuleError($e->getMessage());
         }
+
         return $this->fmOutput->showModuleSuccess($this->module->__('Module has been disconnected successfully!!'));
     }
 
