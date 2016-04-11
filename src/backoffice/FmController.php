@@ -21,7 +21,10 @@ class FmController
         $storeId = intval($this->fmPrestashop->getStoreId());
         $languageId = intval($this->fmPrestashop->getLanguageId());
         $output = '';
-        if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
+
+        if ($this->fmPrestashop->toolsGetValue('submit_disconnect') === '') {
+            $output .= $this->processDisconnect($storeId);
+        } elseif ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
             foreach ($postErrors as $err) {
                 $output .= $this->fmOutput->showModuleError($err);
@@ -29,10 +32,7 @@ class FmController
             if (count($postErrors) === 0) {
                 $output .= $this->postProcess($storeId);
             }
-        } elseif ($this->fmPrestashop->toolsGetValue('disconnect')) {
-            $output .= $this->processDisconnect($storeId);
         }
-
         $output .= $this->renderForm($storeId, $languageId);
         return $output;
     }
@@ -148,9 +148,13 @@ class FmController
         $updateData = array();
         try {
             $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $userName, $apiToken);
+
             // delete token and username from the settings
             $this->fmConfig->delete('username', $storeId);
             $this->fmConfig->delete('api_token', $storeId);
+
+            // since Token and Username are also being posted, we need to reset token and username into the form
+            $this->fmPrestashop->resetDisconnectPostValues();
         } catch (Exception $e) {
             if ($e instanceof FyndiqAPIUnsupportedStatus) {
                 return $this->fmOutput->showModuleError($this->module->__('Currently API is Unavailable'));
@@ -390,10 +394,6 @@ class FmController
                 'name' => $this->module->__('Yes'),
             ),
         );
-        $disconnectURL = $this->fmPrestashop->getCurrentUrlIndex() .
-            '&configure=' . $this->module->name.
-            '&token='.$this->fmPrestashop->getAdminTokenLite('AdminModules') .
-            '&disconnect=1';
 
         $formSettings = new FmFormSetting();
         return $formSettings
@@ -412,7 +412,7 @@ class FmController
             ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
             ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
-            ->setButton($disconnectURL, $this->module->__('Disconnect'), 'process-icon-cancel')
+            ->setButton('submit_disconnect', $this->module->__('Disconnect'), 'process-icon-cancel', 'submit')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }

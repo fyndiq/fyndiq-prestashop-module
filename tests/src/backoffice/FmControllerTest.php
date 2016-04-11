@@ -216,8 +216,6 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-
-
     public function testHandleRequestSettingsSaveSuccess()
     {
         $this->markTestSkipped('This test has to be redone');
@@ -271,6 +269,7 @@ class FmControllerTest extends PHPUnit_Framework_TestCase
         $this->fmOutput->expects($this->once())
             ->method('showModuleSuccess')
             ->willReturn(true);
+        $this->fmPrestashop->method('resetDisconnectPostValues')->willReturn(true);
 
         $result = $this->controller->processDisconnect($storeId);
         $this->assertTrue($result);

@@ -241,14 +241,17 @@ class FmFormSetting
      * @param string $href  Action URL
      * @param string $title button title
      * @param string $icon  Icon class name
+     * @param string $type  button type
+     * @return FmFormSetting return class object
     */
-    public function setButton($href, $title, $icon)
+    public function setButton($name, $title, $icon, $type = null)
     {
         $this->form['form']['buttons'] = array(
             array(
-                'href' => $href,
+                'name' => $name,
                 'title' => $title,
-                'icon' => $icon
+                'icon' => $icon,
+                'type' => $type
             )
         );
         return $this;
