@@ -6,7 +6,6 @@ require_once('./FmOutput.php');
 require_once('./models/FmProductExport.php');
 require_once('./models/FmCategory.php');
 require_once('./models/FmProduct.php');
-require_once('./FmProductInfo.php');
 require_once('./models/FmApiModel.php');
 require_once('./FmConfig.php');
 require_once('./models/FmOrder.php');

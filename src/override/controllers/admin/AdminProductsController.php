@@ -2,7 +2,6 @@
 
 class AdminProductsController extends AdminProductsControllerCore
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -74,25 +73,5 @@ class AdminProductsController extends AdminProductsControllerCore
         }
         $this->errors[] = $module->__('Please select products to be removed from Fyndiq');
         return false;
-    }
-
-    public function initPageHeaderToolbar()
-    {
-        if (empty($this->display)) {
-            $this->page_header_toolbar_btn['updateFyndiqStatus'] = array(
-                    'href' => self::$currentIndex.'&updateFyndiqStatus&token='.$this->token,
-                    'desc' => $this->l('Update Fyndiq status', null, null, false),
-                    'icon' => 'process-icon-refresh'
-                );
-        }
-        return parent::initPageHeaderToolbar();
-    }
-
-    public function initProcess()
-    {
-        if (Tools::isSubmit('updateFyndiqStatus')) {
-            error_log('updateFyndiqStatus');
-        }
-        parent::initProcess();
     }
 }
