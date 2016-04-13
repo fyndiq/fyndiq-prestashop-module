@@ -438,7 +438,6 @@ class FmServiceController
         $messages = array();
         $missing = array();
         $checkClasses = array(
-            'FyndiqAPI',
             'FyndiqAPICall',
             'FyndiqCSVFeedWriter',
             'FyndiqFeedWriter',

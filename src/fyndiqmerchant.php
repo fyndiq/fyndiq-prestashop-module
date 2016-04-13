@@ -4,7 +4,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once('backoffice/includes/shared/src/init.php');
 require_once('backoffice/FmUtils.php');
 require_once('backoffice/FmConfig.php');
