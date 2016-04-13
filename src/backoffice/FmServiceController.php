@@ -52,8 +52,6 @@ class FmServiceController
                     return $this->getDeliveryNotes($args, $storeId);
                 case 'import_orders':
                     return $this->importOrders($args, $storeId);
-                case 'update_product_status':
-                    return $this->updateProductStatus($args, $storeId);
                 case 'probe_file_permissions':
                     return $this->probeFilePermissions($args, $storeId);
                 case 'probe_database';
@@ -305,7 +303,7 @@ class FmServiceController
             $storeId = $this->fmPrestashop->getStoreId();
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
-                $product= $row['product'];
+                $product = $row['product'];
                 if ($fmProductExport->productExists($product['id'], $storeId)) {
                     $result &= $fmProductExport->updateProduct($product['id'], $product['fyndiq_percentage'], $storeId);
                     continue;
@@ -360,14 +358,6 @@ class FmServiceController
         }
         $this->fmOutput->output('Please, pick at least one order');
         return null;
-    }
-
-    private function updateProductStatus()
-    {
-        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
-        $fmProduct = $this->loadModel('FmProduct');
-        $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
-        return $productInfo->getAll();
     }
 
     private function probeFilePermissions($args)

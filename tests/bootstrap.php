@@ -17,7 +17,6 @@ require_once(FYNDIQ_ROOT . 'backoffice/models/FmCategory.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmProduct.php');
 require_once(FYNDIQ_ROOT . 'backoffice/models/FmProductExport.php');
 require_once(FYNDIQ_ROOT . 'backoffice/FmOrderFetch.php');
-require_once(FYNDIQ_ROOT . 'backoffice/FmProductInfo.php');
 require_once(FYNDIQ_ROOT . 'backoffice/FmFormSetting.php');
 
 class PrestaShopException extends Exception

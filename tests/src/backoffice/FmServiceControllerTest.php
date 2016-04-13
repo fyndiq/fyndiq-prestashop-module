@@ -447,23 +447,6 @@ class FmServiceControllerTest extends PHPUnit_Framework_TestCase
         $this->assertNull($result);
     }
 
-
-    public function testUpdateProductStatus()
-    {
-        $data = array();
-
-        $fmProduct = $this->getMockBuilder('FmProduct')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->controller->expects($this->at(0))
-            ->method('loadModel')
-            ->willReturn($fmProduct);
-
-        $result = $this->controller->routeRequest('update_product_status', $data);
-        $this->assertFalse($result);
-    }
-
     public function testWrongHandler()
     {
         $this->fmOutput->expects($this->once())
