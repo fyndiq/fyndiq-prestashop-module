@@ -13,7 +13,6 @@ require_once('./models/FmApiModel.php');
 require_once('./models/FmOrder.php');
 require_once('./models/FmProduct.php');
 require_once('./models/FmProductExport.php');
-require_once('./includes/fyndiqAPI/fyndiqAPI.php');
 
 class FmNotificationService
 {
