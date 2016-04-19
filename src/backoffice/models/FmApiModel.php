@@ -33,8 +33,7 @@ class FmApiModel extends FmModel
             $apiToken,
             $method,
             $path,
-            $data,
-            array('FyndiqAPI', 'call')
+            $data
         );
     }
 

@@ -27,11 +27,11 @@ dpkg-reconfigure locales
 echo "mysql-server-5.5 mysql-server/root_password password 123" | sudo debconf-set-selections
 echo "mysql-server-5.5 mysql-server/root_password_again password 123" | sudo debconf-set-selections
 apt-get install -y mysql-server
-apt-get install -y apache2 php5 php5-mysql php5-gd php5-mcrypt php5-curl
+apt-get install -y apache2 php5 php5-mysql php5-gd php5-mcrypt php5-curl php5-xdebug
 
 echo 'ServerName localhost' >> /etc/apache2/apache2.conf
 
-# Install scss
+# Install SCSS
 sudo gem install sass
 
 ## COMPOSER
@@ -77,6 +77,6 @@ if [ ! -f "/var/www/html/prestashop/index.php" ]; then
     chmod -R 775 /var/www/html/prestashop/
 
     ## Add hosts to file
-    echo "192.168.44.44  fyndiq.local" >> /etc/hosts
+    echo "192.168.44.45  fyndiq.local" >> /etc/hosts
     echo "127.0.0.1  prestashop.local" >> /etc/hosts
 fi
