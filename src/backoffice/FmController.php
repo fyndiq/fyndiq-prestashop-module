@@ -75,7 +75,6 @@ class FmController
         $postArr['price_percentage'] = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
         $postArr['price_discount'] = floatval($this->fmPrestashop->toolsGetValue('price_discount'));
         $postArr['import_state'] = intval($this->fmPrestashop->toolsGetValue('import_state'));
-        $postArr['done_state'] = intval($this->fmPrestashop->toolsGetValue('done_state'));
         $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
         $postArr['stock_min'] = $postArr['stock_min'] < 0 ? 0 : $postArr['stock_min'];
         $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
@@ -410,8 +409,7 @@ class FmController
             ->setTextField($this->module->__('Price in numbers only'), 'price_discount', $this->module->__('Price you want to subtract from the price that is sent to Fyndiq'), 'fixed-width-xs')
             ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
             ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
-            ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
-            ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+            ->setSelect($this->module->__('Order Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setButton('submit_disconnect', $this->module->__('Disconnect'), 'process-icon-cancel', 'submit')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();

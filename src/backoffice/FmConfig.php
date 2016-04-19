@@ -53,7 +53,6 @@ class FmConfig
         $ret = true;
         $ret &= $this->get('language', $storeId) !== false;
         $ret &= $this->get('import_state', $storeId) !== false;
-        $ret &= $this->get('done_state', $storeId) !== false;
         return (bool)$ret;
     }
 }

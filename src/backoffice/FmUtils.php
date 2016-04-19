@@ -37,7 +37,6 @@ class FmUtils
     const DEFAULT_DISCOUNT_PERCENTAGE = 10;
     const DEFAULT_PRICE_DISCOUNT = 0;
     const DEFAULT_ORDER_IMPORT_STATE = 3;
-    const DEFAULT_ORDER_DONE_STATE = 4;
     const DEFAULT_CUSTOMER_GROUP_ID = 1;
 
 
@@ -72,7 +71,6 @@ class FmUtils
             'mpn_type' => FmFormSetting::MPN_DEFAULT,
             'brand_type' => FmFormSetting::BRAND_DEFAULT,
             'import_state' =>self::DEFAULT_ORDER_IMPORT_STATE,
-            'done_state' =>self::DEFAULT_ORDER_DONE_STATE,
             'ping_token' => '',
             'is_active_cron_task' => self::CRON_INACTIVE,
             'fm_interval' => self::CRON_INTERVAL_10,
