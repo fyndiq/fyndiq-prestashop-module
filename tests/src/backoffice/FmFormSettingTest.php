@@ -117,7 +117,8 @@ class FmFormSettingTest extends PHPUnit_Framework_TestCase
                         ),
                         'submit' => array(
                             'title' => ''
-                        )
+                        ),
+                        'buttons' => array()
                     )
                 ),
             ),
@@ -148,7 +149,8 @@ class FmFormSettingTest extends PHPUnit_Framework_TestCase
                         ),
                         'submit' => array(
                             'title' => ''
-                        )
+                        ),
+                        'buttons' => array()
                     )
                 ),
             ),

@@ -433,6 +433,17 @@ class FmPrestashop
         return Tools::isSubmit($name);
     }
 
+    /**
+     * resetDisconnectPostValue reset token and username post value
+     * @return boolean True
+     */
+    public function resetDisconnectPostValues()
+    {
+        $_POST['username'] = '';
+        $_POST['api_token'] = '';
+        return true;
+    }
+
     public function toolsGetValue($name, $optional = false)
     {
         return Tools::getValue($name, $optional);

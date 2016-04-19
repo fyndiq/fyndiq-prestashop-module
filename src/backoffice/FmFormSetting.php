@@ -109,7 +109,8 @@ class FmFormSetting
                 'input' => array(),
                 'submit' => array(
                     'title' => ''
-                )
+                ),
+                'buttons' => array()
             )
         );
     }
@@ -231,6 +232,27 @@ class FmFormSetting
     {
         $this->form['form']['submit'] = array(
             'title' => $title
+        );
+        return $this;
+    }
+
+    /**
+     * addButton Add additional action button in the form
+     * @param string $href  Action URL
+     * @param string $title button title
+     * @param string $icon  Icon class name
+     * @param string $type  button type
+     * @return FmFormSetting return class object
+    */
+    public function setButton($name, $title, $icon, $type = null)
+    {
+        $this->form['form']['buttons'] = array(
+            array(
+                'name' => $name,
+                'title' => $title,
+                'icon' => $icon,
+                'type' => $type
+            )
         );
         return $this;
     }

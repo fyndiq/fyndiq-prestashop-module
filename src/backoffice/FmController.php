@@ -21,7 +21,10 @@ class FmController
         $storeId = intval($this->fmPrestashop->getStoreId());
         $languageId = intval($this->fmPrestashop->getLanguageId());
         $output = '';
-        if ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
+
+        if ($this->fmPrestashop->toolsGetValue('submit_disconnect') === '') {
+            $output .= $this->processDisconnect($storeId);
+        } elseif ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
             $postErrors = $this->postValidation();
             foreach ($postErrors as $err) {
                 $output .= $this->fmOutput->showModuleError($err);
@@ -131,6 +134,38 @@ class FmController
             }
         }
         return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
+    }
+
+    /**
+     * processDisconnect action for disconnecting the module from Fyndiq
+     * @param  int $storeId Store Id
+     * @return string       Action response message
+     */
+    public function processDisconnect($storeId)
+    {
+        $userName = $this->fmConfig->get('username', $storeId);
+        $apiToken = $this->fmConfig->get('api_token', $storeId);
+        $updateData = array();
+        try {
+            $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $userName, $apiToken);
+
+            // delete token and username from the settings
+            $this->fmConfig->delete('username', $storeId);
+            $this->fmConfig->delete('api_token', $storeId);
+
+            // since Token and Username are also being posted, we need to reset token and username into the form
+            $this->fmPrestashop->resetDisconnectPostValues();
+        } catch (Exception $e) {
+            if ($e instanceof FyndiqAPIUnsupportedStatus) {
+                return $this->fmOutput->showModuleError($this->module->__('Currently API is Unavailable'));
+            }
+            if ($e instanceof FyndiqAPIAuthorizationFailed) {
+                return $this->fmOutput->showModuleError($this->module->__('Invalid username or API token'));
+            }
+            return $this->fmOutput->showModuleError($e->getMessage());
+        }
+
+        return $this->fmOutput->showModuleSuccess($this->module->__('Module has been disconnected successfully!!'));
     }
 
     /**
@@ -377,6 +412,7 @@ class FmController
             ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
             ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
             ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
+            ->setButton('submit_disconnect', $this->module->__('Disconnect'), 'process-icon-cancel', 'submit')
             ->setSubmit($this->module->__('Save'))
             ->getFormElementsSettings();
     }
