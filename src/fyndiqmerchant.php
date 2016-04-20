@@ -72,6 +72,16 @@ class fyndiqmerchant extends Module
             return false;
         }
 
+        $tab = new Tab();
+        $tab->active = 1;
+        $tab->class_name = 'AdminFyndiqMapCategories';
+        $tab->name = array();
+        foreach (Language::getLanguages(true) as $lang)
+            $tab->name[$lang['id_lang']] = 'Fyndiq Category Mapping';
+        $tab->id_parent = 9;
+        $tab->module = $this->name;
+        $tab->add();
+
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
         $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
 
@@ -90,6 +100,13 @@ class fyndiqmerchant extends Module
     {
         if (!parent::uninstall() || !$this->deleteConfig()) {
             return false;
+        }
+
+        $id_tab = (int)Tab::getIdFromClassName('AdminFyndiqMapCategories');
+        if ($id_tab)
+        {
+            $tab = new Tab($id_tab);
+            $tab->delete();
         }
 
         $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
