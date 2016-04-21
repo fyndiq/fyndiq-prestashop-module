@@ -201,7 +201,7 @@ class fyndiqmerchant extends Module
                 'fyndiq_description_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
             )
         );
-        return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
+        return $this->display(__FILE__, 'views/templates/hook/tab-fyndiq.tpl');
     }
 
     public function hookActionProductUpdate($params)
