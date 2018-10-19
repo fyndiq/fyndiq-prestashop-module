@@ -4,8 +4,10 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once('backoffice/includes/fyndiqAPI/fyndiqAPI.php');
 require_once('backoffice/includes/shared/src/init.php');
 require_once('backoffice/FmUtils.php');
+require_once('backoffice/FmCart.php');
 require_once('backoffice/FmConfig.php');
 require_once('backoffice/FmOutput.php');
 require_once('backoffice/FmPrestashop.php');
@@ -14,26 +16,9 @@ require_once('backoffice/models/FmModel.php');
 require_once('backoffice/models/FmProductExport.php');
 require_once('backoffice/models/FmApiModel.php');
 require_once('backoffice/models/FmOrder.php');
-require_once('backoffice/FmOrderFetch.php');
-require_once('backoffice/FmFormSetting.php');
-require_once('backoffice/FmPaymentModule.php');
 
-class fyndiqmerchant extends Module
+class FyndiqMerchant extends Module
 {
-
-    private $fmPrestashop = null;
-    private $fmConfig = null;
-    private $modules = array();
-    private $storeId = null;
-
-    /**
-     * $overridenControllers contains a list of controllers which are overridden by the module
-     * @var array
-     */
-    private $overridenControllers = array(
-        'AdminProductsController',
-        'AdminOrdersController',
-    );
 
     public function __construct()
     {
@@ -43,17 +28,14 @@ class fyndiqmerchant extends Module
         $this->version = FmUtils::VERSION;
         $this->author = 'Fyndiq AB';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = array('min' => '1.5.0', 'max' => '1.6');
-        $this->bootstrap = true;
+        $this->ps_versions_compliancy = array('min' => '1.4.0', 'max' => '1.6');
 
         parent::__construct();
 
         // Initialize translations
         $this->fmPrestashop = new FmPrestashop(FmUtils::MODULE_NAME);
-        $this->fmConfig = new FmConfig($this->fmPrestashop);
         $languageId = $this->fmPrestashop->getLanguageId();
         FyndiqTranslation::init($this->fmPrestashop->languageGetIsoById($languageId));
-        $this->storeId = $this->fmPrestashop->getStoreId();
 
         $this->displayName = 'Fyndiq';
         $this->description = FyndiqTranslation::get('module-description');
@@ -68,43 +50,87 @@ class fyndiqmerchant extends Module
 
     public function install()
     {
-        if (!parent::install() || !$this->registerHook('displayAdminProductsExtra')) {
-            return false;
-        }
+        $ret = true;
 
-        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-        $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
+        $ret &= (bool)parent::install();
 
-        $this->registerHook('displayAdminProductsExtra');
-        $this->registerHook('displayBackOfficeHeader');
-        $this->registerHook('actionProductUpdate');
+        // Create tab
+        $ret &= $this->installTab();
 
-        if (FyndiqUtils::isDebug()) {
-            $this->registerHook('actionDispatcher');
-        }
+        $fmConfig = new FmConfig($this->fmPrestashop);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
+        $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
+        $fmConfig->set('patch_version', 3, 0);
 
-        return $fmProductExport->install() && $fmOrder->install();
+        // create product mapping database
+        $ret &= $fmProductExport->install();
+
+        // create order mapping database
+        $ret &= $fmOrder->install();
+
+        return (bool)$ret;
     }
 
     public function uninstall()
     {
-        if (!parent::uninstall() || !$this->deleteConfig()) {
-            return false;
-        }
+        $ret = true;
 
-        $fmProductExport = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-        $fmOrder = new FmOrder($this->fmPrestashop, $this->fmConfig);
-        return $fmProductExport->uninstall();
+        $ret &= (bool)parent::uninstall();
+
+        $fmConfig = new FmConfig($this->fmPrestashop);
+        $fmProductExport = new FmProductExport($this->fmPrestashop, $fmConfig);
+        $fmOrder = new FmOrder($this->fmPrestashop, $fmConfig);
+        $storeId = $this->fmPrestashop->getStoreId();
+
+        // Delete configuration
+        $ret &= (bool)$fmConfig->delete('username', $storeId);
+        $ret &= (bool)$fmConfig->delete('api_token', $storeId);
+        $ret &= (bool)$fmConfig->delete('language', $storeId);
+        $ret &= (bool)$fmConfig->delete('price_percentage', $storeId);
+        $ret &= (bool)$fmConfig->delete('import_state', $storeId);
+        $ret &= (bool)$fmConfig->delete('done_state', $storeId);
+
+        // Drop product table
+        $ret &= $fmProductExport->uninstall();
+
+        // Remove the menu tab
+        $ret &= $this->uninstallTab();
+
+        return (bool)$ret;
     }
 
-    private function deleteConfig()
+    /**
+     * Install tab to the menu
+     *
+     * @return mixed
+     */
+    private function installTab()
     {
-        foreach (FmUtils::getConfigKeys() as $key => $value) {
-            if (!(bool)$this->fmConfig->delete($key, $this->storeId)) {
-                return false;
-            }
+        $tab = new Tab();
+        $tab->active = 1;
+        $tab->class_name = 'FyndiqPage';
+        $tab->name = array();
+        foreach (Language::getLanguages(true) as $lang) {
+            $tab->name[$lang['id_lang']] = 'Fyndiq';
         }
-        return true;
+        $tab->id_parent = (int)Tab::getIdFromClassName('AdminParentModules');
+        $tab->module = $this->name;
+        return $tab->add();
+    }
+
+    /**
+     * Remove tab from menu
+     *
+     * @return mixed
+     */
+    private function uninstallTab()
+    {
+        $idTab = (int)Tab::getIdFromClassName('FyndiqPage');
+        if ($idTab) {
+            $tab = new Tab($idTab);
+            return $tab->delete();
+        }
+        return false;
     }
 
     private function setAdminPathCookie()
@@ -124,120 +150,20 @@ class fyndiqmerchant extends Module
         if (!$this->fmPrestashop->isPs1516()) {
             $this->setAdminPathCookie();
         }
+        $storeId = $this->fmPrestashop->getStoreId();
         $fmOutput = new FmOutput($this->fmPrestashop, $this, $this->fmPrestashop->contextGetContext()->smarty);
-        $this->fmConfig = new FmConfig($this->fmPrestashop);
-        $fmApiModel = new FmApiModel($this->fmPrestashop, $this->fmConfig, $this->storeId);
-        $controller = new FmController($this->fmPrestashop, $fmOutput, $this->fmConfig, $fmApiModel);
+        $fmConfig = new FmConfig($this->fmPrestashop);
+        $fmApiModel = new FmApiModel(
+            $fmConfig->get('username', $storeId),
+            $fmConfig->get('api_token', $storeId),
+            $this->fmPrestashop->globalGetVersion()
+        );
+        $controller = new FmController($this->fmPrestashop, $fmOutput, $fmConfig, $fmApiModel);
         return $controller->handleRequest();
     }
 
     public function get($name)
     {
         return $this->$name;
-    }
-
-    /**
-     * get prestashop Object
-     *
-     * @return object
-     */
-    public function getFmPrestashop()
-    {
-        return $this->fmPrestashop;
-    }
-
-    public function hookDisplayBackOfficeHeader($params)
-    {
-        if (Tools::getValue('controller') === 'AdminProducts') {
-            $this->fmPrestashop->contextGetContext()->controller->addJS(
-                $this->fmPrestashop->getModulePath() . 'backoffice/frontend/templates/tab-fyndiq.js'
-            );
-        }
-
-        if ($this->fmPrestashop->toolsGetValue('configure') === 'fyndiqmerchant'
-            && $this->fmPrestashop->toolsGetValue('set_cronjob')
-        ) {
-            $this->fmPrestashop->contextGetContext()->controller->addjs(
-                $this->fmPrestashop->getModulePath('fyndiqmerchant') . 'backoffice/frontend/js/settings.js'
-            );
-        }
-    }
-
-    public function hookDisplayAdminProductsExtra($params)
-    {
-        $productId = (int)Tools::getValue('id_product');
-        $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-        $storeId = $this->fmPrestashop->getStoreId();
-        $fynProduct = $productModel->getProduct($productId, $storeId);
-        $this->smarty->assign(
-            array(
-                'fyndiq_exported' => !empty($fynProduct),
-                'fyndiq_title' => $fynProduct['name'],
-                'fyndiq_title_label' => $this->__("Name"),
-                'fyndiq_title_tooltip' => $this->__("Title of the product as it will appear on Fyndiq"),
-                'fyndiq_title_minlength' => FyndiqFeedWriter::$minLength[FyndiqFeedWriter::PRODUCT_TITLE],
-                'fyndiq_title_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_TITLE],
-                'fyndiq_description' => $fynProduct['description'],
-                'fyndiq_description_label' => $this->__("Description"),
-                'fyndiq_description_tooltip' => $this->__("Description of the product as it will appear on Fyndiq"),
-                'fyndiq_description_minlength' => FyndiqFeedWriter::$minLength[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
-                'fyndiq_description_maxlength' => FyndiqFeedWriter::$lengthLimitedColumns[FyndiqFeedWriter::PRODUCT_DESCRIPTION],
-            )
-        );
-        return $this->display(__FILE__, 'backoffice/frontend/templates/tab-fyndiq.tpl');
-    }
-
-    public function hookActionProductUpdate($params)
-    {
-        $productId = (int)$this->fmPrestashop->toolsGetValue('id_product');
-        $productModel = new FmProductExport($this->fmPrestashop, $this->fmConfig);
-        $storeId = $this->fmPrestashop->getStoreId();
-        $exported = $this->fmPrestashop->toolsGetValue('fyndiq_exported');
-        $title = $this->fmPrestashop->toolsGetValue('fyndiq_title');
-        $description = $this->fmPrestashop->toolsGetValue('fyndiq_description');
-
-        if ($exported && !$productModel->productExists($productId, $storeId)) {
-            $productModel->addProduct($productId, $storeId, $title, $description);
-            return;
-        }
-        if ($exported && $productModel->productExists($productId, $storeId)) {
-            $productModel->updateProduct($productId, $storeId, $title, $description);
-        }
-        if (!$exported && $productModel->productExists($productId, $storeId)) {
-            $productModel->removeProduct($productId, $storeId);
-        }
-    }
-
-    /**
-     * hookActionDispatcher is registered only in debug mode and clears the overrides when one of
-     * the controllers, listed in $this->overridenControllers is opened
-     *
-     * @param array $params hook parmeters
-     */
-    public function hookActionDispatcher($params)
-    {
-        if ($params['controller_type'] === Dispatcher::FC_ADMIN &&
-            in_array($params['controller_class'], $this->overridenControllers)
-        ) {
-            try {
-                $this->uninstallOverrides();
-                $this->installOverrides();
-            } catch (Exception $e) {
-                error_log($e->getMessage());
-            }
-        }
-    }
-
-    public function getModel($modelName, $storeId = -1)
-    {
-        if (!isset($this->modules[$modelName])) {
-            $this->modules[$modelName] = new $modelName($this->fmPrestashop, $this->fmConfig, $storeId);
-        }
-        return $this->modules[$modelName];
-    }
-
-    public function __($text)
-    {
-        return FyndiqTranslation::get($text);
     }
 }

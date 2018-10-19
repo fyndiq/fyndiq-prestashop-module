@@ -5,14 +5,14 @@ class FmOrderFetch extends FyndiqPaginatedFetch
 
     protected $lastTimestamp = 0;
 
-    public function __construct($fmOrder, $fmApiModel, $importDate)
+    function __construct($fmOrder, $fmApiModel, $importDate)
     {
         $this->fmOrder = $fmOrder;
         $this->fmApiModel = $fmApiModel;
         $this->importDate = $importDate;
     }
 
-    public function getInitialPath()
+    function getInitialPath()
     {
         $url = 'orders/';
         if (!empty($this->importDate)) {
@@ -21,13 +21,13 @@ class FmOrderFetch extends FyndiqPaginatedFetch
         return $url;
     }
 
-    public function getPageData($path)
+    function getPageData($path)
     {
         $ret = $this->fmApiModel->callApi('GET', $path);
         return $ret['data'];
     }
 
-    public function processData($data)
+    function processData($data)
     {
         foreach ($data as $order) {
             $timestamp = strtotime($order->created);
@@ -41,12 +41,12 @@ class FmOrderFetch extends FyndiqPaginatedFetch
         return true;
     }
 
-    public function getSleepIntervalSeconds()
+    function getSleepIntervalSeconds()
     {
         return 1 / self::THROTTLE_ORDER_RPS;
     }
 
-    public function getLastTimestamp()
+    function getLastTimestamp()
     {
         return $this->lastTimestamp;
     }

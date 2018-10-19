@@ -48,16 +48,6 @@ class FilePageController
             $storeId = $this->fmPrestashop->getStoreId();
             $username = $this->fmConfig->get('username', $storeId);
             $apiToken = $this->fmConfig->get('api_token', $storeId);
-
-            $groupId = $this->fmConfig->get('customerGroup_id', $storeId);
-            FyndiqUtils::debug('$groupId', $groupId);
-
-            $percentageDiscount = floatval($this->fmConfig->get('price_percentage', $storeId));
-            FyndiqUtils::debug('$percentageDiscount', $percentageDiscount);
-
-            $priceDiscount = floatval($this->fmConfig->get('price_discount', $storeId));
-            FyndiqUtils::debug('$priceDiscount', $priceDiscount);
-
             if (!empty($username) && !empty($apiToken)) {
                 $fileName = $this->fmPrestashop->getExportPath() . $this->fmPrestashop->getExportFileName();
                 $tempFileName = FyndiqUtils::getTempFilename(dirname($fileName));
@@ -66,28 +56,11 @@ class FilePageController
                     // Write the file if it does not exist or is older than the interval
                     $file = fopen($tempFileName, 'w+');
                     $feedWriter = FmUtils::getFileWriter($file);
-                    $languageId = $this->fmPrestashop->getValidLanguageId(
-                        intval($this->fmConfig->get('language', $storeId))
-                    );
+                    $languageId = $this->fmConfig->get('language', $storeId);
                     $stockMin = $this->fmConfig->get('stock_min', $storeId);
-
-                    $settings = array(
-                        FmFormSetting::SETTINGS_LANGUAGE_ID => $languageId,
-                        FmFormSetting::SETTINGS_STOCK_MIN => $stockMin,
-                        FmFormSetting::SETTINGS_GROUP_ID => $groupId,
-                        FmFormSetting::SETTINGS_STORE_ID => $storeId,
-                        FmFormSetting::SETTINGS_MAPPING_DESCRIPTION => $this->fmConfig->get('description_type', $storeId),
-                        FmFormSetting::SETTINGS_MAPPING_SKU => intval($this->fmConfig->get('sku_type_id', $storeId)),
-                        FmFormSetting::SETTINGS_MAPPING_EAN => $this->fmConfig->get('ean_type', $storeId),
-                        FmFormSetting::SETTINGS_MAPPING_ISBN => $this->fmConfig->get('isbn_type', $storeId),
-                        FmFormSetting::SETTINGS_MAPPING_MPN => $this->fmConfig->get('mpn_type', $storeId),
-                        FmFormSetting::SETTINGS_MAPPING_BRAND => $this->fmConfig->get('brand_type', $storeId),
-                        FmFormSetting::SETTINGS_PERCENTAGE_DISCOUNT => $percentageDiscount,
-                        FmFormSetting::SETTINGS_PRICE_DISCOUNT => $priceDiscount
-                    );
-
-                    $result = $this->fmProductExport->saveFile($feedWriter, $settings);
-
+                    $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
+                    $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
+                    $result = $this->fmProductExport->saveFile($languageId, $feedWriter, $stockMin, $descriptionType, $skuTypeId, $storeId);
                     fclose($file);
                     if ($result) {
                         FyndiqUtils::moveFile($tempFileName, $fileName);

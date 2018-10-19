@@ -52,6 +52,8 @@ class FmServiceController
                     return $this->getDeliveryNotes($args, $storeId);
                 case 'import_orders':
                     return $this->importOrders($args, $storeId);
+                case 'update_product_status':
+                    return $this->updateProductStatus($args, $storeId);
                 case 'probe_file_permissions':
                     return $this->probeFilePermissions($args, $storeId);
                 case 'probe_database';
@@ -110,16 +112,14 @@ class FmServiceController
         $fmProduct = $this->loadModel('FmProduct');
         $fmProductExport = $this->loadModel('FmProductExport');
         // get currency
-        $fyndiqCurrency = $this->fmConfig->get('currency', $storeId);
-        $fyndiqCurrency = $fyndiqCurrency ? $this->fmPrestashop->getCurrency($fyndiqCurrency) : false;
-        $currentCurrency = $fyndiqCurrency ? $fyndiqCurrency->iso_code : $this->fmPrestashop->getDefaultCurrency();
+        $currentCurrency = $this->fmPrestashop->getDefaultCurrency();
 
         $page = (isset($args['page']) and $args['page'] > 0) ? intval($args['page']) : 1;
         $rows = $fmProduct->getByCategory($args['category'], $page, FyndiqUtils::PAGINATION_ITEMS_PER_PAGE);
 
         $fyndiqDiscountPercentage = $this->fmConfig->get('price_percentage', $storeId);
         $languageId = $this->fmConfig->get('language', $storeId);
-        $descriptionType = $this->fmConfig->get('description_type', $storeId);
+        $descriptionType = intval($this->fmConfig->get('description_type', $storeId));
         $skuTypeId = intval($this->fmConfig->get('sku_type_id', $storeId));
         foreach ($rows as $row) {
             $discountPercentage = $fyndiqDiscountPercentage;
@@ -145,11 +145,9 @@ class FmServiceController
                 $discountPercentage = $fynProduct['exported_price_percentage'];
                 $product['fyndiq_exported'] = true;
                 switch ($fynProduct['state']) {
-                    case FmProductExport::FOR_SALE:
-                        $product['fyndiq_status'] = 'on';
+                    case FmProductExport::FOR_SALE: $product['fyndiq_status'] = 'on';
                         break;
-                    default:
-                        $product['fyndiq_status'] = 'pending';
+                    default: $product['fyndiq_status'] = 'pending';
                 }
             }
             $product['fyndiq_percentage'] = $discountPercentage;
@@ -303,8 +301,8 @@ class FmServiceController
             $storeId = $this->fmPrestashop->getStoreId();
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
-                $product = $row['product'];
-                if ($fmProductExport->productExists($product['id'], $storeId)) {
+                $product= $row['product'];
+                if ($fmProductExport->productExist($product['id'], $storeId)) {
                     $result &= $fmProductExport->updateProduct($product['id'], $product['fyndiq_percentage'], $storeId);
                     continue;
                 }
@@ -322,7 +320,7 @@ class FmServiceController
             $fmProductExport = $this->loadModel('FmProductExport');
             foreach ($args['products'] as $row) {
                 $product = $row['product'];
-                $fmProductExport->removeProduct($product['id'], $storeId);
+                $fmProductExport->deleteProduct($product['id'], $storeId);
             }
         }
         return $result;
@@ -358,6 +356,14 @@ class FmServiceController
         }
         $this->fmOutput->output('Please, pick at least one order');
         return null;
+    }
+
+    private function updateProductStatus()
+    {
+        $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products');
+        $fmProduct = $this->loadModel('FmProduct');
+        $productInfo = new FmProductInfo($fmProduct, $this->fmApiModel, $tableName);
+        return $productInfo->getAll();
     }
 
     private function probeFilePermissions($args)
@@ -438,6 +444,7 @@ class FmServiceController
         $messages = array();
         $missing = array();
         $checkClasses = array(
+            'FyndiqAPI',
             'FyndiqAPICall',
             'FyndiqCSVFeedWriter',
             'FyndiqFeedWriter',
@@ -505,7 +512,7 @@ class FmServiceController
         try {
             $fmProduct = $this->loadModel('FmProduct');
             $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
-            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmFormSetting::SKU_DEFAULT;
+            $skuTypeId = $skuTypeId ? intval($skuTypeId) : FmUtils::SKU_DEFAULT;
             $duplicates = $fmProduct->checkProducts($skuTypeId);
             foreach ($duplicates as $duplicate) {
                 if ($duplicate['parent']) {

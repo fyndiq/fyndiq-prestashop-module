@@ -5,13 +5,11 @@ class FmModel
 
     protected $fmPrestashop;
     protected $fmConfig;
-    protected $storeId;
 
-    public function __construct($fmPrestashop, $fmConfig, $storeId = -1)
+    public function __construct($fmPrestashop, $fmConfig)
     {
         $this->fmPrestashop = $fmPrestashop;
         $this->fmConfig = $fmConfig;
-        $this->storeId = $storeId;
     }
 
     public function getAllTables()

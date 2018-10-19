@@ -1,6 +1,6 @@
 <?php
-class FmApiModel extends FmModel
-{
+
+class FmApiModel {
 
     const PLATFORM_NAME = 'Prestashop';
     const MODULE_NAME = 'module';
@@ -9,14 +9,13 @@ class FmApiModel extends FmModel
     private $apiToken = '';
     private $userAgent = '';
 
-    public function __construct($fmPrestashop, $fmConfig, $storeId)
+    public function __construct($username, $apiToken, $platformVersion)
     {
-        parent::__construct($fmPrestashop, $fmConfig, $storeId);
-        $this->username = $this->fmConfig->get('username', $this->storeId);
-        $this->apiToken = $this->fmConfig->get('api_token', $this->storeId);
+        $this->username = $username;
+        $this->apiToken = $apiToken;
         $this->userAgent = FyndiqUtils::getUserAgentString(
             self::PLATFORM_NAME,
-            $this->fmPrestashop->globalGetVersion(),
+            $platformVersion,
             self::MODULE_NAME,
             FmUtils::VERSION,
             FmUtils::COMMIT
@@ -33,7 +32,8 @@ class FmApiModel extends FmModel
             $apiToken,
             $method,
             $path,
-            $data
+            $data,
+            array('FyndiqAPI', 'call')
         );
     }
 

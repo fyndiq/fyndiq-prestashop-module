@@ -102,22 +102,12 @@ class FmPrestashop
 
     public function getLanguageId()
     {
-        return intval($this->contextGetContext()->language->id);
+        return $this->contextGetContext()->language->id;
     }
 
     public function getCurrency($currencyId)
     {
         return new Currency($currencyId);
-    }
-
-
-    /**
-     * getCurrencies get list of currency
-     * @return array
-     */
-    public function getCurrencies()
-    {
-        return Currency::getCurrencies();
     }
 
     public function sleep($seconds)
@@ -192,33 +182,12 @@ class FmPrestashop
         );
 
         # get this products attributes and combination images
-        return $product->$getAttrCombinations[$this->version]($languageId);
+        return $product->{$getAttrCombinations[$this->version]}($languageId);
     }
 
-    public function getPrice($product, $context, $groupId, $attributeId = null)
+    public function getPrice($product, $attributeId = null)
     {
-        $specific_price_output = null;
-
-        $currencyId = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
-
-        return Product::priceCalculation(
-            $context->shop->id, // Store ID for which store
-            $product->id, // product id
-            $attributeId, // Product attribute id
-            (int)$context->country->id, // Country Id
-            0, // State id
-            0, // Zipcode
-            $currencyId, // Currency id
-            $groupId, // Customer group ID
-            1, // Quantity
-            1, // Use Tax
-            6, // Decimals
-            false, // Only reduction
-            true, // use reduction
-            true, // with ecotax
-            $specific_price_output,
-            true // use group reduction
-        );
+        return Product::getPriceStatic($product->id, true, $attributeId);
     }
 
     public function getBasePrice($product, $attributeId = null)
@@ -234,29 +203,6 @@ class FmPrestashop
         );
     }
 
-    /**
-     * isObjectLoaded checks whether object is laoded or not
-     * @param object $object
-     * @return boolean
-     */
-    public function isObjectLoaded($object)
-    {
-        return Validate::isLoadedObject($object);
-    }
-
-    /**
-     * newSpecificPrice New specific Price for updating custom price
-     * @param  int $cartId      Cart Id
-     * @param  int $productId   Product Id
-     * @param  int $attributeId Combination Id
-     * @return SpecificPrice    Return SpecificPrice Object
-     */
-    public function newSpecificPrice($cartId, $productId, $attributeId)
-    {
-        SpecificPrice::deleteByIdCart((int)$cartId, (int)$productId, (int)$attributeId);
-        return new SpecificPrice();
-    }
-
     public function getModuleName($moduleName = '')
     {
         $module = $this->moduleGetInstanceByName($moduleName);
@@ -268,6 +214,7 @@ class FmPrestashop
         $module = $this->moduleGetInstanceByName($moduleName);
         return $module->get('_path');
     }
+
 
     public function getTableName($moduleName, $tableSuffix, $prefix = false)
     {
@@ -298,15 +245,6 @@ class FmPrestashop
     public function getOrderState($state)
     {
         return new OrderState($state);
-    }
-
-    /**
-     * getCancelOrderStateId get cancel order state Id.
-     * @return int return cancel order state id
-     */
-    public function getCancelOrderStateId()
-    {
-        return Configuration::get('PS_OS_CANCELED');
     }
 
     public function getOrderStateName($state)
@@ -409,44 +347,15 @@ class FmPrestashop
         return  Module::getInstanceByName($name);
     }
 
-    /**
-     * getHelperForm prestashop html generator class
-     * @return Object
-     */
-    public function getHelperForm()
-    {
-        return new HelperForm();
-    }
-
-    /**
-     * getCurrentUrlIndex get current URL
-     * @return string return URL
-     */
-    public function getCurrentUrlIndex()
-    {
-        return AdminController::$currentIndex;
-    }
-
     // Tool
     public function toolsIsSubmit($name)
     {
         return Tools::isSubmit($name);
     }
 
-    /**
-     * resetDisconnectPostValue reset token and username post value
-     * @return boolean True
-     */
-    public function resetDisconnectPostValues()
+    public function toolsGetValue($name)
     {
-        $_POST['username'] = '';
-        $_POST['api_token'] = '';
-        return true;
-    }
-
-    public function toolsGetValue($name, $optional = false)
-    {
-        return Tools::getValue($name, $optional);
+        return Tools::getValue($name);
     }
 
     public function toolsRedirect($url)
@@ -459,10 +368,6 @@ class FmPrestashop
         return Tools::encrypt($string);
     }
 
-    public function toolsShopDomainSsl()
-    {
-        return Tools::getShopDomainSsl();
-    }
 
     // Configuration
     public function configurationDeleteByName($name)
@@ -475,19 +380,9 @@ class FmPrestashop
         return Configuration::get($name);
     }
 
-    public function configurationGetGlobal($name)
-    {
-        return Configuration::getGlobalValue($name);
-    }
-
     public function configurationUpdateValue($name, $value)
     {
         return Configuration::updateValue($name, $value);
-    }
-
-    public function configurationUpdateGlobalValue($name, $value)
-    {
-        return Configuration::updateGlobalValue($name, $value);
     }
 
     // Category
@@ -502,23 +397,6 @@ class FmPrestashop
         return Currency::getDefaultCurrency();
     }
 
-    /**
-     * getSelectedCurrency get settings currency
-     * @param  int $currencyId
-     * @return string
-     */
-    public function getSelectedCurrency($currencyId)
-    {
-        if (!$currencyId) {
-            return $this->currencyGetDefaultCurrency()->iso_code;
-        }
-        $fyndiqCurrency = $this->getCurrency($currencyId);
-        if (!$fyndiqCurrency->id) {
-            return $this->currencyGetDefaultCurrency()->iso_code;
-        }
-        return $fyndiqCurrency->iso_code;
-    }
-
     // OrderState
     public function orderStateGetOrderStates($languageId)
     {
@@ -528,12 +406,6 @@ class FmPrestashop
     public function orderStateInvoiceAvailable($orderStateId)
     {
         return OrderState::invoiceAvailable($orderStateId);
-    }
-
-    // Customer Group
-    public function groupGetGroups($languageId)
-    {
-        return Group::getGroups($languageId, true);
     }
 
     // Language
@@ -691,9 +563,9 @@ class FmPrestashop
     }
 
     // Cart
-    public function newCart($id)
+    public function newCart()
     {
-        return new Cart($id);
+        return new FmCart();
     }
 
     public function cartOnlyProducts()
@@ -706,26 +578,10 @@ class FmPrestashop
         return Cart::BOTH;
     }
 
-    /**
-     * newCustomer description]
-     * @param  int $id  Id
-     * @return Customer Customer Object
-     */
-    public function newCustomer($id = null)
+    // Customer
+    public function newCustomer()
     {
-        return new Customer($id);
-    }
-
-    /**
-     * isValidAddress description
-     * @param  int  $idDelivery Delivery Address Id
-     * @param  int  $idInvoice  Invoice Address Id
-     * @return boolean
-     */
-    public function isValidAddress($idDelivery, $idInvoice)
-    {
-        return (bool)Address::isCountryActiveById((int)$idDelivery)
-            || Address::isCountryActiveById((int)$idInvoice);
+        return new Customer();
     }
 
     // DbQuery
@@ -738,19 +594,6 @@ class FmPrestashop
     public function newOrderHistory()
     {
         return new OrderHistory();
-    }
-
-    /**
-     * isProductValidWhenAttribute checks product has variation
-     * @param  int  $stock       Stock
-     * @param  int $attributeId Combination Id
-     * @param  int  $qty         Quantity
-     * @return boolean
-     */
-    public function isProductValidWhenAttribute($stock, $attributeId, $qty)
-    {
-        return !Product::isAvailableWhenOutOfStock($stock) &&
-         !Attribute::checkAttributeQty($attributeId, $qty);
     }
 
     // Message
@@ -843,70 +686,5 @@ class FmPrestashop
             $result[] = $row;
         }
         return $result;
-    }
-
-    /**
-     * isModuleInstalled checks whether module is installed or not
-     * @param  string  $moduleName module name lowercase
-     * @return boolean
-     */
-    public function isModuleInstalled($moduleName)
-    {
-        return Module::isInstalled($moduleName);
-    }
-
-    /**
-     * isModuleInstalled. To check whether module is enabled or not
-     * @param  string  $moduleName module name lowercase
-     * @return boolean
-     */
-    public function isModuleEnabled($moduleName)
-    {
-        return Module::isEnabled($moduleName);
-    }
-
-    /**
-     * getValidLanguageId return valid language id given language id
-     * @param  int $languageId assumed-to-be-valid language id
-     * @return int
-     */
-    public function getValidLanguageId($languageId)
-    {
-        $language = new Language($languageId);
-        if ($language->id) {
-            return intval($language->id);
-        }
-        return $this->getLanguageId();
-    }
-
-    /**
-     * productGetFields returns Product fields
-     * @return array
-     */
-    public function productGetFields()
-    {
-        return Product::$definition['fields'];
-    }
-
-    /**
-     * combinationGetFields returns Combination fields
-     * @return array
-     */
-    public function combinationGetFields()
-    {
-        return Combination::$definition['fields'];
-    }
-
-    /**
-     * fetureGetAllForLanguage return all features for language
-     * @param  int $languageId LanguageId
-     * @return array
-     */
-    public function fetureGetAllForLanguage($languageId)
-    {
-        $sql = 'SELECT id_feature, name
-                FROM ' . $this->globDbPrefix() . 'feature_lang
-                WHERE id_lang=' . $languageId;
-        return $this->dbGetInstance()->executeS($sql);
     }
 }

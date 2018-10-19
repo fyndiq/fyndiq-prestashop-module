@@ -2,10 +2,16 @@
 
 class FmController
 {
+
+    const DEFAULT_DISCOUNT_PERCENTAGE = 10;
+    const DEFAULT_ORDER_IMPORT_STATE = 3;
+    const DEFAULT_ORDER_DONE_STATE = 4;
+
+    private $data = array();
     private $fmOutput;
     private $fmConfig;
     private $fmPrestashop;
-    protected $module;
+    private $storeId = null;
 
     public function __construct($fmPrestashop, $fmOutput, $fmConfig, $fmApiModel)
     {
@@ -13,249 +19,289 @@ class FmController
         $this->fmConfig = $fmConfig;
         $this->fmPrestashop = $fmPrestashop;
         $this->fmApiModel = $fmApiModel;
-        $this->module = $this->fmPrestashop->moduleGetInstanceByName();
+        $this->storeId = $this->fmPrestashop->getStoreId();
+        $importOrdersStatus = $this->fmConfig->get('disable_orders', $this->storeId);
+
+        $path = $fmPrestashop->getModuleUrl();
+        $this->data = array(
+            'json_messages' => json_encode(FyndiqTranslation::getAll()),
+            'messages' => FyndiqTranslation::getAll(),
+            'path' => $path,
+            'orders_enabled' => $importOrdersStatus == FmUtils::ORDERS_ENABLED,
+        );
+    }
+
+    protected function serviceIsOperational($action)
+    {
+        try {
+            $this->fmApiModel->callApi('GET', 'settings/');
+            return $action;
+        } catch (Exception $e) {
+            if ($e->getMessage() == 'Unauthorized') {
+                return 'authenticate';
+            }
+            $this->data['message'] = $e->getMessage();
+            return 'api_unavailable';
+        }
     }
 
     public function handleRequest()
     {
-        $storeId = intval($this->fmPrestashop->getStoreId());
-        $languageId = intval($this->fmPrestashop->getLanguageId());
-        $output = '';
+        $action = $this->fmPrestashop->toolsGetValue('action');
+        $action = $action ? $action : 'main';
 
-        if ($this->fmPrestashop->toolsGetValue('submit_disconnect') === '') {
-            $output .= $this->processDisconnect($storeId);
-        } elseif ($this->fmPrestashop->toolsIsSubmit('submit' . $this->module->name)) {
-            $postErrors = $this->postValidation();
-            foreach ($postErrors as $err) {
-                $output .= $this->fmOutput->showModuleError($err);
-            }
-            if (count($postErrors) === 0) {
-                $output .= $this->postProcess($storeId);
-            }
+        // Force authorize if not authorized
+        $action = $this->fmConfig->isAuthorized($this->storeId) ? $action : 'authenticate';
+        // Force setup if not set up
+        $action = $this->fmConfig->isSetUp($this->storeId) ? $action : 'settings';
+        $action = $action != 'authenticate' ? $this->serviceIsOperational($action) : $action;
+        $patchVersion = $this->fmConfig->get('patch_version', 0);
+        $this->patchTables($patchVersion, 0);
+
+        switch ($action) {
+            case 'api_unavailable':
+                return $this->apiUnavailable();
+            case 'authenticate':
+                return $this->authenticate();
+            case 'main':
+                return $this->main();
+            case 'settings':
+                return $this->settings();
+            case 'orders':
+                return $this->orders();
+            case 'disconnect':
+                return $this->disconnect();
+            default:
+                return $this->fmOutput->showModuleError(FyndiqTranslation::get('Page not found'));
         }
-        $output .= $this->renderForm($storeId, $languageId);
-        return $output;
     }
 
-    protected function postValidation()
+    private function apiUnavailable()
     {
-        $errors = array();
-        $percentage = $this->fmPrestashop->toolsGetValue('price_percentage');
-        $stockMin = $this->fmPrestashop->toolsGetValue('stock_min');
-
-        if (!$this->fmPrestashop->toolsGetValue('username')) {
-            $errors[] = $this->module->__('Username is required');
-        }
-
-        if (!$this->fmPrestashop->toolsGetValue('api_token')) {
-            $errors[] = $this->module->__('API Token is required');
-        }
-
-        if (!empty($percentage) && !is_numeric($percentage)) {
-            $errors[] = $this->module->__('Price Percentage must be a number');
-        }
-
-        if (!empty($stockMin) && !is_numeric($stockMin)) {
-            $errors[] = $this->module->__('Lowest quantity must be a numeber');
-        }
-        return $errors;
+        return $this->fmOutput->render('api_unavailable', $this->data);
     }
 
-    protected function postProcess($storeId)
+    // TODO: Remove me once beta merchants are patched
+    private function patchTables($patchVersion, $storeId)
     {
-        /** Array index name must be same as param's name */
-        $postArr = array();
-
-        // general settings
-        $postArr['username'] = $this->fmPrestashop->toolsGetValue('username');
-        $postArr['api_token'] = $this->fmPrestashop->toolsGetValue('api_token');
-        $postArr['disable_orders'] = intval($this->fmPrestashop->toolsGetValue('disable_orders'));
-        $postArr['language'] = intval($this->fmPrestashop->toolsGetValue('language'));
-        $postArr['currency'] = intval($this->fmPrestashop->toolsGetValue('currency'));
-        $postArr['price_percentage'] = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
-        $postArr['price_discount'] = floatval($this->fmPrestashop->toolsGetValue('price_discount'));
-        $postArr['import_state'] = intval($this->fmPrestashop->toolsGetValue('import_state'));
-        $postArr['done_state'] = intval($this->fmPrestashop->toolsGetValue('done_state'));
-        $postArr['stock_min'] = intval($this->fmPrestashop->toolsGetValue('stock_min'));
-        $postArr['stock_min'] = $postArr['stock_min'] < 0 ? 0 : $postArr['stock_min'];
-        $postArr['customerGroup_id'] = intval($this->fmPrestashop->toolsGetValue('customerGroup_id'));
-
-        // Field mapping settigs
-        $postArr['description_type'] = $this->fmPrestashop->toolsGetValue('description_type');
-        $postArr['ean_type'] = $this->fmPrestashop->toolsGetValue('ean_type');
-        $postArr['isbn_type'] = $this->fmPrestashop->toolsGetValue('isbn_type');
-        $postArr['mpn_type'] = $this->fmPrestashop->toolsGetValue('mpn_type');
-        $postArr['brand_type'] = $this->fmPrestashop->toolsGetValue('brand_type');
-
-        //Troubleshoot settings
-        $postArr['debug_enabled'] = intval($this->fmPrestashop->toolsGetValue('debug_enabled'));
-
-        //Feed Generator settings
-        $postArr['ping_token'] = $this->fmPrestashop->toolsEncrypt(time());
-        if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
-            $postArr['is_active_cron_task'] = intval($this->fmPrestashop->toolsGetValue('is_active_cron_task'));
-            $postArr['fm_interval'] = intval($this->fmPrestashop->toolsGetValue('fm_interval'));
+        $newVersion = $patchVersion;
+        try {
+            $version = 1;
+            if ($patchVersion < $version) {
+                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_products', true);
+                $sql = 'ALTER TABLE ' . $tableName . ' ADD COLUMN store_id int(10) unsigned DEFAULT 1 AFTER id';
+                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+            }
+            $newVersion = $version;
+        } catch (Exception $e) {
+            // be discrete
+        }
+        try {
+            $version = 2;
+            if ($patchVersion < $version) {
+                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
+                $sql = 'DROP INDEX orderIndex ON ' . $tableName . ';';
+                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+                $sql = 'CREATE INDEX orderIndexNew ON ' . $tableName . ' (fyndiq_orderid);';
+                $this->fmPrestashop->dbGetInstance()->ExecuteS($sql);
+            }
+            $newVersion = $version;
+        } catch (Exception $e) {
+            // be discrete
         }
 
-        if ($this->fmPrestashop->toolsGetValue('set_sku')) {
-            $postArr['sku_type_id'] = intval($this->fmPrestashop->toolsGetValue('sku_type_id'));
-        }
+        try {
+            $version = 3;
+            if ($patchVersion < $version) {
+                $tableName = $this->fmPrestashop->getTableName(FmUtils::MODULE_NAME, '_orders', true);
 
-        $base = $this->fmPrestashop->getBaseModuleUrl();
-        $updateData = array(
+                $sql = 'ALTER TABLE ' . $tableName . '
+                        ADD COLUMN status INT(10) DEFAULT 1,
+                        ADD COLUMN body TEXT DEFAULT null,
+                        ADD COLUMN created timestamp DEFAULT CURRENT_TIMESTAMP';
+                $this->fmPrestashop->dbGetInstance()->Execute($sql, false);
+            }
+            $newVersion = $version;
+        } catch (Exception $e) {
+            // be discrete
+        }
+        if ($newVersion != $patchVersion) {
+            $this->fmConfig->set('patch_version', $newVersion, $storeId);
+        }
+    }
+
+    private function authenticate()
+    {
+        if ($this->fmPrestashop->toolsIsSubmit('submit_authenticate')) {
+            $username = strval($this->fmPrestashop->toolsGetValue('username'));
+            $apiToken = strval($this->fmPrestashop->toolsGetValue('api_token'));
+            $importOrdersStatus = strval($this->fmPrestashop->toolsGetValue('import_orders_disabled'))
+                ? FmUtils::ORDERS_DISABLED
+                : FmUtils::ORDERS_ENABLED;
+
+            // validate parameters
+            if (empty($username) || empty($apiToken)) {
+                return $this->fmOutput->showModuleError(FyndiqTranslation::get('empty-username-token'));
+            }
+            $base = $this->fmPrestashop->getBaseModuleUrl();
+            $pingToken = $this->fmPrestashop->toolsEncrypt(time());
+            $this->fmConfig->set('ping_token', $pingToken, $this->storeId);
+            $this->fmConfig->set('username', $username, $this->storeId);
+            $this->fmConfig->set('api_token', $apiToken, $this->storeId);
+            $this->fmConfig->set('disable_orders', $importOrdersStatus, $this->storeId);
+            $updateData = array(
                 FyndiqUtils::NAME_PRODUCT_FEED_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' .
-                    $storeId . '&token=' . $postArr['ping_token'],
+                    $base . 'modules/fyndiqmerchant/backoffice/filePage.php?store_id=' . $this->storeId . '&token=' . $pingToken,
                 FyndiqUtils::NAME_PING_URL =>
-                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' .
-                    $postArr['ping_token'] . '&store_id=' . $storeId,
-        );
-        if (!$postArr['disable_orders']) {
-            $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
-                $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $storeId;
-        }
-        try {
-            $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $postArr['username'], $postArr['api_token']);
-        } catch (Exception $e) {
-            if ($e instanceof FyndiqAPIUnsupportedStatus) {
-                return $this->fmOutput->showModuleError($this->module->__('Currently API is Unavailable'));
-            }
-            if ($e instanceof FyndiqAPIAuthorizationFailed) {
-                return $this->fmOutput->showModuleError($this->module->__('Invalid username or API token'));
-            }
-            return $this->fmOutput->showModuleError($e->getMessage());
-        }
-
-        foreach (FmUtils::getConfigKeys() as $key => $value) {
-            if (isset($postArr[$key])) {
-                if (!$this->fmConfig->set($key, $postArr[$key], $storeId)) {
-                    return $this->fmOutput->showModuleError($this->module->__('Error saving settings'));
-                }
-            }
-        }
-        return $this->fmOutput->showModuleSuccess($this->module->__('Settings updated'));
-    }
-
-    /**
-     * processDisconnect action for disconnecting the module from Fyndiq
-     * @param  int $storeId Store Id
-     * @return string       Action response message
-     */
-    public function processDisconnect($storeId)
-    {
-        $userName = $this->fmConfig->get('username', $storeId);
-        $apiToken = $this->fmConfig->get('api_token', $storeId);
-        $updateData = array();
-        try {
-            $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $userName, $apiToken);
-
-            // delete token and username from the settings
-            $this->fmConfig->delete('username', $storeId);
-            $this->fmConfig->delete('api_token', $storeId);
-
-            // since Token and Username are also being posted, we need to reset token and username into the form
-            $this->fmPrestashop->resetDisconnectPostValues();
-        } catch (Exception $e) {
-            if ($e instanceof FyndiqAPIUnsupportedStatus) {
-                return $this->fmOutput->showModuleError($this->module->__('Currently API is Unavailable'));
-            }
-            if ($e instanceof FyndiqAPIAuthorizationFailed) {
-                return $this->fmOutput->showModuleError($this->module->__('Invalid username or API token'));
-            }
-            return $this->fmOutput->showModuleError($e->getMessage());
-        }
-
-        return $this->fmOutput->showModuleSuccess($this->module->__('Module has been disconnected successfully!!'));
-    }
-
-    /**
-     * renderForm renders the module settings form
-     * @param  int $storeId StoreId
-     * @param  int $languageId LanguageId
-     * @return string
-     */
-    public function renderForm($storeId, $languageId)
-    {
-        $helper = $this->fmPrestashop->getHelperForm();
-
-        // Module and token
-        $helper->module = $this->module;
-        $helper->name_controller = $this->module->name;
-        $helper->token = $this->fmPrestashop->getAdminTokenLite('AdminModules');
-        $helper->currentIndex = $this->fmPrestashop->getCurrentUrlIndex() . '&configure=' . $this->module->name;
-
-        // Language
-        $defaultLang = intval($this->fmPrestashop->configurationGet('PS_LANG_DEFAULT'));
-        $helper->default_form_language = $defaultLang;
-        $helper->allow_employee_form_lang = $defaultLang;
-
-        // Title and toolbar
-        $helper->title = $this->module->displayName;
-        $helper->submit_action = 'submit' . $this->module->name;
-
-        foreach ($this->fmPrestashop->languageGetLanguages() as $lang) {
-            $helper->languages[] = array(
-                'id_lang' => $lang['id_lang'],
-                'iso_code' => $lang['iso_code'],
-                'name' => $lang['name'],
-                'is_default' => ($defaultLang == $lang['id_lang'] ? 1 : 0),
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=ping&token=' . $pingToken . '&store_id=' . $this->storeId,
             );
+            if ($importOrdersStatus == FmUtils::ORDERS_ENABLED) {
+                $updateData[FyndiqUtils::NAME_NOTIFICATION_URL] =
+                    $base . 'modules/fyndiqmerchant/backoffice/notification_service.php?event=order_created&store_id=' . $this->storeId;
+            }
+            try {
+                $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
+
+                $this->fmPrestashop->sleep(1);
+                return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
+            } catch (Exception $e) {
+                $this->fmConfig->delete('username', $this->storeId);
+                $this->fmConfig->delete('api_token', $this->storeId);
+                return $this->fmOutput->render('authenticate', $this->data, $e->getMessage());
+            }
         }
-        $helper->fields_value = $this->getConfigFieldsValues($storeId);
+        return $this->fmOutput->render('authenticate', $this->data);
+    }
+
+    private function main()
+    {
+        return $this->fmOutput->render('main', $this->data);
+    }
+
+    private function settings()
+    {
         $showSKUSelect = intval($this->fmPrestashop->toolsGetValue('set_sku')) === 1;
-        $fieldForms = array(
-            $this->getGeneralSettingsForm($languageId),
-            $this->getFieldsMappingsForm($languageId, $showSKUSelect),
-            $this->getTroubleshootingSettingsForm(),
-        );
+        if ($this->fmPrestashop->toolsIsSubmit('submit_save_settings')) {
+            $languageId = intval($this->fmPrestashop->toolsGetValue('language_id'));
+            $pricePercentage = intval($this->fmPrestashop->toolsGetValue('price_percentage'));
+            $orderImportState = intval($this->fmPrestashop->toolsGetValue('order_import_state'));
+            $orderDoneState = intval($this->fmPrestashop->toolsGetValue('order_done_state'));
+            $stockMin = intval($this->fmPrestashop->toolsGetValue('stock_min'));
+            $stockMin = $stockMin < 0 ? 0 : $stockMin;
+            $descriptionType = intval($this->fmPrestashop->toolsGetValue('description_type'));
+            $skuTypeId = $this->fmPrestashop->toolsGetValue('sku_type_id');
+            $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
 
-        /** add hidden feature for the Cron task. To see this feature add extra param &set_conjobs=1*/
-        if ($this->fmPrestashop->toolsGetValue('set_cronjob')) {
-            $fieldForms[] = $this->getCronJobSettingsForm($storeId);
+            if ($this->fmConfig->set('language', $languageId, $this->storeId) &&
+                $this->fmConfig->set('price_percentage', $pricePercentage, $this->storeId) &&
+                $this->fmConfig->set('import_state', $orderImportState, $this->storeId) &&
+                $this->fmConfig->set('done_state', $orderDoneState, $this->storeId) &&
+                $this->fmConfig->set('stock_min', $stockMin, $this->storeId) &&
+                $this->fmConfig->set('description_type', $descriptionType, $this->storeId) &&
+                $this->fmConfig->set('sku_type_id', $skuTypeId, $this->storeId)
+            ) {
+                return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
+            }
+            return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error saving settings'));
         }
-        return $helper->generateForm($fieldForms);
-    }
 
-    public function getConfigFieldsValues($storeId)
-    {
-        $result = array();
-        foreach (FmUtils::getConfigKeys() as $key => $value) {
-            $configVal = $this->fmConfig->get($key, $storeId);
-            $result[$key] = $this->fmPrestashop->toolsGetValue($key, $configVal !==false ? $configVal : $value);
-        }
-        return $result;
-    }
+        $selectedLanguage = $this->fmConfig->get('language', $this->storeId);
+        $pricePercentage = $this->fmConfig->get('price_percentage', $this->storeId);
+        $orderImportState = $this->fmConfig->get('import_state', $this->storeId);
+        $orderDoneState = $this->fmConfig->get('done_state', $this->storeId);
+        $stockMin = $this->fmConfig->get('stock_min', $this->storeId);
+        $descriptionType = intval($this->fmConfig->get('description_type', $this->storeId));
+        $skuTypeId = intval($this->fmConfig->get('sku_type_id', $this->storeId));
 
-    protected function getOrderStates($languageId)
-    {
+        // if there is a configured language, show it as selected
+        $selectedLanguage =  $selectedLanguage ?
+            $selectedLanguage :
+            $this->fmPrestashop->configurationGet('PS_LANG_DEFAULT');
+        $pricePercentage = $pricePercentage ? $pricePercentage : self::DEFAULT_DISCOUNT_PERCENTAGE;
+        $orderImportState = $orderImportState ? $orderImportState : self::DEFAULT_ORDER_IMPORT_STATE;
+        $orderDoneState = $orderDoneState ? $orderDoneState : self::DEFAULT_ORDER_DONE_STATE;
+        $descriptionType = $descriptionType ? $descriptionType : FmUtils::LONG_DESCRIPTION;
+        $skuTypeId = $skuTypeId ? $skuTypeId : FmUtils::SKU_DEFAULT;
+
+        $languageId = $this->fmPrestashop->getLanguageId();
         $orderStates = $this->fmPrestashop->orderStateGetOrderStates($languageId);
+
         $states = array();
         foreach ($orderStates as $orderState) {
             if ($this->fmPrestashop->orderStateInvoiceAvailable($orderState['id_order_state'])) {
                 $states[] = $orderState;
             }
         }
-        return $states;
+
+        $currency = $this->fmPrestashop->getDefaultCurrency();
+        $market =$this->fmPrestashop->getCountryCode();
+
+        $this->data['message'] = array();
+        if (!in_array($currency, FyndiqUtils::$allowedCurrencies)) {
+            $this->data['message'][] = sprintf(
+                FyndiqTranslation::get('Currency `%s` is not supported. Supported currencies are: %s. Please check your settings'),
+                $currency,
+                implode(', ', FyndiqUtils::$allowedCurrencies)
+            );
+        }
+
+        if (!in_array($market, FyndiqUtils::$allowedMarkets)) {
+            $this->data['message'][] = sprintf(
+                FyndiqTranslation::get('Market `%s` is not supported. Supported markets are: %s. Please check your settings'),
+                $market,
+                implode(', ', FyndiqUtils::$allowedMarkets)
+            );
+        }
+
+        $this->data['languages'] = $this->fmPrestashop->languageGetLanguages();
+        $this->data['price_percentage'] = $pricePercentage;
+        $this->data['selected_language'] = $selectedLanguage;
+        $this->data['order_states'] = $states;
+        $this->data['order_import_state'] = $orderImportState;
+        $this->data['order_done_state'] = $orderDoneState;
+        $this->data['stock_min'] = $stockMin;
+        $this->data['probes'] = $this->getProbes();
+        $this->data['description_type_id'] = $descriptionType;
+        $this->data['description_types'] = $this->getDescriptonTypes();
+        $this->data['sku_type_id'] = $skuTypeId;
+        $this->data['sku_types'] = $this->getSKUTypes();
+        $this->data['showSKUSelect'] = $showSKUSelect;
+
+        return $this->fmOutput->render('settings', $this->data);
     }
 
-    /**
-     * getSKUTypes returns the SKU types available
-     * @return array
-     */
+    protected function getDescriptonTypes()
+    {
+        return array(
+            array(
+                'id' => FmUtils::LONG_DESCRIPTION,
+                'name' => FyndiqTranslation::get('Description'),
+            ),
+            array(
+                'id' => FmUtils::SHORT_DESCRIPTION,
+                'name' => FyndiqTranslation::get('Short description'),
+            ),
+            array(
+                'id' => FmUtils::SHORT_AND_LONG_DESCRIPTION,
+                'name' => FyndiqTranslation::get('Short and long description'),
+            ),
+        );
+    }
+
     protected function getSKUTypes()
     {
         return array(
             array(
                 'id' => FmUtils::SKU_REFERENCE,
-                'name' => $this->module->__('Reference code'),
+                'name' => FyndiqTranslation::get('Reference code'),
             ),
             array(
                 'id' => FmUtils::SKU_EAN,
-                'name' => $this->module->__('EAN'),
+                'name' => FyndiqTranslation::get('EAN'),
             ),
             array(
                 'id' => FmUtils::SKU_ID,
-                'name' => $this->module->__('Database ID'),
+                'name' => FyndiqTranslation::get('Database ID'),
             ),
         );
     }
@@ -264,391 +310,58 @@ class FmController
     {
         $probes = array(
             array(
-                'label' => $this->module->__('Checking for duplicate SKU-s'),
+                'label' => FyndiqTranslation::get('Checking for duplicate SKU-s'),
                 'action' => 'probe_products',
             ),
             array(
-                'label' => $this->module->__('Checking file permissions'),
+                'label' => FyndiqTranslation::get('Checking file permissions'),
                 'action' => 'probe_file_permissions',
             ),
             array(
-                'label' => $this->module->__('Checking database'),
+                'label' => FyndiqTranslation::get('Checking database'),
                 'action' => 'probe_database',
             ),
             array(
-                'label' => $this->module->__('Module integrity'),
+                'label' => FyndiqTranslation::get('Module integrity'),
                 'action' => 'probe_module_integrity',
             ),
             array(
-                'label' => $this->module->__('Connection to Fyndiq'),
+                'label' => FyndiqTranslation::get('Connection to Fyndiq'),
                 'action' => 'probe_connection',
             ),
             array(
-                'label' => $this->module->__('Installed modules'),
+                'label' => FyndiqTranslation::get('Installed modules'),
                 'action' => 'probe_modules',
             ),
         );
         return json_encode($probes);
+
     }
 
-    /**
-     * getInterval returns the cron running intervals array
-     * @return array
-     */
-    protected function getInterval()
+    private function orders()
     {
-        return array(
-            array(
-                'id' => FmUtils::CRON_INTERVAL_10,
-                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_10),
-            ),
-            array(
-                'id' => FmUtils::CRON_INTERVAL_30,
-                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_30),
-            ),
-            array(
-                'id' => FmUtils::CRON_INTERVAL_60,
-                'name' => sprintf($this->module->__('%d Minutes'), FmUtils::CRON_INTERVAL_60),
-            ),
-        );
+        $importDate = $this->fmConfig->get('import_date', $this->storeId);
+        $isToday = date('Ymd') === date('Ymd', strtotime($importDate));
+        $this->data['import_date'] = $importDate;
+        $this->data['isToday'] = $isToday;
+        $this->data['import_time'] = date('G:i:s', strtotime($importDate));
+        return $this->fmOutput->render('orders', $this->data);
     }
 
-    /**
-     * getAllFields return all fields defined for products and combinations
-     * @return array
-     */
-    protected function getAllFields()
+    private function disconnect()
     {
-        $allFieldsIds = array_unique(
-            array_merge(
-                array_keys(
-                    $this->fmPrestashop->productGetFields()
-                ),
-                array_keys(
-                    $this->fmPrestashop->combinationGetFields()
-                )
-            )
+        $updateData = array(
+            FyndiqUtils::NAME_PRODUCT_FEED_URL => '',
+            FyndiqUtils::NAME_PING_URL => '',
+            FyndiqUtils::NAME_NOTIFICATION_URL => '',
         );
-        $fieldsIdsAndNames = array();
-        foreach ($allFieldsIds as $fieldId) {
-            $fieldsIdsAndNames[] = array(
-                'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD, $fieldId),
-                'name' => $fieldId,
-            );
+        $username = $this->fmConfig->get('username', $this->storeId);
+        $apiToken = $this->fmConfig->get('api_token', $this->storeId);
+        $this->fmApiModel->callApi('PATCH', 'settings/', $updateData, $username, $apiToken);
+        if ($this->fmConfig->delete('username', $this->storeId) &&
+            $this->fmConfig->delete('api_token', $this->storeId)) {
+            return $this->fmOutput->redirect($this->fmPrestashop->getModuleUrl());
         }
-        return $fieldsIdsAndNames;
-    }
-
-    /**
-     * getAllProductFeatures returns array containing all product features
-     * @param  int $languageId Language id
-     * @return array
-     */
-    private function getAllProductFeatures($languageId)
-    {
-        $features = array();
-        $query = $this->fmPrestashop->fetureGetAllForLanguage($languageId);
-        foreach ($query as $row) {
-            $features[] = array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_PRODUCT_FEATURE,
-                    $row['id_feature']
-                ),
-                'name' => $row['name'],
-            );
-        }
-        return $features;
-    }
-
-    /**
-     * getAllMappingOptions returns all fields and features
-     * @param  int $languageId Language id
-     * @return array
-     */
-    protected function getAllMappingOptions($languageId)
-    {
-        return array_merge(
-            $this->getAllProductFeatures($languageId),
-            $this->getAllFields()
-        );
-    }
-
-    /**
-     * getGeneralSettingsForm returns the general settings form
-     * @param  int $languageId LanguageId
-     * @return FmFormSetting
-     */
-    private function getGeneralSettingsForm($languageId)
-    {
-        $orderStates = $this->getOrderStates($languageId);
-        $customerGroups = $this->fmPrestashop->groupGetGroups($languageId);
-        $languages = $this->fmPrestashop->languageGetLanguages();
-        $currencies = $this->fmPrestashop->getCurrencies();
-        $orderDropdown = array(
-            array(
-                'id' => FmUtils::ORDERS_ENABLED,
-                'name' => $this->module->__('No'),
-            ),
-            array(
-                'id' => FmUtils::ORDERS_DISABLED,
-                'name' => $this->module->__('Yes'),
-            ),
-        );
-
-        $formSettings = new FmFormSetting();
-        return $formSettings
-            ->setLegend($this->module->__('Settings'), 'icon-cogs')
-            ->setTextField($this->module->__('Username'), 'username', $this->module->__('Enter here your fyndiq username'), '')
-            ->setTextField($this->module->__('API Token'), 'api_token', $this->module->__('Enter here your fyndiq API Token.'), '')
-            ->setSelect($this->module->__('Disable Order'), 'disable_orders', $this->module->__('Enable/Disable order import from Fyndiq'), $orderDropdown, 'id', 'name')
-            ->setSelect($this->module->__('Language'), 'language', $this->module->__('In order to use this module, you have to select which language you will be using.
-                                    The language, you select, will be used when exporting products to Fyndiq.
-                                    Make sure you select a language that contains Swedish product info!'), $languages, 'id_lang', 'name')
-            ->setSelect($this->module->__('Currency'), 'currency', '', $currencies, 'id_currency', 'name')
-            ->setTextField($this->module->__('Percentage in numbers only'), 'price_percentage', $this->module->__('This percentage is the percentage of the price that will be cut off your price,
-                                             if 10% percentage it will be 27 SEK of 30 SEK (10% of 30 SEK is 3 SEK).'), 'fixed-width-xs')
-            ->setTextField($this->module->__('Price in numbers only'), 'price_discount', $this->module->__('Price you want to subtract from the price that is sent to Fyndiq'), 'fixed-width-xs')
-            ->setTextField($this->module->__('Lowest quantity to send to Fyndiq'), 'stock_min', '', 'fixed-width-xs')
-            ->setSelect($this->module->__('Customer Group'), 'customerGroup_id', $this->module->__('Select Customer group to send to fyndiq'), $customerGroups, 'id_group', 'name')
-            ->setSelect($this->module->__('Import State'), 'import_state', '', $orderStates, 'id_order_state', 'name')
-            ->setSelect($this->module->__('Done State'), 'done_state', '', $orderStates, 'id_order_state', 'name')
-            ->setButton('submit_disconnect', $this->module->__('Disconnect'), 'process-icon-cancel', 'submit')
-            ->setSubmit($this->module->__('Save'))
-            ->getFormElementsSettings();
-    }
-
-    /**
-     * getDescriptionTypes return the description type options
-     * @param  array $mappingOptions available mapping options
-     * @return array
-     */
-    protected function getDescriptionTypes($mappingOptions)
-    {
-        $descriptionTypes = array(
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                    'description'
-                ),
-                'name' => $this->module->__('Description')
-            ),
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                    'description_short'
-                ),
-                'name' => $this->module->__('Short description')
-            ),
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_SHORT_AND_LONG_DESCRIPTION,
-                    ''
-                ),
-                'name' => $this->module->__('Short and long description')
-            )
-        );
-        $checkArray = array(
-            FmFormSetting::serializeMappingValue(
-                FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                'description_short'
-            ),
-            FmFormSetting::serializeMappingValue(
-                FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                'description'
-            ),
-        );
-        foreach ($mappingOptions as $row) {
-            if (!in_array($row['id'], $checkArray)) {
-                $descriptionTypes[] = $row;
-            }
-        }
-        return $descriptionTypes;
-    }
-
-    /**
-     * getEANTypes returns the EAN type options
-     * @param  array $mappingOptions available mapping options
-     * @return array
-     */
-    private function getEANTypes($mappingOptions)
-    {
-        $eanTypes = array(
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_NO_MAPPING,
-                    ''
-                ),
-                'name' => ''
-            ),
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-                    'ean13'
-                ),
-                'name' => $this->module->__('EAN')
-            ),
-        );
-        $exclude = FmFormSetting::serializeMappingValue(
-            FmFormSetting::MAPPING_TYPE_PRODUCT_FIELD,
-            'ean13'
-        );
-        foreach ($mappingOptions as $row) {
-            if ($row['id'] !== $exclude) {
-                $eanTypes[] = $row;
-            }
-        }
-        return $eanTypes;
-    }
-
-    /**
-     * getISBNTypes returns the ISBN type options
-     * @param  array $mappingOptions available mapping options
-     * @return array
-     */
-    private function getISBNTypes($mappingOptions)
-    {
-        $blankMappingOption = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING, ''),
-            'name' => ''
-        );
-        return array_merge(array($blankMappingOption), $mappingOptions);
-    }
-
-    /**
-     * getMPNTypes returns the MPN type options
-     * @param  array $mappingOptions available mapping options
-     * @return array
-     */
-    private function getMPNTypes($mappingOptions)
-    {
-        $blankMappingOption = array(
-            'id' => FmFormSetting::serializeMappingValue(FmFormSetting::MAPPING_TYPE_NO_MAPPING, ''),
-            'name' => ''
-        );
-        return array_merge(array($blankMappingOption), $mappingOptions);
-    }
-
-    /**
-     * getBrandTypes returns the Brand type options
-     * @param  array $mappingOptions available mapping options
-     * @return array
-     */
-    private function getBrandTypes($mappingOptions)
-    {
-        $extraBrandOptions = array(
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_NO_MAPPING,
-                    ''
-                ),
-                'name' => ''
-            ),
-            array(
-                'id' => FmFormSetting::serializeMappingValue(
-                    FmFormSetting::MAPPING_TYPE_MANUFACTURER_NAME,
-                    ''
-                ),
-                'name' => 'Manufacturer name'
-            ),
-        );
-        return array_merge($extraBrandOptions, $mappingOptions);
-    }
-
-    /**
-     * getFieldsMappingsForm generates the field mapping form
-     * @param  int $languageId LanguageId
-     * @return FmFormSetting
-     */
-    private function getFieldsMappingsForm($languageId, $showSKUSelect)
-    {
-        $allPossibleMappings = $this->getAllMappingOptions($languageId);
-        $formFieldsMappings = new FmFormSetting();
-        $formFieldsMappings
-            ->setLegend($this->module->__('Fields mappings'), 'icon-cogs')
-            ->setSelect(
-                $this->module->__('Description to use'),
-                'description_type',
-                '',
-                $this->getDescriptionTypes($allPossibleMappings),
-                'id',
-                'name'
-            )
-            ->setSelect($this->module->__('EAN to use'), 'ean_type', '', $this->getEANTypes($allPossibleMappings), 'id', 'name')
-            ->setSelect($this->module->__('ISBN to use'), 'isbn_type', '', $this->getISBNTypes($allPossibleMappings), 'id', 'name')
-            ->setSelect($this->module->__('MPN to use'), 'mpn_type', '', $this->getMPNTypes($allPossibleMappings), 'id', 'name')
-            ->setSelect($this->module->__('Brand to use'), 'brand_type', '', $this->getBrandTypes($allPossibleMappings), 'id', 'name');
-        if ($showSKUSelect) {
-            $formFieldsMappings->setSelect($this->module->__('SKU Field'), 'sku_type_id', '', $this->getSKUTypes(), 'id', 'name');
-        }
-        return $formFieldsMappings
-            ->setSubmit($this->module->__('Save'))
-            ->getFormElementsSettings();
-    }
-
-    /**
-     * getTroubleshootingForm get Troubleshooting form fields
-     * @return FmFormSetting
-     */
-    private function getTroubleshootingSettingsForm()
-    {
-        $debugDropdown = array(
-            array(
-                'id' => FmUtils::DEBUG_ENABLED,
-                'name' => $this->module->__('Yes'),
-            ),
-            array(
-                'id' => FmUtils::DEBUG_DISABLED,
-                'name' => $this->module->__('No'),
-            ),
-        );
-        $formFields = new FmFormSetting();
-        return $formFields
-            ->setLegend($this->module->__('Troubleshooting'), 'icon-cogs')
-            ->setSelect($this->module->__('Enable Debug'), 'debug_enabled', $this->module->__('To be Added'), $debugDropdown, 'id', 'name')
-            ->setSubmit($this->module->__('Save'))
-            ->getFormElementsSettings();
-    }
-
-    /**
-     * getGeneralSettingsForm generate form for CronJob options settings
-     * @return array return form elements
-     */
-    private function getCronJobSettingsForm($storeId)
-    {
-        if (!$this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token')) {
-            $token = $this->fmPrestashop->toolsEncrypt($this->fmPrestashop->toolsShopDomainSsl().time());
-            $this->fmPrestashop->configurationUpdateGlobalValue('cronjobs_execution_token', $token);
-        } else {
-            $token = $this->fmPrestashop->configurationGetGlobal('cronjobs_execution_token');
-        }
-        $cronDropdown = array(
-            array(
-                'id' => FmUtils::CRON_ACTIVE,
-                'name' => $this->module->__('Yes'),
-            ),
-            array(
-                'id' => FmUtils::CRON_INACTIVE,
-                'name' => $this->module->__('No'),
-            ),
-        );
-        $cronUrl = $this->fmPrestashop->getBaseModuleUrl().'modules/fyndiqmerchant/backoffice/notification_service.php?event=cron_execute'.'&token='.$token;
-        $interval = $this->getInterval();
-        $isIntervalOptionDisable = true;
-        $helpText = $this->module->__('To enable this feature, first of all select Yes and then set Interval. Make sure the curl library is installed on your server. To execute your cron tasks, please insert the following line in your cron tasks manager:');
-        $helpText .= '</br></br><ul class="list-unstyled">
-                        <li><code>*/10 * * * * curl "'.$cronUrl.'"</code></li>
-                    </ul>';
-
-        if ($this->fmConfig->get('is_active_cron_task', $storeId)) {
-            $isIntervalOptionDisable = false;
-        }
-        $formSettings = new FmFormSetting();
-        return $formSettings
-            ->setLegend($this->module->__('Feed Generator'), 'icon-cogs')
-            ->setDescriptions($helpText)
-            ->setSelect($this->module->__('Active Cron Task'), 'is_active_cron_task', $this->module->__('Active/Deactive cron task for this module'), $cronDropdown, 'id', 'name')
-            ->setSelect($this->module->__('Interval'), 'fm_interval', '', $interval, 'id', 'name', $isIntervalOptionDisable)
-            ->setSubmit($this->module->__('Save'))
-            ->getFormElementsSettings();
+        return $this->fmOutput->showModuleError(FyndiqTranslation::get('Error disconnecting account'));
     }
 }
