@@ -2,6 +2,9 @@
 
 Fyndiq official Prestashop module. Supports versions `1.5.*` - `1.6.*`;
 
+## Open source
+This plugin is open souce and therefore free to use and modify, but it is no longer maintained by Fyndiq. If you want to update it, please fork the repository and do any changes you like in your own repository. 
+
 ## Build
 
 To build the module go to the root directory and run:
